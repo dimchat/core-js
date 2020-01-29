@@ -57,6 +57,7 @@
             // create text content
             Content.call(this, content);
         }
+        this.icon = null;
     };
     PageContent.inherits(Content);
 
@@ -69,10 +70,42 @@
         this.setValue('URL', url);
     };
 
+    PageContent.prototype.getTitle = function () {
+        return this.getValue('title');
+    };
+    PageContent.prototype.setTitle = function (text) {
+        this.setValue('title', text);
+    };
+
+    PageContent.prototype.getDesc = function () {
+        return this.getValue('desc');
+    };
+    PageContent.prototype.setDesc = function (text) {
+        this.setValue('desc', text);
+    };
+
+    PageContent.prototype.getIcon = function () {
+        if (!this.icon) {
+            var base64 = this.getValue('icon');
+            if (base64) {
+                this.icon = ns.format.Base64.decode(base64);
+            }
+        }
+        return this.icon;
+    };
+    PageContent.prototype.setIcon = function (data) {
+        var base64 = null;
+        if (data) {
+            base64 = ns.format.Base64.encode(data);
+        }
+        this.setValue('icon', base64);
+        this.icon = data;
+    };
+
     //-------- register --------
-    Content.register(ContentType.TEXT, TextContent);
+    Content.register(ContentType.PAGE, PageContent);
 
     //-------- namespace --------
-    ns.protocol.TextContent = TextContent;
+    ns.protocol.PageContent = PageContent;
 
 }(DIMP);
