@@ -38,36 +38,35 @@
     var ContentType = ns.protocol.ContentType;
 
     /**
-     *  Text message: {
-     *      type : 0x01,
+     *  Web Page message: {
+     *      type : 0x20,
      *      sn   : 123,
      *
-     *      text : "..."
+     *      URL   : "https://github.com/moky/dimp", // Page URL
+     *      icon  : "...",                          // base64_encode(icon)
+     *      title : "...",
+     *      desc  : "..."
      *  }
      */
-    var TextContent = function (content) {
-        if (!content) {
-            // create empty text content
-            Content.call(this, ContentType.TEXT);
-        } else if (typeof content === 'string') {
-            // create text content with message string
-            Content.call(this, ContentType.TEXT);
-            this.setText(content);
+    var PageContent = function (content) {
+        if (typeof content === 'string') {
+            // create web page content with URL
+            Content.call(this, ContentType.PAGE);
+            this.setURL(content);
         } else {
             // create text content
             Content.call(this, content);
         }
     };
-    TextContent.inherits(Content);
+    PageContent.inherits(Content);
 
     //-------- setter/getter --------
 
-    TextContent.prototype.getText = function () {
-        return this.getValue('text');
+    PageContent.prototype.getURL = function () {
+        return this.getValue('URL');
     };
-
-    TextContent.prototype.setText = function (text) {
-        this.setValue('text', text);
+    PageContent.prototype.setURL = function (url) {
+        this.setValue('URL', url);
     };
 
     //-------- register --------

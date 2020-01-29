@@ -37,7 +37,7 @@
     var Content = ns.Content;
     var ContentType = ns.protocol.ContentType;
 
-    /**
+    /*
      *  Command message: {
      *      type : 0x88,
      *      sn   : 123,
@@ -46,24 +46,35 @@
      *      extra   : info   // command parameters
      *  }
      */
+
+    /**
+     *  Create command
+     *
+     * @param info - command info; or command name
+     * @constructor
+     */
     var Command = function (info) {
+        var name = null;
         if (!info) {
             // create empty command
-            Content.call(this, ContentType.COMMAND);
-        } else if (typeof info === 'number' || info instanceof ContentType) {
-            // create command with special type (HISTORY)
-            Content.call(this, info);
+            info = ContentType.COMMAND;
         } else if (typeof info === 'string') {
-            // create command with name
-            Content.call(this, ContentType.COMMAND);
-            this.setCommand(info);
-        } else {
-            // create command
-            Content.call(this, info);
+            // create new command with name
+            name = info;
+            info = ContentType.COMMAND;
+        }
+        Content.call(this, info);
+        if (name) {
+            this.setCommand(name);
         }
     };
     Command.inherits(Content);
 
+    /**
+     *  Command name
+     *
+     * @returns {string}
+     */
     Command.prototype.getCommand = function () {
         return this.getValue('command');
     };

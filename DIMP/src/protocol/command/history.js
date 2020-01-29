@@ -49,39 +49,54 @@
      *  }
      */
     var HistoryCommand = function (info) {
+        var name = null;
+        var time = null;
         if (!info) {
             // create empty history command
-            Command.call(this, ContentType.HISTORY);
-            this.time = get_time.call(this);
-        } else if (typeof info === 'number' || info instanceof ContentType) {
-            // create command with special type
-            Command.call(this, info);
-            this.time = get_time.call(this);
+            time = new Date();
+            info = ContentType.HISTORY;
         } else if (typeof info === 'string') {
-            // create command with name
-            Command.call(this, ContentType.HISTORY);
-            this.time = get_time.call(this);
-            this.setCommand(info);
-        } else {
-            // create command
-            Command.call(this, info);
-            this.time = get_time.call(this, info);
+            // create new history command with name
+            name = info;
+            time = new Date();
+            info = ContentType.HISTORY;
+        }
+        Command.call(this, info);
+        if (name) {
+            this.setCommand(name);
+        }
+        if (time) {
+            this.setTime(time);
         }
     };
     HistoryCommand.inherits(Command);
 
-    var get_time = function (cmd) {
-        var time;
-        if (cmd) {
-            time = cmd['time'];
-            if (time) {
-                time = new Date(time * 1000);
-            }
+    /**
+     *  Command time
+     *
+     * @returns {Date}
+     */
+    HistoryCommand.prototype.getTime = function () {
+        var time = this.getValue('time');
+        if (time) {
+            return new Date(time * 1000);
         } else {
-            time = new Date();
-            this.setValue('time', time.getTime() / 1000);
+            return null;
         }
-        return time;
+    };
+    HistoryCommand.prototype.setTime = function (time) {
+        if (!time) {
+            // get current time
+            time = new Date();
+        }
+        if (time instanceof Date) {
+            // set timestamp in seconds
+            this.setValue('time', time.getTime() / 1000);
+        } else if (typeof time === 'number') {
+            this.setValue('time', time);
+        } else {
+            throw TypeError('time error: ' + time);
+        }
     };
 
     //-------- command names --------

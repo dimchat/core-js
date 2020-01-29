@@ -34,6 +34,8 @@
 
 !function (ns) {
 
+    var ID = ns.ID;
+
     var Content = ns.Content;
     var Command = ns.protocol.Command;
     var HistoryCommand = ns.protocol.HistoryCommand;
@@ -49,14 +51,43 @@
      *      members : ["{MEMBER_ID}", ],
      *  }
      */
+
+    /**
+     *  Create group command
+     *
+     * @param info - command info; or group ID
+     * @constructor
+     */
     var GroupCommand = function (info) {
+        var group = null;
+        if (info instanceof ID) {
+            // create new group command with group ID
+            group = info;
+            info = null;
+        }
         HistoryCommand.call(this, info);
+        if (group) {
+            this.setGroup(info);
+        }
     };
     GroupCommand.inherits(HistoryCommand);
 
-    /*
+    /**
+     *  Group ID (or string)
+     *
+     * @returns {ID|string}
+     */
+    GroupCommand.prototype.getGroup = function () {
+        return Content.prototype.getGroup.call(this);
+    };
+    GroupCommand.prototype.setGroup = function (identifier) {
+        Content.prototype.setGroup.call(this, identifier);
+    };
+
+    /**
      *  Member ID (or String)
      *
+     * @returns {ID|string}
      */
     GroupCommand.prototype.getMember = function () {
         return this.getValue('member');
@@ -65,9 +96,10 @@
         this.setValue('member', identifier);
     };
 
-    /*
+    /**
      *  Member ID (or String) list
      *
+     * @returns {String[]}
      */
     GroupCommand.prototype.getMembers= function () {
         // TODO: get from 'member'?
@@ -121,14 +153,18 @@
     //  Invite group command
     //
     var InviteCommand = function (info) {
+        var group = null;
         if (!info) {
-            GroupCommand.call(this, HistoryCommand.INVITE);
+            // create empty invite command
+            info = HistoryCommand.INVITE;
         } else if (typeof info === 'string' || info instanceof ID) {
-            // 'info' is a group ID
-            GroupCommand.call(this, HistoryCommand.INVITE);
-            this.setGroup(info);
-        } else {
-            GroupCommand.call(this, info);
+            // create new invite command with group ID
+            group = info;
+            info = HistoryCommand.INVITE;
+        }
+        GroupCommand.call(this, info);
+        if (group) {
+            this.setGroup(group);
         }
     };
     InviteCommand.inherits(GroupCommand);
@@ -137,14 +173,18 @@
     //  Expel group command
     //
     var ExpelCommand = function (info) {
+        var group = null;
         if (!info) {
-            GroupCommand.call(this, HistoryCommand.EXPEL);
+            // create empty expel command
+            info = HistoryCommand.EXPEL;
         } else if (typeof info === 'string' || info instanceof ID) {
-            // 'info' is a group ID
-            GroupCommand.call(this, HistoryCommand.EXPEL);
-            this.setGroup(info);
-        } else {
-            GroupCommand.call(this, info);
+            // create new expel command with group ID
+            group = info;
+            info = HistoryCommand.EXPEL;
+        }
+        GroupCommand.call(this, info);
+        if (group) {
+            this.setGroup(group);
         }
     };
     ExpelCommand.inherits(GroupCommand);
@@ -153,14 +193,18 @@
     //  Join group command
     //
     var JoinCommand = function (info) {
+        var group = null;
         if (!info) {
-            GroupCommand.call(this, HistoryCommand.JOIN);
+            // create empty join command
+            info = HistoryCommand.JOIN;
         } else if (typeof info === 'string' || info instanceof ID) {
-            // 'info' is a group ID
-            GroupCommand.call(this, HistoryCommand.JOIN);
-            this.setGroup(info);
-        } else {
-            GroupCommand.call(this, info);
+            // create new join command with group ID
+            group = info;
+            info = HistoryCommand.JOIN;
+        }
+        GroupCommand.call(this, info);
+        if (group) {
+            this.setGroup(group);
         }
     };
     JoinCommand.inherits(GroupCommand);
@@ -169,14 +213,18 @@
     //  Quit group command
     //
     var QuitCommand = function (info) {
+        var group = null;
         if (!info) {
-            GroupCommand.call(this, HistoryCommand.QUIT);
+            // create empty quit command
+            info = HistoryCommand.QUIT;
         } else if (typeof info === 'string' || info instanceof ID) {
-            // 'info' is a group ID
-            GroupCommand.call(this, HistoryCommand.QUIT);
-            this.setGroup(info);
-        } else {
-            GroupCommand.call(this, info);
+            // create new quit command with group ID
+            group = info;
+            info = HistoryCommand.QUIT;
+        }
+        GroupCommand.call(this, info);
+        if (group) {
+            this.setGroup(group);
         }
     };
     QuitCommand.inherits(GroupCommand);
@@ -185,14 +233,18 @@
     //  Reset group command
     //
     var ResetCommand = function (info) {
+        var group = null;
         if (!info) {
-            GroupCommand.call(this, HistoryCommand.RESET);
+            // create empty reset command
+            info = HistoryCommand.RESET;
         } else if (typeof info === 'string' || info instanceof ID) {
-            // 'info' is a group ID
-            GroupCommand.call(this, HistoryCommand.RESET);
-            this.setGroup(info);
-        } else {
-            GroupCommand.call(this, info);
+            // create new reset command with group ID
+            group = info;
+            info = HistoryCommand.RESET;
+        }
+        GroupCommand.call(this, info);
+        if (group) {
+            this.setGroup(group);
         }
     };
     ResetCommand.inherits(GroupCommand);
@@ -206,14 +258,18 @@
      *      should not be saved in history
      */
     var QueryCommand = function (info) {
+        var group = null;
         if (!info) {
-            Command.call(this, HistoryCommand.QUERY);
+            // create empty query command
+            info = HistoryCommand.QUERY;
         } else if (typeof info === 'string' || info instanceof ID) {
-            // 'info' is a group ID
-            Command.call(this, HistoryCommand.QUERY);
-            this.setGroup(info);
-        } else {
-            Command.call(this, info);
+            // create new query command with group ID
+            group = info;
+            info = HistoryCommand.QUERY;
+        }
+        Command.call(this, info);
+        if (group) {
+            this.setGroup(group);
         }
     };
     QueryCommand.inherits(Command);
@@ -272,7 +328,7 @@
     GroupCommand.register(HistoryCommand.QUIT, QuitCommand);
 
     GroupCommand.register(HistoryCommand.RESET, ResetCommand);
-    Command.register(HistoryCommand.QUERY, QueryCommand);
+    GroupCommand.register(HistoryCommand.QUERY, QueryCommand);
 
     //-------- namespace --------
     if (typeof ns.protocol.group !== 'object') {
