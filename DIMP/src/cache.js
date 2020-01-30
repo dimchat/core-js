@@ -34,6 +34,7 @@
 //! require <mkm.js>
 
 !function (ns) {
+    'use strict';
 
     var Dictionary = ns.type.Dictionary;
     var SymmetricKey = ns.crypto.SymmetricKey;
@@ -78,6 +79,7 @@
 }(DIMP);
 
 !function (ns) {
+    'use strict';
 
     var CipherKeyDelegate = ns.CipherKeyDelegate;
 

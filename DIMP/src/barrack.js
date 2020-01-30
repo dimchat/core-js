@@ -34,6 +34,7 @@
 //! require 'delegate.js'
 
 !function (ns) {
+    'use strict';
 
     var ID = ns.ID;
     var User = ns.User;

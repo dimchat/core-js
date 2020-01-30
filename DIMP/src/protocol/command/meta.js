@@ -33,6 +33,7 @@
 //! require 'command.js'
 
 !function (ns) {
+    'use strict';
 
     var ID = ns.ID;
     var Meta = ns.Meta;

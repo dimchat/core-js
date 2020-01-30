@@ -33,6 +33,7 @@
 //! require 'meta.js'
 
 !function (ns) {
+    'use strict';
 
     var ID = ns.ID;
     var Profile = ns.Profile;

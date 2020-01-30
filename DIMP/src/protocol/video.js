@@ -34,6 +34,7 @@
 //! require 'file.js'
 
 !function (ns) {
+    'use strict';
 
     var Base64 = ns.format.Base64;
 

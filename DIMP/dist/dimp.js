@@ -60,20 +60,7 @@ if (typeof DIMP !== "object") {
     }
 }();
 ! function(ns) {
-    var coder = function() {};
-    coder.prototype.encode = function(data) {
-        console.assert(data != null, "data empty");
-        console.assert(false, "implement me!");
-        return null
-    };
-    coder.prototype.decode = function(string) {
-        console.assert(string != null, "string empty");
-        console.assert(false, "implement me!");
-        return null
-    };
-    var hex = function() {};
-    hex.inherits(coder);
-    hex.prototype.encode = function(data) {
+    var hex_encode = function(data) {
         var i = 0;
         var len = data.length;
         var num;
@@ -84,7 +71,7 @@ if (typeof DIMP !== "object") {
         }
         return str
     };
-    hex.prototype.decode = function(str) {
+    var hex_decode = function(str) {
         var i = 0;
         var len = str.length;
         if (len > 2) {
@@ -103,6 +90,108 @@ if (typeof DIMP !== "object") {
         }
         return data
     };
+    var base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    var base64_values = [];
+    ! function(chars, values) {
+        var i;
+        for (i = 0; i < 128; ++i) {
+            values[i] = -1
+        }
+        for (i = 0; i < chars.length; ++i) {
+            values[chars.charCodeAt(i)] = i
+        }
+        values[61] = 0
+    }(base64_chars, base64_values);
+    var base64_encode = function(data) {
+        var base64 = "";
+        var length = data.length;
+        var tail = "";
+        var remainder = length % 3;
+        if (remainder === 1) {
+            length -= 1;
+            tail = "=="
+        } else {
+            if (remainder === 2) {
+                length -= 2;
+                tail = "="
+            }
+        }
+        var x1, x2, x3;
+        var i;
+        for (i = 0; i < length; i += 3) {
+            x1 = data[i];
+            x2 = data[i + 1];
+            x3 = data[i + 2];
+            base64 += base64_chars.charAt((x1 & 252) >> 2);
+            base64 += base64_chars.charAt(((x1 & 3) << 4) | ((x2 & 240) >> 4));
+            base64 += base64_chars.charAt(((x2 & 15) << 2) | ((x3 & 192) >> 6));
+            base64 += base64_chars.charAt(x3 & 63)
+        }
+        if (remainder === 1) {
+            x1 = data[i];
+            base64 += base64_chars.charAt((x1 & 252) >> 2);
+            base64 += base64_chars.charAt((x1 & 3) << 4)
+        } else {
+            if (remainder === 2) {
+                x1 = data[i];
+                x2 = data[i + 1];
+                base64 += base64_chars.charAt((x1 & 252) >> 2);
+                base64 += base64_chars.charAt(((x1 & 3) << 4) | ((x2 & 240) >> 4));
+                base64 += base64_chars.charAt((x2 & 15) << 2)
+            }
+        }
+        return base64 + tail
+    };
+    var base64_decode = function(string) {
+        var str = string.replace(/[^A-Za-z0-9+\/=]/g, "");
+        var length = str.length;
+        if ((length % 4) !== 0 || !/^[A-Za-z0-9+\/]+={0,2}$/.test(str)) {
+            throw Error("base64 string error: " + string)
+        }
+        var array = [];
+        var ch1, ch2, ch3, ch4;
+        var i;
+        for (i = 0; i < length; i += 4) {
+            ch1 = base64_values[str.charCodeAt(i)];
+            ch2 = base64_values[str.charCodeAt(i + 1)];
+            ch3 = base64_values[str.charCodeAt(i + 2)];
+            ch4 = base64_values[str.charCodeAt(i + 3)];
+            array.push(((ch1 & 63) << 2) | ((ch2 & 48) >> 4));
+            array.push(((ch2 & 15) << 4) | ((ch3 & 60) >> 2));
+            array.push(((ch3 & 3) << 6) | ((ch4 & 63) >> 0))
+        }
+        while (str[--i] === "=") {
+            array.pop()
+        }
+        return array
+    };
+    var coder = function() {};
+    coder.prototype.encode = function(data) {
+        console.assert(data != null, "data empty");
+        console.assert(false, "implement me!");
+        return null
+    };
+    coder.prototype.decode = function(string) {
+        console.assert(string != null, "string empty");
+        console.assert(false, "implement me!");
+        return null
+    };
+    var hex = function() {};
+    hex.inherits(coder);
+    hex.prototype.encode = function(data) {
+        return hex_encode(data)
+    };
+    hex.prototype.decode = function(str) {
+        return hex_decode(str)
+    };
+    var base64 = function() {};
+    base64.inherits(coder);
+    base64.prototype.encode = function(data) {
+        return base64_encode(data)
+    };
+    base64.prototype.decode = function(string) {
+        return base64_decode(string)
+    };
     var base58 = function() {};
     base58.inherits(coder);
     base58.prototype.encode = function(data) {
@@ -113,18 +202,6 @@ if (typeof DIMP !== "object") {
     base58.prototype.decode = function(string) {
         console.assert(string != null, "string empty");
         console.assert(false, "Base58 decode not implemented");
-        return null
-    };
-    var base64 = function() {};
-    base64.inherits(coder);
-    base64.prototype.encode = function(data) {
-        console.assert(data != null, "data empty");
-        console.assert(false, "Base64 encode not implemented");
-        return null
-    };
-    base64.prototype.decode = function(string) {
-        console.assert(string != null, "string empty");
-        console.assert(false, "Base64 decode not implemented");
         return null
     };
     var C = function(lib) {
@@ -287,6 +364,39 @@ if (typeof DIMP !== "object") {
     ns.format.PEM = new P(new pem())
 }(DIMP);
 ! function(ns) {
+    var obj = function(value) {
+        if (value instanceof obj) {
+            this.value = value.value
+        } else {
+            this.value = value
+        }
+    };
+    obj.prototype.equals = function(other) {
+        if (other instanceof obj) {
+            return this.value === other.value
+        } else {
+            return this.value === other
+        }
+    };
+    obj.prototype.valueOf = function() {
+        return this.value.valueOf()
+    };
+    obj.prototype.toString = function() {
+        return this.value.toString()
+    };
+    obj.prototype.toLocaleString = function() {
+        return this.value.toLocaleString()
+    };
+    obj.prototype.toJSON = function() {
+        return ns.format.JSON.encode(this.value)
+    };
+    if (typeof ns.type !== "object") {
+        ns.type = {}
+    }
+    ns.type.Object = obj
+}(DIMP);
+! function(ns) {
+    var obj = ns.type.Object;
     var UTF8 = {
         encode: function(str) {
             var array = [];
@@ -336,32 +446,6 @@ if (typeof DIMP !== "object") {
             return string
         }
     };
-    var obj = function(value) {
-        if (value instanceof obj) {
-            this.value = value.value
-        } else {
-            this.value = value
-        }
-    };
-    obj.prototype.equals = function(other) {
-        if (other instanceof obj) {
-            return this.value === other.value
-        } else {
-            return this.value === other
-        }
-    };
-    obj.prototype.valueOf = function() {
-        return this.value.valueOf()
-    };
-    obj.prototype.toString = function() {
-        return this.value.toString()
-    };
-    obj.prototype.toLocaleString = function() {
-        return this.value.toLocaleString()
-    };
-    obj.prototype.toJSON = function() {
-        return ns.format.JSON.encode(this.value)
-    };
     var str = function(data, charset) {
         if (data instanceof Array) {
             if (!charset || charset === "UTF-8") {
@@ -410,6 +494,10 @@ if (typeof DIMP !== "object") {
     str.prototype.getLength = function() {
         return this.value.length
     };
+    ns.type.String = str
+}(DIMP);
+! function(ns) {
+    var obj = ns.type.Object;
     var arrays = {
         equals: function(a1, a2) {
             if (a1 === a2) {
@@ -469,6 +557,11 @@ if (typeof DIMP !== "object") {
             }
         }
     };
+    ns.type.Dictionary = map;
+    ns.type.Arrays = arrays
+}(DIMP);
+! function(ns) {
+    var obj = ns.type.Object;
     var enu = function(elements) {
         var get_name = function(value, enumeration) {
             if (value instanceof enumeration) {
@@ -513,13 +606,6 @@ if (typeof DIMP !== "object") {
         }
         return enumeration
     };
-    if (typeof ns.type !== "object") {
-        ns.type = {}
-    }
-    ns.type.Object = obj;
-    ns.type.String = str;
-    ns.type.Dictionary = map;
-    ns.type.Arrays = arrays;
     ns.type.Enum = enu
 }(DIMP);
 ! function(ns) {
@@ -594,7 +680,7 @@ if (typeof DIMP !== "object") {
     SymmetricKey.prototype.equals = function(other) {
         var ciphertext = other.encrypt(promise);
         var plaintext = this.decrypt(ciphertext);
-        return Arrays.equals(ciphertext, plaintext)
+        return Arrays.equals(promise, plaintext)
     };
     SymmetricKey.generate = function(algorithm) {
         return this.getInstance({
@@ -714,517 +800,6 @@ if (typeof DIMP !== "object") {
         throw TypeError("key algorithm error: " + algorithm)
     };
     ns.crypto.PrivateKey = PrivateKey
-}(DIMP);
-! function(ns) {
-    var ContentType = ns.type.Enum({
-        UNKNOWN: (0),
-        TEXT: (1),
-        FILE: (16),
-        IMAGE: (18),
-        AUDIO: (20),
-        VIDEO: (22),
-        PAGE: (32),
-        QUOTE: (55),
-        MONEY: (64),
-        COMMAND: (136),
-        HISTORY: (137),
-        FORWARD: (255)
-    });
-    if (typeof ns.protocol !== "object") {
-        ns.protocol = {}
-    }
-    ns.protocol.ContentType = ContentType
-}(DIMP);
-! function(ns) {
-    var Dictionary = ns.type.Dictionary;
-    var ContentType = ns.protocol.ContentType;
-    var MAX_LONG = 4294967295;
-    var randomPositiveInteger = function() {
-        var sn = Math.ceil(Math.random() * MAX_LONG);
-        if (sn > 0) {
-            return sn
-        } else {
-            if (sn < 0) {
-                return -sn
-            }
-        }
-        return 9527 + 9394
-    };
-    var Content = function(info) {
-        if ((typeof info === "number") || info instanceof ContentType) {
-            info = {
-                "type": info,
-                "sn": randomPositiveInteger()
-            }
-        }
-        Dictionary.call(this, info);
-        this.type = new ContentType(info["type"]);
-        this.sn = info["sn"]
-    };
-    Content.inherits(Dictionary);
-    Content.prototype.getGroup = function() {
-        return this.getValue("group")
-    };
-    Content.prototype.setGroup = function(identifier) {
-        this.setValue("group", identifier)
-    };
-    var content_classes = {};
-    Content.register = function(type, clazz) {
-        content_classes[type] = clazz
-    };
-    Content.getInstance = function(content) {
-        if (!content) {
-            return null
-        } else {
-            if (content instanceof Content) {
-                return content
-            }
-        }
-        var type = content["type"];
-        var clazz = content_classes[type];
-        if (typeof clazz === "function") {
-            return Content.createInstance(clazz, content)
-        }
-        return new Content(content)
-    };
-    Content.createInstance = function(clazz, map) {
-        if (typeof clazz.getInstance === "function") {
-            return clazz.getInstance(map)
-        } else {
-            return new clazz(map)
-        }
-    };
-    ns.Content = Content
-}(DIMP);
-! function(ns) {
-    var Dictionary = ns.type.Dictionary;
-    var ContentType = ns.protocol.ContentType;
-    var Envelope = function(env) {
-        Dictionary.call(this, env);
-        this.sender = env["sender"];
-        this.receiver = env["receiver"];
-        this.time = env["time"]
-    };
-    Envelope.inherits(Dictionary);
-    Envelope.newEnvelope = function(sender, receiver, time) {
-        var env = {
-            "sender": sender,
-            "receiver": receiver
-        };
-        if (!time) {
-            time = new Date();
-            env["time"] = Math.ceil(time.getTime() / 1000)
-        } else {
-            if (time instanceof Date) {
-                env["time"] = Math.ceil(time.getTime() / 1000)
-            } else {
-                env["time"] = time
-            }
-        }
-        return new Envelope(env)
-    };
-    Envelope.getInstance = function(env) {
-        if (!env) {
-            return null
-        } else {
-            if (env instanceof Envelope) {
-                return env
-            }
-        }
-        return new Envelope(env)
-    };
-    Envelope.prototype.getGroup = function() {
-        return this.getValue("group")
-    };
-    Envelope.prototype.setGroup = function(identifier) {
-        this.setValue("group", identifier)
-    };
-    Envelope.prototype.getType = function() {
-        var type = this.getValue("type");
-        if (type) {
-            return new ContentType(type)
-        } else {
-            return null
-        }
-    };
-    Envelope.prototype.setType = function(type) {
-        this.setValue("type", type)
-    };
-    ns.Envelope = Envelope
-}(DIMP);
-! function(ns) {
-    var MessageDelegate = function() {};
-    var InstantMessageDelegate = function() {};
-    InstantMessageDelegate.inherits(MessageDelegate);
-    InstantMessageDelegate.prototype.encryptContent = function(content, pwd, msg) {
-        console.assert(content !== null, "content empty");
-        console.assert(pwd !== null, "key empty");
-        console.assert(msg !== null, "msg empty");
-        console.assert(false, "implement me!");
-        return null
-    };
-    InstantMessageDelegate.prototype.encodeData = function(data, msg) {
-        console.assert(data !== null, "msg data empty");
-        console.assert(msg !== null, "msg empty");
-        console.assert(false, "implement me!");
-        return null
-    };
-    InstantMessageDelegate.prototype.encryptKey = function(pwd, receiver, msg) {
-        console.assert(pwd !== null, "key empty");
-        console.assert(receiver !== null, "receiver empty");
-        console.assert(msg !== null, "msg empty");
-        console.assert(false, "implement me!");
-        return null
-    };
-    InstantMessageDelegate.prototype.encodeKey = function(key, msg) {
-        console.assert(key !== null, "key data empty");
-        console.assert(msg !== null, "msg empty");
-        console.assert(false, "implement me!");
-        return null
-    };
-    var SecureMessageDelegate = function() {};
-    SecureMessageDelegate.inherits(MessageDelegate);
-    SecureMessageDelegate.prototype.decodeKey = function(key, msg) {
-        console.assert(key !== null, "key string empty");
-        console.assert(msg !== null, "secure message empty");
-        console.assert(false, "implement me!");
-        return null
-    };
-    SecureMessageDelegate.prototype.decryptKey = function(key, sender, receiver, msg) {
-        console.assert(key !== null, "key data empty");
-        console.assert(sender !== null, "sender empty");
-        console.assert(receiver !== null, "receiver empty");
-        console.assert(msg !== null, "msg empty");
-        console.assert(false, "implement me!");
-        return null
-    };
-    SecureMessageDelegate.prototype.decodeData = function(data, msg) {
-        console.assert(data !== null, "msg data empty");
-        console.assert(msg !== null, "msg empty");
-        console.assert(false, "implement me!");
-        return null
-    };
-    SecureMessageDelegate.prototype.decryptContent = function(data, pwd, msg) {
-        console.assert(data !== null, "msg data empty");
-        console.assert(pwd !== null, "key empty");
-        console.assert(msg !== null, "msg empty");
-        console.assert(false, "implement me!");
-        return null
-    };
-    SecureMessageDelegate.prototype.signData = function(data, sender, msg) {
-        console.assert(data !== null, "msg data empty");
-        console.assert(sender !== null, "sender empty");
-        console.assert(msg !== null, "msg empty");
-        console.assert(false, "implement me!");
-        return null
-    };
-    SecureMessageDelegate.prototype.encodeSignature = function(signature, msg) {
-        console.assert(signature !== null, "msg signature empty");
-        console.assert(msg !== null, "msg empty");
-        console.assert(false, "implement me!");
-        return null
-    };
-    var ReliableMessageDelegate = function() {};
-    ReliableMessageDelegate.inherits(SecureMessageDelegate);
-    ReliableMessageDelegate.prototype.decodeSignature = function(signature, msg) {
-        console.assert(msg !== null, "msg empty");
-        console.assert(msg !== null, "msg empty");
-        console.assert(false, "implement me!");
-        return null
-    };
-    ReliableMessageDelegate.prototype.verifyDataSignature = function(data, signature, sender, msg) {
-        console.assert(msg !== null, "msg empty");
-        console.assert(msg !== null, "msg empty");
-        console.assert(msg !== null, "msg empty");
-        console.assert(msg !== null, "msg empty");
-        console.assert(false, "implement me!");
-        return false
-    };
-    ns.InstantMessageDelegate = InstantMessageDelegate;
-    ns.SecureMessageDelegate = SecureMessageDelegate;
-    ns.ReliableMessageDelegate = ReliableMessageDelegate
-}(DIMP);
-! function(ns) {
-    var Dictionary = ns.type.Dictionary;
-    var Envelope = ns.Envelope;
-    var Message = function(msg) {
-        Dictionary.call(this, msg);
-        this.envelope = Envelope.getInstance(msg);
-        this.delegate = null
-    };
-    Message.inherits(Dictionary);
-    Message.getInstance = function(msg) {
-        if (!msg) {
-            return null
-        }
-        if (msg.hasOwnProperty("content")) {
-            return ns.InstantMessage.getInstance(msg)
-        }
-        if (msg.hasOwnProperty("signature")) {
-            return ns.ReliableMessage.getInstance(msg)
-        }
-        if (msg.hasOwnProperty("data")) {
-            return ns.SecureMessage.getInstance(msg)
-        }
-        if (msg instanceof Message) {
-            return msg
-        }
-        return new Message(msg)
-    };
-    ns.Message = Message
-}(DIMP);
-! function(ns) {
-    var Envelope = ns.Envelope;
-    var Content = ns.Content;
-    var Message = ns.Message;
-    var SecureMessage = ns.SecureMessage;
-    var InstantMessage = function(msg) {
-        Message.call(this, msg);
-        this.content = Content.getInstance(msg["content"])
-    };
-    InstantMessage.inherits(Message);
-    InstantMessage.newMessage = function(content, sender, receiver, time) {
-        var env = Envelope.newEnvelope(sender, receiver, time);
-        var msg = env.getMap();
-        msg["content"] = content;
-        return new InstantMessage(msg)
-    };
-    InstantMessage.getInstance = function(msg) {
-        if (!msg) {
-            return null
-        }
-        if (msg instanceof InstantMessage) {
-            return msg
-        }
-        return new InstantMessage(msg)
-    };
-    InstantMessage.prototype.encrypt = function(password, members) {
-        var msg = this.getMap(true);
-        var data = this.delegate.encryptContent(this.content, password, this);
-        msg["data"] = this.delegate.encodeData(data, this);
-        delete msg["content"];
-        var key;
-        if (members && members.length > 0) {
-            var keys = {};
-            var member;
-            for (var i = 0; i < members.length; ++i) {
-                member = members[i];
-                key = this.delegate.encryptKey(password, member, this);
-                if (key) {
-                    keys[member] = this.delegate.encodeKey(key, this)
-                }
-            }
-            if (keys.length > 0) {
-                msg["keys"] = keys
-            }
-            msg["group"] = this.content.getGroup()
-        } else {
-            var receiver = this.envelope.receiver;
-            key = this.delegate.encryptKey(password, receiver, this);
-            if (key) {
-                msg["key"] = this.delegate.encodeKey(key, this)
-            }
-        }
-        return new SecureMessage(msg)
-    };
-    ns.InstantMessage = InstantMessage
-}(DIMP);
-! function(ns) {
-    var Message = ns.Message;
-    var SecureMessage = function(msg) {
-        Message.call(this, msg)
-    };
-    SecureMessage.inherits(Message);
-    SecureMessage.prototype.getData = function() {
-        var base64 = this.getValue("data");
-        return this.delegate.decodeData(base64, this)
-    };
-    SecureMessage.prototype.getKey = function() {
-        var base64 = this.getValue("key");
-        if (!base64) {
-            var keys = this.getKeys();
-            if (keys) {
-                base64 = keys[this.envelope.receiver]
-            }
-        }
-        if (base64) {
-            return this.delegate.decodeKey(base64, this)
-        } else {
-            return null
-        }
-    };
-    SecureMessage.prototype.getKeys = function() {
-        return this.getValue("keys")
-    };
-    SecureMessage.getInstance = function(msg) {
-        if (!msg) {
-            return null
-        }
-        if (msg.hasOwnProperty("signature")) {
-            return ns.ReliableMessage.getInstance(msg)
-        }
-        if (msg instanceof SecureMessage) {
-            return msg
-        }
-        return new SecureMessage(msg)
-    };
-    SecureMessage.prototype.decrypt = function() {
-        var sender = this.envelope.sender;
-        var receiver = this.envelope.receiver;
-        var group = this.envelope.getGroup();
-        var key = this.getKey();
-        var password;
-        if (group) {
-            password = this.delegate.decryptKey(key, sender, group, this)
-        } else {
-            password = this.delegate.decryptKey(key, sender, receiver, this)
-        }
-        var data = this.getData();
-        var content = this.delegate.decryptContent(data, password, this);
-        if (!content) {
-            throw Error("failed to decrypt message data: " + this)
-        }
-        var msg = this.getMap(true);
-        delete msg["key"];
-        delete msg["keys"];
-        delete msg["data"];
-        msg["content"] = content;
-        return new ns.InstantMessage(msg)
-    };
-    SecureMessage.prototype.sign = function() {
-        var sender = this.envelope.sender;
-        var signature = this.delegate.signData(this.getData(), sender, this);
-        var base64 = this.delegate.encodeSignature(signature, this);
-        var msg = this.getMap(true);
-        msg["signature"] = base64;
-        return new ns.ReliableMessage(msg)
-    };
-    SecureMessage.prototype.split = function(members) {
-        var reliable = this instanceof ns.ReliableMessage;
-        var keys = this.getKeys();
-        var group = this.envelope.receiver;
-        var messages = [];
-        var msg;
-        var receiver;
-        for (var i = 0; i < members.length; ++i) {
-            receiver = members[i];
-            msg = this.getMap(true);
-            msg["receiver"] = receiver;
-            msg["group"] = group;
-            if (keys) {
-                delete msg["keys"];
-                msg["key"] = keys[receiver]
-            }
-            if (reliable) {
-                messages.push(new ns.ReliableMessage(msg))
-            } else {
-                messages.push(new SecureMessage(msg))
-            }
-        }
-        return messages
-    };
-    SecureMessage.prototype.trim = function(member) {
-        var msg = this.getMap(true);
-        msg["receiver"] = member;
-        var keys = this.getKeys();
-        if (keys) {
-            var base64 = keys[member];
-            if (base64) {
-                msg["key"] = base64
-            }
-            delete msg["keys"]
-        }
-        var group = this.envelope.getGroup();
-        if (!group) {
-            msg["group"] = this.envelope.receiver
-        }
-        var reliable = this instanceof ns.ReliableMessage;
-        if (reliable) {
-            return new ns.ReliableMessage(msg)
-        } else {
-            return new SecureMessage(msg)
-        }
-    };
-    ns.SecureMessage = SecureMessage
-}(DIMP);
-! function(ns) {
-    var SecureMessage = ns.SecureMessage;
-    var ReliableMessage = function(msg) {
-        SecureMessage.call(this, msg)
-    };
-    ReliableMessage.inherits(SecureMessage);
-    ReliableMessage.prototype.getSignature = function() {
-        var base64 = this.getValue("signature");
-        return this.delegate.decodeSignature(base64, this)
-    };
-    ReliableMessage.prototype.setMeta = function(meta) {
-        this.setValue("meta", meta)
-    };
-    ReliableMessage.prototype.getMeta = function() {
-        return this.getValue("meta")
-    };
-    ReliableMessage.getInstance = function(msg) {
-        if (!msg) {
-            return null
-        }
-        if (msg instanceof ReliableMessage) {
-            return msg
-        }
-        return new ReliableMessage(msg)
-    };
-    ReliableMessage.prototype.verify = function() {
-        var sender = this.envelope.sender;
-        var data = this.getData();
-        var signature = this.getSignature();
-        if (this.delegate.verifyDataSignature(data, signature, sender, this)) {
-            var msg = this.getMap(true);
-            delete msg["signature"];
-            return new SecureMessage(msg)
-        } else {
-            return null
-        }
-    };
-    ns.ReliableMessage = ReliableMessage
-}(DIMP);
-! function(ns) {
-    var ContentType = ns.protocol.ContentType;
-    var Content = ns.Content;
-    var Message = ns.Message;
-    var ForwardContent = function(info) {
-        var secret = null;
-        if (!info) {
-            info = ContentType.FORWARD
-        } else {
-            if (info instanceof Message) {
-                secret = info;
-                info = ContentType.FORWARD
-            }
-        }
-        Content.call(this, info);
-        if (secret) {
-            this.setMessage(secret)
-        } else {
-            if (info.hasOwnProperty("forward")) {
-                this.getMessage()
-            } else {
-                this.forward = null
-            }
-        }
-    };
-    ForwardContent.inherits(Content);
-    ForwardContent.prototype.getMessage = function() {
-        if (!this.forward) {
-            var forward = this.getValue("forward");
-            this.forward = Message.getInstance(forward)
-        }
-        return this.forward
-    };
-    ForwardContent.prototype.setMessage = function(secret) {
-        this.setValue("forward", secret);
-        this.forward = secret
-    };
-    Content.register(ContentType.FORWARD, ForwardContent);
-    ns.protocol.ForwardContent = ForwardContent
 }(DIMP);
 ! function(ns) {
     var NetworkType = ns.type.Enum({
@@ -2019,6 +1594,517 @@ if (typeof DIMP !== "object") {
         return this.delegate.getMembers(this.identifier)
     };
     ns.Group = Group
+}(DIMP);
+! function(ns) {
+    var ContentType = ns.type.Enum({
+        UNKNOWN: (0),
+        TEXT: (1),
+        FILE: (16),
+        IMAGE: (18),
+        AUDIO: (20),
+        VIDEO: (22),
+        PAGE: (32),
+        QUOTE: (55),
+        MONEY: (64),
+        COMMAND: (136),
+        HISTORY: (137),
+        FORWARD: (255)
+    });
+    if (typeof ns.protocol !== "object") {
+        ns.protocol = {}
+    }
+    ns.protocol.ContentType = ContentType
+}(DIMP);
+! function(ns) {
+    var Dictionary = ns.type.Dictionary;
+    var ContentType = ns.protocol.ContentType;
+    var MAX_LONG = 4294967295;
+    var randomPositiveInteger = function() {
+        var sn = Math.ceil(Math.random() * MAX_LONG);
+        if (sn > 0) {
+            return sn
+        } else {
+            if (sn < 0) {
+                return -sn
+            }
+        }
+        return 9527 + 9394
+    };
+    var Content = function(info) {
+        if ((typeof info === "number") || info instanceof ContentType) {
+            info = {
+                "type": info,
+                "sn": randomPositiveInteger()
+            }
+        }
+        Dictionary.call(this, info);
+        this.type = new ContentType(info["type"]);
+        this.sn = info["sn"]
+    };
+    Content.inherits(Dictionary);
+    Content.prototype.getGroup = function() {
+        return this.getValue("group")
+    };
+    Content.prototype.setGroup = function(identifier) {
+        this.setValue("group", identifier)
+    };
+    var content_classes = {};
+    Content.register = function(type, clazz) {
+        content_classes[type] = clazz
+    };
+    Content.getInstance = function(content) {
+        if (!content) {
+            return null
+        } else {
+            if (content instanceof Content) {
+                return content
+            }
+        }
+        var type = content["type"];
+        var clazz = content_classes[type];
+        if (typeof clazz === "function") {
+            return Content.createInstance(clazz, content)
+        }
+        return new Content(content)
+    };
+    Content.createInstance = function(clazz, map) {
+        if (typeof clazz.getInstance === "function") {
+            return clazz.getInstance(map)
+        } else {
+            return new clazz(map)
+        }
+    };
+    ns.Content = Content
+}(DIMP);
+! function(ns) {
+    var Dictionary = ns.type.Dictionary;
+    var ContentType = ns.protocol.ContentType;
+    var Envelope = function(env) {
+        Dictionary.call(this, env);
+        this.sender = env["sender"];
+        this.receiver = env["receiver"];
+        this.time = env["time"]
+    };
+    Envelope.inherits(Dictionary);
+    Envelope.newEnvelope = function(sender, receiver, time) {
+        var env = {
+            "sender": sender,
+            "receiver": receiver
+        };
+        if (!time) {
+            time = new Date();
+            env["time"] = Math.ceil(time.getTime() / 1000)
+        } else {
+            if (time instanceof Date) {
+                env["time"] = Math.ceil(time.getTime() / 1000)
+            } else {
+                env["time"] = time
+            }
+        }
+        return new Envelope(env)
+    };
+    Envelope.getInstance = function(env) {
+        if (!env) {
+            return null
+        } else {
+            if (env instanceof Envelope) {
+                return env
+            }
+        }
+        return new Envelope(env)
+    };
+    Envelope.prototype.getGroup = function() {
+        return this.getValue("group")
+    };
+    Envelope.prototype.setGroup = function(identifier) {
+        this.setValue("group", identifier)
+    };
+    Envelope.prototype.getType = function() {
+        var type = this.getValue("type");
+        if (type) {
+            return new ContentType(type)
+        } else {
+            return null
+        }
+    };
+    Envelope.prototype.setType = function(type) {
+        this.setValue("type", type)
+    };
+    ns.Envelope = Envelope
+}(DIMP);
+! function(ns) {
+    var MessageDelegate = function() {};
+    var InstantMessageDelegate = function() {};
+    InstantMessageDelegate.inherits(MessageDelegate);
+    InstantMessageDelegate.prototype.encryptContent = function(content, pwd, msg) {
+        console.assert(content !== null, "content empty");
+        console.assert(pwd !== null, "key empty");
+        console.assert(msg !== null, "msg empty");
+        console.assert(false, "implement me!");
+        return null
+    };
+    InstantMessageDelegate.prototype.encodeData = function(data, msg) {
+        console.assert(data !== null, "msg data empty");
+        console.assert(msg !== null, "msg empty");
+        console.assert(false, "implement me!");
+        return null
+    };
+    InstantMessageDelegate.prototype.encryptKey = function(pwd, receiver, msg) {
+        console.assert(pwd !== null, "key empty");
+        console.assert(receiver !== null, "receiver empty");
+        console.assert(msg !== null, "msg empty");
+        console.assert(false, "implement me!");
+        return null
+    };
+    InstantMessageDelegate.prototype.encodeKey = function(key, msg) {
+        console.assert(key !== null, "key data empty");
+        console.assert(msg !== null, "msg empty");
+        console.assert(false, "implement me!");
+        return null
+    };
+    var SecureMessageDelegate = function() {};
+    SecureMessageDelegate.inherits(MessageDelegate);
+    SecureMessageDelegate.prototype.decodeKey = function(key, msg) {
+        console.assert(key !== null, "key string empty");
+        console.assert(msg !== null, "secure message empty");
+        console.assert(false, "implement me!");
+        return null
+    };
+    SecureMessageDelegate.prototype.decryptKey = function(key, sender, receiver, msg) {
+        console.assert(key !== null, "key data empty");
+        console.assert(sender !== null, "sender empty");
+        console.assert(receiver !== null, "receiver empty");
+        console.assert(msg !== null, "msg empty");
+        console.assert(false, "implement me!");
+        return null
+    };
+    SecureMessageDelegate.prototype.decodeData = function(data, msg) {
+        console.assert(data !== null, "msg data empty");
+        console.assert(msg !== null, "msg empty");
+        console.assert(false, "implement me!");
+        return null
+    };
+    SecureMessageDelegate.prototype.decryptContent = function(data, pwd, msg) {
+        console.assert(data !== null, "msg data empty");
+        console.assert(pwd !== null, "key empty");
+        console.assert(msg !== null, "msg empty");
+        console.assert(false, "implement me!");
+        return null
+    };
+    SecureMessageDelegate.prototype.signData = function(data, sender, msg) {
+        console.assert(data !== null, "msg data empty");
+        console.assert(sender !== null, "sender empty");
+        console.assert(msg !== null, "msg empty");
+        console.assert(false, "implement me!");
+        return null
+    };
+    SecureMessageDelegate.prototype.encodeSignature = function(signature, msg) {
+        console.assert(signature !== null, "msg signature empty");
+        console.assert(msg !== null, "msg empty");
+        console.assert(false, "implement me!");
+        return null
+    };
+    var ReliableMessageDelegate = function() {};
+    ReliableMessageDelegate.inherits(SecureMessageDelegate);
+    ReliableMessageDelegate.prototype.decodeSignature = function(signature, msg) {
+        console.assert(msg !== null, "msg empty");
+        console.assert(msg !== null, "msg empty");
+        console.assert(false, "implement me!");
+        return null
+    };
+    ReliableMessageDelegate.prototype.verifyDataSignature = function(data, signature, sender, msg) {
+        console.assert(msg !== null, "msg empty");
+        console.assert(msg !== null, "msg empty");
+        console.assert(msg !== null, "msg empty");
+        console.assert(msg !== null, "msg empty");
+        console.assert(false, "implement me!");
+        return false
+    };
+    ns.InstantMessageDelegate = InstantMessageDelegate;
+    ns.SecureMessageDelegate = SecureMessageDelegate;
+    ns.ReliableMessageDelegate = ReliableMessageDelegate
+}(DIMP);
+! function(ns) {
+    var Dictionary = ns.type.Dictionary;
+    var Envelope = ns.Envelope;
+    var Message = function(msg) {
+        Dictionary.call(this, msg);
+        this.envelope = Envelope.getInstance(msg);
+        this.delegate = null
+    };
+    Message.inherits(Dictionary);
+    Message.getInstance = function(msg) {
+        if (!msg) {
+            return null
+        }
+        if (msg.hasOwnProperty("content")) {
+            return ns.InstantMessage.getInstance(msg)
+        }
+        if (msg.hasOwnProperty("signature")) {
+            return ns.ReliableMessage.getInstance(msg)
+        }
+        if (msg.hasOwnProperty("data")) {
+            return ns.SecureMessage.getInstance(msg)
+        }
+        if (msg instanceof Message) {
+            return msg
+        }
+        return new Message(msg)
+    };
+    ns.Message = Message
+}(DIMP);
+! function(ns) {
+    var Envelope = ns.Envelope;
+    var Content = ns.Content;
+    var Message = ns.Message;
+    var SecureMessage = ns.SecureMessage;
+    var InstantMessage = function(msg) {
+        Message.call(this, msg);
+        this.content = Content.getInstance(msg["content"])
+    };
+    InstantMessage.inherits(Message);
+    InstantMessage.newMessage = function(content, sender, receiver, time) {
+        var env = Envelope.newEnvelope(sender, receiver, time);
+        var msg = env.getMap();
+        msg["content"] = content;
+        return new InstantMessage(msg)
+    };
+    InstantMessage.getInstance = function(msg) {
+        if (!msg) {
+            return null
+        }
+        if (msg instanceof InstantMessage) {
+            return msg
+        }
+        return new InstantMessage(msg)
+    };
+    InstantMessage.prototype.encrypt = function(password, members) {
+        var msg = this.getMap(true);
+        var data = this.delegate.encryptContent(this.content, password, this);
+        msg["data"] = this.delegate.encodeData(data, this);
+        delete msg["content"];
+        var key;
+        if (members && members.length > 0) {
+            var keys = {};
+            var member;
+            for (var i = 0; i < members.length; ++i) {
+                member = members[i];
+                key = this.delegate.encryptKey(password, member, this);
+                if (key) {
+                    keys[member] = this.delegate.encodeKey(key, this)
+                }
+            }
+            if (keys.length > 0) {
+                msg["keys"] = keys
+            }
+            msg["group"] = this.content.getGroup()
+        } else {
+            var receiver = this.envelope.receiver;
+            key = this.delegate.encryptKey(password, receiver, this);
+            if (key) {
+                msg["key"] = this.delegate.encodeKey(key, this)
+            }
+        }
+        return new SecureMessage(msg)
+    };
+    ns.InstantMessage = InstantMessage
+}(DIMP);
+! function(ns) {
+    var Message = ns.Message;
+    var SecureMessage = function(msg) {
+        Message.call(this, msg)
+    };
+    SecureMessage.inherits(Message);
+    SecureMessage.prototype.getData = function() {
+        var base64 = this.getValue("data");
+        return this.delegate.decodeData(base64, this)
+    };
+    SecureMessage.prototype.getKey = function() {
+        var base64 = this.getValue("key");
+        if (!base64) {
+            var keys = this.getKeys();
+            if (keys) {
+                base64 = keys[this.envelope.receiver]
+            }
+        }
+        if (base64) {
+            return this.delegate.decodeKey(base64, this)
+        } else {
+            return null
+        }
+    };
+    SecureMessage.prototype.getKeys = function() {
+        return this.getValue("keys")
+    };
+    SecureMessage.getInstance = function(msg) {
+        if (!msg) {
+            return null
+        }
+        if (msg.hasOwnProperty("signature")) {
+            return ns.ReliableMessage.getInstance(msg)
+        }
+        if (msg instanceof SecureMessage) {
+            return msg
+        }
+        return new SecureMessage(msg)
+    };
+    SecureMessage.prototype.decrypt = function() {
+        var sender = this.envelope.sender;
+        var receiver = this.envelope.receiver;
+        var group = this.envelope.getGroup();
+        var key = this.getKey();
+        var password;
+        if (group) {
+            password = this.delegate.decryptKey(key, sender, group, this)
+        } else {
+            password = this.delegate.decryptKey(key, sender, receiver, this)
+        }
+        var data = this.getData();
+        var content = this.delegate.decryptContent(data, password, this);
+        if (!content) {
+            throw Error("failed to decrypt message data: " + this)
+        }
+        var msg = this.getMap(true);
+        delete msg["key"];
+        delete msg["keys"];
+        delete msg["data"];
+        msg["content"] = content;
+        return new ns.InstantMessage(msg)
+    };
+    SecureMessage.prototype.sign = function() {
+        var sender = this.envelope.sender;
+        var signature = this.delegate.signData(this.getData(), sender, this);
+        var base64 = this.delegate.encodeSignature(signature, this);
+        var msg = this.getMap(true);
+        msg["signature"] = base64;
+        return new ns.ReliableMessage(msg)
+    };
+    SecureMessage.prototype.split = function(members) {
+        var reliable = this instanceof ns.ReliableMessage;
+        var keys = this.getKeys();
+        var group = this.envelope.receiver;
+        var messages = [];
+        var msg;
+        var receiver;
+        for (var i = 0; i < members.length; ++i) {
+            receiver = members[i];
+            msg = this.getMap(true);
+            msg["receiver"] = receiver;
+            msg["group"] = group;
+            if (keys) {
+                delete msg["keys"];
+                msg["key"] = keys[receiver]
+            }
+            if (reliable) {
+                messages.push(new ns.ReliableMessage(msg))
+            } else {
+                messages.push(new SecureMessage(msg))
+            }
+        }
+        return messages
+    };
+    SecureMessage.prototype.trim = function(member) {
+        var msg = this.getMap(true);
+        msg["receiver"] = member;
+        var keys = this.getKeys();
+        if (keys) {
+            var base64 = keys[member];
+            if (base64) {
+                msg["key"] = base64
+            }
+            delete msg["keys"]
+        }
+        var group = this.envelope.getGroup();
+        if (!group) {
+            msg["group"] = this.envelope.receiver
+        }
+        var reliable = this instanceof ns.ReliableMessage;
+        if (reliable) {
+            return new ns.ReliableMessage(msg)
+        } else {
+            return new SecureMessage(msg)
+        }
+    };
+    ns.SecureMessage = SecureMessage
+}(DIMP);
+! function(ns) {
+    var SecureMessage = ns.SecureMessage;
+    var ReliableMessage = function(msg) {
+        SecureMessage.call(this, msg)
+    };
+    ReliableMessage.inherits(SecureMessage);
+    ReliableMessage.prototype.getSignature = function() {
+        var base64 = this.getValue("signature");
+        return this.delegate.decodeSignature(base64, this)
+    };
+    ReliableMessage.prototype.setMeta = function(meta) {
+        this.setValue("meta", meta)
+    };
+    ReliableMessage.prototype.getMeta = function() {
+        return this.getValue("meta")
+    };
+    ReliableMessage.getInstance = function(msg) {
+        if (!msg) {
+            return null
+        }
+        if (msg instanceof ReliableMessage) {
+            return msg
+        }
+        return new ReliableMessage(msg)
+    };
+    ReliableMessage.prototype.verify = function() {
+        var sender = this.envelope.sender;
+        var data = this.getData();
+        var signature = this.getSignature();
+        if (this.delegate.verifyDataSignature(data, signature, sender, this)) {
+            var msg = this.getMap(true);
+            delete msg["signature"];
+            return new SecureMessage(msg)
+        } else {
+            return null
+        }
+    };
+    ns.ReliableMessage = ReliableMessage
+}(DIMP);
+! function(ns) {
+    var ContentType = ns.protocol.ContentType;
+    var Content = ns.Content;
+    var Message = ns.Message;
+    var ForwardContent = function(info) {
+        var secret = null;
+        if (!info) {
+            info = ContentType.FORWARD
+        } else {
+            if (info instanceof Message) {
+                secret = info;
+                info = ContentType.FORWARD
+            }
+        }
+        Content.call(this, info);
+        if (secret) {
+            this.setMessage(secret)
+        } else {
+            if (info.hasOwnProperty("forward")) {
+                this.getMessage()
+            } else {
+                this.forward = null
+            }
+        }
+    };
+    ForwardContent.inherits(Content);
+    ForwardContent.prototype.getMessage = function() {
+        if (!this.forward) {
+            var forward = this.getValue("forward");
+            this.forward = Message.getInstance(forward)
+        }
+        return this.forward
+    };
+    ForwardContent.prototype.setMessage = function(secret) {
+        this.setValue("forward", secret);
+        this.forward = secret
+    };
+    Content.register(ContentType.FORWARD, ForwardContent);
+    ns.protocol.ForwardContent = ForwardContent
 }(DIMP);
 ! function(ns) {
     var Content = ns.Content;

@@ -34,6 +34,7 @@
 //! require <mkm.js>
 
 !function (ns) {
+    'use strict';
 
     var EntityDelegate = function () {
     };
@@ -80,6 +81,7 @@
 }(DIMP);
 
 !function (ns) {
+    'use strict';
 
     var CipherKeyDelegate = function () {
     };

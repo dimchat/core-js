@@ -33,6 +33,7 @@
 //! require 'command.js'
 
 !function (ns) {
+    'use strict';
 
     var HandshakeState = ns.type.Enum({
         INIT:    0,

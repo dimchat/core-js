@@ -33,6 +33,7 @@
 //! require 'history.js'
 
 !function (ns) {
+    'use strict';
 
     var ID = ns.ID;
 
@@ -142,6 +143,7 @@
 }(DIMP);
 
 !function (ns) {
+    'use strict';
 
     var ID = ns.ID;
 

@@ -36,6 +36,7 @@
 //! require 'barrack.js'
 
 !function (ns) {
+    'use strict';
 
     var SymmetricKey = ns.crypto.SymmetricKey;
 

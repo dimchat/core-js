@@ -33,6 +33,7 @@
 //! require <dkd.js>
 
 !function (ns) {
+    'use strict';
 
     var Content = ns.Content;
     var ContentType = ns.protocol.ContentType;
