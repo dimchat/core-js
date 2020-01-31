@@ -65,9 +65,15 @@ if (typeof DIMP !== "object") {
         var len = data.length;
         var num;
         var str = "";
+        var s;
         for (; i < len; ++i) {
             num = Number(data[i]);
-            str += num.toString(16)
+            s = num.toString(16);
+            if (s.length % 2) {
+                str += "0" + s
+            } else {
+                str += s
+            }
         }
         return str
     };
@@ -498,6 +504,22 @@ if (typeof DIMP !== "object") {
 }(DIMP);
 ! function(ns) {
     var obj = ns.type.Object;
+    if (typeof Array.prototype.indexOf !== "function") {
+        Array.prototype.indexOf = function(item, start) {
+            var length = this.length;
+            for (var i = start; i < length; ++i) {
+                if (this[i] === item) {
+                    return i
+                }
+            }
+            return -1
+        }
+    }
+    if (typeof Array.prototype.contains !== "function") {
+        Array.prototype.contains = function(item) {
+            return this.indexOf(item) >= 0
+        }
+    }
     var arrays = {
         equals: function(a1, a2) {
             if (a1 === a2) {
@@ -1863,9 +1885,9 @@ if (typeof DIMP !== "object") {
         this.content = Content.getInstance(msg["content"])
     };
     InstantMessage.inherits(Message);
-    InstantMessage.newMessage = function(content, sender, receiver, time) {
-        var env = Envelope.newEnvelope(sender, receiver, time);
-        var msg = env.getMap();
+    InstantMessage.newMessage = function(content, envelope) {
+        envelope = Envelope.getInstance(envelope);
+        var msg = envelope.getMap();
         msg["content"] = content;
         return new InstantMessage(msg)
     };
