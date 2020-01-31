@@ -1887,7 +1887,7 @@ if (typeof DIMP !== "object") {
     InstantMessage.inherits(Message);
     InstantMessage.newMessage = function(content, envelope) {
         envelope = Envelope.getInstance(envelope);
-        var msg = envelope.getMap();
+        var msg = envelope.getMap(true);
         msg["content"] = content;
         return new InstantMessage(msg)
     };
