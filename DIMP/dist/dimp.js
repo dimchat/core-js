@@ -2721,6 +2721,17 @@ if (typeof DIMP !== "object") {
     GroupCommand.prototype.setMembers = function(identifier) {
         this.setValue("members", identifier)
     };
+    GroupCommand.FOUND = HistoryCommand.FOUND;
+    GroupCommand.ABDICATE = HistoryCommand.ABDICATE;
+    GroupCommand.INVITE = HistoryCommand.INVITE;
+    GroupCommand.EXPEL = HistoryCommand.EXPEL;
+    GroupCommand.JOIN = HistoryCommand.JOIN;
+    GroupCommand.QUIT = HistoryCommand.QUIT;
+    GroupCommand.QUERY = HistoryCommand.QUERY;
+    GroupCommand.RESET = HistoryCommand.RESET;
+    GroupCommand.HIRE = HistoryCommand.HIRE;
+    GroupCommand.FIRE = HistoryCommand.FIRE;
+    GroupCommand.RESIGN = HistoryCommand.RESIGN;
     GroupCommand.register = function(name, clazz) {
         Command.register(name, clazz)
     };
@@ -2751,11 +2762,11 @@ if (typeof DIMP !== "object") {
     var InviteCommand = function(info) {
         var group = null;
         if (!info) {
-            info = HistoryCommand.INVITE
+            info = GroupCommand.INVITE
         } else {
             if (typeof info === "string" || info instanceof ID) {
                 group = info;
-                info = HistoryCommand.INVITE
+                info = GroupCommand.INVITE
             }
         }
         GroupCommand.call(this, info);
@@ -2767,11 +2778,11 @@ if (typeof DIMP !== "object") {
     var ExpelCommand = function(info) {
         var group = null;
         if (!info) {
-            info = HistoryCommand.EXPEL
+            info = GroupCommand.EXPEL
         } else {
             if (typeof info === "string" || info instanceof ID) {
                 group = info;
-                info = HistoryCommand.EXPEL
+                info = GroupCommand.EXPEL
             }
         }
         GroupCommand.call(this, info);
@@ -2783,11 +2794,11 @@ if (typeof DIMP !== "object") {
     var JoinCommand = function(info) {
         var group = null;
         if (!info) {
-            info = HistoryCommand.JOIN
+            info = GroupCommand.JOIN
         } else {
             if (typeof info === "string" || info instanceof ID) {
                 group = info;
-                info = HistoryCommand.JOIN
+                info = GroupCommand.JOIN
             }
         }
         GroupCommand.call(this, info);
@@ -2799,11 +2810,11 @@ if (typeof DIMP !== "object") {
     var QuitCommand = function(info) {
         var group = null;
         if (!info) {
-            info = HistoryCommand.QUIT
+            info = GroupCommand.QUIT
         } else {
             if (typeof info === "string" || info instanceof ID) {
                 group = info;
-                info = HistoryCommand.QUIT
+                info = GroupCommand.QUIT
             }
         }
         GroupCommand.call(this, info);
@@ -2815,11 +2826,11 @@ if (typeof DIMP !== "object") {
     var ResetCommand = function(info) {
         var group = null;
         if (!info) {
-            info = HistoryCommand.RESET
+            info = GroupCommand.RESET
         } else {
             if (typeof info === "string" || info instanceof ID) {
                 group = info;
-                info = HistoryCommand.RESET
+                info = GroupCommand.RESET
             }
         }
         GroupCommand.call(this, info);
@@ -2831,11 +2842,11 @@ if (typeof DIMP !== "object") {
     var QueryCommand = function(info) {
         var group = null;
         if (!info) {
-            info = HistoryCommand.QUERY
+            info = GroupCommand.QUERY
         } else {
             if (typeof info === "string" || info instanceof ID) {
                 group = info;
-                info = HistoryCommand.QUERY
+                info = GroupCommand.QUERY
             }
         }
         Command.call(this, info);
@@ -2880,12 +2891,12 @@ if (typeof DIMP !== "object") {
     GroupCommand.query = function(group) {
         return new QueryCommand(group)
     };
-    GroupCommand.register(HistoryCommand.INVITE, InviteCommand);
-    GroupCommand.register(HistoryCommand.EXPEL, ExpelCommand);
-    GroupCommand.register(HistoryCommand.JOIN, JoinCommand);
-    GroupCommand.register(HistoryCommand.QUIT, QuitCommand);
-    GroupCommand.register(HistoryCommand.RESET, ResetCommand);
-    GroupCommand.register(HistoryCommand.QUERY, QueryCommand);
+    GroupCommand.register(GroupCommand.INVITE, InviteCommand);
+    GroupCommand.register(GroupCommand.EXPEL, ExpelCommand);
+    GroupCommand.register(GroupCommand.JOIN, JoinCommand);
+    GroupCommand.register(GroupCommand.QUIT, QuitCommand);
+    GroupCommand.register(GroupCommand.RESET, ResetCommand);
+    GroupCommand.register(GroupCommand.QUERY, QueryCommand);
     if (typeof ns.protocol.group !== "object") {
         ns.protocol.group = {}
     }

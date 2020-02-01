@@ -111,6 +111,22 @@
         // TODO: remove 'member'?
     };
 
+    //-------- command names --------
+    // group: founder/owner
+    GroupCommand.FOUND    = HistoryCommand.FOUND;
+    GroupCommand.ABDICATE = HistoryCommand.ABDICATE;
+    // group: member
+    GroupCommand.INVITE   = HistoryCommand.INVITE;
+    GroupCommand.EXPEL    = HistoryCommand.EXPEL;
+    GroupCommand.JOIN     = HistoryCommand.JOIN;
+    GroupCommand.QUIT     = HistoryCommand.QUIT;
+    GroupCommand.QUERY    = HistoryCommand.QUERY;
+    GroupCommand.RESET    = HistoryCommand.RESET;
+    // group: administrator/assistant
+    GroupCommand.HIRE     = HistoryCommand.HIRE;
+    GroupCommand.FIRE     = HistoryCommand.FIRE;
+    GroupCommand.RESIGN   = HistoryCommand.RESIGN;
+
     //-------- Runtime --------
 
     GroupCommand.register = function (name, clazz) {
@@ -158,11 +174,11 @@
         var group = null;
         if (!info) {
             // create empty invite command
-            info = HistoryCommand.INVITE;
+            info = GroupCommand.INVITE;
         } else if (typeof info === 'string' || info instanceof ID) {
             // create new invite command with group ID
             group = info;
-            info = HistoryCommand.INVITE;
+            info = GroupCommand.INVITE;
         }
         GroupCommand.call(this, info);
         if (group) {
@@ -178,11 +194,11 @@
         var group = null;
         if (!info) {
             // create empty expel command
-            info = HistoryCommand.EXPEL;
+            info = GroupCommand.EXPEL;
         } else if (typeof info === 'string' || info instanceof ID) {
             // create new expel command with group ID
             group = info;
-            info = HistoryCommand.EXPEL;
+            info = GroupCommand.EXPEL;
         }
         GroupCommand.call(this, info);
         if (group) {
@@ -198,11 +214,11 @@
         var group = null;
         if (!info) {
             // create empty join command
-            info = HistoryCommand.JOIN;
+            info = GroupCommand.JOIN;
         } else if (typeof info === 'string' || info instanceof ID) {
             // create new join command with group ID
             group = info;
-            info = HistoryCommand.JOIN;
+            info = GroupCommand.JOIN;
         }
         GroupCommand.call(this, info);
         if (group) {
@@ -218,11 +234,11 @@
         var group = null;
         if (!info) {
             // create empty quit command
-            info = HistoryCommand.QUIT;
+            info = GroupCommand.QUIT;
         } else if (typeof info === 'string' || info instanceof ID) {
             // create new quit command with group ID
             group = info;
-            info = HistoryCommand.QUIT;
+            info = GroupCommand.QUIT;
         }
         GroupCommand.call(this, info);
         if (group) {
@@ -238,11 +254,11 @@
         var group = null;
         if (!info) {
             // create empty reset command
-            info = HistoryCommand.RESET;
+            info = GroupCommand.RESET;
         } else if (typeof info === 'string' || info instanceof ID) {
             // create new reset command with group ID
             group = info;
-            info = HistoryCommand.RESET;
+            info = GroupCommand.RESET;
         }
         GroupCommand.call(this, info);
         if (group) {
@@ -263,11 +279,11 @@
         var group = null;
         if (!info) {
             // create empty query command
-            info = HistoryCommand.QUERY;
+            info = GroupCommand.QUERY;
         } else if (typeof info === 'string' || info instanceof ID) {
             // create new query command with group ID
             group = info;
-            info = HistoryCommand.QUERY;
+            info = GroupCommand.QUERY;
         }
         Command.call(this, info);
         if (group) {
@@ -324,13 +340,13 @@
     };
 
     //-------- register --------
-    GroupCommand.register(HistoryCommand.INVITE, InviteCommand);
-    GroupCommand.register(HistoryCommand.EXPEL, ExpelCommand);
-    GroupCommand.register(HistoryCommand.JOIN, JoinCommand);
-    GroupCommand.register(HistoryCommand.QUIT, QuitCommand);
+    GroupCommand.register(GroupCommand.INVITE, InviteCommand);
+    GroupCommand.register(GroupCommand.EXPEL, ExpelCommand);
+    GroupCommand.register(GroupCommand.JOIN, JoinCommand);
+    GroupCommand.register(GroupCommand.QUIT, QuitCommand);
 
-    GroupCommand.register(HistoryCommand.RESET, ResetCommand);
-    GroupCommand.register(HistoryCommand.QUERY, QueryCommand);
+    GroupCommand.register(GroupCommand.RESET, ResetCommand);
+    GroupCommand.register(GroupCommand.QUERY, QueryCommand);
 
     //-------- namespace --------
     if (typeof ns.protocol.group !== 'object') {
