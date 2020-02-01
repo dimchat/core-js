@@ -105,7 +105,7 @@
     };
 
     Barrack.prototype.cacheUser = function (user) {
-        if (user.delegate === null) {
+        if (!user.delegate) {
             user.delegate = this;
         }
         this.userMap[user.identifier] = user;
@@ -113,7 +113,7 @@
     };
 
     Barrack.prototype.cacheGroup = function (group) {
-        if (group.delegate === null) {
+        if (!group.delegate) {
             group.delegate = this;
         }
         this.groupMap[group.identifier] = group;

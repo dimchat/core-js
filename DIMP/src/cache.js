@@ -187,7 +187,7 @@
 
     var set_key = function (sender, receiver, key) {
         var table = this.keyMap[sender];
-        if (table === null) {
+        if (!table) {
             table = {};
             this.keyMap[sender] = table;
         }

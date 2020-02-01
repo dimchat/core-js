@@ -97,7 +97,7 @@
             password = get_key.call(this, sender, receiver);
         }
         // check message delegate
-        if (msg.delegate === null) {
+        if (!msg.delegate) {
             msg.delegate = this;
         }
 
@@ -117,7 +117,7 @@
     };
 
     Transceiver.prototype.signMessage = function (msg) {
-        if (msg.delegate === null) {
+        if (!msg.delegate) {
             msg.delegate = this;
         }
         // sign 'data' by sender
@@ -130,7 +130,7 @@
         //        make sure the sender's meta exists
         //        (do in by application)
         //
-        if (msg.delegate == null) {
+        if (!msg.delegate) {
             msg.delegate = this;
         }
         // verify 'data' with 'signature'
@@ -143,7 +143,7 @@
         //          which means the receiver's private key exists;
         //          if the receiver is a group ID, split it first
         //
-        if (msg.delegate == null) {
+        if (!msg.delegate) {
             msg.delegate = this;
         }
         // decrypt 'data' to 'content'

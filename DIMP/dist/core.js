@@ -924,7 +924,7 @@
     };
     var set_key = function(sender, receiver, key) {
         var table = this.keyMap[sender];
-        if (table === null) {
+        if (!table) {
             table = {};
             this.keyMap[sender] = table
         }
@@ -996,14 +996,14 @@
         return true
     };
     Barrack.prototype.cacheUser = function(user) {
-        if (user.delegate === null) {
+        if (!user.delegate) {
             user.delegate = this
         }
         this.userMap[user.identifier] = user;
         return true
     };
     Barrack.prototype.cacheGroup = function(group) {
-        if (group.delegate === null) {
+        if (!group.delegate) {
             group.delegate = this
         }
         this.groupMap[group.identifier] = group;
@@ -1159,7 +1159,7 @@
         } else {
             password = get_key.call(this, sender, receiver)
         }
-        if (msg.delegate === null) {
+        if (!msg.delegate) {
             msg.delegate = this
         }
         var sMsg;
@@ -1172,19 +1172,19 @@
         return sMsg
     };
     Transceiver.prototype.signMessage = function(msg) {
-        if (msg.delegate === null) {
+        if (!msg.delegate) {
             msg.delegate = this
         }
         return msg.sign()
     };
     Transceiver.prototype.verifyMessage = function(msg) {
-        if (msg.delegate == null) {
+        if (!msg.delegate) {
             msg.delegate = this
         }
         return msg.verify()
     };
     Transceiver.prototype.decryptMessage = function(msg) {
-        if (msg.delegate == null) {
+        if (!msg.delegate) {
             msg.delegate = this
         }
         return msg.decrypt()
