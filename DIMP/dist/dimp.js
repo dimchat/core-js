@@ -506,6 +506,9 @@ if (typeof DIMP !== "object") {
     var obj = ns.type.Object;
     if (typeof Array.prototype.indexOf !== "function") {
         Array.prototype.indexOf = function(item, start) {
+            if (!start) {
+                start = 0
+            }
             var length = this.length;
             for (var i = start; i < length; ++i) {
                 if (this[i] === item) {
@@ -518,6 +521,15 @@ if (typeof DIMP !== "object") {
     if (typeof Array.prototype.contains !== "function") {
         Array.prototype.contains = function(item) {
             return this.indexOf(item) >= 0
+        }
+    }
+    if (typeof Array.prototype.remove !== "function") {
+        Array.prototype.remove = function(item) {
+            var index = this.indexOf(item);
+            if (index < 0) {
+                return null
+            }
+            return this.splice(index, 1)
         }
     }
     var arrays = {
