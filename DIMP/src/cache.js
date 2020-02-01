@@ -40,7 +40,7 @@
     var SymmetricKey = ns.crypto.SymmetricKey;
 
     var PlainKey = function (key) {
-        Dictionary.call(key)
+        Dictionary.call(this, key)
     };
     PlainKey.inherits(Dictionary, SymmetricKey);
 

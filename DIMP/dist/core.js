@@ -831,7 +831,7 @@
     var Dictionary = ns.type.Dictionary;
     var SymmetricKey = ns.crypto.SymmetricKey;
     var PlainKey = function(key) {
-        Dictionary.call(key)
+        Dictionary.call(this, key)
     };
     PlainKey.inherits(Dictionary, SymmetricKey);
     PlainKey.prototype.encrypt = function(data) {
@@ -1155,9 +1155,9 @@
         var group = this.entityDelegate.getIdentifier(msg.content.getGroup());
         var password;
         if (group) {
-            password = get_key.call(sender, group)
+            password = get_key.call(this, sender, group)
         } else {
-            password = get_key.call(sender, receiver)
+            password = get_key.call(this, sender, receiver)
         }
         if (msg.delegate === null) {
             msg.delegate = this

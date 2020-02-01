@@ -92,9 +92,9 @@
         var password;
         if (group) {
             // group message
-            password = get_key.call(sender, group);
+            password = get_key.call(this, sender, group);
         } else {
-            password = get_key.call(sender, receiver);
+            password = get_key.call(this, sender, receiver);
         }
         // check message delegate
         if (msg.delegate === null) {
