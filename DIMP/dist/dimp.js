@@ -284,6 +284,9 @@ if (typeof DIMP !== "object") {
     var json = function() {};
     json.inherits(parser);
     json.prototype.encode = function(container) {
+        if (typeof container.toJSON === "function") {
+            return container.toJSON()
+        }
         return JSON.stringify(container)
     };
     json.prototype.decode = function(string) {
@@ -393,9 +396,6 @@ if (typeof DIMP !== "object") {
     obj.prototype.toLocaleString = function() {
         return this.value.toLocaleString()
     };
-    obj.prototype.toJSON = function() {
-        return ns.format.JSON.encode(this.value)
-    };
     if (typeof ns.type !== "object") {
         ns.type = {}
     }
@@ -497,6 +497,9 @@ if (typeof DIMP !== "object") {
         }
         return equalsIgnoreCase(this.value, other)
     };
+    str.prototype.toJSON = function() {
+        return this.value
+    };
     str.prototype.getLength = function() {
         return this.value.length
     };
@@ -568,6 +571,9 @@ if (typeof DIMP !== "object") {
     map.prototype.toLocaleString = function() {
         return this.toJSON()
     };
+    map.prototype.toJSON = function() {
+        return ns.format.JSON.encode(this.value)
+    };
     map.prototype.getMap = function(copy) {
         if (copy) {
             var json = ns.format.JSON.encode(this.value);
@@ -628,6 +634,9 @@ if (typeof DIMP !== "object") {
         };
         enumeration.prototype.toLocaleString = function() {
             return "<" + this.alias.toLocaleString() + ": " + this.value.toLocaleString() + ">"
+        };
+        enumeration.prototype.toJSON = function() {
+            return this.value
         };
         var e, v;
         for (var name in elements) {
@@ -1913,7 +1922,6 @@ if (typeof DIMP !== "object") {
     var Envelope = ns.Envelope;
     var Content = ns.Content;
     var Message = ns.Message;
-    var SecureMessage = ns.SecureMessage;
     var InstantMessage = function(msg) {
         Message.call(this, msg);
         this.content = Content.getInstance(msg["content"])
@@ -1961,7 +1969,7 @@ if (typeof DIMP !== "object") {
                 msg["key"] = this.delegate.encodeKey(key, this)
             }
         }
-        return new SecureMessage(msg)
+        return new ns.SecureMessage(msg)
     };
     ns.InstantMessage = InstantMessage
 }(DIMP);
