@@ -30,6 +30,17 @@
 // =============================================================================
 //
 
+/**
+ *  Audio message: {
+ *      type : 0x14,
+ *      sn   : 123,
+ *
+ *      URL      : "http://",      // for encrypted file data from CDN
+ *      filename : "voice.mp3",
+ *      text     : "...",          // Automatic Speech Recognition
+ *  }
+ */
+
 //! require <dkd.js>
 //! require 'file.js'
 
@@ -41,23 +52,17 @@
     var FileContent = ns.protocol.FileContent;
 
     /**
-     *  Audio message: {
-     *      type : 0x14,
-     *      sn   : 123,
+     *  Create audio message content
      *
-     *      URL      : "http://",      // for encrypted file data from CDN
-     *      filename : "voice.mp3",
-     *      text     : "...",          // Automatic Speech Recognition
-     *  }
+     * @param content
+     * @constructor
      */
     var AudioContent = function (content) {
         if (!content) {
             // create empty audio file content
-            FileContent.call(this, ContentType.AUDIO);
-        } else {
-            // create audio file content
-            FileContent.call(this, content);
+            content = ContentType.AUDIO;
         }
+        FileContent.call(this, content);
     };
     AudioContent.inherits(FileContent);
 

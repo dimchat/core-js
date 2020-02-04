@@ -30,6 +30,15 @@
 // =============================================================================
 //
 
+/**
+ *  Text message: {
+ *      type : 0x01,
+ *      sn   : 123,
+ *
+ *      text : "..."
+ *  }
+ */
+
 //! require <dkd.js>
 
 !function (ns) {
@@ -38,25 +47,20 @@
     var Content = ns.Content;
     var ContentType = ns.protocol.ContentType;
 
-    /**
-     *  Text message: {
-     *      type : 0x01,
-     *      sn   : 123,
-     *
-     *      text : "..."
-     *  }
-     */
+
     var TextContent = function (content) {
+        var text = null;
         if (!content) {
             // create empty text content
-            Content.call(this, ContentType.TEXT);
+            content = ContentType.TEXT;
         } else if (typeof content === 'string') {
             // create text content with message string
-            Content.call(this, ContentType.TEXT);
+            text = content;
+            content = ContentType.TEXT;
+        }
+        Content.call(this, content);
+        if (text) {
             this.setText(content);
-        } else {
-            // create text content
-            Content.call(this, content);
         }
     };
     TextContent.inherits(Content);

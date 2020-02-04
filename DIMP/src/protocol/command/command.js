@@ -30,6 +30,16 @@
 // =============================================================================
 //
 
+/**
+ *  Command message: {
+ *      type : 0x88,
+ *      sn   : 123,
+ *
+ *      command : "...", // command name
+ *      extra   : info   // command parameters
+ *  }
+ */
+
 //! require <dkd.js>
 
 !function (ns) {
@@ -37,16 +47,6 @@
 
     var Content = ns.Content;
     var ContentType = ns.protocol.ContentType;
-
-    /*
-     *  Command message: {
-     *      type : 0x88,
-     *      sn   : 123,
-     *
-     *      command : "...", // command name
-     *      extra   : info   // command parameters
-     *  }
-     */
 
     /**
      *  Create command

@@ -30,6 +30,18 @@
 // =============================================================================
 //
 
+/**
+ *  Web Page message: {
+ *      type : 0x20,
+ *      sn   : 123,
+ *
+ *      URL   : "https://github.com/moky/dimp", // Page URL
+ *      icon  : "...",                          // base64_encode(icon)
+ *      title : "...",
+ *      desc  : "..."
+ *  }
+ */
+
 //! require <dkd.js>
 
 !function (ns) {
@@ -39,24 +51,24 @@
     var ContentType = ns.protocol.ContentType;
 
     /**
-     *  Web Page message: {
-     *      type : 0x20,
-     *      sn   : 123,
+     *  Create web page message content
      *
-     *      URL   : "https://github.com/moky/dimp", // Page URL
-     *      icon  : "...",                          // base64_encode(icon)
-     *      title : "...",
-     *      desc  : "..."
-     *  }
+     * @param content
+     * @constructor
      */
     var PageContent = function (content) {
-        if (typeof content === 'string') {
+        var url = null;
+        if (!content) {
+            // create empty web page content
+            content = ContentType.PAGE;
+        } else if (typeof content === 'string') {
             // create web page content with URL
-            Content.call(this, ContentType.PAGE);
-            this.setURL(content);
-        } else {
-            // create text content
-            Content.call(this, content);
+            url = content;
+            content = ContentType.PAGE;
+        }
+        Content.call(this, content);
+        if (url) {
+            this.setURL(url);
         }
         this.icon = null;
     };

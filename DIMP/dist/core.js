@@ -10,15 +10,18 @@
     var Content = ns.Content;
     var ContentType = ns.protocol.ContentType;
     var TextContent = function(content) {
+        var text = null;
         if (!content) {
-            Content.call(this, ContentType.TEXT)
+            content = ContentType.TEXT
         } else {
             if (typeof content === "string") {
-                Content.call(this, ContentType.TEXT);
-                this.setText(content)
-            } else {
-                Content.call(this, content)
+                text = content;
+                content = ContentType.TEXT
             }
+        }
+        Content.call(this, content);
+        if (text) {
+            this.setText(content)
         }
     };
     TextContent.inherits(Content);
@@ -35,11 +38,18 @@
     var Content = ns.Content;
     var ContentType = ns.protocol.ContentType;
     var PageContent = function(content) {
-        if (typeof content === "string") {
-            Content.call(this, ContentType.PAGE);
-            this.setURL(content)
+        var url = null;
+        if (!content) {
+            content = ContentType.PAGE
         } else {
-            Content.call(this, content)
+            if (typeof content === "string") {
+                url = content;
+                content = ContentType.PAGE
+            }
+        }
+        Content.call(this, content);
+        if (url) {
+            this.setURL(url)
         }
         this.icon = null
     };
@@ -88,10 +98,9 @@
     var ContentType = ns.protocol.ContentType;
     var FileContent = function(content) {
         if (!content) {
-            Content.call(this, ContentType.FILE)
-        } else {
-            Content.call(this, content)
+            content = ContentType.FILE
         }
+        Content.call(this, content);
         this.attachment = null;
         this.password = null
     };
@@ -160,10 +169,9 @@
     var FileContent = ns.protocol.FileContent;
     var ImageContent = function(content) {
         if (!content) {
-            FileContent.call(this, ContentType.IMAGE)
-        } else {
-            FileContent.call(this, content)
+            content = ContentType.IMAGE
         }
+        FileContent.call(this, content);
         this.thumbnail = null
     };
     ImageContent.inherits(FileContent);
@@ -194,10 +202,9 @@
     var FileContent = ns.protocol.FileContent;
     var AudioContent = function(content) {
         if (!content) {
-            FileContent.call(this, ContentType.AUDIO)
-        } else {
-            FileContent.call(this, content)
+            content = ContentType.AUDIO
         }
+        FileContent.call(this, content)
     };
     AudioContent.inherits(FileContent);
     AudioContent.prototype.getText = function() {
@@ -216,10 +223,9 @@
     var FileContent = ns.protocol.FileContent;
     var VideoContent = function(content) {
         if (!content) {
-            FileContent.call(this, ContentType.VIDEO)
-        } else {
-            FileContent.call(this, content)
+            content = ContentType.VIDEO
         }
+        FileContent.call(this, content);
         this.snapshot = null
     };
     VideoContent.inherits(FileContent);
@@ -309,15 +315,18 @@
     var Meta = ns.Meta;
     var Command = ns.protocol.Command;
     var MetaCommand = function(info) {
+        var identifier = null;
         if (!info) {
-            Command.call(this, Command.META)
+            info = Command.META
         } else {
             if (info instanceof ID) {
-                Command.call(this, Command.META);
-                this.setIdentifier(info)
-            } else {
-                Command.call(this, info)
+                identifier = info;
+                info = Command.META
             }
+        }
+        Command.call(this, info);
+        if (identifier) {
+            this.setIdentifier(info)
         }
         this.meta = null
     };
@@ -356,15 +365,18 @@
     var Command = ns.protocol.Command;
     var MetaCommand = ns.protocol.MetaCommand;
     var ProfileCommand = function(info) {
+        var identifier = null;
         if (!info) {
-            MetaCommand.call(this, Command.PROFILE)
+            info = Command.PROFILE
         } else {
             if (info instanceof ID) {
-                MetaCommand.call(this, Command.PROFILE);
-                this.setIdentifier(info)
-            } else {
-                MetaCommand.call(this, info)
+                identifier = info;
+                info = Command.PROFILE
             }
+        }
+        MetaCommand.call(this, info);
+        if (identifier) {
+            this.setIdentifier(info)
         }
         this.profile = null
     };
@@ -421,17 +433,19 @@
     });
     var Command = ns.protocol.Command;
     var HandshakeCommand = function(info) {
+        var message = null;
         if (!info) {
-            Command.call(this, Command.HANDSHAKE)
+            info = Command.HANDSHAKE
         } else {
             if (typeof info === "string") {
-                Command.call(this, Command.HANDSHAKE);
-                this.setMessage(info)
-            } else {
-                Command.call(this, info)
+                message = info;
+                info = Command.HANDSHAKE
             }
         }
-        Command.call(this, info)
+        Command.call(this, info);
+        if (message) {
+            this.setMessage(message)
+        }
     };
     HandshakeCommand.inherits(Command);
     HandshakeCommand.prototype.getMessage = function() {

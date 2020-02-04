@@ -30,6 +30,17 @@
 // =============================================================================
 //
 
+/**
+ *  History command: {
+ *      type : 0x89,
+ *      sn   : 123,
+ *
+ *      command : "...", // command name
+ *      time    : 0,     // command timestamp
+ *      extra   : info   // command parameters
+ *  }
+ */
+
 //! require 'command.js'
 
 !function (ns) {
@@ -40,14 +51,10 @@
     var Command = ns.protocol.Command;
 
     /**
-     *  History command: {
-     *      type : 0x89,
-     *      sn   : 123,
+     *  Create history command
      *
-     *      command : "...", // command name
-     *      time    : 0,     // command timestamp
-     *      extra   : info   // command parameters
-     *  }
+     * @param info - command info; or command name
+     * @constructor
      */
     var HistoryCommand = function (info) {
         var name = null;

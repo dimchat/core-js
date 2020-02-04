@@ -284,9 +284,6 @@ if (typeof DIMP !== "object") {
     var json = function() {};
     json.inherits(parser);
     json.prototype.encode = function(container) {
-        if (typeof container.toJSON === "function") {
-            return container.toJSON()
-        }
         return JSON.stringify(container)
     };
     json.prototype.decode = function(string) {
@@ -373,28 +370,9 @@ if (typeof DIMP !== "object") {
     ns.format.PEM = new P(new pem())
 }(DIMP);
 ! function(ns) {
-    var obj = function(value) {
-        if (value instanceof obj) {
-            this.value = value.value
-        } else {
-            this.value = value
-        }
-    };
+    var obj = function() {};
     obj.prototype.equals = function(other) {
-        if (other instanceof obj) {
-            return this.value === other.value
-        } else {
-            return this.value === other
-        }
-    };
-    obj.prototype.valueOf = function() {
-        return this.value.valueOf()
-    };
-    obj.prototype.toString = function() {
-        return this.value.toString()
-    };
-    obj.prototype.toLocaleString = function() {
-        return this.value.toLocaleString()
+        return this === other
     };
     if (typeof ns.type !== "object") {
         ns.type = {}
@@ -452,32 +430,46 @@ if (typeof DIMP !== "object") {
             return string
         }
     };
-    var str = function(data, charset) {
-        if (data instanceof Array) {
-            if (!charset || charset === "UTF-8") {
-                data = UTF8.decode(data)
+    var str = function(value, charset) {
+        if (!value) {
+            value = ""
+        } else {
+            if (value instanceof Array) {
+                if (!charset || charset === "UTF-8") {
+                    value = UTF8.decode(value)
+                } else {
+                    throw Error("only UTF-8 now")
+                }
             } else {
-                throw Error("only UTF-8 now")
+                if (value instanceof str) {
+                    value = value.string
+                } else {
+                    if (typeof value !== "string") {
+                        throw Error("string value error: " + value)
+                    }
+                }
             }
         }
-        obj.call(this, data)
+        obj.call(this);
+        this.string = value
     };
     str.inherits(obj);
     str.prototype.getBytes = function(charset) {
         if (!charset || charset === "UTF-8") {
-            return UTF8.encode(this.value)
+            return UTF8.encode(this.string)
         }
-        return this.value
+        throw Error("unknown charset: " + charset)
     };
     str.prototype.equals = function(other) {
         if (!other) {
-            return !this.value
+            return !this.string
         } else {
             if (other instanceof str) {
-                return this.value === other.value
+                return this.string === other.string
+            } else {
+                return this.string === other
             }
         }
-        return this.value === other
     };
     var equalsIgnoreCase = function(str1, str2) {
         if (str1.length !== str2.length) {
@@ -489,24 +481,35 @@ if (typeof DIMP !== "object") {
     };
     str.prototype.equalsIgnoreCase = function(other) {
         if (!other) {
-            return !this.value
+            return !this.string
         } else {
             if (other instanceof str) {
-                return equalsIgnoreCase(this.value, other.value)
+                return equalsIgnoreCase(this.string, other.string)
+            } else {
+                return equalsIgnoreCase(this.string, other)
             }
         }
-        return equalsIgnoreCase(this.value, other)
+    };
+    str.prototype.valueOf = function() {
+        return this.string
+    };
+    str.prototype.toString = function() {
+        return this.string
+    };
+    str.prototype.toLocaleString = function() {
+        return this.string.toLocaleString()
     };
     str.prototype.toJSON = function() {
-        return this.value
+        return this.string
     };
     str.prototype.getLength = function() {
-        return this.value.length
+        return this.string.length
     };
     ns.type.String = str
 }(DIMP);
 ! function(ns) {
     var obj = ns.type.Object;
+    var str = ns.type.String;
     if (typeof Array.prototype.indexOf !== "function") {
         Array.prototype.indexOf = function(item, start) {
             if (!start) {
@@ -551,49 +554,69 @@ if (typeof DIMP !== "object") {
             return true
         }
     };
-    var map = function(map) {
-        obj.call(this, map)
+    var map = function(value) {
+        if (!value) {
+            value = {}
+        } else {
+            if (value instanceof map) {
+                value = value.dictionary
+            } else {
+                if (value instanceof str) {
+                    value = ns.format.JSON.decode(value.toString())
+                } else {
+                    if (typeof value === "string") {
+                        value = ns.format.JSON.decode(value)
+                    }
+                }
+            }
+        }
+        obj.call(this);
+        this.dictionary = value
     };
     map.inherits(obj);
     map.prototype.equals = function(other) {
         if (!other) {
-            return !this.value
+            return !this.dictionary
         } else {
             if (other instanceof map) {
-                return arrays.equals(this.value, other.value)
+                return arrays.equals(this.dictionary, other.dictionary)
+            } else {
+                return arrays.equals(this.dictionary, other)
             }
         }
-        return arrays.equals(this.value, other)
+    };
+    map.prototype.valueOf = function() {
+        return this.dictionary
     };
     map.prototype.toString = function() {
-        return this.toJSON()
+        return this.dictionary.toString()
     };
     map.prototype.toLocaleString = function() {
-        return this.toJSON()
+        return this.dictionary.toLocaleString()
     };
     map.prototype.toJSON = function() {
-        return ns.format.JSON.encode(this.value)
+        return this.dictionary
     };
     map.prototype.getMap = function(copy) {
         if (copy) {
-            var json = ns.format.JSON.encode(this.value);
+            var json = ns.format.JSON.encode(this.dictionary);
             return ns.format.JSON.decode(json)
         } else {
-            return this.value
+            return this.dictionary
         }
     };
     map.prototype.allKeys = function() {
-        return Object.keys(this.value)
+        return Object.keys(this.dictionary)
     };
     map.prototype.getValue = function(key) {
-        return this.value[key]
+        return this.dictionary[key]
     };
     map.prototype.setValue = function(key, value) {
         if (value) {
-            this.value[key] = value
+            this.dictionary[key] = value
         } else {
-            if (this.value.hasOwnProperty(key)) {
-                delete this.value[key]
+            if (this.dictionary.hasOwnProperty(key)) {
+                delete this.dictionary[key]
             }
         }
     };
@@ -625,10 +648,25 @@ if (typeof DIMP !== "object") {
                     throw RangeError("enum error: " + value)
                 }
             }
-            obj.call(this, value);
+            obj.call(this);
+            this.value = value;
             this.alias = alias
         };
         enumeration.inherits(obj);
+        enumeration.prototype.equals = function(other) {
+            if (!other) {
+                return !this.value
+            } else {
+                if (other instanceof enumeration) {
+                    return this.value === other.value
+                } else {
+                    return this.value === other
+                }
+            }
+        };
+        enumeration.prototype.valueOf = function() {
+            return this.value
+        };
         enumeration.prototype.toString = function() {
             return "<" + this.alias.toString() + ": " + this.value.toString() + ">"
         };
@@ -1036,9 +1074,9 @@ if (typeof DIMP !== "object") {
         }
         var pair = other.split("/");
         if (!this.terminal) {
-            return pair[0] === this.value
+            return pair[0] === this.string
         } else {
-            return pair[0] === this.value.split("/")[0]
+            return pair[0] === this.string.split("/")[0]
         }
     };
     ID.prototype.getType = function() {
@@ -2174,15 +2212,18 @@ if (typeof DIMP !== "object") {
     var Content = ns.Content;
     var ContentType = ns.protocol.ContentType;
     var TextContent = function(content) {
+        var text = null;
         if (!content) {
-            Content.call(this, ContentType.TEXT)
+            content = ContentType.TEXT
         } else {
             if (typeof content === "string") {
-                Content.call(this, ContentType.TEXT);
-                this.setText(content)
-            } else {
-                Content.call(this, content)
+                text = content;
+                content = ContentType.TEXT
             }
+        }
+        Content.call(this, content);
+        if (text) {
+            this.setText(content)
         }
     };
     TextContent.inherits(Content);
@@ -2199,11 +2240,18 @@ if (typeof DIMP !== "object") {
     var Content = ns.Content;
     var ContentType = ns.protocol.ContentType;
     var PageContent = function(content) {
-        if (typeof content === "string") {
-            Content.call(this, ContentType.PAGE);
-            this.setURL(content)
+        var url = null;
+        if (!content) {
+            content = ContentType.PAGE
         } else {
-            Content.call(this, content)
+            if (typeof content === "string") {
+                url = content;
+                content = ContentType.PAGE
+            }
+        }
+        Content.call(this, content);
+        if (url) {
+            this.setURL(url)
         }
         this.icon = null
     };
@@ -2252,10 +2300,9 @@ if (typeof DIMP !== "object") {
     var ContentType = ns.protocol.ContentType;
     var FileContent = function(content) {
         if (!content) {
-            Content.call(this, ContentType.FILE)
-        } else {
-            Content.call(this, content)
+            content = ContentType.FILE
         }
+        Content.call(this, content);
         this.attachment = null;
         this.password = null
     };
@@ -2324,10 +2371,9 @@ if (typeof DIMP !== "object") {
     var FileContent = ns.protocol.FileContent;
     var ImageContent = function(content) {
         if (!content) {
-            FileContent.call(this, ContentType.IMAGE)
-        } else {
-            FileContent.call(this, content)
+            content = ContentType.IMAGE
         }
+        FileContent.call(this, content);
         this.thumbnail = null
     };
     ImageContent.inherits(FileContent);
@@ -2358,10 +2404,9 @@ if (typeof DIMP !== "object") {
     var FileContent = ns.protocol.FileContent;
     var AudioContent = function(content) {
         if (!content) {
-            FileContent.call(this, ContentType.AUDIO)
-        } else {
-            FileContent.call(this, content)
+            content = ContentType.AUDIO
         }
+        FileContent.call(this, content)
     };
     AudioContent.inherits(FileContent);
     AudioContent.prototype.getText = function() {
@@ -2380,10 +2425,9 @@ if (typeof DIMP !== "object") {
     var FileContent = ns.protocol.FileContent;
     var VideoContent = function(content) {
         if (!content) {
-            FileContent.call(this, ContentType.VIDEO)
-        } else {
-            FileContent.call(this, content)
+            content = ContentType.VIDEO
         }
+        FileContent.call(this, content);
         this.snapshot = null
     };
     VideoContent.inherits(FileContent);
@@ -2473,15 +2517,18 @@ if (typeof DIMP !== "object") {
     var Meta = ns.Meta;
     var Command = ns.protocol.Command;
     var MetaCommand = function(info) {
+        var identifier = null;
         if (!info) {
-            Command.call(this, Command.META)
+            info = Command.META
         } else {
             if (info instanceof ID) {
-                Command.call(this, Command.META);
-                this.setIdentifier(info)
-            } else {
-                Command.call(this, info)
+                identifier = info;
+                info = Command.META
             }
+        }
+        Command.call(this, info);
+        if (identifier) {
+            this.setIdentifier(info)
         }
         this.meta = null
     };
@@ -2520,15 +2567,18 @@ if (typeof DIMP !== "object") {
     var Command = ns.protocol.Command;
     var MetaCommand = ns.protocol.MetaCommand;
     var ProfileCommand = function(info) {
+        var identifier = null;
         if (!info) {
-            MetaCommand.call(this, Command.PROFILE)
+            info = Command.PROFILE
         } else {
             if (info instanceof ID) {
-                MetaCommand.call(this, Command.PROFILE);
-                this.setIdentifier(info)
-            } else {
-                MetaCommand.call(this, info)
+                identifier = info;
+                info = Command.PROFILE
             }
+        }
+        MetaCommand.call(this, info);
+        if (identifier) {
+            this.setIdentifier(info)
         }
         this.profile = null
     };
@@ -2585,17 +2635,19 @@ if (typeof DIMP !== "object") {
     });
     var Command = ns.protocol.Command;
     var HandshakeCommand = function(info) {
+        var message = null;
         if (!info) {
-            Command.call(this, Command.HANDSHAKE)
+            info = Command.HANDSHAKE
         } else {
             if (typeof info === "string") {
-                Command.call(this, Command.HANDSHAKE);
-                this.setMessage(info)
-            } else {
-                Command.call(this, info)
+                message = info;
+                info = Command.HANDSHAKE
             }
         }
-        Command.call(this, info)
+        Command.call(this, info);
+        if (message) {
+            this.setMessage(message)
+        }
     };
     HandshakeCommand.inherits(Command);
     HandshakeCommand.prototype.getMessage = function() {

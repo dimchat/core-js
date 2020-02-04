@@ -30,6 +30,17 @@
 // =============================================================================
 //
 
+/**
+ *  Command message: {
+ *      type : 0x88,
+ *      sn   : 123,
+ *
+ *      command : "handshake",    // command name
+ *      message : "Hello world!",
+ *      session : "{SESSION_KEY}" // session key
+ *  }
+ */
+
 //! require 'command.js'
 
 !function (ns) {
@@ -46,25 +57,25 @@
     var Command = ns.protocol.Command;
 
     /**
-     *  Command message: {
-     *      type : 0x88,
-     *      sn   : 123,
+     *  Create handshake command
      *
-     *      command : "handshake",    // command name
-     *      message : "Hello world!",
-     *      session : "{SESSION_KEY}" // session key
-     *  }
+     * @param info - command info; or message text
+     * @constructor
      */
     var HandshakeCommand = function (info) {
+        var message = null;
         if (!info) {
-            Command.call(this, Command.HANDSHAKE);
+            // create empty handshake command
+            info = Command.HANDSHAKE;
         } else if (typeof info === 'string') {
-            Command.call(this, Command.HANDSHAKE);
-            this.setMessage(info);
-        } else {
-            Command.call(this, info);
+            // create handshake command with message string
+            message = info;
+            info = Command.HANDSHAKE;
         }
         Command.call(this, info);
+        if (message) {
+            this.setMessage(message);
+        }
     };
     HandshakeCommand.inherits(Command);
 

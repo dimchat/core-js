@@ -30,6 +30,19 @@
 // =============================================================================
 //
 
+/**
+ *  Command message: {
+ *      type : 0x88,
+ *      sn   : 123,
+ *
+ *      command   : "profile", // command name
+ *      ID        : "{ID}",    // entity ID
+ *      meta      : {...},     // only for handshaking with new friend
+ *      profile   : {...},     // when profile is empty, means query for ID
+ *      signature : "..."      // old profile's signature for querying
+ *  }
+ */
+
 //! require 'meta.js'
 
 !function (ns) {
@@ -42,25 +55,24 @@
     var MetaCommand = ns.protocol.MetaCommand;
 
     /**
-     *  Command message: {
-     *      type : 0x88,
-     *      sn   : 123,
+     *  Create profile command
      *
-     *      command   : "profile", // command name
-     *      ID        : "{ID}",    // entity ID
-     *      meta      : {...},     // only for handshaking with new friend
-     *      profile   : {...},     // when profile is empty, means query for ID
-     *      signature : "..."      // old profile's signature for querying
-     *  }
+     * @param info - command info; or entity ID
+     * @constructor
      */
     var ProfileCommand = function (info) {
+        var identifier = null;
         if (!info) {
-            MetaCommand.call(this, Command.PROFILE);
+            // create empty profile command
+            info = Command.PROFILE;
         } else if (info instanceof ID) {
-            MetaCommand.call(this, Command.PROFILE);
+            // create query profile command with entity ID
+            identifier = info;
+            info = Command.PROFILE;
+        }
+        MetaCommand.call(this, info);
+        if (identifier) {
             this.setIdentifier(info);
-        } else {
-            MetaCommand.call(this, info);
         }
         // lazy
         this.profile = null;

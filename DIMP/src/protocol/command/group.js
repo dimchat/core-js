@@ -30,6 +30,18 @@
 // =============================================================================
 //
 
+/**
+ *  Group history command: {
+ *      type : 0x89,
+ *      sn   : 123,
+ *
+ *      command : "invite",      // expel, ...
+ *      group   : "{GROUP_ID}",
+ *      member  : "{MEMBER_ID}",
+ *      members : ["{MEMBER_ID}", ],
+ *  }
+ */
+
 //! require 'history.js'
 
 !function (ns) {
@@ -40,18 +52,6 @@
     var Content = ns.Content;
     var Command = ns.protocol.Command;
     var HistoryCommand = ns.protocol.HistoryCommand;
-
-    /*
-     *  Group history command: {
-     *      type : 0x89,
-     *      sn   : 123,
-     *
-     *      command : "invite",      // expel, ...
-     *      group   : "{GROUP_ID}",
-     *      member  : "{MEMBER_ID}",
-     *      members : ["{MEMBER_ID}", ],
-     *  }
-     */
 
     /**
      *  Create group command

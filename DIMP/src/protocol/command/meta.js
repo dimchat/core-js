@@ -30,6 +30,17 @@
 // =============================================================================
 //
 
+/**
+ *  Command message: {
+ *      type : 0x88,
+ *      sn   : 123,
+ *
+ *      command : "meta", // command name
+ *      ID      : "{ID}", // contact's ID
+ *      meta    : {...}   // when meta is empty, means query meta for ID
+ *  }
+ */
+
 //! require 'command.js'
 
 !function (ns) {
@@ -41,23 +52,24 @@
     var Command = ns.protocol.Command;
 
     /**
-     *  Command message: {
-     *      type : 0x88,
-     *      sn   : 123,
+     *  Create meta command
      *
-     *      command : "meta", // command name
-     *      ID      : "{ID}", // contact's ID
-     *      meta    : {...}   // when meta is empty, means query meta for ID
-     *  }
+     * @param info - command info; or entity ID
+     * @constructor
      */
     var MetaCommand = function (info) {
+        var identifier = null;
         if (!info) {
-            Command.call(this, Command.META);
+            // create empty meta command
+            info = Command.META;
         } else if (info instanceof ID) {
-            Command.call(this, Command.META);
+            // create query meta command with entity ID
+            identifier = info;
+            info = Command.META;
+        }
+        Command.call(this, info);
+        if (identifier) {
             this.setIdentifier(info);
-        } else {
-            Command.call(this, info);
         }
         // lazy
         this.meta = null;

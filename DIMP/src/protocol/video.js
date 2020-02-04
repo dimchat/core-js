@@ -30,6 +30,17 @@
 // =============================================================================
 //
 
+/**
+ *  Video message: {
+ *      type : 0x16,
+ *      sn   : 123,
+ *
+ *      URL      : "http://",      // for encrypted file data from CDN
+ *      filename : "movie.mp4",
+ *      snapshot : "...",          // base64_encode(smallImage)
+ *  }
+ */
+
 //! require <dkd.js>
 //! require 'file.js'
 
@@ -43,23 +54,17 @@
     var FileContent = ns.protocol.FileContent;
 
     /**
-     *  Video message: {
-     *      type : 0x16,
-     *      sn   : 123,
+     *  Create video message content
      *
-     *      URL      : "http://",      // for encrypted file data from CDN
-     *      filename : "movie.mp4",
-     *      snapshot : "...",          // base64_encode(smallImage)
-     *  }
+     * @param content
+     * @constructor
      */
     var VideoContent = function (content) {
         if (!content) {
             // create empty video file content
-            FileContent.call(this, ContentType.VIDEO);
-        } else {
-            // create video file content
-            FileContent.call(this, content);
+            content = ContentType.VIDEO;
         }
+        FileContent.call(this, content);
         this.snapshot = null;
     };
     VideoContent.inherits(FileContent);

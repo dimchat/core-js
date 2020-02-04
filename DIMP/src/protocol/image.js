@@ -30,6 +30,17 @@
 // =============================================================================
 //
 
+/**
+ *  Image message: {
+ *      type : 0x12,
+ *      sn   : 123,
+ *
+ *      URL      : "http://",      // for encrypted file data from CDN
+ *      filename : "photo.png",
+ *      thumbnail : "...",         // base64_encode(smallImage)
+ *  }
+ */
+
 //! require <dkd.js>
 //! require 'file.js'
 
@@ -43,23 +54,17 @@
     var FileContent = ns.protocol.FileContent;
 
     /**
-     *  Image message: {
-     *      type : 0x12,
-     *      sn   : 123,
+     *  Create image content
      *
-     *      URL      : "http://",      // for encrypted file data from CDN
-     *      filename : "photo.png",
-     *      thumbnail : "...",         // base64_encode(smallImage)
-     *  }
+     * @param content
+     * @constructor
      */
     var ImageContent = function (content) {
         if (!content) {
             // create empty image file content
-            FileContent.call(this, ContentType.IMAGE);
-        } else {
-            // create image file content
-            FileContent.call(this, content);
+            content = ContentType.IMAGE;
         }
+        FileContent.call(this, content);
         this.thumbnail = null;
     };
     ImageContent.inherits(FileContent);

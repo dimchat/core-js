@@ -30,6 +30,17 @@
 // =============================================================================
 //
 
+/**
+ *  File message: {
+ *      type : 0x10,
+ *      sn   : 123,
+ *
+ *      URL      : "http://",      // for encrypted file data from CDN
+ *      filename : "filename.ext",
+ *      password : {},             // message.key for decrypting file data
+ *  }
+ */
+
 //! require <crypto.js>
 //! require <dkd.js>
 
@@ -42,23 +53,17 @@
     var ContentType = ns.protocol.ContentType;
 
     /**
-     *  File message: {
-     *      type : 0x10,
-     *      sn   : 123,
+     *  Create file message content
      *
-     *      URL      : "http://",      // for encrypted file data from CDN
-     *      filename : "filename.ext",
-     *      password : {},             // message.key for decrypting file data
-     *  }
+     * @param content
+     * @constructor
      */
     var FileContent = function (content) {
         if (!content) {
             // create empty file content
-            Content.call(this, ContentType.FILE);
-        } else {
-            // create file content
-            Content.call(this, content);
+            content = ContentType.FILE;
         }
+        Content.call(this, content);
         // file data
         this.attachment = null;
         // symmetric key for decrypting file data
