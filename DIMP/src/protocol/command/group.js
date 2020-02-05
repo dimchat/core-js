@@ -68,7 +68,7 @@
         }
         HistoryCommand.call(this, info);
         if (group) {
-            this.setGroup(info);
+            this.setGroup(group);
         }
     };
     GroupCommand.inherits(HistoryCommand);

@@ -60,7 +60,7 @@
         }
         Content.call(this, content);
         if (text) {
-            this.setText(content);
+            this.setText(text);
         }
     };
     TextContent.inherits(Content);

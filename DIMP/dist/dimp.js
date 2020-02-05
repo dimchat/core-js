@@ -2227,7 +2227,7 @@ if (typeof DIMP !== "object") {
         }
         Content.call(this, content);
         if (text) {
-            this.setText(content)
+            this.setText(text)
         }
     };
     TextContent.inherits(Content);
@@ -2532,7 +2532,7 @@ if (typeof DIMP !== "object") {
         }
         Command.call(this, info);
         if (identifier) {
-            this.setIdentifier(info)
+            this.setIdentifier(identifier)
         }
         this.meta = null
     };
@@ -2797,7 +2797,7 @@ if (typeof DIMP !== "object") {
         }
         HistoryCommand.call(this, info);
         if (group) {
-            this.setGroup(info)
+            this.setGroup(group)
         }
     };
     GroupCommand.inherits(HistoryCommand);

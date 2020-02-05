@@ -21,7 +21,7 @@
         }
         Content.call(this, content);
         if (text) {
-            this.setText(content)
+            this.setText(text)
         }
     };
     TextContent.inherits(Content);
@@ -326,7 +326,7 @@
         }
         Command.call(this, info);
         if (identifier) {
-            this.setIdentifier(info)
+            this.setIdentifier(identifier)
         }
         this.meta = null
     };
@@ -591,7 +591,7 @@
         }
         HistoryCommand.call(this, info);
         if (group) {
-            this.setGroup(info)
+            this.setGroup(group)
         }
     };
     GroupCommand.inherits(HistoryCommand);
