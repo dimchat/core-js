@@ -72,7 +72,7 @@
         }
         MetaCommand.call(this, info);
         if (identifier) {
-            this.setIdentifier(info);
+            this.setIdentifier(identifier);
         }
         // lazy
         this.profile = null;

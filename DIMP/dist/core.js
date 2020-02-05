@@ -376,7 +376,7 @@
         }
         MetaCommand.call(this, info);
         if (identifier) {
-            this.setIdentifier(info)
+            this.setIdentifier(identifier)
         }
         this.profile = null
     };

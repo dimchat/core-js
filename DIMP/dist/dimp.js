@@ -649,7 +649,11 @@ if (typeof DIMP !== "object") {
                 }
             }
             obj.call(this);
-            this.value = value;
+            if (value instanceof enumeration) {
+                this.value = value.value
+            } else {
+                this.value = value
+            }
             this.alias = alias
         };
         enumeration.inherits(obj);
@@ -2578,7 +2582,7 @@ if (typeof DIMP !== "object") {
         }
         MetaCommand.call(this, info);
         if (identifier) {
-            this.setIdentifier(info)
+            this.setIdentifier(identifier)
         }
         this.profile = null
     };
