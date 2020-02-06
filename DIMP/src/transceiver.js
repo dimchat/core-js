@@ -30,8 +30,7 @@
 // =============================================================================
 //
 
-//! require <crypto.js>
-//! require <mkm.js>
+//! require 'namespace.js'
 //! require 'cache.js'
 //! require 'barrack.js'
 
@@ -347,6 +346,8 @@
 
 
     //-------- namespace --------
-    ns.Transceiver = Transceiver;
+    ns.core.Transceiver = Transceiver;
+
+    ns.core.register('Transceiver');
 
 }(DIMP);

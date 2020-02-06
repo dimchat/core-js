@@ -97,4 +97,6 @@
     //-------- namespace --------
     ns.protocol.ImageContent = ImageContent;
 
+    ns.protocol.register('ImageContent');
+
 }(DIMP);

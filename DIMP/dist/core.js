@@ -7,6 +7,25 @@
  * @license   {@link https://mit-license.org | MIT License}
  */
 ! function(ns) {
+    DaoKeDao.exports(ns);
+    MingKeMing.exports(ns);
+    if (typeof ns.protocol !== "object") {
+        ns.protocol = {}
+    }
+    if (typeof ns.plugins !== "object") {
+        ns.plugins = {}
+    }
+    if (typeof ns.core !== "object") {
+        ns.core = {}
+    }
+    DIMP.namespace(ns.protocol);
+    DIMP.namespace(ns.plugins);
+    DIMP.namespace(ns.core);
+    ns.register("protocol");
+    ns.register("plugins");
+    ns.register("core")
+}(DIMP);
+! function(ns) {
     var Content = ns.Content;
     var ContentType = ns.protocol.ContentType;
     var TextContent = function(content) {
@@ -32,7 +51,8 @@
         this.setValue("text", text)
     };
     Content.register(ContentType.TEXT, TextContent);
-    ns.protocol.TextContent = TextContent
+    ns.protocol.TextContent = TextContent;
+    ns.protocol.register("TextContent")
 }(DIMP);
 ! function(ns) {
     var Content = ns.Content;
@@ -90,7 +110,8 @@
         this.icon = data
     };
     Content.register(ContentType.PAGE, PageContent);
-    ns.protocol.PageContent = PageContent
+    ns.protocol.PageContent = PageContent;
+    ns.protocol.register("PageContent")
 }(DIMP);
 ! function(ns) {
     var SymmetricKey = ns.crypto.SymmetricKey;
@@ -160,7 +181,8 @@
         this.password = key
     };
     Content.register(ContentType.FILE, FileContent);
-    ns.protocol.FileContent = FileContent
+    ns.protocol.FileContent = FileContent;
+    ns.protocol.register("FileContent")
 }(DIMP);
 ! function(ns) {
     var Base64 = ns.format.Base64;
@@ -194,7 +216,8 @@
         this.thumbnail = image
     };
     Content.register(ContentType.IMAGE, ImageContent);
-    ns.protocol.ImageContent = ImageContent
+    ns.protocol.ImageContent = ImageContent;
+    ns.protocol.register("ImageContent")
 }(DIMP);
 ! function(ns) {
     var Content = ns.Content;
@@ -214,7 +237,8 @@
         this.setValue("text", asr)
     };
     Content.register(ContentType.AUDIO, AudioContent);
-    ns.protocol.AudioContent = AudioContent
+    ns.protocol.AudioContent = AudioContent;
+    ns.protocol.register("AudioContent")
 }(DIMP);
 ! function(ns) {
     var Base64 = ns.format.Base64;
@@ -248,7 +272,8 @@
         this.snapshot = image
     };
     Content.register(ContentType.VIDEO, VideoContent);
-    ns.protocol.VideoContent = VideoContent
+    ns.protocol.VideoContent = VideoContent;
+    ns.protocol.register("VideoContent")
 }(DIMP);
 ! function(ns) {
     var Content = ns.Content;
@@ -308,7 +333,8 @@
         return new Command(cmd)
     };
     Content.register(ContentType.COMMAND, Command);
-    ns.protocol.Command = Command
+    ns.protocol.Command = Command;
+    ns.protocol.register("Command")
 }(DIMP);
 ! function(ns) {
     var ID = ns.ID;
@@ -357,7 +383,8 @@
         return cmd
     };
     Command.register(Command.META, MetaCommand);
-    ns.protocol.MetaCommand = MetaCommand
+    ns.protocol.MetaCommand = MetaCommand;
+    ns.protocol.register("MetaCommand")
 }(DIMP);
 ! function(ns) {
     var ID = ns.ID;
@@ -421,7 +448,8 @@
         return cmd
     };
     Command.register(Command.PROFILE, ProfileCommand);
-    ns.protocol.ProfileCommand = ProfileCommand
+    ns.protocol.ProfileCommand = ProfileCommand;
+    ns.protocol.register("ProfileCommand")
 }(DIMP);
 ! function(ns) {
     var HandshakeState = ns.type.Enum({
@@ -499,7 +527,9 @@
     };
     Command.register(Command.HANDSHAKE, HandshakeCommand);
     ns.protocol.HandshakeCommand = HandshakeCommand;
-    ns.protocol.HandshakeState = HandshakeState
+    ns.protocol.HandshakeState = HandshakeState;
+    ns.protocol.register("HandshakeCommand");
+    ns.protocol.register("HandshakeState")
 }(DIMP);
 ! function(ns) {
     var Content = ns.Content;
@@ -576,7 +606,8 @@
         return new HistoryCommand(cmd)
     };
     Content.register(ContentType.HISTORY, HistoryCommand);
-    ns.protocol.HistoryCommand = HistoryCommand
+    ns.protocol.HistoryCommand = HistoryCommand;
+    ns.protocol.register("HistoryCommand")
 }(DIMP);
 ! function(ns) {
     var ID = ns.ID;
@@ -644,7 +675,8 @@
         }
         return new GroupCommand(cmd)
     };
-    ns.protocol.GroupCommand = GroupCommand
+    ns.protocol.GroupCommand = GroupCommand;
+    ns.protocol.register("GroupCommand")
 }(DIMP);
 ! function(ns) {
     var ID = ns.ID;
@@ -792,12 +824,20 @@
     if (typeof ns.protocol.group !== "object") {
         ns.protocol.group = {}
     }
+    DIMP.namespace(ns.protocol.group);
+    ns.protocol.register("group");
     ns.protocol.group.InviteCommand = InviteCommand;
     ns.protocol.group.ExpelCommand = ExpelCommand;
     ns.protocol.group.JoinCommand = JoinCommand;
     ns.protocol.group.QuitCommand = QuitCommand;
     ns.protocol.group.ResetCommand = ResetCommand;
-    ns.protocol.group.QueryCommand = QueryCommand
+    ns.protocol.group.QueryCommand = QueryCommand;
+    ns.protocol.group.register("InviteCommand");
+    ns.protocol.group.register("ExpelCommand");
+    ns.protocol.group.register("JoinCommand");
+    ns.protocol.group.register("QuitCommand");
+    ns.protocol.group.register("ResetCommand");
+    ns.protocol.group.register("QueryCommand")
 }(DIMP);
 ! function(ns) {
     var EntityDelegate = function() {};
@@ -816,7 +856,8 @@
         console.assert(false, "implement me!");
         return null
     };
-    ns.EntityDelegate = EntityDelegate
+    ns.EntityDelegate = EntityDelegate;
+    ns.register("EntityDelegate")
 }(DIMP);
 ! function(ns) {
     var CipherKeyDelegate = function() {};
@@ -839,7 +880,8 @@
         console.assert(false, "implement me!");
         return null
     };
-    ns.CipherKeyDelegate = CipherKeyDelegate
+    ns.CipherKeyDelegate = CipherKeyDelegate;
+    ns.register("CipherKeyDelegate")
 }(DIMP);
 ! function(ns) {
     var Dictionary = ns.type.Dictionary;
@@ -866,9 +908,6 @@
     };
     PlainKey.PLAIN = "PLAIN";
     SymmetricKey.register(PlainKey.PLAIN, PlainKey);
-    if (typeof ns.plugins !== "object") {
-        ns.plugins = {}
-    }
     ns.plugins.PlainKey = PlainKey
 }(DIMP);
 ! function(ns) {
@@ -964,7 +1003,8 @@
             return this.getCipherKey(sender, receiver)
         }
     };
-    ns.KeyCache = KeyCache
+    ns.core.KeyCache = KeyCache;
+    ns.core.register("KeyCache")
 }(DIMP);
 ! function(ns) {
     var ID = ns.ID;
@@ -1127,7 +1167,8 @@
         }
         return null
     };
-    ns.Barrack = Barrack
+    ns.core.Barrack = Barrack;
+    ns.core.register("Barrack")
 }(DIMP);
 ! function(ns) {
     var SymmetricKey = ns.crypto.SymmetricKey;
@@ -1330,5 +1371,6 @@
             throw Error("failed to get verify key for sender: " + sender)
         }
     };
-    ns.Transceiver = Transceiver
+    ns.core.Transceiver = Transceiver;
+    ns.core.register("Transceiver")
 }(DIMP);

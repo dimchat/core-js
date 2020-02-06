@@ -282,6 +282,8 @@
     };
 
     //-------- namespace --------
-    ns.Barrack = Barrack;
+    ns.core.Barrack = Barrack;
+
+    ns.core.register('Barrack');
 
 }(DIMP);

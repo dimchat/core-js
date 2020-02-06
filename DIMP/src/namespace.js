@@ -30,58 +30,35 @@
 // =============================================================================
 //
 
-/**
- *  Audio message: {
- *      type : 0x14,
- *      sn   : 123,
- *
- *      URL      : "http://",      // for encrypted file data from CDN
- *      filename : "voice.mp3",
- *      text     : "...",          // Automatic Speech Recognition
- *  }
- */
-
+//! require <crypto.js>
 //! require <dkd.js>
-//! require 'file.js'
+//! require <mkm.js>
 
 !function (ns) {
     'use strict';
 
-    var Content = ns.Content;
-    var ContentType = ns.protocol.ContentType;
-    var FileContent = ns.protocol.FileContent;
-
-    /**
-     *  Create audio message content
-     *
-     * @param content
-     * @constructor
-     */
-    var AudioContent = function (content) {
-        if (!content) {
-            // create empty audio file content
-            content = ContentType.AUDIO;
-        }
-        FileContent.call(this, content);
-    };
-    AudioContent.inherits(FileContent);
-
-    //-------- setter/getter --------
-
-    AudioContent.prototype.getText = function () {
-        return this.getValue('text');
-    };
-
-    AudioContent.prototype.setText = function (asr) {
-        this.setValue('text', asr);
-    };
-
-    //-------- register --------
-    Content.register(ContentType.AUDIO, AudioContent);
+    // exports namespace from DaoKeDao
+    DaoKeDao.exports(ns);
+    // exports namespace from MingKeMing
+    MingKeMing.exports(ns);
 
     //-------- namespace --------
-    ns.protocol.AudioContent = AudioContent;
+    if (typeof ns.protocol !== 'object') {
+        ns.protocol = {};
+    }
+    if (typeof ns.plugins !== 'object') {
+        ns.plugins = {};
+    }
+    if (typeof ns.core !== 'object') {
+        ns.core = {};
+    }
 
-    ns.protocol.register('AudioContent');
+    DIMP.namespace(ns.protocol);
+    DIMP.namespace(ns.plugins);
+    DIMP.namespace(ns.core);
+
+    ns.register('protocol');
+    ns.register('plugins');
+    ns.register('core');
 
 }(DIMP);

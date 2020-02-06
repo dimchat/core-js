@@ -156,6 +156,8 @@
     //-------- namespace --------
     ns.protocol.GroupCommand = GroupCommand;
 
+    ns.protocol.register('GroupCommand');
+
 }(DIMP);
 
 !function (ns) {
@@ -350,8 +352,11 @@
 
     //-------- namespace --------
     if (typeof ns.protocol.group !== 'object') {
-        ns.protocol.group = {}
+        ns.protocol.group = {};
     }
+    DIMP.namespace(ns.protocol.group);
+    ns.protocol.register('group');
+
     ns.protocol.group.InviteCommand = InviteCommand;
     ns.protocol.group.ExpelCommand = ExpelCommand;
     ns.protocol.group.JoinCommand = JoinCommand;
@@ -359,5 +364,13 @@
 
     ns.protocol.group.ResetCommand = ResetCommand;
     ns.protocol.group.QueryCommand = QueryCommand;
+
+    ns.protocol.group.register('InviteCommand');
+    ns.protocol.group.register('ExpelCommand');
+    ns.protocol.group.register('JoinCommand');
+    ns.protocol.group.register('QuitCommand');
+
+    ns.protocol.group.register('ResetCommand');
+    ns.protocol.group.register('QueryCommand');
 
 }(DIMP);

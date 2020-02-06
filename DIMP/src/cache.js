@@ -30,8 +30,7 @@
 // =============================================================================
 //
 
-//! require <crypto.js>
-//! require <mkm.js>
+//! require 'namespace.js'
 
 !function (ns) {
     'use strict';
@@ -71,10 +70,9 @@
     SymmetricKey.register(PlainKey.PLAIN, PlainKey);
 
     //-------- namespace --------
-    if (typeof ns.plugins !== 'object') {
-        ns.plugins = {};
-    }
     ns.plugins.PlainKey = PlainKey;
+
+    // ns.plugins.register('PlainKey');
 
 }(DIMP);
 
@@ -225,6 +223,8 @@
     };
 
     //-------- namespace --------
-    ns.KeyCache = KeyCache;
+    ns.core.KeyCache = KeyCache;
+
+    ns.core.register('KeyCache');
 
 }(DIMP);

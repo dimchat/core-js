@@ -41,8 +41,7 @@
  *  }
  */
 
-//! require <crypto.js>
-//! require <dkd.js>
+//! require 'namespace.js'
 
 !function (ns) {
     'use strict';
@@ -143,5 +142,7 @@
 
     //-------- namespace --------
     ns.protocol.FileContent = FileContent;
+
+    ns.protocol.register('FileContent');
 
 }(DIMP);

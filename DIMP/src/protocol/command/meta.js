@@ -115,4 +115,6 @@
     //-------- namespace --------
     ns.protocol.MetaCommand = MetaCommand;
 
+    ns.protocol.register('MetaCommand');
+
 }(DIMP);

@@ -30,8 +30,7 @@
 // =============================================================================
 //
 
-//! require <crypto.js>
-//! require <mkm.js>
+//! require 'namespace.js'
 
 !function (ns) {
     'use strict';
@@ -77,6 +76,8 @@
 
     //-------- namespace --------
     ns.EntityDelegate = EntityDelegate;
+
+    ns.register('EntityDelegate');
 
 }(DIMP);
 
@@ -132,5 +133,7 @@
 
     //-------- namespace --------
     ns.CipherKeyDelegate = CipherKeyDelegate;
+
+    ns.register('CipherKeyDelegate');
 
 }(DIMP);

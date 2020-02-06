@@ -129,4 +129,6 @@
     //-------- namespace --------
     ns.protocol.Command = Command;
 
+    ns.protocol.register('Command');
+
 }(DIMP);

@@ -144,4 +144,7 @@
     ns.protocol.HandshakeCommand = HandshakeCommand;
     ns.protocol.HandshakeState = HandshakeState;
 
+    ns.protocol.register('HandshakeCommand');
+    ns.protocol.register('HandshakeState');
+
 }(DIMP);

@@ -97,4 +97,6 @@
     //-------- namespace --------
     ns.protocol.VideoContent = VideoContent;
 
+    ns.protocol.register('VideoContent');
+
 }(DIMP);

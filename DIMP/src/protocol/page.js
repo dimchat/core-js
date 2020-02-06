@@ -121,4 +121,6 @@
     //-------- namespace --------
     ns.protocol.PageContent = PageContent;
 
+    ns.protocol.register('PageContent');
+
 }(DIMP);

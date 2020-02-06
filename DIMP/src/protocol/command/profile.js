@@ -144,4 +144,6 @@
     //-------- namespace --------
     ns.protocol.ProfileCommand = ProfileCommand;
 
+    ns.protocol.register('ProfileCommand');
+
 }(DIMP);

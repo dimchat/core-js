@@ -81,4 +81,6 @@
     //-------- namespace --------
     ns.protocol.TextContent = TextContent;
 
+    ns.protocol.register('TextContent');
+
 }(DIMP);
