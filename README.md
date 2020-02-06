@@ -9,9 +9,12 @@
 
 ### Dependencies
 
-1. Crypto - https://github.com/dimchat/mkm-js/blob/master/Crypto/dist/crypto.js
-2. MingKeMing - https://github.com/dimchat/mkm-js/blob/master/MingKeMing/dist/mkm.js
-3. DaoKeDao - https://github.com/dimchat/dkd-js/blob/master/DaoKeDao/dist/dkd.js
+1. Crypto - <https://github.com/dimchat/mkm-js/blob/master/Crypto/dist/crypto.js>
+2. MingKeMing - <https://github.com/dimchat/mkm-js/blob/master/MingKeMing/dist/mkm.js>
+3. DaoKeDao - <https://github.com/dimchat/dkd-js/blob/master/DaoKeDao/dist/dkd.js>
+4. Core - <https://github.com/dimchat/core-js/blob/master/DIMP/dist/core.js>
+
+All in one - <https://github.com/dimchat/core-js/blob/master/DIMP/dist/dimp.js>
 
 ### Common Extensions
 
