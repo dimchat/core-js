@@ -67,7 +67,7 @@
         FileContent.call(this, content);
         this.thumbnail = null;
     };
-    ImageContent.inherits(FileContent);
+    ns.type.Class(ImageContent, FileContent);
 
     //-------- setter/getter --------
 

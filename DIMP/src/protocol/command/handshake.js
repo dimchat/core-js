@@ -77,7 +77,7 @@
             this.setMessage(message);
         }
     };
-    HandshakeCommand.inherits(Command);
+    ns.type.Class(HandshakeCommand, Command);
 
     //-------- setter/getter --------
 

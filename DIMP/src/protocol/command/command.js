@@ -69,7 +69,7 @@
             this.setCommand(name);
         }
     };
-    Command.inherits(Content);
+    ns.type.Class(Command, Content);
 
     /**
      *  Command name

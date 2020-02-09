@@ -74,7 +74,7 @@
         // lazy
         this.meta = null;
     };
-    MetaCommand.inherits(Command);
+    ns.type.Class(MetaCommand, Command);
 
     //-------- setter/getter --------
 

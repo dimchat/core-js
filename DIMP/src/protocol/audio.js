@@ -64,7 +64,7 @@
         }
         FileContent.call(this, content);
     };
-    AudioContent.inherits(FileContent);
+    ns.type.Class(AudioContent, FileContent);
 
     //-------- setter/getter --------
 

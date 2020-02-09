@@ -41,7 +41,7 @@
     var PlainKey = function (key) {
         Dictionary.call(this, key)
     };
-    PlainKey.inherits(Dictionary, SymmetricKey);
+    ns.type.Class(PlainKey, Dictionary, SymmetricKey);
 
     PlainKey.prototype.encrypt = function (data) {
         return data;
@@ -91,7 +91,7 @@
         this.keyMap = {};
         this.isDirty = false;
     };
-    KeyCache.inherits(Object, CipherKeyDelegate);
+    ns.type.Class(KeyCache, null, CipherKeyDelegate);
 
     /**
      *  Trigger for loading cipher key table

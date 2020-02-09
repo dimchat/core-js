@@ -77,7 +77,7 @@
             this.setTime(time);
         }
     };
-    HistoryCommand.inherits(Command);
+    ns.type.Class(HistoryCommand, Command);
 
     /**
      *  Command time

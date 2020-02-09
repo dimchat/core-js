@@ -68,7 +68,7 @@
         // symmetric key for decrypting file data
         this.password = null;
     };
-    FileContent.inherits(Content);
+    ns.type.Class(FileContent, Content);
 
     //-------- setter/getter --------
 

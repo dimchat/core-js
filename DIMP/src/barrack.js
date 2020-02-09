@@ -51,7 +51,7 @@
         this.userMap  = {};  // ID -> User
         this.groupMap = {};  // ID -> Group
     };
-    Barrack.inherits(Object, EntityDelegate, UserDataSource, GroupDataSource);
+    ns.type.Class(Barrack, null, EntityDelegate, UserDataSource, GroupDataSource);
 
     /**
      *  Remove 1/2 objects from the dictionary

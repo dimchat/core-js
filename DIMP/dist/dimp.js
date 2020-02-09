@@ -8,86 +8,7 @@
  */
 if (typeof DIMP !== "object") {
     DIMP = {}
-}! function() {
-    var is_instanceof = function(clazz) {
-        if (this instanceof clazz) {
-            return true
-        }
-        var me = Object.getPrototypeOf(this);
-        var prototype = clazz.prototype;
-        var names = Object.getOwnPropertyNames(prototype);
-        for (var j = 0; j < names.length; ++j) {
-            var key = names[j];
-            if (!me.hasOwnProperty(key)) {
-                return false
-            }
-        }
-        return true
-    };
-    var implement = function(protocol) {
-        var prototype = protocol.prototype;
-        var names = Object.getOwnPropertyNames(prototype);
-        for (var j = 0; j < names.length; ++j) {
-            var key = names[j];
-            if (this.prototype.hasOwnProperty(key)) {
-                continue
-            }
-            var fn = prototype[key];
-            if (typeof fn !== "function") {
-                continue
-            }
-            this.prototype[key] = fn
-        }
-        return this
-    };
-    var extend = function(base) {
-        this.prototype = Object.create(base.prototype);
-        this.prototype.constructor = this;
-        return this
-    };
-    var inherits = function() {
-        extend.call(this, arguments[0]);
-        for (var i = 0; i < arguments.length; ++i) {
-            implement.call(this, arguments[i])
-        }
-        return this
-    };
-    if (typeof Object.prototype.isinstanceof !== "function") {
-        Object.prototype.isinstanceof = is_instanceof
-    }
-    if (typeof Function.prototype.inherits !== "function") {
-        Function.prototype.inherits = inherits
-    }
-    if (typeof Array.prototype.indexOf !== "function") {
-        Array.prototype.indexOf = function(item, start) {
-            if (!start) {
-                start = 0
-            }
-            var length = this.length;
-            for (var i = start; i < length; ++i) {
-                if (this[i] === item) {
-                    return i
-                }
-            }
-            return -1
-        }
-    }
-    if (typeof Array.prototype.contains !== "function") {
-        Array.prototype.contains = function(item) {
-            return this.indexOf(item) >= 0
-        }
-    }
-    if (typeof Array.prototype.remove !== "function") {
-        Array.prototype.remove = function(item) {
-            var index = this.indexOf(item);
-            if (index < 0) {
-                return null
-            }
-            return this.splice(index, 1)
-        }
-    }
-}();
-! function(ns) {
+}! function(ns) {
     var is_space = function(space) {
         if (typeof space.exports !== "function") {
             return false
@@ -98,11 +19,12 @@ if (typeof DIMP !== "object") {
         return space.__all__ instanceof Array
     };
     var register = function(name) {
-        if (this.__all__.contains(name)) {
+        if (this.__all__.indexOf(name) < 0) {
+            this.__all__.push(name);
+            return true
+        } else {
             return false
         }
-        this.__all__.push(name);
-        return true
     };
     var exports = function(outerSpace) {
         if (!is_space(outerSpace)) {
@@ -163,6 +85,392 @@ if (typeof DIMP !== "object") {
     ns.register("format");
     ns.register("digest");
     ns.register("crypto")
+}(DIMP);
+! function(ns) {
+    var is_instance = function(object, clazz) {
+        if (object instanceof clazz) {
+            return true
+        }
+        var child = Object.getPrototypeOf(object);
+        var names = Object.getOwnPropertyNames(clazz.prototype);
+        for (var i = 0; i < names.length; ++i) {
+            if (!child.hasOwnProperty(names[i])) {
+                return false
+            }
+        }
+        return true
+    };
+    var inherit = function(clazz, protocol) {
+        var prototype = protocol.prototype;
+        var names = Object.getOwnPropertyNames(prototype);
+        for (var i = 0; i < names.length; ++i) {
+            var key = names[i];
+            if (clazz.prototype.hasOwnProperty(key)) {
+                continue
+            }
+            var fn = prototype[key];
+            if (typeof fn !== "function") {
+                continue
+            }
+            clazz.prototype[key] = fn
+        }
+        return clazz
+    };
+    var inherits = function(clazz, interfaces) {
+        for (var i = 0; i < interfaces.length; ++i) {
+            clazz = inherit(clazz, interfaces[i])
+        }
+        return clazz
+    };
+    var face = function(child, parent) {
+        if (!child) {
+            child = function() {}
+        }
+        if (parent) {
+            if (!(parent instanceof Array)) {
+                var list = [];
+                for (var i = 1; i < arguments.length; ++i) {
+                    list.push(arguments[i])
+                }
+                parent = list
+            }
+            child = inherits(child, parent)
+        }
+        return child
+    };
+    var clazz = function(child, parent, interfaces) {
+        if (!child) {
+            child = function() {}
+        }
+        if (!parent) {
+            parent = Object
+        }
+        child.prototype = Object.create(parent.prototype);
+        inherit(child, parent);
+        if (interfaces) {
+            if (!(interfaces instanceof Array)) {
+                var list = [];
+                for (var i = 2; i < arguments.length; ++i) {
+                    list.push(arguments[i])
+                }
+                interfaces = list
+            }
+            child = inherits(child, interfaces)
+        }
+        child.prototype.constructor = child;
+        return child
+    };
+    var obj = clazz();
+    obj.prototype.equals = function(other) {
+        return this === other
+    };
+    obj.isinstance = is_instance;
+    ns.type.Interface = face;
+    ns.type.Class = clazz;
+    ns.type.Object = obj;
+    ns.type.register("Interface");
+    ns.type.register("Class");
+    ns.type.register("Object")
+}(DIMP);
+! function(ns) {
+    var base_enum = function(value, alias) {
+        ns.type.Object.call(this);
+        if (value instanceof base_enum) {
+            this.value = value.value
+        } else {
+            this.value = value
+        }
+        this.alias = alias
+    };
+    ns.type.Class(base_enum, ns.type.Object);
+    base_enum.prototype.equals = function(other) {
+        if (!other) {
+            return !this.value
+        } else {
+            if (other instanceof base_enum) {
+                return this.value === other.value
+            } else {
+                return this.value === other
+            }
+        }
+    };
+    base_enum.prototype.valueOf = function() {
+        return this.value
+    };
+    base_enum.prototype.toString = function() {
+        return "<" + this.alias.toString() + ": " + this.value.toString() + ">"
+    };
+    base_enum.prototype.toLocaleString = function() {
+        return "<" + this.alias.toLocaleString() + ": " + this.value.toLocaleString() + ">"
+    };
+    base_enum.prototype.toJSON = function() {
+        return this.value
+    };
+    var enu = function(elements) {
+        var enumeration = function(value, alias) {
+            if (!alias) {
+                alias = get_name(value, enumeration);
+                if (!alias) {
+                    throw RangeError("enum error: " + value)
+                }
+            }
+            base_enum.call(this, value, alias)
+        };
+        ns.type.Class(enumeration, base_enum);
+        var e, v;
+        for (var name in elements) {
+            if (!elements.hasOwnProperty(name)) {
+                continue
+            }
+            v = elements[name];
+            if (typeof v === "function") {
+                continue
+            }
+            e = new enumeration(v, name);
+            enumeration[name] = e
+        }
+        return enumeration
+    };
+    var get_name = function(value, enumeration) {
+        if (value instanceof enumeration) {
+            return value.alias
+        }
+        var e;
+        for (var k in enumeration) {
+            e = enumeration[k];
+            if (e instanceof enumeration) {
+                if (e.equals(value)) {
+                    return e.alias
+                }
+            }
+        }
+        return null
+    };
+    ns.type.Enum = enu;
+    ns.type.register("Enum")
+}(DIMP);
+! function(ns) {
+    var UTF8 = {
+        encode: function(str) {
+            var array = [];
+            var len = str.length;
+            var c;
+            for (var i = 0; i < len; ++i) {
+                c = str.charCodeAt(i);
+                if (c <= 0) {
+                    break
+                } else {
+                    if (c < 128) {
+                        array.push(c)
+                    } else {
+                        if (c < 2048) {
+                            array.push(192 | ((c >> 6) & 31));
+                            array.push(128 | ((c >> 0) & 63))
+                        } else {
+                            array.push(224 | ((c >> 12) & 15));
+                            array.push(128 | ((c >> 6) & 63));
+                            array.push(128 | ((c >> 0) & 63))
+                        }
+                    }
+                }
+            }
+            return array
+        },
+        decode: function(array) {
+            var string = "";
+            var len = array.length;
+            var c, c2, c3;
+            for (var i = 0; i < len; ++i) {
+                c = array[i];
+                switch (c >> 4) {
+                    case 12:
+                    case 13:
+                        c2 = array[++i];
+                        c = ((c & 31) << 6) | (c2 & 63);
+                        break;
+                    case 14:
+                        c2 = array[++i];
+                        c3 = array[++i];
+                        c = ((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63);
+                        break
+                }
+                string += String.fromCharCode(c)
+            }
+            return string
+        }
+    };
+    var str = function(value, charset) {
+        if (!value) {
+            value = ""
+        } else {
+            if (value instanceof Array) {
+                if (!charset || charset === "UTF-8") {
+                    value = UTF8.decode(value)
+                } else {
+                    throw Error("only UTF-8 now")
+                }
+            } else {
+                if (value instanceof str) {
+                    value = value.string
+                } else {
+                    if (typeof value !== "string") {
+                        throw Error("string value error: " + value)
+                    }
+                }
+            }
+        }
+        ns.type.Object.call(this);
+        this.string = value
+    };
+    ns.type.Class(str, ns.type.Object);
+    str.prototype.getBytes = function(charset) {
+        if (!charset || charset === "UTF-8") {
+            return UTF8.encode(this.string)
+        }
+        throw Error("unknown charset: " + charset)
+    };
+    str.prototype.equals = function(other) {
+        if (!other) {
+            return !this.string
+        } else {
+            if (other instanceof str) {
+                return this.string === other.string
+            } else {
+                return this.string === other
+            }
+        }
+    };
+    var equalsIgnoreCase = function(str1, str2) {
+        if (str1.length !== str2.length) {
+            return false
+        }
+        var low1 = str1.toLowerCase();
+        var low2 = str2.toLowerCase();
+        return low1 === low2
+    };
+    str.prototype.equalsIgnoreCase = function(other) {
+        if (!other) {
+            return !this.string
+        } else {
+            if (other instanceof str) {
+                return equalsIgnoreCase(this.string, other.string)
+            } else {
+                return equalsIgnoreCase(this.string, other)
+            }
+        }
+    };
+    str.prototype.valueOf = function() {
+        return this.string
+    };
+    str.prototype.toString = function() {
+        return this.string
+    };
+    str.prototype.toLocaleString = function() {
+        return this.string.toLocaleString()
+    };
+    str.prototype.toJSON = function() {
+        return this.string
+    };
+    str.prototype.getLength = function() {
+        return this.string.length
+    };
+    ns.type.String = str;
+    ns.type.register("String")
+}(DIMP);
+! function(ns) {
+    var arrays = {
+        remove: function(array, item) {
+            var index = array.indexOf(item);
+            if (index < 0) {
+                return null
+            }
+            return array.splice(index, 1)
+        },
+        equals: function(a1, a2) {
+            if (a1 === a2) {
+                return true
+            }
+            if (a1.length !== a2.length) {
+                return false
+            }
+            for (var k in a1) {
+                if (a1[k] !== a2[k]) {
+                    return false
+                }
+            }
+            return true
+        }
+    };
+    var map = function(value) {
+        if (!value) {
+            value = {}
+        } else {
+            if (value instanceof map) {
+                value = value.dictionary
+            } else {
+                if (value instanceof ns.type.String) {
+                    value = ns.format.JSON.decode(value.toString())
+                } else {
+                    if (typeof value === "string") {
+                        value = ns.format.JSON.decode(value)
+                    }
+                }
+            }
+        }
+        ns.type.Object.call(this);
+        this.dictionary = value
+    };
+    ns.type.Class(map, ns.type.Object);
+    map.prototype.equals = function(other) {
+        if (!other) {
+            return !this.dictionary
+        } else {
+            if (other instanceof map) {
+                return arrays.equals(this.dictionary, other.dictionary)
+            } else {
+                return arrays.equals(this.dictionary, other)
+            }
+        }
+    };
+    map.prototype.valueOf = function() {
+        return this.dictionary
+    };
+    map.prototype.toString = function() {
+        return this.dictionary.toString()
+    };
+    map.prototype.toLocaleString = function() {
+        return this.dictionary.toLocaleString()
+    };
+    map.prototype.toJSON = function() {
+        return this.dictionary
+    };
+    map.prototype.getMap = function(copy) {
+        if (copy) {
+            var json = ns.format.JSON.encode(this.dictionary);
+            return ns.format.JSON.decode(json)
+        } else {
+            return this.dictionary
+        }
+    };
+    map.prototype.allKeys = function() {
+        return Object.keys(this.dictionary)
+    };
+    map.prototype.getValue = function(key) {
+        return this.dictionary[key]
+    };
+    map.prototype.setValue = function(key, value) {
+        if (value) {
+            this.dictionary[key] = value
+        } else {
+            if (this.dictionary.hasOwnProperty(key)) {
+                delete this.dictionary[key]
+            }
+        }
+    };
+    ns.type.Dictionary = map;
+    ns.type.Arrays = arrays;
+    ns.type.register("Dictionary");
+    ns.type.register("Arrays")
 }(DIMP);
 ! function(ns) {
     var hex_encode = function(data) {
@@ -277,6 +585,7 @@ if (typeof DIMP !== "object") {
         return array
     };
     var coder = function() {};
+    ns.type.Interface(coder);
     coder.prototype.encode = function(data) {
         console.assert(data != null, "data empty");
         console.assert(false, "implement me!");
@@ -288,7 +597,7 @@ if (typeof DIMP !== "object") {
         return null
     };
     var hex = function() {};
-    hex.inherits(coder);
+    ns.type.Class(hex, null, coder);
     hex.prototype.encode = function(data) {
         return hex_encode(data)
     };
@@ -296,7 +605,7 @@ if (typeof DIMP !== "object") {
         return hex_decode(str)
     };
     var base64 = function() {};
-    base64.inherits(coder);
+    ns.type.Class(base64, null, coder);
     base64.prototype.encode = function(data) {
         return base64_encode(data)
     };
@@ -304,7 +613,7 @@ if (typeof DIMP !== "object") {
         return base64_decode(string)
     };
     var base58 = function() {};
-    base58.inherits(coder);
+    ns.type.Class(base58, null, coder);
     base58.prototype.encode = function(data) {
         console.assert(data != null, "data empty");
         console.assert(false, "Base58 encode not implemented");
@@ -318,6 +627,7 @@ if (typeof DIMP !== "object") {
     var C = function(lib) {
         this.coder = lib
     };
+    ns.type.Class(C, null, coder);
     C.prototype.encode = function(data) {
         return this.coder.encode(data)
     };
@@ -335,27 +645,28 @@ if (typeof DIMP !== "object") {
 }(DIMP);
 ! function(ns) {
     var hash = function() {};
+    ns.type.Interface(hash);
     hash.prototype.digest = function(data) {
         console.assert(data != null, "data empty");
         console.assert(false, "implement me!");
         return null
     };
     var md5 = function() {};
-    md5.inherits(hash);
+    ns.type.Class(md5, null, hash);
     md5.prototype.digest = function(data) {
         console.assert(data != null, "data empty");
         console.assert(false, "MD5 not implemented");
         return null
     };
     var sha256 = function() {};
-    sha256.inherits(hash);
+    ns.type.Class(sha256, null, hash);
     sha256.prototype.digest = function(data) {
         console.assert(data != null, "data empty");
         console.assert(false, "SHA256 not implemented");
         return null
     };
     var ripemd160 = function() {};
-    ripemd160.inherits(hash);
+    ns.type.Class(ripemd160, null, hash);
     ripemd160.prototype.digest = function(data) {
         console.assert(data != null, "data empty");
         console.assert(false, "RIPEMD160 not implemented");
@@ -364,6 +675,7 @@ if (typeof DIMP !== "object") {
     var H = function(lib) {
         this.hash = lib
     };
+    ns.type.Class(H, null, hash);
     H.prototype.digest = function(data) {
         return this.hash.digest(data)
     };
@@ -378,6 +690,7 @@ if (typeof DIMP !== "object") {
 }(DIMP);
 ! function(ns) {
     var parser = function() {};
+    ns.type.Interface(parser);
     parser.prototype.encode = function(container) {
         console.assert(container != null, "container empty");
         console.assert(false, "implement me!");
@@ -389,7 +702,7 @@ if (typeof DIMP !== "object") {
         return null
     };
     var json = function() {};
-    json.inherits(parser);
+    ns.type.Class(json, null, parser);
     json.prototype.encode = function(container) {
         return JSON.stringify(container)
     };
@@ -399,6 +712,7 @@ if (typeof DIMP !== "object") {
     var P = function(lib) {
         this.parser = lib
     };
+    ns.type.Class(P, null, parser);
     P.prototype.encode = function(container) {
         return this.parser.encode(container)
     };
@@ -412,6 +726,7 @@ if (typeof DIMP !== "object") {
 }(DIMP);
 ! function(ns) {
     var parser = function() {};
+    ns.type.Interface(parser);
     parser.prototype.encodePublicKey = function(key) {
         console.assert(key != null, "public key empty");
         console.assert(false, "implement me!");
@@ -433,7 +748,7 @@ if (typeof DIMP !== "object") {
         return null
     };
     var pem = function() {};
-    pem.inherits(parser);
+    ns.type.Class(pem, null, parser);
     pem.prototype.encodePublicKey = function(key) {
         console.assert(key != null, "public key content empty");
         console.assert(false, "PEM parser not implemented");
@@ -457,6 +772,7 @@ if (typeof DIMP !== "object") {
     var P = function(lib) {
         this.parser = lib
     };
+    ns.type.Class(P, null, parser);
     P.prototype.encodePublicKey = function(key) {
         return this.parser.encodePublicKey(key)
     };
@@ -475,305 +791,8 @@ if (typeof DIMP !== "object") {
     ns.format.register("PEM")
 }(DIMP);
 ! function(ns) {
-    var obj = function() {};
-    obj.prototype.equals = function(other) {
-        return this === other
-    };
-    ns.type.Object = obj;
-    ns.type.register("Object")
-}(DIMP);
-! function(ns) {
-    var obj = ns.type.Object;
-    var UTF8 = {
-        encode: function(str) {
-            var array = [];
-            var len = str.length;
-            var c;
-            for (var i = 0; i < len; ++i) {
-                c = str.charCodeAt(i);
-                if (c <= 0) {
-                    break
-                } else {
-                    if (c < 128) {
-                        array.push(c)
-                    } else {
-                        if (c < 2048) {
-                            array.push(192 | ((c >> 6) & 31));
-                            array.push(128 | ((c >> 0) & 63))
-                        } else {
-                            array.push(224 | ((c >> 12) & 15));
-                            array.push(128 | ((c >> 6) & 63));
-                            array.push(128 | ((c >> 0) & 63))
-                        }
-                    }
-                }
-            }
-            return array
-        },
-        decode: function(array) {
-            var string = "";
-            var len = array.length;
-            var c, c2, c3;
-            for (var i = 0; i < len; ++i) {
-                c = array[i];
-                switch (c >> 4) {
-                    case 12:
-                    case 13:
-                        c2 = array[++i];
-                        c = ((c & 31) << 6) | (c2 & 63);
-                        break;
-                    case 14:
-                        c2 = array[++i];
-                        c3 = array[++i];
-                        c = ((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63);
-                        break
-                }
-                string += String.fromCharCode(c)
-            }
-            return string
-        }
-    };
-    var str = function(value, charset) {
-        if (!value) {
-            value = ""
-        } else {
-            if (value instanceof Array) {
-                if (!charset || charset === "UTF-8") {
-                    value = UTF8.decode(value)
-                } else {
-                    throw Error("only UTF-8 now")
-                }
-            } else {
-                if (value instanceof str) {
-                    value = value.string
-                } else {
-                    if (typeof value !== "string") {
-                        throw Error("string value error: " + value)
-                    }
-                }
-            }
-        }
-        obj.call(this);
-        this.string = value
-    };
-    str.inherits(obj);
-    str.prototype.getBytes = function(charset) {
-        if (!charset || charset === "UTF-8") {
-            return UTF8.encode(this.string)
-        }
-        throw Error("unknown charset: " + charset)
-    };
-    str.prototype.equals = function(other) {
-        if (!other) {
-            return !this.string
-        } else {
-            if (other instanceof str) {
-                return this.string === other.string
-            } else {
-                return this.string === other
-            }
-        }
-    };
-    var equalsIgnoreCase = function(str1, str2) {
-        if (str1.length !== str2.length) {
-            return false
-        }
-        var low1 = str1.toLowerCase();
-        var low2 = str2.toLowerCase();
-        return low1 === low2
-    };
-    str.prototype.equalsIgnoreCase = function(other) {
-        if (!other) {
-            return !this.string
-        } else {
-            if (other instanceof str) {
-                return equalsIgnoreCase(this.string, other.string)
-            } else {
-                return equalsIgnoreCase(this.string, other)
-            }
-        }
-    };
-    str.prototype.valueOf = function() {
-        return this.string
-    };
-    str.prototype.toString = function() {
-        return this.string
-    };
-    str.prototype.toLocaleString = function() {
-        return this.string.toLocaleString()
-    };
-    str.prototype.toJSON = function() {
-        return this.string
-    };
-    str.prototype.getLength = function() {
-        return this.string.length
-    };
-    ns.type.String = str;
-    ns.type.register("String")
-}(DIMP);
-! function(ns) {
-    var obj = ns.type.Object;
-    var str = ns.type.String;
-    var arrays = {
-        equals: function(a1, a2) {
-            if (a1 === a2) {
-                return true
-            }
-            if (a1.length !== a2.length) {
-                return false
-            }
-            for (var k in a1) {
-                if (a1[k] !== a2[k]) {
-                    return false
-                }
-            }
-            return true
-        }
-    };
-    var map = function(value) {
-        if (!value) {
-            value = {}
-        } else {
-            if (value instanceof map) {
-                value = value.dictionary
-            } else {
-                if (value instanceof str) {
-                    value = ns.format.JSON.decode(value.toString())
-                } else {
-                    if (typeof value === "string") {
-                        value = ns.format.JSON.decode(value)
-                    }
-                }
-            }
-        }
-        obj.call(this);
-        this.dictionary = value
-    };
-    map.inherits(obj);
-    map.prototype.equals = function(other) {
-        if (!other) {
-            return !this.dictionary
-        } else {
-            if (other instanceof map) {
-                return arrays.equals(this.dictionary, other.dictionary)
-            } else {
-                return arrays.equals(this.dictionary, other)
-            }
-        }
-    };
-    map.prototype.valueOf = function() {
-        return this.dictionary
-    };
-    map.prototype.toString = function() {
-        return this.dictionary.toString()
-    };
-    map.prototype.toLocaleString = function() {
-        return this.dictionary.toLocaleString()
-    };
-    map.prototype.toJSON = function() {
-        return this.dictionary
-    };
-    map.prototype.getMap = function(copy) {
-        if (copy) {
-            var json = ns.format.JSON.encode(this.dictionary);
-            return ns.format.JSON.decode(json)
-        } else {
-            return this.dictionary
-        }
-    };
-    map.prototype.allKeys = function() {
-        return Object.keys(this.dictionary)
-    };
-    map.prototype.getValue = function(key) {
-        return this.dictionary[key]
-    };
-    map.prototype.setValue = function(key, value) {
-        if (value) {
-            this.dictionary[key] = value
-        } else {
-            if (this.dictionary.hasOwnProperty(key)) {
-                delete this.dictionary[key]
-            }
-        }
-    };
-    ns.type.Dictionary = map;
-    ns.type.Arrays = arrays;
-    ns.type.register("Dictionary");
-    ns.type.register("Arrays")
-}(DIMP);
-! function(ns) {
-    var obj = ns.type.Object;
-    var enu = function(elements) {
-        var get_name = function(value, enumeration) {
-            if (value instanceof enumeration) {
-                return value.alias
-            }
-            var e;
-            for (var k in enumeration) {
-                e = enumeration[k];
-                if (e instanceof enumeration) {
-                    if (e.equals(value)) {
-                        return e.alias
-                    }
-                }
-            }
-            return null
-        };
-        var enumeration = function(value, alias) {
-            if (!alias) {
-                alias = get_name(value, enumeration);
-                if (!alias) {
-                    throw RangeError("enum error: " + value)
-                }
-            }
-            obj.call(this);
-            if (value instanceof enumeration) {
-                this.value = value.value
-            } else {
-                this.value = value
-            }
-            this.alias = alias
-        };
-        enumeration.inherits(obj);
-        enumeration.prototype.equals = function(other) {
-            if (!other) {
-                return !this.value
-            } else {
-                if (other instanceof enumeration) {
-                    return this.value === other.value
-                } else {
-                    return this.value === other
-                }
-            }
-        };
-        enumeration.prototype.valueOf = function() {
-            return this.value
-        };
-        enumeration.prototype.toString = function() {
-            return "<" + this.alias.toString() + ": " + this.value.toString() + ">"
-        };
-        enumeration.prototype.toLocaleString = function() {
-            return "<" + this.alias.toLocaleString() + ": " + this.value.toLocaleString() + ">"
-        };
-        enumeration.prototype.toJSON = function() {
-            return this.value
-        };
-        var e, v;
-        for (var name in elements) {
-            v = elements[name];
-            if (typeof v === "function") {
-                continue
-            }
-            e = new enumeration(v, name);
-            enumeration[name] = e
-        }
-        return enumeration
-    };
-    ns.type.Enum = enu;
-    ns.type.register("Enum")
-}(DIMP);
-! function(ns) {
     var CryptographyKey = function() {};
+    ns.type.Interface(CryptographyKey);
     CryptographyKey.prototype.equals = function(other) {
         console.assert(other != null, "other key empty");
         console.assert(false, "implement me!");
@@ -795,28 +814,28 @@ if (typeof DIMP !== "object") {
         }
     };
     var EncryptKey = function() {};
-    EncryptKey.inherits(CryptographyKey);
+    ns.type.Interface(EncryptKey, CryptographyKey);
     EncryptKey.prototype.encrypt = function(data) {
         console.assert(data != null, "data empty");
         console.assert(false, "implement me!");
         return null
     };
     var DecryptKey = function() {};
-    DecryptKey.inherits(CryptographyKey);
+    ns.type.Interface(DecryptKey, CryptographyKey);
     DecryptKey.prototype.decrypt = function(data) {
         console.assert(data != null, "data empty");
         console.assert(false, "implement me!");
         return null
     };
     var SignKey = function() {};
-    SignKey.inherits(CryptographyKey);
+    ns.type.Interface(SignKey, CryptographyKey);
     SignKey.prototype.sign = function(data) {
         console.assert(data != null, "data empty");
         console.assert(false, "implement me!");
         return null
     };
     var VerifyKey = function() {};
-    VerifyKey.inherits(CryptographyKey);
+    ns.type.Interface(VerifyKey, CryptographyKey);
     VerifyKey.prototype.verify = function(data, signature) {
         console.assert(data != null, "data empty");
         console.assert(signature != null, "signature empty");
@@ -837,15 +856,14 @@ if (typeof DIMP !== "object") {
     var CryptographyKey = ns.crypto.CryptographyKey;
     var EncryptKey = ns.crypto.EncryptKey;
     var DecryptKey = ns.crypto.DecryptKey;
-    var Arrays = ns.type.Arrays;
     var promise = new ns.type.String("Moky loves May Lee forever!");
     promise = promise.getBytes();
     var SymmetricKey = function() {};
-    SymmetricKey.inherits(EncryptKey, DecryptKey);
+    ns.type.Interface(SymmetricKey, EncryptKey, DecryptKey);
     SymmetricKey.prototype.equals = function(other) {
         var ciphertext = other.encrypt(promise);
         var plaintext = this.decrypt(ciphertext);
-        return Arrays.equals(promise, plaintext)
+        return ns.type.Arrays.equals(promise, plaintext)
     };
     SymmetricKey.generate = function(algorithm) {
         return this.getInstance({
@@ -860,7 +878,7 @@ if (typeof DIMP !== "object") {
         if (!key) {
             return null
         } else {
-            if (key.isinstanceof(SymmetricKey)) {
+            if (ns.type.Object.isinstance(key, SymmetricKey)) {
                 return key
             }
         }
@@ -879,7 +897,7 @@ if (typeof DIMP !== "object") {
 ! function(ns) {
     var CryptographyKey = ns.crypto.CryptographyKey;
     var AsymmetricKey = function() {};
-    AsymmetricKey.inherits(CryptographyKey);
+    ns.type.Interface(AsymmetricKey, CryptographyKey);
     AsymmetricKey.RSA = "RSA";
     AsymmetricKey.ECC = "ECC";
     ns.crypto.AsymmetricKey = AsymmetricKey;
@@ -892,7 +910,7 @@ if (typeof DIMP !== "object") {
     var promise = new ns.type.String("Moky loves May Lee forever!");
     promise = promise.getBytes();
     var PublicKey = function() {};
-    PublicKey.inherits(AsymmetricKey, VerifyKey);
+    ns.type.Interface(PublicKey, AsymmetricKey, VerifyKey);
     PublicKey.prototype.matches = function(privateKey) {
         if (!privateKey) {
             return false
@@ -912,7 +930,7 @@ if (typeof DIMP !== "object") {
         if (!key) {
             return null
         } else {
-            if (key.isinstanceof(PublicKey)) {
+            if (ns.type.Object.isinstance(key, PublicKey)) {
                 return key
             }
         }
@@ -931,7 +949,7 @@ if (typeof DIMP !== "object") {
     var AsymmetricKey = ns.crypto.AsymmetricKey;
     var SignKey = ns.crypto.SignKey;
     var PrivateKey = function() {};
-    PrivateKey.inherits(AsymmetricKey, SignKey);
+    ns.type.Interface(PrivateKey, AsymmetricKey, SignKey);
     PrivateKey.prototype.equals = function(other) {
         var publicKey = this.getPublicKey();
         if (!publicKey) {
@@ -956,7 +974,7 @@ if (typeof DIMP !== "object") {
         if (!key) {
             return null
         } else {
-            if (key.isinstanceof(PrivateKey)) {
+            if (ns.type.Object.isinstance(key, PrivateKey)) {
                 return key
             }
         }
@@ -1039,7 +1057,7 @@ if (typeof MingKeMing !== "object") {
     var Address = function(string) {
         ns.type.String.call(this, string)
     };
-    Address.inherits(ns.type.String);
+    ns.type.Class(Address, ns.type.String);
     Address.prototype.getNetwork = function() {
         console.assert(false, "implement me!");
         return null
@@ -1093,7 +1111,7 @@ if (typeof MingKeMing !== "object") {
         this.network = network;
         this.number = number
     };
-    ConstantAddress.inherits(Address);
+    ns.type.Class(ConstantAddress, Address);
     ConstantAddress.prototype.getNetwork = function() {
         return this.network
     };
@@ -1117,7 +1135,7 @@ if (typeof MingKeMing !== "object") {
         } else {
             if (!address) {
                 string = name;
-                var pair = string.split("/");
+                var pair = name.split("/");
                 if (pair.length === 1) {
                     terminal = null
                 } else {
@@ -1147,7 +1165,7 @@ if (typeof MingKeMing !== "object") {
         this.address = address;
         this.terminal = terminal
     };
-    ID.inherits(ns.type.String);
+    ns.type.Class(ID, ns.type.String);
     ID.prototype.equals = function(other) {
         if (!other) {
             return false
@@ -1222,7 +1240,7 @@ if (typeof MingKeMing !== "object") {
         }
         this.status = 0
     };
-    Meta.inherits(Dictionary);
+    ns.type.Class(Meta, Dictionary);
     Meta.prototype.equals = function(other) {
         if (!other) {
             return false
@@ -1287,7 +1305,7 @@ if (typeof MingKeMing !== "object") {
             if (key_id_addr instanceof Address) {
                 return match_address.call(this, key_id_addr)
             } else {
-                if (key_id_addr.isinstanceof(PublicKey)) {
+                if (ns.type.Object.isinstance(key_id_addr, PublicKey)) {
                     return match_public_key.call(this, key_id_addr)
                 }
             }
@@ -1352,6 +1370,7 @@ if (typeof MingKeMing !== "object") {
 }(MingKeMing);
 ! function(ns) {
     var TAI = function() {};
+    ns.type.Interface(TAI);
     TAI.prototype.isValid = function() {
         console.assert(false, "implement me!");
         return false
@@ -1411,7 +1430,7 @@ if (typeof MingKeMing !== "object") {
         this.properties = null;
         this.status = 0
     };
-    Profile.inherits(Dictionary, TAI);
+    ns.type.Class(Profile, Dictionary, TAI);
     Profile.prototype.isValid = function() {
         return this.status >= 0
     };
@@ -1561,6 +1580,7 @@ if (typeof MingKeMing !== "object") {
 }(MingKeMing);
 ! function(ns) {
     var EntityDataSource = function() {};
+    ns.type.Interface(EntityDataSource);
     EntityDataSource.prototype.getMeta = function(identifier) {
         console.assert(identifier !== null, "ID empty");
         console.assert(false, "implement me!");
@@ -1577,7 +1597,7 @@ if (typeof MingKeMing !== "object") {
 ! function(ns) {
     var EntityDataSource = ns.EntityDataSource;
     var UserDataSource = function() {};
-    UserDataSource.inherits(EntityDataSource);
+    ns.type.Interface(UserDataSource, EntityDataSource);
     UserDataSource.prototype.getContacts = function(identifier) {
         console.assert(identifier !== null, "ID empty");
         console.assert(false, "implement me!");
@@ -1607,7 +1627,7 @@ if (typeof MingKeMing !== "object") {
 ! function(ns) {
     var EntityDataSource = ns.EntityDataSource;
     var GroupDataSource = function() {};
-    GroupDataSource.inherits(EntityDataSource);
+    ns.type.Interface(GroupDataSource, EntityDataSource);
     GroupDataSource.prototype.getFounder = function(identifier) {
         console.assert(identifier !== null, "ID empty");
         console.assert(false, "implement me!");
@@ -1631,6 +1651,7 @@ if (typeof MingKeMing !== "object") {
         this.identifier = identifier;
         this.delegate = null
     };
+    ns.type.Class(Entity);
     Entity.prototype.equals = function(other) {
         if (this === other) {
             return true
@@ -1686,7 +1707,7 @@ if (typeof MingKeMing !== "object") {
     var User = function(identifier) {
         Entity.call(this, identifier)
     };
-    User.inherits(Entity);
+    ns.type.Class(User, Entity);
     User.prototype.getContacts = function() {
         return this.delegate.getContacts(this.identifier)
     };
@@ -1711,7 +1732,7 @@ if (typeof MingKeMing !== "object") {
             return key
         }
         key = meta_key.call(this);
-        if (key && key.isinstanceof(EncryptKey)) {
+        if (key && ns.type.Object.isinstance(key, EncryptKey)) {
             return key
         }
         throw Error("failed to get encrypt key for user: " + this.identifier)
@@ -1723,7 +1744,7 @@ if (typeof MingKeMing !== "object") {
         }
         keys = [];
         var key = profile_key.call(this);
-        if (key && key.isinstanceof(VerifyKey)) {
+        if (key && ns.type.Object.isinstance(key, VerifyKey)) {
             keys.push(key)
         }
         key = meta_key.call(this);
@@ -1780,7 +1801,7 @@ if (typeof MingKeMing !== "object") {
         Entity.call(this, identifier);
         this.founder = null
     };
-    Group.inherits(Entity);
+    ns.type.Class(Group, Entity);
     Group.prototype.getFounder = function() {
         if (!this.founder) {
             this.founder = this.delegate.getFounder(this.identifier)
@@ -1850,7 +1871,7 @@ if (typeof DaoKeDao !== "object") {
         this.type = new ContentType(info["type"]);
         this.sn = info["sn"]
     };
-    Content.inherits(Dictionary);
+    ns.type.Class(Content, Dictionary);
     Content.prototype.getGroup = function() {
         return this.getValue("group")
     };
@@ -1901,7 +1922,7 @@ if (typeof DaoKeDao !== "object") {
         this.receiver = env["receiver"];
         this.time = env["time"]
     };
-    Envelope.inherits(Dictionary);
+    ns.type.Class(Envelope, Dictionary);
     Envelope.newEnvelope = function(sender, receiver, time) {
         var env = {
             "sender": sender,
@@ -1951,8 +1972,9 @@ if (typeof DaoKeDao !== "object") {
 }(DaoKeDao);
 ! function(ns) {
     var MessageDelegate = function() {};
+    ns.type.Interface(MessageDelegate);
     var InstantMessageDelegate = function() {};
-    InstantMessageDelegate.inherits(MessageDelegate);
+    ns.type.Interface(InstantMessageDelegate, MessageDelegate);
     InstantMessageDelegate.prototype.encryptContent = function(content, pwd, msg) {
         console.assert(content !== null, "content empty");
         console.assert(pwd !== null, "key empty");
@@ -1980,7 +2002,7 @@ if (typeof DaoKeDao !== "object") {
         return null
     };
     var SecureMessageDelegate = function() {};
-    SecureMessageDelegate.inherits(MessageDelegate);
+    ns.type.Interface(SecureMessageDelegate, MessageDelegate);
     SecureMessageDelegate.prototype.decodeKey = function(key, msg) {
         console.assert(key !== null, "key string empty");
         console.assert(msg !== null, "secure message empty");
@@ -2022,7 +2044,7 @@ if (typeof DaoKeDao !== "object") {
         return null
     };
     var ReliableMessageDelegate = function() {};
-    ReliableMessageDelegate.inherits(SecureMessageDelegate);
+    ns.type.Interface(ReliableMessageDelegate, SecureMessageDelegate);
     ReliableMessageDelegate.prototype.decodeSignature = function(signature, msg) {
         console.assert(msg !== null, "msg empty");
         console.assert(msg !== null, "msg empty");
@@ -2052,7 +2074,7 @@ if (typeof DaoKeDao !== "object") {
         this.envelope = Envelope.getInstance(msg);
         this.delegate = null
     };
-    Message.inherits(Dictionary);
+    ns.type.Class(Message, Dictionary);
     Message.getInstance = function(msg) {
         if (!msg) {
             return null
@@ -2082,7 +2104,7 @@ if (typeof DaoKeDao !== "object") {
         Message.call(this, msg);
         this.content = Content.getInstance(msg["content"])
     };
-    InstantMessage.inherits(Message);
+    ns.type.Class(InstantMessage, Message);
     InstantMessage.newMessage = function(content, envelope) {
         envelope = Envelope.getInstance(envelope);
         var msg = envelope.getMap(true);
@@ -2135,7 +2157,7 @@ if (typeof DaoKeDao !== "object") {
     var SecureMessage = function(msg) {
         Message.call(this, msg)
     };
-    SecureMessage.inherits(Message);
+    ns.type.Class(SecureMessage, Message);
     SecureMessage.prototype.getData = function() {
         var base64 = this.getValue("data");
         return this.delegate.decodeData(base64, this)
@@ -2254,7 +2276,7 @@ if (typeof DaoKeDao !== "object") {
     var ReliableMessage = function(msg) {
         SecureMessage.call(this, msg)
     };
-    ReliableMessage.inherits(SecureMessage);
+    ns.type.Class(ReliableMessage, SecureMessage);
     ReliableMessage.prototype.getSignature = function() {
         var base64 = this.getValue("signature");
         return this.delegate.decodeSignature(base64, this)
@@ -2314,7 +2336,7 @@ if (typeof DaoKeDao !== "object") {
             }
         }
     };
-    ForwardContent.inherits(Content);
+    ns.type.Class(ForwardContent, Content);
     ForwardContent.prototype.getMessage = function() {
         if (!this.forward) {
             var forward = this.getValue("forward");
@@ -2367,7 +2389,7 @@ if (typeof DaoKeDao !== "object") {
             this.setText(text)
         }
     };
-    TextContent.inherits(Content);
+    ns.type.Class(TextContent, Content);
     TextContent.prototype.getText = function() {
         return this.getValue("text")
     };
@@ -2397,7 +2419,7 @@ if (typeof DaoKeDao !== "object") {
         }
         this.icon = null
     };
-    PageContent.inherits(Content);
+    ns.type.Class(PageContent, Content);
     PageContent.prototype.getURL = function() {
         return this.getValue("URL")
     };
@@ -2449,7 +2471,7 @@ if (typeof DaoKeDao !== "object") {
         this.attachment = null;
         this.password = null
     };
-    FileContent.inherits(Content);
+    ns.type.Class(FileContent, Content);
     FileContent.prototype.getURL = function() {
         return this.getValue("URL")
     };
@@ -2520,7 +2542,7 @@ if (typeof DaoKeDao !== "object") {
         FileContent.call(this, content);
         this.thumbnail = null
     };
-    ImageContent.inherits(FileContent);
+    ns.type.Class(ImageContent, FileContent);
     ImageContent.prototype.getThumbnail = function() {
         if (!this.thumbnail) {
             var base64 = this.getValue("thumbnail");
@@ -2553,7 +2575,7 @@ if (typeof DaoKeDao !== "object") {
         }
         FileContent.call(this, content)
     };
-    AudioContent.inherits(FileContent);
+    ns.type.Class(AudioContent, FileContent);
     AudioContent.prototype.getText = function() {
         return this.getValue("text")
     };
@@ -2576,7 +2598,7 @@ if (typeof DaoKeDao !== "object") {
         FileContent.call(this, content);
         this.snapshot = null
     };
-    VideoContent.inherits(FileContent);
+    ns.type.Class(VideoContent, FileContent);
     VideoContent.prototype.getSnapshot = function() {
         if (!this.snapshot) {
             var base64 = this.getValue("snapshot");
@@ -2617,7 +2639,7 @@ if (typeof DaoKeDao !== "object") {
             this.setCommand(name)
         }
     };
-    Command.inherits(Content);
+    ns.type.Class(Command, Content);
     Command.prototype.getCommand = function() {
         return this.getValue("command")
     };
@@ -2680,7 +2702,7 @@ if (typeof DaoKeDao !== "object") {
         }
         this.meta = null
     };
-    MetaCommand.inherits(Command);
+    ns.type.Class(MetaCommand, Command);
     MetaCommand.prototype.getIdentifier = function() {
         return this.getValue("ID")
     };
@@ -2731,7 +2753,7 @@ if (typeof DaoKeDao !== "object") {
         }
         this.profile = null
     };
-    ProfileCommand.inherits(MetaCommand);
+    ns.type.Class(ProfileCommand, MetaCommand);
     ProfileCommand.prototype.getProfile = function() {
         if (!this.profile) {
             var info = this.getValue("profile");
@@ -2799,7 +2821,7 @@ if (typeof DaoKeDao !== "object") {
             this.setMessage(message)
         }
     };
-    HandshakeCommand.inherits(Command);
+    ns.type.Class(HandshakeCommand, Command);
     HandshakeCommand.prototype.getMessage = function() {
         return this.getValue("message")
     };
@@ -2880,7 +2902,7 @@ if (typeof DaoKeDao !== "object") {
             this.setTime(time)
         }
     };
-    HistoryCommand.inherits(Command);
+    ns.type.Class(HistoryCommand, Command);
     HistoryCommand.prototype.getTime = function() {
         var time = this.getValue("time");
         if (time) {
@@ -2949,7 +2971,7 @@ if (typeof DaoKeDao !== "object") {
             this.setGroup(group)
         }
     };
-    GroupCommand.inherits(HistoryCommand);
+    ns.type.Class(GroupCommand, HistoryCommand);
     GroupCommand.prototype.getGroup = function() {
         return Content.prototype.getGroup.call(this)
     };
@@ -3022,7 +3044,7 @@ if (typeof DaoKeDao !== "object") {
             this.setGroup(group)
         }
     };
-    InviteCommand.inherits(GroupCommand);
+    ns.type.Class(InviteCommand, GroupCommand);
     var ExpelCommand = function(info) {
         var group = null;
         if (!info) {
@@ -3038,7 +3060,7 @@ if (typeof DaoKeDao !== "object") {
             this.setGroup(group)
         }
     };
-    ExpelCommand.inherits(GroupCommand);
+    ns.type.Class(ExpelCommand, GroupCommand);
     var JoinCommand = function(info) {
         var group = null;
         if (!info) {
@@ -3054,7 +3076,7 @@ if (typeof DaoKeDao !== "object") {
             this.setGroup(group)
         }
     };
-    JoinCommand.inherits(GroupCommand);
+    ns.type.Class(JoinCommand, GroupCommand);
     var QuitCommand = function(info) {
         var group = null;
         if (!info) {
@@ -3070,7 +3092,7 @@ if (typeof DaoKeDao !== "object") {
             this.setGroup(group)
         }
     };
-    QuitCommand.inherits(GroupCommand);
+    ns.type.Class(QuitCommand, GroupCommand);
     var ResetCommand = function(info) {
         var group = null;
         if (!info) {
@@ -3086,7 +3108,7 @@ if (typeof DaoKeDao !== "object") {
             this.setGroup(group)
         }
     };
-    ResetCommand.inherits(GroupCommand);
+    ns.type.Class(ResetCommand, GroupCommand);
     var QueryCommand = function(info) {
         var group = null;
         if (!info) {
@@ -3102,7 +3124,7 @@ if (typeof DaoKeDao !== "object") {
             this.setGroup(group)
         }
     };
-    QueryCommand.inherits(Command);
+    ns.type.Class(QueryCommand, Command);
     GroupCommand.invite = function(group, member) {
         var cmd = new InviteCommand(group);
         if (typeof member === "string" || member instanceof ID) {
@@ -3165,6 +3187,7 @@ if (typeof DaoKeDao !== "object") {
 }(DIMP);
 ! function(ns) {
     var EntityDelegate = function() {};
+    ns.type.Interface(EntityDelegate);
     EntityDelegate.prototype.getIdentifier = function(string) {
         console.assert(string !== null, "ID string empty");
         console.assert(false, "implement me!");
@@ -3185,6 +3208,7 @@ if (typeof DaoKeDao !== "object") {
 }(DIMP);
 ! function(ns) {
     var CipherKeyDelegate = function() {};
+    ns.type.Interface(CipherKeyDelegate);
     CipherKeyDelegate.prototype.getCipherKey = function(sender, receiver) {
         console.assert(sender !== null, "sender empty");
         console.assert(receiver !== null, "receiver empty");
@@ -3213,7 +3237,7 @@ if (typeof DaoKeDao !== "object") {
     var PlainKey = function(key) {
         Dictionary.call(this, key)
     };
-    PlainKey.inherits(Dictionary, SymmetricKey);
+    ns.type.Class(PlainKey, Dictionary, SymmetricKey);
     PlainKey.prototype.encrypt = function(data) {
         return data
     };
@@ -3240,7 +3264,7 @@ if (typeof DaoKeDao !== "object") {
         this.keyMap = {};
         this.isDirty = false
     };
-    KeyCache.inherits(Object, CipherKeyDelegate);
+    ns.type.Class(KeyCache, null, CipherKeyDelegate);
     KeyCache.prototype.reload = function() {
         var map = this.loadKeys();
         if (!map) {
@@ -3343,7 +3367,7 @@ if (typeof DaoKeDao !== "object") {
         this.userMap = {};
         this.groupMap = {}
     };
-    Barrack.inherits(Object, EntityDelegate, UserDataSource, GroupDataSource);
+    ns.type.Class(Barrack, null, EntityDelegate, UserDataSource, GroupDataSource);
     var thanos = function(map, finger) {
         var keys = Object.keys(map);
         for (var i = 0; i < keys.length; ++i) {
@@ -3506,7 +3530,7 @@ if (typeof DaoKeDao !== "object") {
         this.entityDelegate = null;
         this.cipherKeyDelegate = null
     };
-    Transceiver.inherits(Object, InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate);
+    ns.type.Class(Transceiver, null, InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate);
     var get_key = function(sender, receiver) {
         var key = this.cipherKeyDelegate.getCipherKey(sender, receiver);
         if (!key) {

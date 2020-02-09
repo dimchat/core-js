@@ -67,7 +67,7 @@
         FileContent.call(this, content);
         this.snapshot = null;
     };
-    VideoContent.inherits(FileContent);
+    ns.type.Class(VideoContent, FileContent);
 
     //-------- setter/getter --------
 

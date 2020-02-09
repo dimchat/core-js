@@ -43,7 +43,7 @@
             this.setText(text)
         }
     };
-    TextContent.inherits(Content);
+    ns.type.Class(TextContent, Content);
     TextContent.prototype.getText = function() {
         return this.getValue("text")
     };
@@ -73,7 +73,7 @@
         }
         this.icon = null
     };
-    PageContent.inherits(Content);
+    ns.type.Class(PageContent, Content);
     PageContent.prototype.getURL = function() {
         return this.getValue("URL")
     };
@@ -125,7 +125,7 @@
         this.attachment = null;
         this.password = null
     };
-    FileContent.inherits(Content);
+    ns.type.Class(FileContent, Content);
     FileContent.prototype.getURL = function() {
         return this.getValue("URL")
     };
@@ -196,7 +196,7 @@
         FileContent.call(this, content);
         this.thumbnail = null
     };
-    ImageContent.inherits(FileContent);
+    ns.type.Class(ImageContent, FileContent);
     ImageContent.prototype.getThumbnail = function() {
         if (!this.thumbnail) {
             var base64 = this.getValue("thumbnail");
@@ -229,7 +229,7 @@
         }
         FileContent.call(this, content)
     };
-    AudioContent.inherits(FileContent);
+    ns.type.Class(AudioContent, FileContent);
     AudioContent.prototype.getText = function() {
         return this.getValue("text")
     };
@@ -252,7 +252,7 @@
         FileContent.call(this, content);
         this.snapshot = null
     };
-    VideoContent.inherits(FileContent);
+    ns.type.Class(VideoContent, FileContent);
     VideoContent.prototype.getSnapshot = function() {
         if (!this.snapshot) {
             var base64 = this.getValue("snapshot");
@@ -293,7 +293,7 @@
             this.setCommand(name)
         }
     };
-    Command.inherits(Content);
+    ns.type.Class(Command, Content);
     Command.prototype.getCommand = function() {
         return this.getValue("command")
     };
@@ -356,7 +356,7 @@
         }
         this.meta = null
     };
-    MetaCommand.inherits(Command);
+    ns.type.Class(MetaCommand, Command);
     MetaCommand.prototype.getIdentifier = function() {
         return this.getValue("ID")
     };
@@ -407,7 +407,7 @@
         }
         this.profile = null
     };
-    ProfileCommand.inherits(MetaCommand);
+    ns.type.Class(ProfileCommand, MetaCommand);
     ProfileCommand.prototype.getProfile = function() {
         if (!this.profile) {
             var info = this.getValue("profile");
@@ -475,7 +475,7 @@
             this.setMessage(message)
         }
     };
-    HandshakeCommand.inherits(Command);
+    ns.type.Class(HandshakeCommand, Command);
     HandshakeCommand.prototype.getMessage = function() {
         return this.getValue("message")
     };
@@ -556,7 +556,7 @@
             this.setTime(time)
         }
     };
-    HistoryCommand.inherits(Command);
+    ns.type.Class(HistoryCommand, Command);
     HistoryCommand.prototype.getTime = function() {
         var time = this.getValue("time");
         if (time) {
@@ -625,7 +625,7 @@
             this.setGroup(group)
         }
     };
-    GroupCommand.inherits(HistoryCommand);
+    ns.type.Class(GroupCommand, HistoryCommand);
     GroupCommand.prototype.getGroup = function() {
         return Content.prototype.getGroup.call(this)
     };
@@ -698,7 +698,7 @@
             this.setGroup(group)
         }
     };
-    InviteCommand.inherits(GroupCommand);
+    ns.type.Class(InviteCommand, GroupCommand);
     var ExpelCommand = function(info) {
         var group = null;
         if (!info) {
@@ -714,7 +714,7 @@
             this.setGroup(group)
         }
     };
-    ExpelCommand.inherits(GroupCommand);
+    ns.type.Class(ExpelCommand, GroupCommand);
     var JoinCommand = function(info) {
         var group = null;
         if (!info) {
@@ -730,7 +730,7 @@
             this.setGroup(group)
         }
     };
-    JoinCommand.inherits(GroupCommand);
+    ns.type.Class(JoinCommand, GroupCommand);
     var QuitCommand = function(info) {
         var group = null;
         if (!info) {
@@ -746,7 +746,7 @@
             this.setGroup(group)
         }
     };
-    QuitCommand.inherits(GroupCommand);
+    ns.type.Class(QuitCommand, GroupCommand);
     var ResetCommand = function(info) {
         var group = null;
         if (!info) {
@@ -762,7 +762,7 @@
             this.setGroup(group)
         }
     };
-    ResetCommand.inherits(GroupCommand);
+    ns.type.Class(ResetCommand, GroupCommand);
     var QueryCommand = function(info) {
         var group = null;
         if (!info) {
@@ -778,7 +778,7 @@
             this.setGroup(group)
         }
     };
-    QueryCommand.inherits(Command);
+    ns.type.Class(QueryCommand, Command);
     GroupCommand.invite = function(group, member) {
         var cmd = new InviteCommand(group);
         if (typeof member === "string" || member instanceof ID) {
@@ -841,6 +841,7 @@
 }(DIMP);
 ! function(ns) {
     var EntityDelegate = function() {};
+    ns.type.Interface(EntityDelegate);
     EntityDelegate.prototype.getIdentifier = function(string) {
         console.assert(string !== null, "ID string empty");
         console.assert(false, "implement me!");
@@ -861,6 +862,7 @@
 }(DIMP);
 ! function(ns) {
     var CipherKeyDelegate = function() {};
+    ns.type.Interface(CipherKeyDelegate);
     CipherKeyDelegate.prototype.getCipherKey = function(sender, receiver) {
         console.assert(sender !== null, "sender empty");
         console.assert(receiver !== null, "receiver empty");
@@ -889,7 +891,7 @@
     var PlainKey = function(key) {
         Dictionary.call(this, key)
     };
-    PlainKey.inherits(Dictionary, SymmetricKey);
+    ns.type.Class(PlainKey, Dictionary, SymmetricKey);
     PlainKey.prototype.encrypt = function(data) {
         return data
     };
@@ -916,7 +918,7 @@
         this.keyMap = {};
         this.isDirty = false
     };
-    KeyCache.inherits(Object, CipherKeyDelegate);
+    ns.type.Class(KeyCache, null, CipherKeyDelegate);
     KeyCache.prototype.reload = function() {
         var map = this.loadKeys();
         if (!map) {
@@ -1019,7 +1021,7 @@
         this.userMap = {};
         this.groupMap = {}
     };
-    Barrack.inherits(Object, EntityDelegate, UserDataSource, GroupDataSource);
+    ns.type.Class(Barrack, null, EntityDelegate, UserDataSource, GroupDataSource);
     var thanos = function(map, finger) {
         var keys = Object.keys(map);
         for (var i = 0; i < keys.length; ++i) {
@@ -1182,7 +1184,7 @@
         this.entityDelegate = null;
         this.cipherKeyDelegate = null
     };
-    Transceiver.inherits(Object, InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate);
+    ns.type.Class(Transceiver, null, InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate);
     var get_key = function(sender, receiver) {
         var key = this.cipherKeyDelegate.getCipherKey(sender, receiver);
         if (!key) {

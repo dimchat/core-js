@@ -63,7 +63,7 @@
             this.setText(text);
         }
     };
-    TextContent.inherits(Content);
+    ns.type.Class(TextContent, Content);
 
     //-------- setter/getter --------
 

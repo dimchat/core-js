@@ -72,7 +72,7 @@
         }
         this.icon = null;
     };
-    PageContent.inherits(Content);
+    ns.type.Class(PageContent, Content);
 
     //-------- setter/getter --------
 

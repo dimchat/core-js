@@ -71,7 +71,7 @@
             this.setGroup(group);
         }
     };
-    GroupCommand.inherits(HistoryCommand);
+    ns.type.Class(GroupCommand, HistoryCommand);
 
     /**
      *  Group ID (or string)
@@ -187,7 +187,7 @@
             this.setGroup(group);
         }
     };
-    InviteCommand.inherits(GroupCommand);
+    ns.type.Class(InviteCommand, GroupCommand);
 
     //
     //  Expel group command
@@ -207,7 +207,7 @@
             this.setGroup(group);
         }
     };
-    ExpelCommand.inherits(GroupCommand);
+    ns.type.Class(ExpelCommand, GroupCommand);
 
     //
     //  Join group command
@@ -227,7 +227,7 @@
             this.setGroup(group);
         }
     };
-    JoinCommand.inherits(GroupCommand);
+    ns.type.Class(JoinCommand, GroupCommand);
 
     //
     //  Quit group command
@@ -247,7 +247,7 @@
             this.setGroup(group);
         }
     };
-    QuitCommand.inherits(GroupCommand);
+    ns.type.Class(QuitCommand, GroupCommand);
 
     //
     //  Reset group command
@@ -267,7 +267,7 @@
             this.setGroup(group);
         }
     };
-    ResetCommand.inherits(GroupCommand);
+    ns.type.Class(ResetCommand, GroupCommand);
 
     //
     //  Query group command
@@ -292,7 +292,7 @@
             this.setGroup(group);
         }
     };
-    QueryCommand.inherits(Command);
+    ns.type.Class(QueryCommand, Command);
 
     //-------- factories --------
 

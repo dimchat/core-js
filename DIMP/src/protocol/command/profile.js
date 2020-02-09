@@ -77,7 +77,7 @@
         // lazy
         this.profile = null;
     };
-    ProfileCommand.inherits(MetaCommand);
+    ns.type.Class(ProfileCommand, MetaCommand);
 
     //-------- setter/getter --------
 
