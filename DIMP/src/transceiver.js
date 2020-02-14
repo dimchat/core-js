@@ -232,7 +232,7 @@
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so no need to encode to Base64 here
             var str = new ns.type.String(data, 'UTF-8');
-            return str.toString;
+            return str.toString();
         }
         return ns.format.Base64.encode(data);
     };

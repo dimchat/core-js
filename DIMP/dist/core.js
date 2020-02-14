@@ -1288,7 +1288,7 @@
     Transceiver.prototype.encodeData = function(data, msg) {
         if (is_broadcast_msg.call(this, msg)) {
             var str = new ns.type.String(data, "UTF-8");
-            return str.toString
+            return str.toString()
         }
         return ns.format.Base64.encode(data)
     };
