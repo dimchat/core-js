@@ -137,7 +137,7 @@
         // check group
         if (cmd.hasOwnProperty('group')) {
             // create instance as group command
-            return ns.GroupCommand.getInstance(cmd);
+            return ns.protocol.GroupCommand.getInstance(cmd);
         }
         // custom history command
         return new HistoryCommand(cmd);
