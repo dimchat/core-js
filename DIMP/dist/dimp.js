@@ -250,10 +250,129 @@ if (typeof DIMP !== "object") {
     ns.type.register("Enum")
 }(DIMP);
 ! function(ns) {
+    var bytes = function(length) {
+        ns.type.Object.call(this);
+        var value = length ? arguments[0] : 0;
+        if (typeof value === "number") {
+            if (value < 1) {
+                value = 1
+            }
+            this.array = new Uint8Array(value);
+            this.length = 0
+        } else {
+            if (value instanceof bytes) {
+                this.array = value.getBytes();
+                this.length = value.length
+            } else {
+                if (value instanceof Uint8Array) {
+                    this.array = value;
+                    this.length = value.length
+                } else {
+                    if (value instanceof Array) {
+                        value = new Uint8Array(value);
+                        this.array = value;
+                        this.length = value.length
+                    } else {
+                        throw Error("bytes length error: " + value)
+                    }
+                }
+            }
+        }
+    };
+    ns.type.Class(bytes, ns.type.Object);
+    bytes.prototype.getBytes = function(copy) {
+        if (this.length < 1) {
+            return null
+        }
+        var view;
+        if (this.length === this.array.length) {
+            view = this.array
+        } else {
+            view = this.array.subarray(0, this.length)
+        }
+        if (copy) {
+            var array = new Uint8Array(this.length);
+            array.set(view);
+            return array
+        } else {
+            return view
+        }
+    };
+    bytes.prototype.getByte = function(index) {
+        if (index < this.length) {
+            return this.array[index]
+        } else {
+            return 0
+        }
+    };
+    bytes.prototype.setByte = function(index, value) {
+        if (index >= this.array.length) {
+            expand.call(this, index + 1)
+        }
+        this.array[index] = value;
+        if (index >= this.length) {
+            this.length = index + 1
+        }
+    };
+    var expand = function(size) {
+        var bigger = new Uint8Array(size);
+        bigger.set(this.array);
+        this.array = bigger
+    };
+    var add_one = function(value) {
+        if (this.length >= this.array.length) {
+            expand.call(this, this.length * 2)
+        }
+        this.array[this.length] = value;
+        ++this.length
+    };
+    bytes.prototype.push = function(value) {
+        if (typeof value === "number") {
+            add_one.call(this, value);
+            return
+        }
+        var array;
+        if (value instanceof Uint8Array) {
+            array = value
+        } else {
+            if (value instanceof bytes) {
+                array = value.getBytes()
+            } else {
+                throw TypeError("bytes value error: " + value)
+            }
+        }
+        for (var i = 0; i < array.length; ++i) {
+            add_one.call(this, array[i])
+        }
+    };
+    bytes.prototype.pop = function() {
+        if (this.length === 0) {
+            throw RangeError("bytes empty")
+        }
+        this.length -= 1;
+        var last = this.array[this.length];
+        this.array[this.length] = 0;
+        return last
+    };
+    bytes.prototype.toArray = function() {
+        if (typeof Array.from === "function") {
+            return Array.from(this.array)
+        } else {
+            return [].slice.call(this.array)
+        }
+    };
+    bytes.from = function(array) {
+        return new bytes(array)
+    };
+    ns.type.Data = bytes;
+    ns.type.register("Data")
+}(DIMP);
+! function(ns) {
+    var Data = ns.type.Data;
     var UTF8 = {
         encode: function(str) {
-            var array = [];
             var len = str.length;
+            var array = new Data(len);
             var c;
             for (var i = 0; i < len; ++i) {
                 c = str.charCodeAt(i);
@@ -274,7 +393,7 @@ if (typeof DIMP !== "object") {
                     }
                 }
             }
-            return array
+            return array.getBytes()
         },
         decode: function(array) {
             var string = "";
@@ -303,7 +422,7 @@ if (typeof DIMP !== "object") {
         if (!value) {
             value = ""
         } else {
-            if (value instanceof Array) {
+            if (value instanceof Uint8Array) {
                 if (!charset || charset === "UTF-8") {
                     value = UTF8.decode(value)
                 } else {
@@ -373,6 +492,12 @@ if (typeof DIMP !== "object") {
     };
     str.prototype.getLength = function() {
         return this.string.length
+    };
+    str.from = function(string) {
+        if (string instanceof Array) {
+            string = new Uint8Array(string)
+        }
+        return new str(string)
     };
     ns.type.String = str;
     ns.type.register("String")
@@ -467,12 +592,16 @@ if (typeof DIMP !== "object") {
             }
         }
     };
+    map.from = function(dict) {
+        return new map(dict)
+    };
     ns.type.Dictionary = map;
     ns.type.Arrays = arrays;
     ns.type.register("Dictionary");
     ns.type.register("Arrays")
 }(DIMP);
 ! function(ns) {
+    var Data = ns.type.Data;
     var hex_encode = function(data) {
         var i = 0;
         var len = data.length;
@@ -501,13 +630,13 @@ if (typeof DIMP !== "object") {
             }
         }
         var ch;
-        var data = [];
+        var data = new Data(len / 2);
         for (;
             (i + 1) < len; i += 2) {
             ch = str.substring(i, i + 2);
             data.push(parseInt(ch, 16))
         }
-        return data
+        return data.getBytes()
     };
     var base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     var base64_values = [];
@@ -567,7 +696,7 @@ if (typeof DIMP !== "object") {
         if ((length % 4) !== 0 || !/^[A-Za-z0-9+\/]+={0,2}$/.test(str)) {
             throw Error("base64 string error: " + string)
         }
-        var array = [];
+        var array = new Data(length * 3 / 4);
         var ch1, ch2, ch3, ch4;
         var i;
         for (i = 0; i < length; i += 4) {
@@ -582,7 +711,7 @@ if (typeof DIMP !== "object") {
         while (str[--i] === "=") {
             array.pop()
         }
-        return array
+        return array.getBytes()
     };
     var coder = function() {};
     ns.type.Interface(coder);
@@ -1262,7 +1391,7 @@ if (typeof MingKeMing !== "object") {
                     if (!this.seed || !this.fingerprint) {
                         this.status = -1
                     } else {
-                        var data = (new ns.type.String(this.seed)).getBytes();
+                        var data = ns.type.String.from(this.seed).getBytes();
                         var signature = this.fingerprint;
                         if (this.key.verify(data, signature)) {
                             this.status = 1
@@ -1282,7 +1411,7 @@ if (typeof MingKeMing !== "object") {
             return true
         }
         if (this.version.hasSeed()) {
-            var data = (new ns.type.String(this.seed)).getBytes();
+            var data = ns.type.String.from(this.seed).getBytes();
             var signature = this.fingerprint;
             return publicKey.verify(data, signature)
         } else {
@@ -1330,7 +1459,7 @@ if (typeof MingKeMing !== "object") {
             version = new MetaType(version)
         }
         if (version.hasSeed()) {
-            var data = (new ns.type.String(seed)).getBytes();
+            var data = ns.type.String.from(seed).getBytes();
             var fingerprint = privateKey.sign(data);
             meta["seed"] = seed;
             meta["fingerprint"] = Base64.encode(fingerprint)
@@ -1440,8 +1569,7 @@ if (typeof MingKeMing !== "object") {
         if (!this.data) {
             var string = this.getValue("data");
             if (string) {
-                var str = new ns.type.String(string);
-                this.data = str.getBytes()
+                this.data = ns.type.String.from(string).getBytes()
             }
         }
         return this.data
@@ -1521,8 +1649,7 @@ if (typeof MingKeMing !== "object") {
         }
         this.status = 1;
         var string = JSON.encode(this.getProperties());
-        var str = new ns.type.String(string);
-        this.data = str.getBytes();
+        this.data = ns.type.String.from(string).getBytes();
         this.signature = privateKey.sign(this.data);
         this.setValue("data", string);
         this.setValue("signature", Base64.encode(this.signature));
