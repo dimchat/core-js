@@ -189,7 +189,7 @@ core_tests = [];
         log('envelope: ', env);
         var iMsg = InstantMessage.newMessage(content, env);
         log('instant message: ', iMsg);
-        
+
         var sMsg = transceiver.encryptMessage(iMsg);
         log('secure message: ', sMsg);
         var nMsg = transceiver.decryptMessage(sMsg);
