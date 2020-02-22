@@ -681,7 +681,6 @@
 ! function(ns) {
     var ID = ns.ID;
     var Command = ns.protocol.Command;
-    var HistoryCommand = ns.protocol.HistoryCommand;
     var GroupCommand = ns.protocol.GroupCommand;
     var InviteCommand = function(info) {
         var group = null;
@@ -779,41 +778,34 @@
         }
     };
     ns.type.Class(QueryCommand, Command);
-    GroupCommand.invite = function(group, member) {
-        var cmd = new InviteCommand(group);
+    var create = function(clazz, group, member) {
+        var cmd = new clazz(group);
         if (typeof member === "string" || member instanceof ID) {
             cmd.setMember(member)
         } else {
-            cmd.setMembers(member)
+            if (member instanceof Array) {
+                cmd.setMembers(member)
+            }
         }
         return cmd
+    };
+    GroupCommand.invite = function(group, member) {
+        return create(InviteCommand, group, member)
     };
     GroupCommand.expel = function(group, member) {
-        var cmd = new ExpelCommand(group);
-        if (typeof member === "string" || member instanceof ID) {
-            cmd.setMember(member)
-        } else {
-            cmd.setMembers(member)
-        }
-        return cmd
+        return create(ExpelCommand, group, member)
     };
     GroupCommand.join = function(group) {
-        return new JoinCommand(group)
+        return create(JoinCommand, group)
     };
     GroupCommand.quit = function(group) {
-        return new QuitCommand(group)
+        return create(QuitCommand, group)
     };
     GroupCommand.reset = function(group, member) {
-        var cmd = new ResetCommand(group);
-        if (typeof member === "string" || member instanceof ID) {
-            cmd.setMember(member)
-        } else {
-            cmd.setMembers(member)
-        }
-        return cmd
+        return create(ResetCommand, group, member)
     };
     GroupCommand.query = function(group) {
-        return new QueryCommand(group)
+        return create(QueryCommand, group)
     };
     GroupCommand.register(GroupCommand.INVITE, InviteCommand);
     GroupCommand.register(GroupCommand.EXPEL, ExpelCommand);

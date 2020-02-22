@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>DIMP Test Cases</title>
+    <link href="test.css" type="text/css" rel="stylesheet" />
+    <script src="../libs/loader.js"></script>
+    <script src="../libs/runner.js"></script>
+    <script src="../libs/utils.js"></script>
+
+    <script src="../libs/crypto.js"></script>
+    <script src="../libs/mkm.js"></script>
+    <script src="../libs/dkd.js"></script>
+
+    <script>
+        !function (ns) {
+            var sources = [
+                'src/namespace.js',
+
+                'src/protocol/text.js',
+                'src/protocol/page.js',
+                'src/protocol/file.js',
+                'src/protocol/image.js',
+                'src/protocol/audio.js',
+                'src/protocol/video.js',
+
+                'src/protocol/command/command.js',
+                'src/protocol/command/meta.js',
+                'src/protocol/command/profile.js',
+                'src/protocol/command/handshake.js',
+                'src/protocol/command/history.js',
+                'src/protocol/command/group.js',
+
+                'src/delegate.js',
+                'src/cache.js',
+                'src/barrack.js',
+                'src/transceiver.js'
+            ];
+
+            var dist = 'dist/core.js';
+
+            var tests = [
+                'tests/crypto_tests.js',
+                'tests/mkm_tests.js',
+                'tests/dkd_tests.js',
+                'tests/core_tests.js'
+            ];
+
+            var base = window.location.href;
+            base = base.substring(0, base.indexOf('tests/test.html'));
+            var loader = new Loader(base);
+
+            for (var i = 0; i < sources.length; ++i) {
+                loader.importJS(sources[i]);
+            }
+            for (var j = 0; j < tests.length; ++j) {
+                loader.importJS(tests[j]);
+            }
+
+            ns.sources = sources;
+            ns.dist = dist;
+        }(window);
+
+        $(function () {
+            var runner = new Runner('crypto_tests');
+            runner.run(crypto_tests);
+        });
+
+        $(function () {
+            var runner = new Runner('mkm_tests');
+            runner.run(mkm_tests);
+        });
+
+        $(function () {
+            var runner = new Runner('dkd_tests');
+            runner.run(dkd_tests);
+        });
+
+        $(function () {
+            var runner = new Runner('core_tests');
+            runner.run(core_tests);
+        });
+    </script>
+</head>
+<body>
+
+<h2>Crypto Tests</h2>
+<div id="crypto_tests">Testing ...</div>
+<div>&nbsp;</div>
+
+<h2>MingKeMing Tests</h2>
+<div id="mkm_tests">Testing ...</div>
+<div>&nbsp;</div>
+
+<h2>DaoKeDao Tests</h2>
+<div id="dkd_tests">Testing ...</div>
+<div>&nbsp;</div>
+
+<h2>Core Tests</h2>
+<div id="core_tests">Testing ...</div>
+<div>&nbsp;</div>
+
+<h2>Makefile</h2>
+<p class="console">
+    <script>
+        !(function () {
+            var text = 'cat';
+            for (var i = 0; i < sources.length; ++i) {
+                text += ' ' + sources[i];
+            }
+            text += ' >> ' + dist;
+            document.writeln(text);
+        }());
+    </script>
+</p>
+<p class="console">
+    <script>
+        !(function () {
+            var text = 'cat' +
+                ' libs/crypto.js' +
+                ' libs/mkm.js' +
+                ' libs/dkd.js' +
+                ' dist/core.js';
+            text += ' >> dist/dimp.js';
+            document.writeln(text);
+        }());
+    </script>
+</p>
+</body>
+</html>
