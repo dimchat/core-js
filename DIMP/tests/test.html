@@ -5,14 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DIMP Test Cases</title>
-    <link href="test.css" type="text/css" rel="stylesheet" />
-    <script src="../libs/loader.js"></script>
-    <script src="../libs/runner.js"></script>
-    <script src="../libs/utils.js"></script>
+    <link href="/Crypto/tests/test.css" type="text/css" rel="stylesheet" />
+    <script src="/Crypto/libs/loader.js"></script>
+    <script src="/Crypto/libs/runner.js"></script>
+    <script src="/Crypto/libs/utils.js"></script>
 
-    <script src="../libs/crypto.js"></script>
-    <script src="../libs/mkm.js"></script>
-    <script src="../libs/dkd.js"></script>
+    <script src="/Crypto/dist/crypto.js"></script>
+    <script src="/MingKeMing/dist/mkm.js"></script>
+    <script src="/DaoKeDao/dist/dkd.js"></script>
 
     <script>
         !function (ns) {
@@ -42,9 +42,9 @@
             var dist = 'dist/core.js';
 
             var tests = [
-                'tests/crypto_tests.js',
-                'tests/mkm_tests.js',
-                'tests/dkd_tests.js',
+                '../Crypto/tests/crypto_tests.js',
+                '../MingKeMing/tests/mkm_tests.js',
+                '../DaoKeDao/tests/dkd_tests.js',
                 'tests/core_tests.js'
             ];
 
@@ -119,9 +119,9 @@
     <script>
         !(function () {
             var text = 'cat' +
-                ' libs/crypto.js' +
-                ' libs/mkm.js' +
-                ' libs/dkd.js' +
+                ' ../../mkm-js/Crypto/dist/crypto.js' +
+                ' ../../mkm-js/MingKeMing/dist/mkm.js' +
+                ' ../../dkd-js/DaoKeDao/dist/dkd.js' +
                 ' dist/core.js';
             text += ' >> dist/dimp.js';
             document.writeln(text);
