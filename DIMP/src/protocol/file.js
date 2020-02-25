@@ -68,7 +68,7 @@
         // symmetric key for decrypting file data
         this.password = null;
     };
-    ns.Class(FileContent, Content);
+    ns.Class(FileContent, Content, null);
 
     //-------- setter/getter --------
 
@@ -110,6 +110,11 @@
     FileContent.prototype.getData = function () {
         return this.attachment;
     };
+    /**
+     *  Set file data
+     *
+     * @param data {Uint8Array}
+     */
     FileContent.prototype.setData = function (data) {
         if (data && data.length > 0) {
             // update filename as MD5(data)
@@ -123,6 +128,11 @@
         this.attachment = data;
     };
 
+    /**
+     *  Get password for decrypt file data download from CDN
+     *
+     * @returns {SymmetricKey}
+     */
     FileContent.prototype.getPassword = function () {
         if (!this.password) {
             var key = this.getValue('password');
@@ -132,6 +142,11 @@
         }
         return this.password;
     };
+    /**
+     *  Set password for decryption
+     *
+     * @param key {SymmetricKey}
+     */
     FileContent.prototype.setPassword = function (key) {
         this.setValue('password', key);
         this.password = key;

@@ -77,10 +77,15 @@
             this.setMessage(message);
         }
     };
-    ns.Class(HandshakeCommand, Command);
+    ns.Class(HandshakeCommand, Command, null);
 
     //-------- setter/getter --------
 
+    /**
+     *  Get text
+     *
+     * @returns {String}
+     */
     HandshakeCommand.prototype.getMessage = function () {
         return this.getValue('message');
     };
@@ -88,6 +93,11 @@
         this.setValue('message', text);
     };
 
+    /**
+     *  Get session key
+     *
+     * @returns {String}
+     */
     HandshakeCommand.prototype.getSessionKey = function () {
         return this.getValue('session');
     };
@@ -95,6 +105,11 @@
         this.setValue('session', session);
     };
 
+    /**
+     *  Get state
+     *
+     * @returns {HandshakeState}
+     */
     HandshakeCommand.prototype.getState = function () {
         var text = this.getMessage();
         var session = this.getSessionKey();

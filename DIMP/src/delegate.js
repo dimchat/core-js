@@ -37,7 +37,7 @@
 
     var EntityDelegate = function () {
     };
-    ns.Interface(EntityDelegate);
+    ns.Interface(EntityDelegate, null);
 
     /**
      *  Create entity ID with String
@@ -87,7 +87,7 @@
 
     var CipherKeyDelegate = function () {
     };
-    ns.Interface(CipherKeyDelegate);
+    ns.Interface(CipherKeyDelegate, null);
 
     /**
      *  Get cipher key for encrypt message from 'sender' to 'receiver'

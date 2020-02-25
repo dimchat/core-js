@@ -57,7 +57,7 @@
      *  Remove 1/2 objects from the dictionary
      *  (Thanos can kill half lives of a world with a snap of the finger)
      *
-     * @param map {{String: *}}
+     * @param map {{}}
      * @param finger {Number}
      * @returns {Number} number of survivors
      */
@@ -140,6 +140,7 @@
 
     //-------- EntityDelegate --------
 
+    // @override
     Barrack.prototype.getIdentifier = function (string) {
         if (!string || string instanceof ID) {
             return string;
@@ -158,6 +159,7 @@
         return null;
     };
 
+    // @override
     Barrack.prototype.getUser = function (identifier) {
         // 1. get from user cache
         var user = this.userMap[identifier];
@@ -173,6 +175,7 @@
         return null;
     };
 
+    // @override
     Barrack.prototype.getGroup = function (identifier) {
         // 1. get from group cache
         var group = this.groupMap[identifier];
@@ -190,18 +193,21 @@
 
     //-------- EntityDataSource --------
 
+    // @override
     Barrack.prototype.getMeta = function (identifier) {
         return this.metaMap[identifier];
     };
 
     //-------- UserDataSource --------
 
+    // @override
     Barrack.prototype.getPublicKeyForEncryption = function (identifier) {
         console.assert(identifier.getType().isUser(), 'user ID error');
         // NOTICE: return nothing to use profile.key or meta.key
         return null;
     };
 
+    // @override
     Barrack.prototype.getPublicKeysForVerification = function (identifier) {
         console.assert(identifier.getType().isUser(), 'user ID error');
         // NOTICE: return nothing to use profile.key or meta.key
@@ -210,6 +216,7 @@
 
     //-------- GroupDataSource --------
 
+    // @override
     Barrack.prototype.getFounder = function (identifier) {
         // check for broadcast
         if (identifier.isBroadcast()) {
@@ -230,6 +237,7 @@
         return null;
     };
 
+    // @override
     Barrack.prototype.getOwner = function (identifier) {
         // check for broadcast
         if (identifier.isBroadcast()) {
@@ -250,6 +258,7 @@
         return null;
     };
 
+    // @override
     Barrack.prototype.getMembers = function (identifier) {
         // check for broadcast
         if (identifier.isBroadcast()) {

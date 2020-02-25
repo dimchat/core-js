@@ -67,10 +67,15 @@
         FileContent.call(this, content);
         this.thumbnail = null;
     };
-    ns.Class(ImageContent, FileContent);
+    ns.Class(ImageContent, FileContent, null);
 
     //-------- setter/getter --------
 
+    /**
+     *  Get small image data
+     *
+     * @returns {Uint8Array}
+     */
     ImageContent.prototype.getThumbnail = function () {
         if (!this.thumbnail) {
             var base64 = this.getValue('thumbnail');
@@ -80,7 +85,11 @@
         }
         return this.thumbnail;
     };
-
+    /**
+     *  Set small image data
+     *
+     * @param image {Uint8Array}
+     */
     ImageContent.prototype.setThumbnail = function (image) {
         if (image) {
             var base64 = Base64.encode(image);

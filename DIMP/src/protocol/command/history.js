@@ -77,7 +77,7 @@
             this.setTime(time);
         }
     };
-    ns.Class(HistoryCommand, Command);
+    ns.Class(HistoryCommand, Command, null);
 
     /**
      *  Command time

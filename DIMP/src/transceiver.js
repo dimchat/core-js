@@ -80,6 +80,13 @@
     //
     //  Transform
     //
+
+    /**
+     *  Encrypt instant message
+     *
+     * @param msg {InstantMessage|Message}
+     * @returns {SecureMessage}
+     */
     Transceiver.prototype.encryptMessage = function (msg) {
         var sender = this.entityDelegate.getIdentifier(msg.envelope.sender);
         var receiver = this.entityDelegate.getIdentifier(msg.envelope.receiver);
@@ -108,13 +115,19 @@
             sMsg = msg.encrypt(password, members);
         } else {
             // personal message (or split group message)
-            sMsg = msg.encrypt(password);
+            sMsg = msg.encrypt(password, null);
         }
 
         // OK
         return sMsg;
     };
 
+    /**
+     *  Sign secure message
+     *
+     * @param msg {SecureMessage|Message}
+     * @returns {ReliableMessage}
+     */
     Transceiver.prototype.signMessage = function (msg) {
         if (!msg.delegate) {
             msg.delegate = this;
@@ -123,6 +136,12 @@
         return msg.sign();
     };
 
+    /**
+     *  Verify reliable message
+     *
+     * @param msg {ReliableMessage|Message}
+     * @returns {SecureMessage}
+     */
     Transceiver.prototype.verifyMessage = function (msg) {
         //
         //  TODO: check [Meta Protocol]
@@ -136,6 +155,12 @@
         return msg.verify();
     };
 
+    /**
+     *  Decrypt secure message
+     *
+     * @param msg {SecureMessage|Message}
+     * @returns {InstantMessage}
+     */
     Transceiver.prototype.decryptMessage = function (msg) {
         //
         //  NOTICE: make sure the receiver is YOU!
@@ -155,24 +180,47 @@
     //  De/serialize message content and symmetric key
     //
 
+    /**
+     *  Encode content to JSON string data
+     *
+     * @param content {Content}
+     * @param msg {InstantMessage}
+     * @returns {Uint8Array}
+     */
     Transceiver.prototype.serializeContent = function (content, msg) {
         var json = ns.format.JSON.encode(content);
-        var str = new ns.type.String(json);
-        return str.getBytes('UTF-8');
+        return ns.type.String.from(json).getBytes('UTF-8');
     };
 
+    /**
+     *  Encode symmetric key to JSON string data
+     *
+     * @param password {SymmetricKey}
+     * @param msg {InstantMessage}
+     * @returns {Uint8Array}
+     */
     Transceiver.prototype.serializeKey = function (password, msg) {
         var json = ns.format.JSON.encode(password);
-        var str = new ns.type.String(json);
-        return str.getBytes('UTF-8');
+        return ns.type.String.from(json).getBytes('UTF-8');
     };
 
+    /**
+     *  Encode reliable message to JSON string data
+     *
+     * @param msg {ReliableMessage}
+     * @returns {Uint8Array}
+     */
     Transceiver.prototype.serializeMessage = function (msg) {
         var json = ns.format.JSON.encode(msg);
-        var str = new ns.type.String(json);
-        return str.getBytes('UTF-8');
+        return ns.type.String.from(json).getBytes('UTF-8');
     };
 
+    /**
+     *  Decode reliable message from JSON string data
+     *
+     * @param data {Uint8Array}
+     * @returns {ReliableMessage}
+     */
     Transceiver.prototype.deserializeMessage = function (data) {
         var str = new ns.type.String(data, 'UTF-8');
         var dict = ns.format.JSON.decode(str.toString());
@@ -191,6 +239,13 @@
         return ReliableMessage.getInstance(dict);
     };
 
+    /**
+     *  Decode symmetric key from JSON string data
+     *
+     * @param data {Uint8Array}
+     * @param msg {SecureMessage}
+     * @returns {SymmetricKey}
+     */
     Transceiver.prototype.deserializeKey = function (data, msg) {
         var str = new ns.type.String(data, 'UTF-8');
         var dict = ns.format.JSON.decode(str.toString());
@@ -203,6 +258,13 @@
         return SymmetricKey.getInstance(dict);
     };
 
+    /**
+     *  Decode content from JSON string data
+     *
+     * @param data {Uint8Array}
+     * @param msg {SecureMessage}
+     * @returns {Content}
+     */
     Transceiver.prototype.deserializeContent = function (data, msg) {
         var str = new ns.type.String(data, 'UTF-8');
         var dict = ns.format.JSON.decode(str.toString());
@@ -215,6 +277,7 @@
 
     //-------- InstantMessageDelegate --------
 
+    // @override
     Transceiver.prototype.encryptContent = function (content, pwd, msg) {
         // NOTICE: check attachment for File/Image/Audio/Video message content
         //         before serialize content, this job should be do in subclass
@@ -227,6 +290,7 @@
         }
     };
 
+    // @override
     Transceiver.prototype.encodeData = function (data, msg) {
         if (is_broadcast_msg.call(this, msg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
@@ -237,6 +301,7 @@
         return ns.format.Base64.encode(data);
     };
 
+    // @override
     Transceiver.prototype.encryptKey = function (pwd, receiver, msg) {
         if (is_broadcast_msg.call(this, msg)) {
             // broadcast message has no key
@@ -256,16 +321,19 @@
         }
     };
 
+    // @override
     Transceiver.prototype.encodeKey = function (key, msg) {
         return ns.format.Base64.encode(key);
     };
 
     //-------- SecureMessageDelegate --------
 
+    // @override
     Transceiver.prototype.decodeKey = function (key, msg) {
         return ns.format.Base64.decode(key);
     };
 
+    // @override
     Transceiver.prototype.decryptKey = function (key, sender, receiver, msg) {
         sender = this.entityDelegate.getIdentifier(sender);
         receiver = this.entityDelegate.getIdentifier(receiver);
@@ -288,16 +356,17 @@
         return this.cipherKeyDelegate.reuseCipherKey(sender, receiver, password);
     };
 
+    // @override
     Transceiver.prototype.decodeData = function (data, msg) {
         if (is_broadcast_msg.call(this, msg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so return the string data directly
-            var str = new ns.type.String(data);
-            return str.getBytes('UTF-8');
+            return ns.type.String.from(data).getBytes('UTF-8');
         }
         return ns.format.Base64.decode(data);
     };
 
+    // @override
     Transceiver.prototype.decryptContent = function (data, pwd, msg) {
         var key = SymmetricKey.getInstance(pwd);
         if (!key) {
@@ -314,33 +383,37 @@
         return this.deserializeContent(plaintext, msg);
     };
 
+    // @override
     Transceiver.prototype.signData = function (data, sender, msg) {
         sender = this.entityDelegate.getIdentifier(sender);
         var user = this.entityDelegate.getUser(sender);
         if (user) {
             return user.sign(data);
         } else {
-            throw Error('failed to get sign key for sender: ' + sender);
+            throw Error('failed to get sign key for sender: ' + msg);
         }
     };
 
+    // @override
     Transceiver.prototype.encodeSignature = function (signature, msg) {
         return ns.format.Base64.encode(signature);
     };
 
     //-------- ReliableMessageDelegate --------
 
+    // @override
     Transceiver.prototype.decodeSignature = function (signature, msg) {
         return ns.format.Base64.decode(signature);
     };
 
+    // @override
     Transceiver.prototype.verifyDataSignature = function (data, signature, sender, msg) {
         sender = this.entityDelegate.getIdentifier(sender);
         var contact = this.entityDelegate.getUser(sender);
         if (contact) {
             return contact.verify(data, signature);
         } else {
-            throw Error('failed to get verify key for sender: ' + sender);
+            throw Error('failed to get verify key for sender: ' + msg);
         }
     };
 

@@ -74,17 +74,32 @@
         // lazy
         this.meta = null;
     };
-    ns.Class(MetaCommand, Command);
+    ns.Class(MetaCommand, Command, null);
 
     //-------- setter/getter --------
 
+    /**
+     *  Get entity ID for meta
+     *
+     * @returns {ID|String}
+     */
     MetaCommand.prototype.getIdentifier = function () {
         return this.getValue('ID');
     };
+    /**
+     *  Set entity ID for meta
+     *
+     * @param identifier {ID}
+     */
     MetaCommand.prototype.setIdentifier = function (identifier) {
         this.setValue('ID', identifier);
     };
 
+    /**
+     *  Get meta
+     *
+     * @returns {Meta}
+     */
     MetaCommand.prototype.getMeta = function () {
         if (!this.meta) {
             var dict = this.getValue('meta');
@@ -92,6 +107,11 @@
         }
         return this.meta;
     };
+    /**
+     *  Set meta
+     *
+     * @param meta {Meta}
+     */
     MetaCommand.prototype.setMeta = function (meta) {
         this.setValue('meta', meta);
         this.meta = meta;
@@ -99,10 +119,22 @@
 
     //-------- factories --------
 
+    /**
+     *  Create query command
+     *
+     * @param identifier {ID}
+     * @returns {MetaCommand}
+     */
     MetaCommand.query = function (identifier) {
         return new MetaCommand(identifier);
     };
-
+    /**
+     *  Create response command
+     *
+     * @param identifier {ID}
+     * @param meta {Meta}
+     * @returns {MetaCommand}
+     */
     MetaCommand.response = function (identifier, meta) {
         var cmd = new MetaCommand(identifier);
         cmd.setMeta(meta);

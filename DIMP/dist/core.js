@@ -18,9 +18,9 @@
     if (typeof ns.core !== "object") {
         ns.core = {}
     }
-    DIMP.Namespace(ns.protocol);
-    DIMP.Namespace(ns.plugins);
-    DIMP.Namespace(ns.core);
+    ns.Namespace(ns.protocol);
+    ns.Namespace(ns.plugins);
+    ns.Namespace(ns.core);
     ns.register("protocol");
     ns.register("plugins");
     ns.register("core")
@@ -43,7 +43,7 @@
             this.setText(text)
         }
     };
-    ns.Class(TextContent, Content);
+    ns.Class(TextContent, Content, null);
     TextContent.prototype.getText = function() {
         return this.getValue("text")
     };
@@ -73,7 +73,7 @@
         }
         this.icon = null
     };
-    ns.Class(PageContent, Content);
+    ns.Class(PageContent, Content, null);
     PageContent.prototype.getURL = function() {
         return this.getValue("URL")
     };
@@ -125,7 +125,7 @@
         this.attachment = null;
         this.password = null
     };
-    ns.Class(FileContent, Content);
+    ns.Class(FileContent, Content, null);
     FileContent.prototype.getURL = function() {
         return this.getValue("URL")
     };
@@ -196,7 +196,7 @@
         FileContent.call(this, content);
         this.thumbnail = null
     };
-    ns.Class(ImageContent, FileContent);
+    ns.Class(ImageContent, FileContent, null);
     ImageContent.prototype.getThumbnail = function() {
         if (!this.thumbnail) {
             var base64 = this.getValue("thumbnail");
@@ -229,7 +229,7 @@
         }
         FileContent.call(this, content)
     };
-    ns.Class(AudioContent, FileContent);
+    ns.Class(AudioContent, FileContent, null);
     AudioContent.prototype.getText = function() {
         return this.getValue("text")
     };
@@ -252,7 +252,7 @@
         FileContent.call(this, content);
         this.snapshot = null
     };
-    ns.Class(VideoContent, FileContent);
+    ns.Class(VideoContent, FileContent, null);
     VideoContent.prototype.getSnapshot = function() {
         if (!this.snapshot) {
             var base64 = this.getValue("snapshot");
@@ -293,7 +293,7 @@
             this.setCommand(name)
         }
     };
-    ns.Class(Command, Content);
+    ns.Class(Command, Content, null);
     Command.prototype.getCommand = function() {
         return this.getValue("command")
     };
@@ -356,7 +356,7 @@
         }
         this.meta = null
     };
-    ns.Class(MetaCommand, Command);
+    ns.Class(MetaCommand, Command, null);
     MetaCommand.prototype.getIdentifier = function() {
         return this.getValue("ID")
     };
@@ -407,7 +407,7 @@
         }
         this.profile = null
     };
-    ns.Class(ProfileCommand, MetaCommand);
+    ns.Class(ProfileCommand, MetaCommand, null);
     ProfileCommand.prototype.getProfile = function() {
         if (!this.profile) {
             var info = this.getValue("profile");
@@ -475,7 +475,7 @@
             this.setMessage(message)
         }
     };
-    ns.Class(HandshakeCommand, Command);
+    ns.Class(HandshakeCommand, Command, null);
     HandshakeCommand.prototype.getMessage = function() {
         return this.getValue("message")
     };
@@ -556,7 +556,7 @@
             this.setTime(time)
         }
     };
-    ns.Class(HistoryCommand, Command);
+    ns.Class(HistoryCommand, Command, null);
     HistoryCommand.prototype.getTime = function() {
         var time = this.getValue("time");
         if (time) {
@@ -625,7 +625,7 @@
             this.setGroup(group)
         }
     };
-    ns.Class(GroupCommand, HistoryCommand);
+    ns.Class(GroupCommand, HistoryCommand, null);
     GroupCommand.prototype.getGroup = function() {
         return Content.prototype.getGroup.call(this)
     };
@@ -639,10 +639,18 @@
         this.setValue("member", identifier)
     };
     GroupCommand.prototype.getMembers = function() {
-        return this.getValue("members")
+        var members = this.getValue("members");
+        if (!members) {
+            var member = this.getValue("member");
+            if (member) {
+                members = [member]
+            }
+        }
+        return members
     };
-    GroupCommand.prototype.setMembers = function(identifier) {
-        this.setValue("members", identifier)
+    GroupCommand.prototype.setMembers = function(members) {
+        this.setValue("members", members);
+        this.setValue("member", null)
     };
     GroupCommand.FOUND = HistoryCommand.FOUND;
     GroupCommand.ABDICATE = HistoryCommand.ABDICATE;
@@ -697,7 +705,7 @@
             this.setGroup(group)
         }
     };
-    ns.Class(InviteCommand, GroupCommand);
+    ns.Class(InviteCommand, GroupCommand, null);
     var ExpelCommand = function(info) {
         var group = null;
         if (!info) {
@@ -713,7 +721,7 @@
             this.setGroup(group)
         }
     };
-    ns.Class(ExpelCommand, GroupCommand);
+    ns.Class(ExpelCommand, GroupCommand, null);
     var JoinCommand = function(info) {
         var group = null;
         if (!info) {
@@ -729,7 +737,7 @@
             this.setGroup(group)
         }
     };
-    ns.Class(JoinCommand, GroupCommand);
+    ns.Class(JoinCommand, GroupCommand, null);
     var QuitCommand = function(info) {
         var group = null;
         if (!info) {
@@ -745,7 +753,7 @@
             this.setGroup(group)
         }
     };
-    ns.Class(QuitCommand, GroupCommand);
+    ns.Class(QuitCommand, GroupCommand, null);
     var ResetCommand = function(info) {
         var group = null;
         if (!info) {
@@ -761,7 +769,7 @@
             this.setGroup(group)
         }
     };
-    ns.Class(ResetCommand, GroupCommand);
+    ns.Class(ResetCommand, GroupCommand, null);
     var QueryCommand = function(info) {
         var group = null;
         if (!info) {
@@ -777,7 +785,7 @@
             this.setGroup(group)
         }
     };
-    ns.Class(QueryCommand, Command);
+    ns.Class(QueryCommand, Command, null);
     var create = function(clazz, group, member) {
         var cmd = new clazz(group);
         if (typeof member === "string" || member instanceof ID) {
@@ -816,7 +824,7 @@
     if (typeof ns.protocol.group !== "object") {
         ns.protocol.group = {}
     }
-    DIMP.Namespace(ns.protocol.group);
+    ns.Namespace(ns.protocol.group);
     ns.protocol.register("group");
     ns.protocol.group.InviteCommand = InviteCommand;
     ns.protocol.group.ExpelCommand = ExpelCommand;
@@ -833,7 +841,7 @@
 }(DIMP);
 ! function(ns) {
     var EntityDelegate = function() {};
-    ns.Interface(EntityDelegate);
+    ns.Interface(EntityDelegate, null);
     EntityDelegate.prototype.getIdentifier = function(string) {
         console.assert(string !== null, "ID string empty");
         console.assert(false, "implement me!");
@@ -854,7 +862,7 @@
 }(DIMP);
 ! function(ns) {
     var CipherKeyDelegate = function() {};
-    ns.Interface(CipherKeyDelegate);
+    ns.Interface(CipherKeyDelegate, null);
     CipherKeyDelegate.prototype.getCipherKey = function(sender, receiver) {
         console.assert(sender !== null, "sender empty");
         console.assert(receiver !== null, "receiver empty");
@@ -1216,7 +1224,7 @@
             var members = this.entityDelegate.getMembers(receiver);
             sMsg = msg.encrypt(password, members)
         } else {
-            sMsg = msg.encrypt(password)
+            sMsg = msg.encrypt(password, null)
         }
         return sMsg
     };
@@ -1240,18 +1248,15 @@
     };
     Transceiver.prototype.serializeContent = function(content, msg) {
         var json = ns.format.JSON.encode(content);
-        var str = new ns.type.String(json);
-        return str.getBytes("UTF-8")
+        return ns.type.String.from(json).getBytes("UTF-8")
     };
     Transceiver.prototype.serializeKey = function(password, msg) {
         var json = ns.format.JSON.encode(password);
-        var str = new ns.type.String(json);
-        return str.getBytes("UTF-8")
+        return ns.type.String.from(json).getBytes("UTF-8")
     };
     Transceiver.prototype.serializeMessage = function(msg) {
         var json = ns.format.JSON.encode(msg);
-        var str = new ns.type.String(json);
-        return str.getBytes("UTF-8")
+        return ns.type.String.from(json).getBytes("UTF-8")
     };
     Transceiver.prototype.deserializeMessage = function(data) {
         var str = new ns.type.String(data, "UTF-8");
@@ -1325,8 +1330,7 @@
     };
     Transceiver.prototype.decodeData = function(data, msg) {
         if (is_broadcast_msg.call(this, msg)) {
-            var str = new ns.type.String(data);
-            return str.getBytes("UTF-8")
+            return ns.type.String.from(data).getBytes("UTF-8")
         }
         return ns.format.Base64.decode(data)
     };
@@ -1347,7 +1351,7 @@
         if (user) {
             return user.sign(data)
         } else {
-            throw Error("failed to get sign key for sender: " + sender)
+            throw Error("failed to get sign key for sender: " + msg)
         }
     };
     Transceiver.prototype.encodeSignature = function(signature, msg) {
@@ -1362,7 +1366,7 @@
         if (contact) {
             return contact.verify(data, signature)
         } else {
-            throw Error("failed to get verify key for sender: " + sender)
+            throw Error("failed to get verify key for sender: " + msg)
         }
     };
     ns.core.Transceiver = Transceiver;

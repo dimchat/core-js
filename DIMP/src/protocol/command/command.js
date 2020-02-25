@@ -69,7 +69,7 @@
             this.setCommand(name);
         }
     };
-    ns.Class(Command, Content);
+    ns.Class(Command, Content, null);
 
     /**
      *  Command name
@@ -92,6 +92,12 @@
     //-------- Runtime --------
     var command_classes = {};
 
+    /**
+     *  Register command class with name
+     *
+     * @param name {String}
+     * @param clazz {Class}
+     */
     Command.register = function (name, clazz) {
         command_classes[name] = clazz;
     };
@@ -108,6 +114,12 @@
         return command_classes[command];
     };
 
+    /**
+     *  Create command object
+     *
+     * @param cmd {{}|Command}
+     * @returns {Command}
+     */
     Command.getInstance = function (cmd) {
         if (!cmd) {
             return null;
@@ -117,6 +129,7 @@
         // create instance by subclass (with command name)
         var clazz = Command.getClass(cmd);
         if (typeof clazz === 'function') {
+            // noinspection JSValidateTypes
             return Content.createInstance(clazz, cmd);
         }
         // custom command

@@ -64,14 +64,23 @@
         }
         FileContent.call(this, content);
     };
-    ns.Class(AudioContent, FileContent);
+    ns.Class(AudioContent, FileContent, null);
 
     //-------- setter/getter --------
 
+    /**
+     *  Get ASR text
+     *
+     * @returns {String}
+     */
     AudioContent.prototype.getText = function () {
         return this.getValue('text');
     };
-
+    /**
+     *  Set ASR text
+     *
+     * @param asr {String}
+     */
     AudioContent.prototype.setText = function (asr) {
         this.setValue('text', asr);
     };

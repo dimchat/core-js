@@ -68,7 +68,7 @@
             this.setText(text);
         }
     };
-    ns.Class(TextContent, Content);
+    ns.Class(TextContent, Content, null);
 
     //-------- setter/getter --------
 

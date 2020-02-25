@@ -72,7 +72,7 @@
         }
         this.icon = null;
     };
-    ns.Class(PageContent, Content);
+    ns.Class(PageContent, Content, null);
 
     //-------- setter/getter --------
 
@@ -97,6 +97,11 @@
         this.setValue('desc', text);
     };
 
+    /**
+     *  Get small image data
+     *
+     * @returns {Uint8Array}
+     */
     PageContent.prototype.getIcon = function () {
         if (!this.icon) {
             var base64 = this.getValue('icon');
@@ -106,6 +111,11 @@
         }
         return this.icon;
     };
+    /**
+     *  Set small image data
+     *
+     * @param data {Uint8Array}
+     */
     PageContent.prototype.setIcon = function (data) {
         var base64 = null;
         if (data) {

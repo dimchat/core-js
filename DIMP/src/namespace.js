@@ -53,9 +53,9 @@
         ns.core = {};
     }
 
-    DIMP.Namespace(ns.protocol);
-    DIMP.Namespace(ns.plugins);
-    DIMP.Namespace(ns.core);
+    ns.Namespace(ns.protocol);
+    ns.Namespace(ns.plugins);
+    ns.Namespace(ns.core);
 
     ns.register('protocol');
     ns.register('plugins');

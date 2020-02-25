@@ -122,7 +122,7 @@
      *  Callback for saving cipher key table into local storage
      *  (Override it to access database)
      *
-     * @param map {map} - all cipher keys(with direction) from memory cache
+     * @param map {{}} - all cipher keys(with direction) from memory cache
      * @returns {boolean}
      */
     KeyCache.prototype.saveKeys = function (map) {
@@ -135,7 +135,7 @@
      *  Load cipher key table from local storage
      *  (Override it to access database)
      *
-     * @returns {map}
+     * @returns {{}}
      */
     KeyCache.prototype.loadKeys = function () {
         console.assert(false, 'implement me!');
@@ -145,7 +145,7 @@
     /**
      *  Update cipher key table into memory cache
      *
-     * @param map {map} - cipher keys(with direction) from local storage
+     * @param map {{}} - cipher keys(with direction) from local storage
      * @returns {boolean}
      */
     KeyCache.prototype.updateKeys = function (map) {
@@ -194,6 +194,7 @@
 
     //-------- CipherKeyDelegate --------
 
+    // @override
     KeyCache.prototype.getCipherKey = function (sender, receiver) {
         if (receiver.isBroadcast()) {
             return ns.plugins.PlainKey.getInstance();
@@ -202,6 +203,7 @@
         return get_key.call(this, sender, receiver);
     };
 
+    // @override
     KeyCache.prototype.cacheCipherKey = function (sender, receiver, key) {
         if (receiver.isBroadcast()) {
             // broadcast message has no key
@@ -211,6 +213,7 @@
         }
     };
 
+    // @override
     KeyCache.prototype.reuseCipherKey = function (sender, receiver, key) {
         if (key) {
             // cache the key for reuse

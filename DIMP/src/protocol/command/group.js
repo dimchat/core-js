@@ -71,7 +71,7 @@
             this.setGroup(group);
         }
     };
-    ns.Class(GroupCommand, HistoryCommand);
+    ns.Class(GroupCommand, HistoryCommand, null);
 
     /**
      *  Group ID (or string)
@@ -81,6 +81,11 @@
     GroupCommand.prototype.getGroup = function () {
         return Content.prototype.getGroup.call(this);
     };
+    /**
+     *  Set group ID
+     *
+     * @param identifier {ID}
+     */
     GroupCommand.prototype.setGroup = function (identifier) {
         Content.prototype.setGroup.call(this, identifier);
     };
@@ -93,6 +98,11 @@
     GroupCommand.prototype.getMember = function () {
         return this.getValue('member');
     };
+    /**
+     *  Set member ID
+     *
+     * @param identifier {ID}
+     */
     GroupCommand.prototype.setMember = function (identifier) {
         this.setValue('member', identifier);
     };
@@ -102,13 +112,24 @@
      *
      * @returns {String[]}
      */
-    GroupCommand.prototype.getMembers= function () {
-        // TODO: get from 'member'?
-        return this.getValue('members');
+    GroupCommand.prototype.getMembers = function () {
+        var members = this.getValue('members');
+        if (!members) {
+            var member = this.getValue('member');
+            if (member) {
+                members = [member];
+            }
+        }
+        return members;
     };
-    GroupCommand.prototype.setMembers = function (identifier) {
-        this.setValue('members', identifier);
-        // TODO: remove 'member'?
+    /**
+     *  Set member ID list
+     *
+     * @param members {ID[]}
+     */
+    GroupCommand.prototype.setMembers = function (members) {
+        this.setValue('members', members);
+        this.setValue('member', null);
     };
 
     //-------- command names --------
@@ -186,7 +207,7 @@
             this.setGroup(group);
         }
     };
-    ns.Class(InviteCommand, GroupCommand);
+    ns.Class(InviteCommand, GroupCommand, null);
 
     //
     //  Expel group command
@@ -206,7 +227,7 @@
             this.setGroup(group);
         }
     };
-    ns.Class(ExpelCommand, GroupCommand);
+    ns.Class(ExpelCommand, GroupCommand, null);
 
     //
     //  Join group command
@@ -226,7 +247,7 @@
             this.setGroup(group);
         }
     };
-    ns.Class(JoinCommand, GroupCommand);
+    ns.Class(JoinCommand, GroupCommand, null);
 
     //
     //  Quit group command
@@ -246,7 +267,7 @@
             this.setGroup(group);
         }
     };
-    ns.Class(QuitCommand, GroupCommand);
+    ns.Class(QuitCommand, GroupCommand, null);
 
     //
     //  Reset group command
@@ -266,7 +287,7 @@
             this.setGroup(group);
         }
     };
-    ns.Class(ResetCommand, GroupCommand);
+    ns.Class(ResetCommand, GroupCommand, null);
 
     //
     //  Query group command
@@ -291,7 +312,7 @@
             this.setGroup(group);
         }
     };
-    ns.Class(QueryCommand, Command);
+    ns.Class(QueryCommand, Command, null);
 
     //-------- factories --------
 
@@ -342,7 +363,7 @@
     if (typeof ns.protocol.group !== 'object') {
         ns.protocol.group = {};
     }
-    DIMP.Namespace(ns.protocol.group);
+    ns.Namespace(ns.protocol.group);
     ns.protocol.register('group');
 
     ns.protocol.group.InviteCommand = InviteCommand;

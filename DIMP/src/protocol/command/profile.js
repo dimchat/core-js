@@ -78,10 +78,15 @@
         // lazy
         this.profile = null;
     };
-    ns.Class(ProfileCommand, MetaCommand);
+    ns.Class(ProfileCommand, MetaCommand, null);
 
     //-------- setter/getter --------
 
+    /**
+     *  Get profile
+     *
+     * @returns {Profile}
+     */
     ProfileCommand.prototype.getProfile = function () {
         if (!this.profile) {
             var info = this.getValue('profile');
@@ -108,20 +113,42 @@
         }
         return this.profile;
     };
+    /**
+     *  Set Profile
+     *
+     * @param profile {Profile}
+     */
     ProfileCommand.prototype.setProfile = function (profile) {
         this.setValue('profile', profile);
         this.profile = profile;
     };
 
+    /**
+     *  Get signature string for old profile
+     *
+     * @returns {String}
+     */
     ProfileCommand.prototype.getSignature = function () {
         return this.getValue('signature');
     };
+    /**
+     *  Set signature string for old profile
+     *
+     * @param base64 {String}
+     */
     ProfileCommand.prototype.setSignature = function (base64) {
         this.setValue('signature', base64);
     };
 
     //-------- factories --------
 
+    /**
+     *  Create query command
+     *
+     * @param identifier {ID}
+     * @param signature {String} - OPTIONAL
+     * @returns {ProfileCommand}
+     */
     ProfileCommand.query = function (identifier, signature) {
         var cmd = new ProfileCommand(identifier);
         if (signature) {
@@ -130,6 +157,14 @@
         return cmd;
     };
 
+    /**
+     *  Create response command
+     *
+     * @param identifier {ID}
+     * @param profile {Profile}
+     * @param meta {Meta} - OPTIONAL
+     * @returns {ProfileCommand}
+     */
     ProfileCommand.response = function (identifier, profile, meta) {
         var cmd = new ProfileCommand(identifier);
         cmd.setProfile(profile);

@@ -67,10 +67,15 @@
         FileContent.call(this, content);
         this.snapshot = null;
     };
-    ns.Class(VideoContent, FileContent);
+    ns.Class(VideoContent, FileContent, null);
 
     //-------- setter/getter --------
 
+    /**
+     *  Get small image data
+     *
+     * @returns {Uint8Array}
+     */
     VideoContent.prototype.getSnapshot = function () {
         if (!this.snapshot) {
             var base64 = this.getValue('snapshot');
@@ -80,7 +85,11 @@
         }
         return this.snapshot;
     };
-
+    /**
+     *  Set small image data
+     *
+     * @param image {Uint8Array}
+     */
     VideoContent.prototype.setSnapshot = function (image) {
         if (image) {
             var base64 = Base64.encode(image);
