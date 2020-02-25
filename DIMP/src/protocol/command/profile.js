@@ -57,7 +57,7 @@
     /**
      *  Create profile command
      *
-     * @param info - command info; or entity ID
+     * @param info {{}|ID} - command info; or entity ID
      * @constructor
      */
     var ProfileCommand = function (info) {
@@ -72,12 +72,13 @@
         }
         MetaCommand.call(this, info);
         if (identifier) {
+            // noinspection JSUnresolvedFunction
             this.setIdentifier(identifier);
         }
         // lazy
         this.profile = null;
     };
-    ns.type.Class(ProfileCommand, MetaCommand);
+    ns.Class(ProfileCommand, MetaCommand);
 
     //-------- setter/getter --------
 

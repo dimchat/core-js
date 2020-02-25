@@ -56,7 +56,7 @@
     /**
      *  Create group command
      *
-     * @param info - command info; or group ID
+     * @param info {{}|ID} - command info; or group ID
      * @constructor
      */
     var GroupCommand = function (info) {
@@ -71,12 +71,12 @@
             this.setGroup(group);
         }
     };
-    ns.type.Class(GroupCommand, HistoryCommand);
+    ns.Class(GroupCommand, HistoryCommand);
 
     /**
      *  Group ID (or string)
      *
-     * @returns {ID|string}
+     * @returns {ID|String}
      */
     GroupCommand.prototype.getGroup = function () {
         return Content.prototype.getGroup.call(this);
@@ -88,7 +88,7 @@
     /**
      *  Member ID (or String)
      *
-     * @returns {ID|string}
+     * @returns {ID|String}
      */
     GroupCommand.prototype.getMember = function () {
         return this.getValue('member');
@@ -186,7 +186,7 @@
             this.setGroup(group);
         }
     };
-    ns.type.Class(InviteCommand, GroupCommand);
+    ns.Class(InviteCommand, GroupCommand);
 
     //
     //  Expel group command
@@ -206,7 +206,7 @@
             this.setGroup(group);
         }
     };
-    ns.type.Class(ExpelCommand, GroupCommand);
+    ns.Class(ExpelCommand, GroupCommand);
 
     //
     //  Join group command
@@ -226,7 +226,7 @@
             this.setGroup(group);
         }
     };
-    ns.type.Class(JoinCommand, GroupCommand);
+    ns.Class(JoinCommand, GroupCommand);
 
     //
     //  Quit group command
@@ -246,7 +246,7 @@
             this.setGroup(group);
         }
     };
-    ns.type.Class(QuitCommand, GroupCommand);
+    ns.Class(QuitCommand, GroupCommand);
 
     //
     //  Reset group command
@@ -266,7 +266,7 @@
             this.setGroup(group);
         }
     };
-    ns.type.Class(ResetCommand, GroupCommand);
+    ns.Class(ResetCommand, GroupCommand);
 
     //
     //  Query group command
@@ -291,7 +291,7 @@
             this.setGroup(group);
         }
     };
-    ns.type.Class(QueryCommand, Command);
+    ns.Class(QueryCommand, Command);
 
     //-------- factories --------
 
@@ -342,7 +342,7 @@
     if (typeof ns.protocol.group !== 'object') {
         ns.protocol.group = {};
     }
-    DIMP.namespace(ns.protocol.group);
+    DIMP.Namespace(ns.protocol.group);
     ns.protocol.register('group');
 
     ns.protocol.group.InviteCommand = InviteCommand;

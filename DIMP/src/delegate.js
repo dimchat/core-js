@@ -37,12 +37,12 @@
 
     var EntityDelegate = function () {
     };
-    ns.type.Interface(EntityDelegate);
+    ns.Interface(EntityDelegate);
 
     /**
      *  Create entity ID with String
      *
-     * @param string
+     * @param string {String}
      * @returns {ID}
      */
     EntityDelegate.prototype.getIdentifier = function (string) {
@@ -54,7 +54,7 @@
     /**
      *  Create user with ID
      *
-     * @param identifier
+     * @param identifier {ID}
      * @returns {User}
      */
     EntityDelegate.prototype.getUser = function (identifier) {
@@ -66,7 +66,7 @@
     /**
      *  Create group with ID
      *
-     * @param identifier
+     * @param identifier {ID}
      * @returns {Group}
      */
     EntityDelegate.prototype.getGroup = function (identifier) {
@@ -87,13 +87,13 @@
 
     var CipherKeyDelegate = function () {
     };
-    ns.type.Interface(CipherKeyDelegate);
+    ns.Interface(CipherKeyDelegate);
 
     /**
      *  Get cipher key for encrypt message from 'sender' to 'receiver'
      *
-     * @param sender
-     * @param receiver
+     * @param sender {ID}
+     * @param receiver {ID}
      * @returns {SymmetricKey}
      */
     CipherKeyDelegate.prototype.getCipherKey = function (sender, receiver) {
@@ -106,9 +106,9 @@
     /**
      *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
      *
-     * @param sender
-     * @param receiver
-     * @param key
+     * @param sender {ID}
+     * @param receiver {ID}
+     * @param key {SymmetricKey}
      */
     CipherKeyDelegate.prototype.cacheCipherKey = function (sender, receiver, key) {
         console.assert(sender !== null, 'sender empty');
@@ -120,9 +120,9 @@
     /**
      *  Get/cache cipher key for decrypt message from 'sender' to 'receiver'
      *
-     * @param sender
-     * @param receiver
-     * @param key
+     * @param sender {ID}
+     * @param receiver {ID}
+     * @param key {SymmetricKey}
      * @returns {SymmetricKey}
      */
     CipherKeyDelegate.prototype.reuseCipherKey = function (sender, receiver, key) {

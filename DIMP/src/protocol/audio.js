@@ -54,7 +54,7 @@
     /**
      *  Create audio message content
      *
-     * @param content
+     * @param content {{}}
      * @constructor
      */
     var AudioContent = function (content) {
@@ -64,7 +64,7 @@
         }
         FileContent.call(this, content);
     };
-    ns.type.Class(AudioContent, FileContent);
+    ns.Class(AudioContent, FileContent);
 
     //-------- setter/getter --------
 

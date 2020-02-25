@@ -59,7 +59,7 @@
     /**
      *  Create handshake command
      *
-     * @param info - command info; or message text
+     * @param info {{}|String} - command info; or message text
      * @constructor
      */
     var HandshakeCommand = function (info) {
@@ -77,7 +77,7 @@
             this.setMessage(message);
         }
     };
-    ns.type.Class(HandshakeCommand, Command);
+    ns.Class(HandshakeCommand, Command);
 
     //-------- setter/getter --------
 

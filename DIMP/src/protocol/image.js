@@ -56,7 +56,7 @@
     /**
      *  Create image content
      *
-     * @param content
+     * @param content {{}}
      * @constructor
      */
     var ImageContent = function (content) {
@@ -67,7 +67,7 @@
         FileContent.call(this, content);
         this.thumbnail = null;
     };
-    ns.type.Class(ImageContent, FileContent);
+    ns.Class(ImageContent, FileContent);
 
     //-------- setter/getter --------
 

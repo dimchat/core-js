@@ -53,7 +53,7 @@
     /**
      *  Create web page message content
      *
-     * @param content
+     * @param content {{}|String}
      * @constructor
      */
     var PageContent = function (content) {
@@ -72,7 +72,7 @@
         }
         this.icon = null;
     };
-    ns.type.Class(PageContent, Content);
+    ns.Class(PageContent, Content);
 
     //-------- setter/getter --------
 

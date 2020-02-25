@@ -53,7 +53,7 @@
     /**
      *  Create history command
      *
-     * @param info - command info; or command name
+     * @param info {{}|String} - command info; or command name
      * @constructor
      */
     var HistoryCommand = function (info) {
@@ -77,7 +77,7 @@
             this.setTime(time);
         }
     };
-    ns.type.Class(HistoryCommand, Command);
+    ns.Class(HistoryCommand, Command);
 
     /**
      *  Command time

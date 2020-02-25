@@ -54,7 +54,7 @@
     /**
      *  Create file message content
      *
-     * @param content
+     * @param content {{}}
      * @constructor
      */
     var FileContent = function (content) {
@@ -68,7 +68,7 @@
         // symmetric key for decrypting file data
         this.password = null;
     };
-    ns.type.Class(FileContent, Content);
+    ns.Class(FileContent, Content);
 
     //-------- setter/getter --------
 

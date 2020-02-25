@@ -36,7 +36,8 @@
                 'src/delegate.js',
                 'src/cache.js',
                 'src/barrack.js',
-                'src/transceiver.js'
+                'src/transceiver.js',
+                null
             ];
 
             var dist = 'dist/core.js';
@@ -45,7 +46,8 @@
                 '../Crypto/tests/crypto_tests.js',
                 '../MingKeMing/tests/mkm_tests.js',
                 '../DaoKeDao/tests/dkd_tests.js',
-                'tests/core_tests.js'
+                'tests/core_tests.js',
+                null
             ];
 
             var base = window.location.href;
@@ -107,8 +109,13 @@
     <script>
         !(function () {
             var text = 'cat';
+            var file;
             for (var i = 0; i < sources.length; ++i) {
-                text += ' ' + sources[i];
+                file = sources[i];
+                if (!file) {
+                    continue;
+                }
+                text += ' ' + file;
             }
             text += ' >> ' + dist;
             document.writeln(text);

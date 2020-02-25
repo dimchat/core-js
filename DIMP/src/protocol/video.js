@@ -56,7 +56,7 @@
     /**
      *  Create video message content
      *
-     * @param content
+     * @param content {{}}
      * @constructor
      */
     var VideoContent = function (content) {
@@ -67,7 +67,7 @@
         FileContent.call(this, content);
         this.snapshot = null;
     };
-    ns.type.Class(VideoContent, FileContent);
+    ns.Class(VideoContent, FileContent);
 
     //-------- setter/getter --------
 

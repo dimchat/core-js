@@ -51,15 +51,15 @@
         this.userMap  = {};  // ID -> User
         this.groupMap = {};  // ID -> Group
     };
-    ns.type.Class(Barrack, null, EntityDelegate, UserDataSource, GroupDataSource);
+    ns.Class(Barrack, null, EntityDelegate, UserDataSource, GroupDataSource);
 
     /**
      *  Remove 1/2 objects from the dictionary
      *  (Thanos can kill half lives of a world with a snap of the finger)
      *
-     * @param map
-     * @param finger
-     * @returns number of survivors
+     * @param map {{String: *}}
+     * @param finger {Number}
+     * @returns {Number} number of survivors
      */
     var thanos = function (map, finger) {
         var keys = Object.keys(map);

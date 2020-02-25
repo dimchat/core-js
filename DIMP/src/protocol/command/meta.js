@@ -54,7 +54,7 @@
     /**
      *  Create meta command
      *
-     * @param info - command info; or entity ID
+     * @param info {{}|ID} - command info; or entity ID
      * @constructor
      */
     var MetaCommand = function (info) {
@@ -74,7 +74,7 @@
         // lazy
         this.meta = null;
     };
-    ns.type.Class(MetaCommand, Command);
+    ns.Class(MetaCommand, Command);
 
     //-------- setter/getter --------
 

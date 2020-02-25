@@ -51,7 +51,7 @@
     /**
      *  Create command
      *
-     * @param info - command info; or command name
+     * @param info {{}|String} - command info; or command name
      * @constructor
      */
     var Command = function (info) {
@@ -69,12 +69,12 @@
             this.setCommand(name);
         }
     };
-    ns.type.Class(Command, Content);
+    ns.Class(Command, Content);
 
     /**
      *  Command name
      *
-     * @returns {string}
+     * @returns {String}
      */
     Command.prototype.getCommand = function () {
         return this.getValue('command');

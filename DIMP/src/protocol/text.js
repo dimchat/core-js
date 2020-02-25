@@ -47,7 +47,12 @@
     var Content = ns.Content;
     var ContentType = ns.protocol.ContentType;
 
-
+    /**
+     *  Create text message content
+     *
+     * @param content {{}|String}
+     * @constructor
+     */
     var TextContent = function (content) {
         var text = null;
         if (!content) {
@@ -63,7 +68,7 @@
             this.setText(text);
         }
     };
-    ns.type.Class(TextContent, Content);
+    ns.Class(TextContent, Content);
 
     //-------- setter/getter --------
 

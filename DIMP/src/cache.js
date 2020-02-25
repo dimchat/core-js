@@ -41,7 +41,7 @@
     var PlainKey = function (key) {
         Dictionary.call(this, key)
     };
-    ns.type.Class(PlainKey, Dictionary, SymmetricKey);
+    ns.Class(PlainKey, Dictionary, SymmetricKey);
 
     PlainKey.prototype.encrypt = function (data) {
         return data;
@@ -91,7 +91,7 @@
         this.keyMap = {};
         this.isDirty = false;
     };
-    ns.type.Class(KeyCache, null, CipherKeyDelegate);
+    ns.Class(KeyCache, null, CipherKeyDelegate);
 
     /**
      *  Trigger for loading cipher key table
@@ -122,7 +122,7 @@
      *  Callback for saving cipher key table into local storage
      *  (Override it to access database)
      *
-     * @param map - all cipher keys(with direction) from memory cache
+     * @param map {map} - all cipher keys(with direction) from memory cache
      * @returns {boolean}
      */
     KeyCache.prototype.saveKeys = function (map) {
@@ -145,7 +145,7 @@
     /**
      *  Update cipher key table into memory cache
      *
-     * @param map - cipher keys(with direction) from local storage
+     * @param map {map} - cipher keys(with direction) from local storage
      * @returns {boolean}
      */
     KeyCache.prototype.updateKeys = function (map) {
