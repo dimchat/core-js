@@ -35,13 +35,12 @@
 !function (ns) {
     'use strict';
 
-    var Dictionary = ns.type.Dictionary;
     var SymmetricKey = ns.crypto.SymmetricKey;
 
     var PlainKey = function (key) {
-        Dictionary.call(this, key)
+        SymmetricKey.call(this, key)
     };
-    ns.Class(PlainKey, Dictionary, SymmetricKey);
+    ns.Class(PlainKey, SymmetricKey, null);
 
     PlainKey.prototype.encrypt = function (data) {
         return data;
@@ -91,7 +90,7 @@
         this.keyMap = {};
         this.isDirty = false;
     };
-    ns.Class(KeyCache, null, CipherKeyDelegate);
+    ns.Class(KeyCache, ns.type.Object, CipherKeyDelegate);
 
     /**
      *  Trigger for loading cipher key table

@@ -2,7 +2,7 @@
  * DIMP - Decentralized Instant Messaging Protocol (v0.1.0)
  *
  * @author    moKy <albert.moky at gmail.com>
- * @date      Jan. 28, 2020
+ * @date      Feb. 27, 2020
  * @copyright (c) 2020 Albert Moky
  * @license   {@link https://mit-license.org | MIT License}
  */
@@ -886,12 +886,11 @@
     ns.register("CipherKeyDelegate")
 }(DIMP);
 ! function(ns) {
-    var Dictionary = ns.type.Dictionary;
     var SymmetricKey = ns.crypto.SymmetricKey;
     var PlainKey = function(key) {
-        Dictionary.call(this, key)
+        SymmetricKey.call(this, key)
     };
-    ns.Class(PlainKey, Dictionary, SymmetricKey);
+    ns.Class(PlainKey, SymmetricKey, null);
     PlainKey.prototype.encrypt = function(data) {
         return data
     };
@@ -918,7 +917,7 @@
         this.keyMap = {};
         this.isDirty = false
     };
-    ns.Class(KeyCache, null, CipherKeyDelegate);
+    ns.Class(KeyCache, ns.type.Object, CipherKeyDelegate);
     KeyCache.prototype.reload = function() {
         var map = this.loadKeys();
         if (!map) {
@@ -1021,7 +1020,7 @@
         this.userMap = {};
         this.groupMap = {}
     };
-    ns.Class(Barrack, null, EntityDelegate, UserDataSource, GroupDataSource);
+    ns.Class(Barrack, ns.type.Object, EntityDelegate, UserDataSource, GroupDataSource);
     var thanos = function(map, finger) {
         var keys = Object.keys(map);
         for (var i = 0; i < keys.length; ++i) {
@@ -1184,7 +1183,7 @@
         this.entityDelegate = null;
         this.cipherKeyDelegate = null
     };
-    ns.Class(Transceiver, null, InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate);
+    ns.Class(Transceiver, ns.type.Object, InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate);
     var get_key = function(sender, receiver) {
         var key = this.cipherKeyDelegate.getCipherKey(sender, receiver);
         if (!key) {

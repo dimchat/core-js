@@ -185,7 +185,7 @@ core_tests = [];
         // test
         var content = new TextContent('Hello world!');
         log('content: ', content);
-        var env = Envelope.newEnvelope(sender, receiver);
+        var env = Envelope.newEnvelope(sender, receiver, 0);
         log('envelope: ', env);
         var iMsg = InstantMessage.newMessage(content, env);
         log('instant message: ', iMsg);
