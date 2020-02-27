@@ -92,16 +92,23 @@
         var receiver = this.entityDelegate.getIdentifier(msg.envelope.receiver);
         // if 'group' exists and the 'receiver' is a group ID,
         // they must be equal
-        var group = this.entityDelegate.getIdentifier(msg.content.getGroup());
+
+        // NOTICE: while sending group message, don't split it before encrypting.
+        //         this means you could set group ID into message content, but
+        //         keep the "receiver" to be the group ID;
+        //         after encrypted (and signed), you could split the message
+        //         with group members before sending out, or just send it directly
+        //         to the group assistant to let it split messages for you!
+        //    BUT,
+        //         if you don't want to share the symmetric key with other members,
+        //         you could split it (set group ID into message content and
+        //         set contact ID to the "receiver") before encrypting, this usually
+        //         for sending group command to robot assistant,
+        //         which cannot shared the symmetric key (msg key) with other members.
 
         // 1. get symmetric key
-        var password;
-        if (group) {
-            // group message
-            password = get_key.call(this, sender, group);
-        } else {
-            password = get_key.call(this, sender, receiver);
-        }
+        var password = get_key.call(this, sender, receiver);
+
         // check message delegate
         if (!msg.delegate) {
             msg.delegate = this;
