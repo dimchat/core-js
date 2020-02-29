@@ -132,21 +132,21 @@
         this.setValue('member', null);
     };
 
-    //-------- command names --------
-    // group: founder/owner
-    GroupCommand.FOUND    = HistoryCommand.FOUND;
-    GroupCommand.ABDICATE = HistoryCommand.ABDICATE;
-    // group: member
-    GroupCommand.INVITE   = HistoryCommand.INVITE;
-    GroupCommand.EXPEL    = HistoryCommand.EXPEL;
-    GroupCommand.JOIN     = HistoryCommand.JOIN;
-    GroupCommand.QUIT     = HistoryCommand.QUIT;
-    GroupCommand.QUERY    = HistoryCommand.QUERY;
-    GroupCommand.RESET    = HistoryCommand.RESET;
-    // group: administrator/assistant
-    GroupCommand.HIRE     = HistoryCommand.HIRE;
-    GroupCommand.FIRE     = HistoryCommand.FIRE;
-    GroupCommand.RESIGN   = HistoryCommand.RESIGN;
+    //-------- group command names --------
+    // founder/owner
+    GroupCommand.FOUND    = 'found';
+    GroupCommand.ABDICATE = 'abdicate';
+    // member
+    GroupCommand.INVITE   = 'invite';
+    GroupCommand.EXPEL    = 'expel';
+    GroupCommand.JOIN     = 'join';
+    GroupCommand.QUIT     = 'quit';
+    GroupCommand.QUERY    = 'query';
+    GroupCommand.RESET    = 'reset';
+    // administrator/assistant
+    GroupCommand.HIRE     = 'hire';
+    GroupCommand.FIRE     = 'fire';
+    GroupCommand.RESIGN   = 'resign';
 
     //-------- Runtime --------
 

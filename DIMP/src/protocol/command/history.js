@@ -107,24 +107,10 @@
         }
     };
 
-    //-------- command names --------
+    //-------- history command names --------
     // account
     HistoryCommand.REGISTER = 'register';
     HistoryCommand.SUICIDE  = 'suicide';
-    // group: founder/owner
-    HistoryCommand.FOUND    = 'found';
-    HistoryCommand.ABDICATE = 'abdicate';
-    // group: member
-    HistoryCommand.INVITE   = 'invite';
-    HistoryCommand.EXPEL    = 'expel';
-    HistoryCommand.JOIN     = 'join';
-    HistoryCommand.QUIT     = 'quit';
-    HistoryCommand.QUERY    = 'query';
-    HistoryCommand.RESET    = 'reset';
-    // group: administrator/assistant
-    HistoryCommand.HIRE     = 'hire';
-    HistoryCommand.FIRE     = 'fire';
-    HistoryCommand.RESIGN   = 'resign';
 
     //-------- Runtime --------
 

@@ -581,17 +581,6 @@
     };
     HistoryCommand.REGISTER = "register";
     HistoryCommand.SUICIDE = "suicide";
-    HistoryCommand.FOUND = "found";
-    HistoryCommand.ABDICATE = "abdicate";
-    HistoryCommand.INVITE = "invite";
-    HistoryCommand.EXPEL = "expel";
-    HistoryCommand.JOIN = "join";
-    HistoryCommand.QUIT = "quit";
-    HistoryCommand.QUERY = "query";
-    HistoryCommand.RESET = "reset";
-    HistoryCommand.HIRE = "hire";
-    HistoryCommand.FIRE = "fire";
-    HistoryCommand.RESIGN = "resign";
     HistoryCommand.getInstance = function(cmd) {
         if (!cmd) {
             return null
@@ -652,17 +641,17 @@
         this.setValue("members", members);
         this.setValue("member", null)
     };
-    GroupCommand.FOUND = HistoryCommand.FOUND;
-    GroupCommand.ABDICATE = HistoryCommand.ABDICATE;
-    GroupCommand.INVITE = HistoryCommand.INVITE;
-    GroupCommand.EXPEL = HistoryCommand.EXPEL;
-    GroupCommand.JOIN = HistoryCommand.JOIN;
-    GroupCommand.QUIT = HistoryCommand.QUIT;
-    GroupCommand.QUERY = HistoryCommand.QUERY;
-    GroupCommand.RESET = HistoryCommand.RESET;
-    GroupCommand.HIRE = HistoryCommand.HIRE;
-    GroupCommand.FIRE = HistoryCommand.FIRE;
-    GroupCommand.RESIGN = HistoryCommand.RESIGN;
+    GroupCommand.FOUND = "found";
+    GroupCommand.ABDICATE = "abdicate";
+    GroupCommand.INVITE = "invite";
+    GroupCommand.EXPEL = "expel";
+    GroupCommand.JOIN = "join";
+    GroupCommand.QUIT = "quit";
+    GroupCommand.QUERY = "query";
+    GroupCommand.RESET = "reset";
+    GroupCommand.HIRE = "hire";
+    GroupCommand.FIRE = "fire";
+    GroupCommand.RESIGN = "resign";
     GroupCommand.register = function(name, clazz) {
         Command.register(name, clazz)
     };
