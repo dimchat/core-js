@@ -2051,6 +2051,10 @@ if (typeof DaoKeDao !== "object") {
         PAGE: (32),
         QUOTE: (55),
         MONEY: (64),
+        TRANSFER: (65),
+        LUCKY_MONEY: (66),
+        CLAIM_PAYMENT: (72),
+        SPLIT_BILL: (73),
         COMMAND: (136),
         HISTORY: (137),
         FORWARD: (255)
@@ -2081,7 +2085,11 @@ if (typeof DaoKeDao !== "object") {
             }
         }
         Dictionary.call(this, info);
-        this.type = new ContentType(info["type"]);
+        var type = info["type"];
+        if (type instanceof ContentType) {
+            type = type.valueOf()
+        }
+        this.type = type;
         this.sn = info["sn"]
     };
     ns.Class(Content, Dictionary, null);
@@ -2174,14 +2182,18 @@ if (typeof DaoKeDao !== "object") {
     };
     Envelope.prototype.getType = function() {
         var type = this.getValue("type");
-        if (type) {
-            return new ContentType(type)
+        if (type instanceof ContentType) {
+            return type.valueOf()
         } else {
-            return null
+            return type
         }
     };
     Envelope.prototype.setType = function(type) {
-        this.setValue("type", type)
+        if (type instanceof ContentType) {
+            this.setValue("type", type.valueOf())
+        } else {
+            this.setValue("type", type)
+        }
     };
     ns.Envelope = Envelope;
     ns.register("Envelope")
