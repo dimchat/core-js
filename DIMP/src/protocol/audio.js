@@ -54,7 +54,7 @@
     /**
      *  Create audio message content
      *
-     * @param content {{}}
+     * @param {{}} content
      * @constructor
      */
     var AudioContent = function (content) {
@@ -79,7 +79,7 @@
     /**
      *  Set ASR text
      *
-     * @param asr {String}
+     * @param {String} asr
      */
     AudioContent.prototype.setText = function (asr) {
         this.setValue('text', asr);

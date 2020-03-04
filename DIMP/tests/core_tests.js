@@ -170,11 +170,11 @@ core_tests = [];
         // get user
         var user = barrack.getUser(sender);
         log('user: ', user);
-        assert(user.getType().isUser() === true, 'user error');
+        assert(user.identifier.isUser() === true, 'user error');
         // get group
         var group = barrack.getUser(receiver);
         log('group: ', group);
-        assert(group.getType().isGroup() === true, 'group error');
+        assert(group.identifier.isGroup() === true, 'group error');
     };
     core_tests.push(test_barrack);
 

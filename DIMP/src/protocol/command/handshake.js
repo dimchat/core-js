@@ -59,7 +59,7 @@
     /**
      *  Create handshake command
      *
-     * @param info {{}|String} - command info; or message text
+     * @param {{}|String} info - command info; or message text
      * @constructor
      */
     var HandshakeCommand = function (info) {

@@ -832,17 +832,14 @@
     var EntityDelegate = function() {};
     ns.Interface(EntityDelegate, null);
     EntityDelegate.prototype.getIdentifier = function(string) {
-        console.assert(string !== null, "ID string empty");
         console.assert(false, "implement me!");
         return null
     };
     EntityDelegate.prototype.getUser = function(identifier) {
-        console.assert(identifier !== null, "ID empty");
         console.assert(false, "implement me!");
         return null
     };
     EntityDelegate.prototype.getGroup = function(identifier) {
-        console.assert(identifier !== null, "ID empty");
         console.assert(false, "implement me!");
         return null
     };
@@ -853,21 +850,13 @@
     var CipherKeyDelegate = function() {};
     ns.Interface(CipherKeyDelegate, null);
     CipherKeyDelegate.prototype.getCipherKey = function(sender, receiver) {
-        console.assert(sender !== null, "sender empty");
-        console.assert(receiver !== null, "receiver empty");
         console.assert(false, "implement me!");
         return null
     };
     CipherKeyDelegate.prototype.cacheCipherKey = function(sender, receiver, key) {
-        console.assert(sender !== null, "sender empty");
-        console.assert(receiver !== null, "receiver empty");
-        console.assert(key !== null, "key empty");
         console.assert(false, "implement me!")
     };
     CipherKeyDelegate.prototype.reuseCipherKey = function(sender, receiver, key) {
-        console.assert(sender !== null, "sender empty");
-        console.assert(receiver !== null, "receiver empty");
-        console.assert(key !== null, "key empty");
         console.assert(false, "implement me!");
         return null
     };
@@ -922,7 +911,6 @@
         }
     };
     KeyCache.prototype.saveKeys = function(map) {
-        console.assert(map !== null, "map empty");
         console.assert(false, "implement me!");
         return false
     };
@@ -1102,11 +1090,9 @@
         return this.metaMap[identifier]
     };
     Barrack.prototype.getPublicKeyForEncryption = function(identifier) {
-        console.assert(identifier.getType().isUser(), "user ID error");
         return null
     };
     Barrack.prototype.getPublicKeysForVerification = function(identifier) {
-        console.assert(identifier.getType().isUser(), "user ID error");
         return null
     };
     Barrack.prototype.getFounder = function(identifier) {
@@ -1202,7 +1188,7 @@
             msg.delegate = this
         }
         var sMsg;
-        if (receiver.getType().isGroup()) {
+        if (receiver.isGroup()) {
             var members = this.entityDelegate.getMembers(receiver);
             sMsg = msg.encrypt(password, members)
         } else {

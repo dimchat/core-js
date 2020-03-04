@@ -50,7 +50,7 @@
     /**
      *  Create text message content
      *
-     * @param content {{}|String}
+     * @param {{}|String} content
      * @constructor
      */
     var TextContent = function (content) {

@@ -56,7 +56,7 @@
     /**
      *  Create group command
      *
-     * @param info {{}|ID} - command info; or group ID
+     * @param {{}|ID} info - command info; or group ID
      * @constructor
      */
     var GroupCommand = function (info) {
@@ -84,7 +84,7 @@
     /**
      *  Set group ID
      *
-     * @param identifier {ID}
+     * @param {ID} identifier - group ID
      */
     GroupCommand.prototype.setGroup = function (identifier) {
         Content.prototype.setGroup.call(this, identifier);
@@ -101,7 +101,7 @@
     /**
      *  Set member ID
      *
-     * @param identifier {ID}
+     * @param {ID} identifier - member ID
      */
     GroupCommand.prototype.setMember = function (identifier) {
         this.setValue('member', identifier);
@@ -125,7 +125,7 @@
     /**
      *  Set member ID list
      *
-     * @param members {ID[]}
+     * @param {ID[]} members - ID array
      */
     GroupCommand.prototype.setMembers = function (members) {
         this.setValue('members', members);

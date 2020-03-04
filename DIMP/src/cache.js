@@ -117,15 +117,15 @@
         }
     };
 
+    // noinspection JSUnusedLocalSymbols
     /**
      *  Callback for saving cipher key table into local storage
      *  (Override it to access database)
      *
-     * @param map {{}} - all cipher keys(with direction) from memory cache
+     * @param {{}} map - all cipher keys(with direction) from memory cache
      * @returns {boolean}
      */
     KeyCache.prototype.saveKeys = function (map) {
-        console.assert(map !== null, 'map empty');
         console.assert(false, 'implement me!');
         return false;
     };
@@ -144,7 +144,7 @@
     /**
      *  Update cipher key table into memory cache
      *
-     * @param map {{}} - cipher keys(with direction) from local storage
+     * @param {{}} map - cipher keys(with direction) from local storage
      * @returns {boolean}
      */
     KeyCache.prototype.updateKeys = function (map) {

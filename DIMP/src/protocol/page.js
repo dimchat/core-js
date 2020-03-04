@@ -53,7 +53,7 @@
     /**
      *  Create web page message content
      *
-     * @param content {{}|String}
+     * @param {{}|String} content
      * @constructor
      */
     var PageContent = function (content) {
@@ -114,7 +114,7 @@
     /**
      *  Set small image data
      *
-     * @param data {Uint8Array}
+     * @param {Uint8Array} data
      */
     PageContent.prototype.setIcon = function (data) {
         var base64 = null;

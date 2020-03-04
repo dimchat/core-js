@@ -56,7 +56,7 @@
     /**
      *  Create video message content
      *
-     * @param content {{}}
+     * @param {{}} content
      * @constructor
      */
     var VideoContent = function (content) {
@@ -88,7 +88,7 @@
     /**
      *  Set small image data
      *
-     * @param image {Uint8Array}
+     * @param {Uint8Array} image
      */
     VideoContent.prototype.setSnapshot = function (image) {
         if (image) {

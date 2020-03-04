@@ -54,7 +54,7 @@
     /**
      *  Create meta command
      *
-     * @param info {{}|ID} - command info; or entity ID
+     * @param {{}|ID} info - command info; or entity ID
      * @constructor
      */
     var MetaCommand = function (info) {
@@ -89,7 +89,7 @@
     /**
      *  Set entity ID for meta
      *
-     * @param identifier {ID}
+     * @param {ID} identifier
      */
     MetaCommand.prototype.setIdentifier = function (identifier) {
         this.setValue('ID', identifier);
@@ -110,7 +110,7 @@
     /**
      *  Set meta
      *
-     * @param meta {Meta}
+     * @param {Meta} meta
      */
     MetaCommand.prototype.setMeta = function (meta) {
         this.setValue('meta', meta);
@@ -122,7 +122,7 @@
     /**
      *  Create query command
      *
-     * @param identifier {ID}
+     * @param {ID} identifier
      * @returns {MetaCommand}
      */
     MetaCommand.query = function (identifier) {
@@ -131,8 +131,8 @@
     /**
      *  Create response command
      *
-     * @param identifier {ID}
-     * @param meta {Meta}
+     * @param {ID} identifier
+     * @param {Meta} meta
      * @returns {MetaCommand}
      */
     MetaCommand.response = function (identifier, meta) {

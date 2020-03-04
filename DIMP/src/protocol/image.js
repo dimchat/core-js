@@ -56,7 +56,7 @@
     /**
      *  Create image content
      *
-     * @param content {{}}
+     * @param {{}} content
      * @constructor
      */
     var ImageContent = function (content) {
@@ -88,7 +88,7 @@
     /**
      *  Set small image data
      *
-     * @param image {Uint8Array}
+     * @param {Uint8Array} image
      */
     ImageContent.prototype.setThumbnail = function (image) {
         if (image) {

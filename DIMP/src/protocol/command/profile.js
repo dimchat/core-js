@@ -57,7 +57,7 @@
     /**
      *  Create profile command
      *
-     * @param info {{}|ID} - command info; or entity ID
+     * @param {{}|ID} info - command info; or entity ID
      * @constructor
      */
     var ProfileCommand = function (info) {
@@ -116,7 +116,7 @@
     /**
      *  Set Profile
      *
-     * @param profile {Profile}
+     * @param {Profile} profile
      */
     ProfileCommand.prototype.setProfile = function (profile) {
         this.setValue('profile', profile);
@@ -134,7 +134,7 @@
     /**
      *  Set signature string for old profile
      *
-     * @param base64 {String}
+     * @param {String} base64 - encoded signature
      */
     ProfileCommand.prototype.setSignature = function (base64) {
         this.setValue('signature', base64);
@@ -145,8 +145,8 @@
     /**
      *  Create query command
      *
-     * @param identifier {ID}
-     * @param signature {String} - OPTIONAL
+     * @param {ID} identifier
+     * @param {String} signature - OPTIONAL
      * @returns {ProfileCommand}
      */
     ProfileCommand.query = function (identifier, signature) {
@@ -160,9 +160,9 @@
     /**
      *  Create response command
      *
-     * @param identifier {ID}
-     * @param profile {Profile}
-     * @param meta {Meta} - OPTIONAL
+     * @param {ID} identifier
+     * @param {Profile} profile
+     * @param {Meta} meta - OPTIONAL
      * @returns {ProfileCommand}
      */
     ProfileCommand.response = function (identifier, profile, meta) {

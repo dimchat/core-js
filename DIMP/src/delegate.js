@@ -39,38 +39,38 @@
     };
     ns.Interface(EntityDelegate, null);
 
+    // noinspection JSUnusedLocalSymbols
     /**
      *  Create entity ID with String
      *
-     * @param string {String}
+     * @param {String} string
      * @returns {ID}
      */
     EntityDelegate.prototype.getIdentifier = function (string) {
-        console.assert(string !== null, 'ID string empty');
         console.assert(false, 'implement me!');
         return null;
     };
 
+    // noinspection JSUnusedLocalSymbols
     /**
      *  Create user with ID
      *
-     * @param identifier {ID}
+     * @param {ID} identifier - user ID
      * @returns {User}
      */
     EntityDelegate.prototype.getUser = function (identifier) {
-        console.assert(identifier !== null, 'ID empty');
         console.assert(false, 'implement me!');
         return null;
     };
 
+    // noinspection JSUnusedLocalSymbols
     /**
      *  Create group with ID
      *
-     * @param identifier {ID}
+     * @param {ID} identifier - group ID
      * @returns {Group}
      */
     EntityDelegate.prototype.getGroup = function (identifier) {
-        console.assert(identifier !== null, 'ID empty');
         console.assert(false, 'implement me!');
         return null;
     };
@@ -89,46 +89,41 @@
     };
     ns.Interface(CipherKeyDelegate, null);
 
+    // noinspection JSUnusedLocalSymbols
     /**
      *  Get cipher key for encrypt message from 'sender' to 'receiver'
      *
-     * @param sender {ID}
-     * @param receiver {ID}
+     * @param {ID} sender
+     * @param {ID} receiver
      * @returns {SymmetricKey}
      */
     CipherKeyDelegate.prototype.getCipherKey = function (sender, receiver) {
-        console.assert(sender !== null, 'sender empty');
-        console.assert(receiver !== null, 'receiver empty');
         console.assert(false, 'implement me!');
         return null;
     };
 
+    // noinspection JSUnusedLocalSymbols
     /**
      *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
      *
-     * @param sender {ID}
-     * @param receiver {ID}
-     * @param key {SymmetricKey}
+     * @param {ID} sender
+     * @param {ID} receiver
+     * @param {SymmetricKey} key
      */
     CipherKeyDelegate.prototype.cacheCipherKey = function (sender, receiver, key) {
-        console.assert(sender !== null, 'sender empty');
-        console.assert(receiver !== null, 'receiver empty');
-        console.assert(key !== null, 'key empty');
         console.assert(false, 'implement me!');
     };
 
+    // noinspection JSUnusedLocalSymbols
     /**
      *  Get/cache cipher key for decrypt message from 'sender' to 'receiver'
      *
-     * @param sender {ID}
-     * @param receiver {ID}
-     * @param key {SymmetricKey}
+     * @param {ID} sender
+     * @param {ID} receiver
+     * @param {SymmetricKey} key
      * @returns {SymmetricKey}
      */
     CipherKeyDelegate.prototype.reuseCipherKey = function (sender, receiver, key) {
-        console.assert(sender !== null, 'sender empty');
-        console.assert(receiver !== null, 'receiver empty');
-        console.assert(key !== null, 'key empty');
         console.assert(false, 'implement me!');
         return null;
     };

@@ -54,7 +54,7 @@
     /**
      *  Create file message content
      *
-     * @param content {{}}
+     * @param {{}} content - file content info
      * @constructor
      */
     var FileContent = function (content) {
@@ -113,7 +113,7 @@
     /**
      *  Set file data
      *
-     * @param data {Uint8Array}
+     * @param {Uint8Array} data
      */
     FileContent.prototype.setData = function (data) {
         if (data && data.length > 0) {
@@ -145,7 +145,7 @@
     /**
      *  Set password for decryption
      *
-     * @param key {SymmetricKey}
+     * @param {SymmetricKey} key - symmetric key to decrypt file data
      */
     FileContent.prototype.setPassword = function (key) {
         this.setValue('password', key);

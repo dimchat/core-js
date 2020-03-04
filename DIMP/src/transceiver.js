@@ -84,7 +84,7 @@
     /**
      *  Encrypt instant message
      *
-     * @param msg {InstantMessage|Message}
+     * @param {InstantMessage|Message} msg
      * @returns {SecureMessage}
      */
     Transceiver.prototype.encryptMessage = function (msg) {
@@ -116,7 +116,7 @@
 
         // 2. encrypt 'content' to 'data' for receiver/group members
         var sMsg;
-        if (receiver.getType().isGroup()) {
+        if (receiver.isGroup()) {
             // group message
             var members = this.entityDelegate.getMembers(receiver);
             sMsg = msg.encrypt(password, members);
@@ -132,7 +132,7 @@
     /**
      *  Sign secure message
      *
-     * @param msg {SecureMessage|Message}
+     * @param {SecureMessage|Message} msg
      * @returns {ReliableMessage}
      */
     Transceiver.prototype.signMessage = function (msg) {
@@ -146,7 +146,7 @@
     /**
      *  Verify reliable message
      *
-     * @param msg {ReliableMessage|Message}
+     * @param {ReliableMessage|Message} msg
      * @returns {SecureMessage}
      */
     Transceiver.prototype.verifyMessage = function (msg) {
@@ -165,7 +165,7 @@
     /**
      *  Decrypt secure message
      *
-     * @param msg {SecureMessage|Message}
+     * @param {SecureMessage|Message} msg
      * @returns {InstantMessage}
      */
     Transceiver.prototype.decryptMessage = function (msg) {
@@ -190,8 +190,8 @@
     /**
      *  Encode content to JSON string data
      *
-     * @param content {Content}
-     * @param msg {InstantMessage}
+     * @param {Content} content
+     * @param {InstantMessage} msg
      * @returns {Uint8Array}
      */
     Transceiver.prototype.serializeContent = function (content, msg) {
@@ -202,8 +202,8 @@
     /**
      *  Encode symmetric key to JSON string data
      *
-     * @param password {SymmetricKey}
-     * @param msg {InstantMessage}
+     * @param {SymmetricKey} password
+     * @param {InstantMessage} msg
      * @returns {Uint8Array}
      */
     Transceiver.prototype.serializeKey = function (password, msg) {
@@ -214,7 +214,7 @@
     /**
      *  Encode reliable message to JSON string data
      *
-     * @param msg {ReliableMessage}
+     * @param {ReliableMessage} msg
      * @returns {Uint8Array}
      */
     Transceiver.prototype.serializeMessage = function (msg) {
@@ -225,7 +225,7 @@
     /**
      *  Decode reliable message from JSON string data
      *
-     * @param data {Uint8Array}
+     * @param {Uint8Array} data
      * @returns {ReliableMessage}
      */
     Transceiver.prototype.deserializeMessage = function (data) {
@@ -249,8 +249,8 @@
     /**
      *  Decode symmetric key from JSON string data
      *
-     * @param data {Uint8Array}
-     * @param msg {SecureMessage}
+     * @param {Uint8Array} data
+     * @param {SecureMessage} msg
      * @returns {SymmetricKey}
      */
     Transceiver.prototype.deserializeKey = function (data, msg) {
@@ -268,8 +268,8 @@
     /**
      *  Decode content from JSON string data
      *
-     * @param data {Uint8Array}
-     * @param msg {SecureMessage}
+     * @param {Uint8Array} data
+     * @param {SecureMessage} msg
      * @returns {Content}
      */
     Transceiver.prototype.deserializeContent = function (data, msg) {

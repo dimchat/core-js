@@ -53,7 +53,7 @@
     /**
      *  Create history command
      *
-     * @param info {{}|String} - command info; or command name
+     * @param {{}|String} info - command info; or command name
      * @constructor
      */
     var HistoryCommand = function (info) {

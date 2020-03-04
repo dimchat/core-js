@@ -57,8 +57,8 @@
      *  Remove 1/2 objects from the dictionary
      *  (Thanos can kill half lives of a world with a snap of the finger)
      *
-     * @param map {{}}
-     * @param finger {Number}
+     * @param {{}} map
+     * @param {Number} finger
      * @returns {Number} number of survivors
      */
     var thanos = function (map, finger) {
@@ -201,15 +201,15 @@
     //-------- UserDataSource --------
 
     // @override
+    // noinspection JSUnusedLocalSymbols
     Barrack.prototype.getPublicKeyForEncryption = function (identifier) {
-        console.assert(identifier.getType().isUser(), 'user ID error');
         // NOTICE: return nothing to use profile.key or meta.key
         return null;
     };
 
     // @override
+    // noinspection JSUnusedLocalSymbols
     Barrack.prototype.getPublicKeysForVerification = function (identifier) {
-        console.assert(identifier.getType().isUser(), 'user ID error');
         // NOTICE: return nothing to use profile.key or meta.key
         return null;
     };

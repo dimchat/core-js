@@ -51,7 +51,7 @@
     /**
      *  Create command
      *
-     * @param info {{}|String} - command info; or command name
+     * @param {{}|String} info - command info; or command name
      * @constructor
      */
     var Command = function (info) {
@@ -95,8 +95,8 @@
     /**
      *  Register command class with name
      *
-     * @param name {String}
-     * @param clazz {Class}
+     * @param {String} name
+     * @param {Class} clazz
      */
     Command.register = function (name, clazz) {
         command_classes[name] = clazz;
@@ -117,7 +117,7 @@
     /**
      *  Create command object
      *
-     * @param cmd {{}|Command}
+     * @param {{}|Command} cmd
      * @returns {Command}
      */
     Command.getInstance = function (cmd) {
