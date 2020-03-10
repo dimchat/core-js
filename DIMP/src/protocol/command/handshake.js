@@ -46,7 +46,7 @@
 !function (ns) {
     'use strict';
 
-    var HandshakeState = ns.type.Enum({
+    var HandshakeState = ns.type.Enum(null, {
         INIT:    0,
         START:   1, // C -> S, without session key(or session expired)
         AGAIN:   2, // S -> C, with new session key

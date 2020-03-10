@@ -90,7 +90,7 @@
         this.keyMap = {};
         this.isDirty = false;
     };
-    ns.Class(KeyCache, ns.type.Object, CipherKeyDelegate);
+    ns.Class(KeyCache, ns.type.Object, [CipherKeyDelegate]);
 
     /**
      *  Trigger for loading cipher key table

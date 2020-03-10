@@ -51,7 +51,7 @@
         this.userMap  = {};  // ID -> User
         this.groupMap = {};  // ID -> Group
     };
-    ns.Class(Barrack, ns.type.Object, EntityDelegate, UserDataSource, GroupDataSource);
+    ns.Class(Barrack, ns.type.Object, [EntityDelegate, UserDataSource, GroupDataSource]);
 
     /**
      *  Remove 1/2 objects from the dictionary

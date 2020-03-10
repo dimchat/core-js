@@ -2,7 +2,7 @@
  * DIMP - Decentralized Instant Messaging Protocol (v0.1.0)
  *
  * @author    moKy <albert.moky at gmail.com>
- * @date      Feb. 27, 2020
+ * @date      Mar. 10, 2020
  * @copyright (c) 2020 Albert Moky
  * @license   {@link https://mit-license.org | MIT License}
  */
@@ -188,13 +188,35 @@ if (typeof DIMP !== "object") {
     ns.type.register("Object")
 }(DIMP);
 ! function(ns) {
+    var get_alias = function(value) {
+        var enumeration = this.constructor;
+        var e;
+        for (var k in enumeration) {
+            if (!enumeration.hasOwnProperty(k)) {
+                continue
+            }
+            e = enumeration[k];
+            if (e instanceof enumeration) {
+                if (e.equals(value)) {
+                    return e.alias
+                }
+            }
+        }
+        return null
+    };
     var base_enum = function(value, alias) {
         ns.type.Object.call(this);
-        if (value instanceof base_enum) {
-            this.value = value.valueOf()
-        } else {
-            this.value = value
+        if (!alias) {
+            if (value instanceof base_enum) {
+                alias = value.alias
+            } else {
+                alias = get_alias.call(this, value)
+            }
         }
+        if (value instanceof base_enum) {
+            value = value.value
+        }
+        this.value = value;
         this.alias = alias
     };
     ns.Class(base_enum, ns.type.Object, null);
@@ -221,16 +243,12 @@ if (typeof DIMP !== "object") {
     base_enum.prototype.toJSON = function() {
         return this.value
     };
-    var create = function(elements) {
-        var enumeration = function(value, alias) {
-            if (!alias) {
-                alias = get_name(value, enumeration);
-                if (!alias) {
-                    throw RangeError("enum error: " + value)
-                }
+    var enumify = function(enumeration, elements) {
+        if (!enumeration) {
+            enumeration = function(value, alias) {
+                base_enum.call(this, value, alias)
             }
-            base_enum.call(this, value, alias)
-        };
+        }
         ns.Class(enumeration, base_enum, null);
         var e, v;
         for (var name in elements) {
@@ -238,30 +256,17 @@ if (typeof DIMP !== "object") {
                 continue
             }
             v = elements[name];
-            if (typeof v === "function") {
-                continue
+            if (typeof v !== "number") {
+                throw TypeError("Enum value must be a number!")
             }
             e = new enumeration(v, name);
             enumeration[name] = e
         }
         return enumeration
     };
-    var get_name = function(value, enumeration) {
-        if (value instanceof enumeration) {
-            return value.alias
-        }
-        var e;
-        for (var k in enumeration) {
-            e = enumeration[k];
-            if (e instanceof enumeration) {
-                if (e.equals(value)) {
-                    return e.alias
-                }
-            }
-        }
-        return null
-    };
-    ns.type.Enum = create;
+    ns.type.BaseEnum = base_enum;
+    ns.type.Enum = enumify;
+    ns.type.register("BaseEnum");
     ns.type.register("Enum")
 }(DIMP);
 ! function(ns) {
@@ -803,7 +808,7 @@ if (typeof DIMP !== "object") {
         return null
     };
     var hex = function() {};
-    ns.Class(hex, ns.type.Object, coder);
+    ns.Class(hex, ns.type.Object, [coder]);
     hex.prototype.encode = function(data) {
         return hex_encode(data)
     };
@@ -811,7 +816,7 @@ if (typeof DIMP !== "object") {
         return hex_decode(str)
     };
     var base64 = function() {};
-    ns.Class(base64, ns.type.Object, coder);
+    ns.Class(base64, ns.type.Object, [coder]);
     base64.prototype.encode = function(data) {
         return base64_encode(data)
     };
@@ -819,7 +824,7 @@ if (typeof DIMP !== "object") {
         return base64_decode(string)
     };
     var base58 = function() {};
-    ns.Class(base58, ns.type.Object, coder);
+    ns.Class(base58, ns.type.Object, [coder]);
     base58.prototype.encode = function(data) {
         console.assert(false, "Base58 encode not implemented");
         return null
@@ -831,7 +836,7 @@ if (typeof DIMP !== "object") {
     var C = function(lib) {
         this.coder = lib
     };
-    ns.Class(C, ns.type.Object, coder);
+    ns.Class(C, ns.type.Object, [coder]);
     C.prototype.encode = function(data) {
         return this.coder.encode(data)
     };
@@ -859,7 +864,7 @@ if (typeof DIMP !== "object") {
         return null
     };
     var json = function() {};
-    ns.Class(json, ns.type.Object, parser);
+    ns.Class(json, ns.type.Object, [parser]);
     json.prototype.encode = function(container) {
         return JSON.stringify(container)
     };
@@ -869,7 +874,7 @@ if (typeof DIMP !== "object") {
     var P = function(lib) {
         this.parser = lib
     };
-    ns.Class(P, ns.type.Object, parser);
+    ns.Class(P, ns.type.Object, [parser]);
     P.prototype.encode = function(container) {
         return this.parser.encode(container)
     };
@@ -901,7 +906,7 @@ if (typeof DIMP !== "object") {
         return null
     };
     var pem = function() {};
-    ns.Class(pem, ns.type.Object, parser);
+    ns.Class(pem, ns.type.Object, [parser]);
     pem.prototype.encodePublicKey = function(key) {
         console.assert(false, "PEM parser not implemented");
         return null
@@ -921,7 +926,7 @@ if (typeof DIMP !== "object") {
     var P = function(lib) {
         this.parser = lib
     };
-    ns.Class(P, ns.type.Object, parser);
+    ns.Class(P, ns.type.Object, [parser]);
     P.prototype.encodePublicKey = function(key) {
         return this.parser.encodePublicKey(key)
     };
@@ -947,19 +952,19 @@ if (typeof DIMP !== "object") {
         return null
     };
     var md5 = function() {};
-    ns.Class(md5, ns.type.Object, hash);
+    ns.Class(md5, ns.type.Object, [hash]);
     md5.prototype.digest = function(data) {
         console.assert(false, "MD5 not implemented");
         return null
     };
     var sha256 = function() {};
-    ns.Class(sha256, ns.type.Object, hash);
+    ns.Class(sha256, ns.type.Object, [hash]);
     sha256.prototype.digest = function(data) {
         console.assert(false, "SHA256 not implemented");
         return null
     };
     var ripemd160 = function() {};
-    ns.Class(ripemd160, ns.type.Object, hash);
+    ns.Class(ripemd160, ns.type.Object, [hash]);
     ripemd160.prototype.digest = function(data) {
         console.assert(false, "RIPEMD160 not implemented");
         return null
@@ -967,7 +972,7 @@ if (typeof DIMP !== "object") {
     var H = function(lib) {
         this.hash = lib
     };
-    ns.Class(H, ns.type.Object, hash);
+    ns.Class(H, ns.type.Object, [hash]);
     H.prototype.digest = function(data) {
         return this.hash.digest(data)
     };
@@ -1046,7 +1051,7 @@ if (typeof DIMP !== "object") {
     var SymmetricKey = function(key) {
         CryptographyKey.call(this, key)
     };
-    ns.Class(SymmetricKey, CryptographyKey, EncryptKey, DecryptKey);
+    ns.Class(SymmetricKey, CryptographyKey, [EncryptKey, DecryptKey]);
     SymmetricKey.prototype.equals = function(other) {
         var ciphertext = other.encrypt(promise);
         var plaintext = this.decrypt(ciphertext);
@@ -1101,7 +1106,7 @@ if (typeof DIMP !== "object") {
     var PublicKey = function(key) {
         AsymmetricKey.call(this, key)
     };
-    ns.Class(PublicKey, AsymmetricKey, VerifyKey);
+    ns.Class(PublicKey, AsymmetricKey, [VerifyKey]);
     PublicKey.prototype.matches = function(privateKey) {
         if (!privateKey) {
             return false
@@ -1142,7 +1147,7 @@ if (typeof DIMP !== "object") {
     var PrivateKey = function(key) {
         AsymmetricKey.call(this, key)
     };
-    ns.Class(PrivateKey, AsymmetricKey, SignKey);
+    ns.Class(PrivateKey, AsymmetricKey, [SignKey]);
     PrivateKey.prototype.equals = function(other) {
         var publicKey = this.getPublicKey();
         if (!publicKey) {
@@ -1192,7 +1197,7 @@ if (typeof MingKeMing !== "object") {
     ns.register("protocol")
 }(MingKeMing);
 ! function(ns) {
-    var NetworkType = ns.type.Enum({
+    var NetworkType = ns.type.Enum(null, {
         BTCMain: (0),
         Main: (8),
         Group: (16),
@@ -1203,9 +1208,6 @@ if (typeof MingKeMing !== "object") {
         Thing: (128),
         Robot: (200)
     });
-    NetworkType.prototype.toByte = function() {
-        return String.fromCharCode(this.value)
-    };
     NetworkType.isUser = function(network) {
         var main = NetworkType.Main.valueOf();
         var btcMain = NetworkType.BTCMain.valueOf();
@@ -1219,7 +1221,7 @@ if (typeof MingKeMing !== "object") {
     ns.protocol.register("NetworkType")
 }(MingKeMing);
 ! function(ns) {
-    var MetaType = ns.type.Enum({
+    var MetaType = ns.type.Enum(null, {
         Default: (1),
         MKM: (1),
         BTC: (2),
@@ -1227,6 +1229,10 @@ if (typeof MingKeMing !== "object") {
         ETH: (4),
         ExETH: (5)
     });
+    MetaType.hasSeed = function(version) {
+        var mkm = MetaType.MKM.valueOf();
+        return (version & mkm) === mkm
+    };
     ns.protocol.MetaType = MetaType;
     ns.protocol.register("MetaType")
 }(MingKeMing);
@@ -1428,9 +1434,6 @@ if (typeof MingKeMing !== "object") {
     var NetworkType = ns.protocol.NetworkType;
     var Address = ns.Address;
     var ID = ns.ID;
-    var contains_seed = function(version) {
-        return (version & MetaType.MKM.value) === MetaType.MKM.value
-    };
     var Meta = function(map) {
         Dictionary.call(this, map);
         var version = map["version"];
@@ -1439,7 +1442,7 @@ if (typeof MingKeMing !== "object") {
         }
         this.version = version;
         this.key = PublicKey.getInstance(map["key"]);
-        if (contains_seed(version)) {
+        if (this.hasSeed()) {
             this.seed = map["seed"];
             this.fingerprint = Base64.decode(map["fingerprint"])
         } else {
@@ -1457,16 +1460,19 @@ if (typeof MingKeMing !== "object") {
                 return true
             }
         }
-        other = Meta.getInstance(other);
-        var identifier = other.generateIdentifier(NetworkType.Main);
+        var meta = Meta.getInstance(other);
+        var identifier = meta.generateIdentifier(NetworkType.Main);
         return this.matches(identifier)
+    };
+    Meta.prototype.hasSeed = function() {
+        return MetaType.hasSeed(this.version)
     };
     Meta.prototype.isValid = function() {
         if (this.status === 0) {
             if (!this.key) {
                 this.status = -1
             } else {
-                if (contains_seed(this.version)) {
+                if (this.hasSeed()) {
                     if (!this.seed || !this.fingerprint) {
                         this.status = -1
                     } else {
@@ -1489,7 +1495,7 @@ if (typeof MingKeMing !== "object") {
         if (this.key.equals(publicKey)) {
             return true
         }
-        if (contains_seed(this.version)) {
+        if (this.hasSeed()) {
             var data = ns.type.String.from(this.seed).getBytes();
             var signature = this.fingerprint;
             return publicKey.verify(data, signature)
@@ -1530,12 +1536,18 @@ if (typeof MingKeMing !== "object") {
         console.assert(false, "implement me!");
         return null
     };
-    Meta.generate = function(version, privateKey, seed) {
+    Meta.generate = function(type, privateKey, seed) {
+        var version;
+        if (type instanceof MetaType) {
+            version = type.valueOf()
+        } else {
+            version = type
+        }
         var meta = {
             "version": version,
             "key": privateKey.getPublicKey()
         };
-        if (contains_seed(version)) {
+        if (MetaType.hasSeed(version)) {
             var data = ns.type.String.from(seed).getBytes();
             var fingerprint = privateKey.sign(data);
             meta["seed"] = seed;
@@ -1544,14 +1556,14 @@ if (typeof MingKeMing !== "object") {
         return Meta.getInstance(meta)
     };
     var meta_classes = {};
-    Meta.register = function(version, clazz) {
-        var value;
-        if (version instanceof MetaType) {
-            value = version.valueOf()
+    Meta.register = function(type, clazz) {
+        var version;
+        if (type instanceof MetaType) {
+            version = type.valueOf()
         } else {
-            value = version
+            version = type
         }
-        meta_classes[value] = clazz
+        meta_classes[version] = clazz
     };
     Meta.getInstance = function(meta) {
         if (!meta) {
@@ -1633,7 +1645,7 @@ if (typeof MingKeMing !== "object") {
         this.properties = null;
         this.status = 0
     };
-    ns.Class(Profile, Dictionary, TAI);
+    ns.Class(Profile, Dictionary, [TAI]);
     Profile.prototype.isValid = function() {
         return this.status >= 0
     };
@@ -1793,7 +1805,7 @@ if (typeof MingKeMing !== "object") {
 ! function(ns) {
     var EntityDataSource = ns.EntityDataSource;
     var UserDataSource = function() {};
-    ns.Interface(UserDataSource, EntityDataSource);
+    ns.Interface(UserDataSource, [EntityDataSource]);
     UserDataSource.prototype.getContacts = function(identifier) {
         console.assert(false, "implement me!");
         return null
@@ -1818,7 +1830,7 @@ if (typeof MingKeMing !== "object") {
 ! function(ns) {
     var EntityDataSource = ns.EntityDataSource;
     var GroupDataSource = function() {};
-    ns.Interface(GroupDataSource, EntityDataSource);
+    ns.Interface(GroupDataSource, [EntityDataSource]);
     GroupDataSource.prototype.getFounder = function(identifier) {
         console.assert(false, "implement me!");
         return null
@@ -2021,7 +2033,7 @@ if (typeof DaoKeDao !== "object") {
     ns.register("protocol")
 }(DaoKeDao);
 ! function(ns) {
-    var ContentType = ns.type.Enum({
+    var ContentType = ns.type.Enum(null, {
         UNKNOWN: (0),
         TEXT: (1),
         FILE: (16),
@@ -2182,7 +2194,7 @@ if (typeof DaoKeDao !== "object") {
     var MessageDelegate = function() {};
     ns.Interface(MessageDelegate, null);
     var InstantMessageDelegate = function() {};
-    ns.Interface(InstantMessageDelegate, MessageDelegate);
+    ns.Interface(InstantMessageDelegate, [MessageDelegate]);
     InstantMessageDelegate.prototype.encryptContent = function(content, pwd, msg) {
         console.assert(false, "implement me!");
         return null
@@ -2200,7 +2212,7 @@ if (typeof DaoKeDao !== "object") {
         return null
     };
     var SecureMessageDelegate = function() {};
-    ns.Interface(SecureMessageDelegate, MessageDelegate);
+    ns.Interface(SecureMessageDelegate, [MessageDelegate]);
     SecureMessageDelegate.prototype.decodeKey = function(key, msg) {
         console.assert(false, "implement me!");
         return null
@@ -2226,7 +2238,7 @@ if (typeof DaoKeDao !== "object") {
         return null
     };
     var ReliableMessageDelegate = function() {};
-    ns.Interface(ReliableMessageDelegate, SecureMessageDelegate);
+    ns.Interface(ReliableMessageDelegate, [SecureMessageDelegate]);
     ReliableMessageDelegate.prototype.decodeSignature = function(signature, msg) {
         console.assert(false, "implement me!");
         return null
@@ -2991,7 +3003,7 @@ if (typeof DaoKeDao !== "object") {
     ns.protocol.register("ProfileCommand")
 }(DIMP);
 ! function(ns) {
-    var HandshakeState = ns.type.Enum({
+    var HandshakeState = ns.type.Enum(null, {
         INIT: 0,
         START: 1,
         AGAIN: 2,
@@ -3434,7 +3446,7 @@ if (typeof DaoKeDao !== "object") {
         this.keyMap = {};
         this.isDirty = false
     };
-    ns.Class(KeyCache, ns.type.Object, CipherKeyDelegate);
+    ns.Class(KeyCache, ns.type.Object, [CipherKeyDelegate]);
     KeyCache.prototype.reload = function() {
         var map = this.loadKeys();
         if (!map) {
@@ -3536,7 +3548,7 @@ if (typeof DaoKeDao !== "object") {
         this.userMap = {};
         this.groupMap = {}
     };
-    ns.Class(Barrack, ns.type.Object, EntityDelegate, UserDataSource, GroupDataSource);
+    ns.Class(Barrack, ns.type.Object, [EntityDelegate, UserDataSource, GroupDataSource]);
     var thanos = function(map, finger) {
         var keys = Object.keys(map);
         for (var i = 0; i < keys.length; ++i) {
@@ -3697,7 +3709,7 @@ if (typeof DaoKeDao !== "object") {
         this.entityDelegate = null;
         this.cipherKeyDelegate = null
     };
-    ns.Class(Transceiver, ns.type.Object, InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate);
+    ns.Class(Transceiver, ns.type.Object, [InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate]);
     var get_key = function(sender, receiver) {
         var key = this.cipherKeyDelegate.getCipherKey(sender, receiver);
         if (!key) {

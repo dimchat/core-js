@@ -51,7 +51,7 @@
         this.entityDelegate = null;
         this.cipherKeyDelegate = null;
     };
-    ns.Class(Transceiver, ns.type.Object, InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate);
+    ns.Class(Transceiver, ns.type.Object, [InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate]);
 
     var get_key = function (sender, receiver) {
         var key = this.cipherKeyDelegate.getCipherKey(sender, receiver);
