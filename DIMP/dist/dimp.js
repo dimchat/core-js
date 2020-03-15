@@ -2195,55 +2195,55 @@ if (typeof DaoKeDao !== "object") {
     ns.Interface(MessageDelegate, null);
     var InstantMessageDelegate = function() {};
     ns.Interface(InstantMessageDelegate, [MessageDelegate]);
-    InstantMessageDelegate.prototype.encryptContent = function(content, pwd, msg) {
+    InstantMessageDelegate.prototype.encryptContent = function(content, pwd, iMsg) {
         console.assert(false, "implement me!");
         return null
     };
-    InstantMessageDelegate.prototype.encodeData = function(data, msg) {
+    InstantMessageDelegate.prototype.encodeData = function(data, iMsg) {
         console.assert(false, "implement me!");
         return null
     };
-    InstantMessageDelegate.prototype.encryptKey = function(pwd, receiver, msg) {
+    InstantMessageDelegate.prototype.encryptKey = function(pwd, receiver, iMsg) {
         console.assert(false, "implement me!");
         return null
     };
-    InstantMessageDelegate.prototype.encodeKey = function(key, msg) {
+    InstantMessageDelegate.prototype.encodeKey = function(key, iMsg) {
         console.assert(false, "implement me!");
         return null
     };
     var SecureMessageDelegate = function() {};
     ns.Interface(SecureMessageDelegate, [MessageDelegate]);
-    SecureMessageDelegate.prototype.decodeKey = function(key, msg) {
+    SecureMessageDelegate.prototype.decodeKey = function(key, sMsg) {
         console.assert(false, "implement me!");
         return null
     };
-    SecureMessageDelegate.prototype.decryptKey = function(key, sender, receiver, msg) {
+    SecureMessageDelegate.prototype.decryptKey = function(key, sender, receiver, sMsg) {
         console.assert(false, "implement me!");
         return null
     };
-    SecureMessageDelegate.prototype.decodeData = function(data, msg) {
+    SecureMessageDelegate.prototype.decodeData = function(data, sMsg) {
         console.assert(false, "implement me!");
         return null
     };
-    SecureMessageDelegate.prototype.decryptContent = function(data, pwd, msg) {
+    SecureMessageDelegate.prototype.decryptContent = function(data, pwd, sMsg) {
         console.assert(false, "implement me!");
         return null
     };
-    SecureMessageDelegate.prototype.signData = function(data, sender, msg) {
+    SecureMessageDelegate.prototype.signData = function(data, sender, sMsg) {
         console.assert(false, "implement me!");
         return null
     };
-    SecureMessageDelegate.prototype.encodeSignature = function(signature, msg) {
+    SecureMessageDelegate.prototype.encodeSignature = function(signature, sMsg) {
         console.assert(false, "implement me!");
         return null
     };
     var ReliableMessageDelegate = function() {};
     ns.Interface(ReliableMessageDelegate, [SecureMessageDelegate]);
-    ReliableMessageDelegate.prototype.decodeSignature = function(signature, msg) {
+    ReliableMessageDelegate.prototype.decodeSignature = function(signature, rMsg) {
         console.assert(false, "implement me!");
         return null
     };
-    ReliableMessageDelegate.prototype.verifyDataSignature = function(data, signature, sender, msg) {
+    ReliableMessageDelegate.prototype.verifyDataSignature = function(data, signature, sender, rMsg) {
         console.assert(false, "implement me!");
         return false
     };
@@ -3407,10 +3407,6 @@ if (typeof DaoKeDao !== "object") {
     CipherKeyDelegate.prototype.cacheCipherKey = function(sender, receiver, key) {
         console.assert(false, "implement me!")
     };
-    CipherKeyDelegate.prototype.reuseCipherKey = function(sender, receiver, key) {
-        console.assert(false, "implement me!");
-        return null
-    };
     ns.CipherKeyDelegate = CipherKeyDelegate;
     ns.register("CipherKeyDelegate")
 }(DIMP);
@@ -3506,7 +3502,28 @@ if (typeof DaoKeDao !== "object") {
     };
     var set_key = function(sender, receiver, key) {
         var table = this.keyMap[sender];
-        if (!table) {
+        if (table) {
+            var old = table[receiver];
+            if (old) {
+                var equals = true;
+                var v1, v2;
+                for (var k in key) {
+                    if (!key.hasOwnProperty(k)) {
+                        continue
+                    }
+                    v1 = key[k];
+                    v2 = old[k];
+                    if (v1 === v2) {
+                        continue
+                    }
+                    equals = false;
+                    break
+                }
+                if (equals) {
+                    return
+                }
+            }
+        } else {
             table = {};
             this.keyMap[sender] = table
         }
@@ -3522,14 +3539,6 @@ if (typeof DaoKeDao !== "object") {
         if (receiver.isBroadcast()) {} else {
             set_key.call(this, sender, receiver, key);
             this.isDirty = true
-        }
-    };
-    KeyCache.prototype.reuseCipherKey = function(sender, receiver, key) {
-        if (key) {
-            this.cacheCipherKey(sender, receiver, key);
-            return key
-        } else {
-            return this.getCipherKey(sender, receiver)
         }
     };
     ns.core.KeyCache = KeyCache;
@@ -3700,6 +3709,7 @@ if (typeof DaoKeDao !== "object") {
 ! function(ns) {
     var SymmetricKey = ns.crypto.SymmetricKey;
     var Content = ns.Content;
+    var Command = ns.protocol.Command;
     var InstantMessage = ns.InstantMessage;
     var ReliableMessage = ns.ReliableMessage;
     var InstantMessageDelegate = ns.InstantMessageDelegate;
@@ -3731,50 +3741,56 @@ if (typeof DaoKeDao !== "object") {
         receiver = this.entityDelegate.getIdentifier(receiver);
         return receiver && receiver.isBroadcast()
     };
-    Transceiver.prototype.encryptMessage = function(msg) {
-        var sender = this.entityDelegate.getIdentifier(msg.envelope.sender);
-        var receiver = this.entityDelegate.getIdentifier(msg.envelope.receiver);
-        var password = get_key.call(this, sender, receiver);
-        if (!msg.delegate) {
-            msg.delegate = this
+    Transceiver.prototype.encryptMessage = function(iMsg) {
+        var sender = this.entityDelegate.getIdentifier(iMsg.envelope.sender);
+        var receiver = this.entityDelegate.getIdentifier(iMsg.envelope.receiver);
+        var group = this.entityDelegate.getIdentifier(iMsg.content.getGroup());
+        var password;
+        if (!group || (iMsg.content instanceof Command)) {
+            password = get_key.call(this, sender, receiver)
+        } else {
+            password = get_key.call(this, sender, group)
+        }
+        if (!iMsg.delegate) {
+            iMsg.delegate = this
         }
         var sMsg;
         if (receiver.isGroup()) {
             var members = this.entityDelegate.getMembers(receiver);
-            sMsg = msg.encrypt(password, members)
+            sMsg = iMsg.encrypt(password, members)
         } else {
-            sMsg = msg.encrypt(password, null)
+            sMsg = iMsg.encrypt(password, null)
         }
         return sMsg
     };
-    Transceiver.prototype.signMessage = function(msg) {
-        if (!msg.delegate) {
-            msg.delegate = this
+    Transceiver.prototype.signMessage = function(sMsg) {
+        if (!sMsg.delegate) {
+            sMsg.delegate = this
         }
-        return msg.sign()
+        return sMsg.sign()
     };
-    Transceiver.prototype.verifyMessage = function(msg) {
-        if (!msg.delegate) {
-            msg.delegate = this
+    Transceiver.prototype.verifyMessage = function(rMsg) {
+        if (!rMsg.delegate) {
+            rMsg.delegate = this
         }
-        return msg.verify()
+        return rMsg.verify()
     };
-    Transceiver.prototype.decryptMessage = function(msg) {
-        if (!msg.delegate) {
-            msg.delegate = this
+    Transceiver.prototype.decryptMessage = function(sMsg) {
+        if (!sMsg.delegate) {
+            sMsg.delegate = this
         }
-        return msg.decrypt()
+        return sMsg.decrypt()
     };
-    Transceiver.prototype.serializeContent = function(content, msg) {
+    Transceiver.prototype.serializeContent = function(content, iMsg) {
         var json = ns.format.JSON.encode(content);
         return ns.type.String.from(json).getBytes("UTF-8")
     };
-    Transceiver.prototype.serializeKey = function(password, msg) {
+    Transceiver.prototype.serializeKey = function(password, iMsg) {
         var json = ns.format.JSON.encode(password);
         return ns.type.String.from(json).getBytes("UTF-8")
     };
-    Transceiver.prototype.serializeMessage = function(msg) {
-        var json = ns.format.JSON.encode(msg);
+    Transceiver.prototype.serializeMessage = function(rMsg) {
+        var json = ns.format.JSON.encode(rMsg);
         return ns.type.String.from(json).getBytes("UTF-8")
     };
     Transceiver.prototype.deserializeMessage = function(data) {
@@ -3782,38 +3798,38 @@ if (typeof DaoKeDao !== "object") {
         var dict = ns.format.JSON.decode(str.toString());
         return ReliableMessage.getInstance(dict)
     };
-    Transceiver.prototype.deserializeKey = function(data, msg) {
+    Transceiver.prototype.deserializeKey = function(data, sMsg) {
         var str = new ns.type.String(data, "UTF-8");
         var dict = ns.format.JSON.decode(str.toString());
         return SymmetricKey.getInstance(dict)
     };
-    Transceiver.prototype.deserializeContent = function(data, msg) {
+    Transceiver.prototype.deserializeContent = function(data, sMsg) {
         var str = new ns.type.String(data, "UTF-8");
         var dict = ns.format.JSON.decode(str.toString());
         return Content.getInstance(dict)
     };
-    Transceiver.prototype.encryptContent = function(content, pwd, msg) {
+    Transceiver.prototype.encryptContent = function(content, pwd, iMsg) {
         var key = SymmetricKey.getInstance(pwd);
         if (key) {
-            var data = this.serializeContent(content, msg);
+            var data = this.serializeContent(content, iMsg);
             return key.encrypt(data)
         } else {
             throw Error("key error: " + pwd)
         }
     };
-    Transceiver.prototype.encodeData = function(data, msg) {
-        if (is_broadcast_msg.call(this, msg)) {
+    Transceiver.prototype.encodeData = function(data, iMsg) {
+        if (is_broadcast_msg.call(this, iMsg)) {
             var str = new ns.type.String(data, "UTF-8");
             return str.toString()
         }
         return ns.format.Base64.encode(data)
     };
-    Transceiver.prototype.encryptKey = function(pwd, receiver, msg) {
-        if (is_broadcast_msg.call(this, msg)) {
+    Transceiver.prototype.encryptKey = function(pwd, receiver, iMsg) {
+        if (is_broadcast_msg.call(this, iMsg)) {
             return null
         }
         var key = SymmetricKey.getInstance(pwd);
-        var data = this.serializeKey(key, msg);
+        var data = this.serializeKey(key, iMsg);
         receiver = this.entityDelegate.getIdentifier(receiver);
         var contact = this.entityDelegate.getUser(receiver);
         if (contact) {
@@ -3822,18 +3838,18 @@ if (typeof DaoKeDao !== "object") {
             throw Error("failed to get encrypt key for receiver: " + receiver)
         }
     };
-    Transceiver.prototype.encodeKey = function(key, msg) {
+    Transceiver.prototype.encodeKey = function(key, iMsg) {
         return ns.format.Base64.encode(key)
     };
-    Transceiver.prototype.decodeKey = function(key, msg) {
+    Transceiver.prototype.decodeKey = function(key, sMsg) {
         return ns.format.Base64.decode(key)
     };
-    Transceiver.prototype.decryptKey = function(key, sender, receiver, msg) {
+    Transceiver.prototype.decryptKey = function(key, sender, receiver, sMsg) {
         sender = this.entityDelegate.getIdentifier(sender);
         receiver = this.entityDelegate.getIdentifier(receiver);
-        var password = null;
+        var password;
         if (key) {
-            var identifier = msg.envelope.receiver;
+            var identifier = sMsg.envelope.receiver;
             identifier = this.entityDelegate.getIdentifier(identifier);
             var user = this.entityDelegate.getUser(identifier);
             if (!user) {
@@ -3841,19 +3857,21 @@ if (typeof DaoKeDao !== "object") {
             }
             var plaintext = user.decrypt(key);
             if (!plaintext) {
-                throw Error("failed to decrypt key in msg: " + msg)
+                throw Error("failed to decrypt key in msg: " + sMsg)
             }
-            password = this.deserializeKey(plaintext, msg)
+            password = this.deserializeKey(plaintext, sMsg)
+        } else {
+            password = this.cipherKeyDelegate.getCipherKey(sender, receiver)
         }
-        return this.cipherKeyDelegate.reuseCipherKey(sender, receiver, password)
+        return password
     };
-    Transceiver.prototype.decodeData = function(data, msg) {
-        if (is_broadcast_msg.call(this, msg)) {
+    Transceiver.prototype.decodeData = function(data, sMsg) {
+        if (is_broadcast_msg.call(this, sMsg)) {
             return ns.type.String.from(data).getBytes("UTF-8")
         }
         return ns.format.Base64.decode(data)
     };
-    Transceiver.prototype.decryptContent = function(data, pwd, msg) {
+    Transceiver.prototype.decryptContent = function(data, pwd, sMsg) {
         var key = SymmetricKey.getInstance(pwd);
         if (!key) {
             return null
@@ -3862,30 +3880,39 @@ if (typeof DaoKeDao !== "object") {
         if (!plaintext) {
             return null
         }
-        return this.deserializeContent(plaintext, msg)
+        var content = this.deserializeContent(plaintext, sMsg);
+        var sender = this.entityDelegate.getIdentifier(sMsg.envelope.sender);
+        var group = this.entityDelegate.getIdentifier(content.getGroup());
+        if (!group || (content instanceof Command)) {
+            var receiver = this.entityDelegate.getIdentifier(sMsg.envelope.receiver);
+            this.cipherKeyDelegate.cacheCipherKey(sender, receiver, key)
+        } else {
+            this.cipherKeyDelegate.cacheCipherKey(sender, group, key)
+        }
+        return content
     };
-    Transceiver.prototype.signData = function(data, sender, msg) {
+    Transceiver.prototype.signData = function(data, sender, sMsg) {
         sender = this.entityDelegate.getIdentifier(sender);
         var user = this.entityDelegate.getUser(sender);
         if (user) {
             return user.sign(data)
         } else {
-            throw Error("failed to get sign key for sender: " + msg)
+            throw Error("failed to get sign key for sender: " + sMsg)
         }
     };
-    Transceiver.prototype.encodeSignature = function(signature, msg) {
+    Transceiver.prototype.encodeSignature = function(signature, sMsg) {
         return ns.format.Base64.encode(signature)
     };
-    Transceiver.prototype.decodeSignature = function(signature, msg) {
+    Transceiver.prototype.decodeSignature = function(signature, rMsg) {
         return ns.format.Base64.decode(signature)
     };
-    Transceiver.prototype.verifyDataSignature = function(data, signature, sender, msg) {
+    Transceiver.prototype.verifyDataSignature = function(data, signature, sender, rMsg) {
         sender = this.entityDelegate.getIdentifier(sender);
         var contact = this.entityDelegate.getUser(sender);
         if (contact) {
             return contact.verify(data, signature)
         } else {
-            throw Error("failed to get verify key for sender: " + msg)
+            throw Error("failed to get verify key for sender: " + rMsg)
         }
     };
     ns.core.Transceiver = Transceiver;

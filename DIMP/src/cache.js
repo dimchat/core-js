@@ -184,7 +184,30 @@
 
     var set_key = function (sender, receiver, key) {
         var table = this.keyMap[sender];
-        if (!table) {
+        if (table) {
+            var old = table[receiver];
+            if (old) {
+                // check whether same key exists
+                var equals = true;
+                var v1, v2;
+                for (var k in key) {
+                    if (!key.hasOwnProperty(k)) {
+                        continue;
+                    }
+                    v1 = key[k];
+                    v2 = old[k];
+                    if (v1 === v2) {
+                        continue;
+                    }
+                    equals = false;
+                    break;
+                }
+                if (equals) {
+                    // no need to update
+                    return;
+                }
+            }
+        } else {
             table = {};
             this.keyMap[sender] = table;
         }
@@ -200,6 +223,8 @@
         }
         // get key from cache
         return get_key.call(this, sender, receiver);
+
+        // TODO: override to check whether key expired for sending message
     };
 
     // @override
@@ -209,18 +234,6 @@
         } else {
             set_key.call(this, sender, receiver, key);
             this.isDirty = true;
-        }
-    };
-
-    // @override
-    KeyCache.prototype.reuseCipherKey = function (sender, receiver, key) {
-        if (key) {
-            // cache the key for reuse
-            this.cacheCipherKey(sender, receiver, key);
-            return key;
-        } else {
-            // reuse key from cache
-            return this.getCipherKey(sender, receiver);
         }
     };
 

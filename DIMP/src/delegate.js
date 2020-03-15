@@ -114,20 +114,6 @@
         console.assert(false, 'implement me!');
     };
 
-    // noinspection JSUnusedLocalSymbols
-    /**
-     *  Get/cache cipher key for decrypt message from 'sender' to 'receiver'
-     *
-     * @param {ID} sender
-     * @param {ID} receiver
-     * @param {SymmetricKey} key
-     * @returns {SymmetricKey}
-     */
-    CipherKeyDelegate.prototype.reuseCipherKey = function (sender, receiver, key) {
-        console.assert(false, 'implement me!');
-        return null;
-    };
-
     //-------- namespace --------
     ns.CipherKeyDelegate = CipherKeyDelegate;
 

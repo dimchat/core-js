@@ -40,6 +40,8 @@
     var SymmetricKey = ns.crypto.SymmetricKey;
 
     var Content = ns.Content;
+    var Command = ns.protocol.Command;
+
     var InstantMessage = ns.InstantMessage;
     var ReliableMessage = ns.ReliableMessage;
 
@@ -84,14 +86,15 @@
     /**
      *  Encrypt instant message
      *
-     * @param {InstantMessage|Message} msg
+     * @param {InstantMessage|Message} iMsg
      * @returns {SecureMessage}
      */
-    Transceiver.prototype.encryptMessage = function (msg) {
-        var sender = this.entityDelegate.getIdentifier(msg.envelope.sender);
-        var receiver = this.entityDelegate.getIdentifier(msg.envelope.receiver);
+    Transceiver.prototype.encryptMessage = function (iMsg) {
+        var sender = this.entityDelegate.getIdentifier(iMsg.envelope.sender);
+        var receiver = this.entityDelegate.getIdentifier(iMsg.envelope.receiver);
         // if 'group' exists and the 'receiver' is a group ID,
         // they must be equal
+        var group = this.entityDelegate.getIdentifier(iMsg.content.getGroup());
 
         // NOTICE: while sending group message, don't split it before encrypting.
         //         this means you could set group ID into message content, but
@@ -107,11 +110,18 @@
         //         which cannot shared the symmetric key (msg key) with other members.
 
         // 1. get symmetric key
-        var password = get_key.call(this, sender, receiver);
+        var password;
+        if (!group || (iMsg.content instanceof Command)) {
+            // personal message or (group) command
+            password = get_key.call(this, sender, receiver);
+        } else {
+            // group message (excludes group command)
+            password = get_key.call(this, sender, group);
+        }
 
         // check message delegate
-        if (!msg.delegate) {
-            msg.delegate = this;
+        if (!iMsg.delegate) {
+            iMsg.delegate = this;
         }
 
         // 2. encrypt 'content' to 'data' for receiver/group members
@@ -119,10 +129,10 @@
         if (receiver.isGroup()) {
             // group message
             var members = this.entityDelegate.getMembers(receiver);
-            sMsg = msg.encrypt(password, members);
+            sMsg = iMsg.encrypt(password, members);
         } else {
             // personal message (or split group message)
-            sMsg = msg.encrypt(password, null);
+            sMsg = iMsg.encrypt(password, null);
         }
 
         // OK
@@ -132,53 +142,53 @@
     /**
      *  Sign secure message
      *
-     * @param {SecureMessage|Message} msg
+     * @param {SecureMessage|Message} sMsg
      * @returns {ReliableMessage}
      */
-    Transceiver.prototype.signMessage = function (msg) {
-        if (!msg.delegate) {
-            msg.delegate = this;
+    Transceiver.prototype.signMessage = function (sMsg) {
+        if (!sMsg.delegate) {
+            sMsg.delegate = this;
         }
         // sign 'data' by sender
-        return msg.sign();
+        return sMsg.sign();
     };
 
     /**
      *  Verify reliable message
      *
-     * @param {ReliableMessage|Message} msg
+     * @param {ReliableMessage|Message} rMsg
      * @returns {SecureMessage}
      */
-    Transceiver.prototype.verifyMessage = function (msg) {
+    Transceiver.prototype.verifyMessage = function (rMsg) {
         //
         //  TODO: check [Meta Protocol]
         //        make sure the sender's meta exists
         //        (do in by application)
         //
-        if (!msg.delegate) {
-            msg.delegate = this;
+        if (!rMsg.delegate) {
+            rMsg.delegate = this;
         }
         // verify 'data' with 'signature'
-        return msg.verify();
+        return rMsg.verify();
     };
 
     /**
      *  Decrypt secure message
      *
-     * @param {SecureMessage|Message} msg
+     * @param {SecureMessage|Message} sMsg
      * @returns {InstantMessage}
      */
-    Transceiver.prototype.decryptMessage = function (msg) {
+    Transceiver.prototype.decryptMessage = function (sMsg) {
         //
         //  NOTICE: make sure the receiver is YOU!
         //          which means the receiver's private key exists;
         //          if the receiver is a group ID, split it first
         //
-        if (!msg.delegate) {
-            msg.delegate = this;
+        if (!sMsg.delegate) {
+            sMsg.delegate = this;
         }
         // decrypt 'data' to 'content'
-        return msg.decrypt();
+        return sMsg.decrypt();
         // TODO: check top-secret message
         //       (do it by application)
     };
@@ -191,10 +201,10 @@
      *  Encode content to JSON string data
      *
      * @param {Content} content
-     * @param {InstantMessage} msg
+     * @param {InstantMessage} iMsg
      * @returns {Uint8Array}
      */
-    Transceiver.prototype.serializeContent = function (content, msg) {
+    Transceiver.prototype.serializeContent = function (content, iMsg) {
         var json = ns.format.JSON.encode(content);
         return ns.type.String.from(json).getBytes('UTF-8');
     };
@@ -203,10 +213,10 @@
      *  Encode symmetric key to JSON string data
      *
      * @param {SymmetricKey} password
-     * @param {InstantMessage} msg
+     * @param {InstantMessage} iMsg
      * @returns {Uint8Array}
      */
-    Transceiver.prototype.serializeKey = function (password, msg) {
+    Transceiver.prototype.serializeKey = function (password, iMsg) {
         var json = ns.format.JSON.encode(password);
         return ns.type.String.from(json).getBytes('UTF-8');
     };
@@ -214,11 +224,11 @@
     /**
      *  Encode reliable message to JSON string data
      *
-     * @param {ReliableMessage} msg
+     * @param {ReliableMessage} rMsg
      * @returns {Uint8Array}
      */
-    Transceiver.prototype.serializeMessage = function (msg) {
-        var json = ns.format.JSON.encode(msg);
+    Transceiver.prototype.serializeMessage = function (rMsg) {
+        var json = ns.format.JSON.encode(rMsg);
         return ns.type.String.from(json).getBytes('UTF-8');
     };
 
@@ -250,10 +260,10 @@
      *  Decode symmetric key from JSON string data
      *
      * @param {Uint8Array} data
-     * @param {SecureMessage} msg
+     * @param {SecureMessage} sMsg
      * @returns {SymmetricKey}
      */
-    Transceiver.prototype.deserializeKey = function (data, msg) {
+    Transceiver.prototype.deserializeKey = function (data, sMsg) {
         var str = new ns.type.String(data, 'UTF-8');
         var dict = ns.format.JSON.decode(str.toString());
         // TODO: translate short keys
@@ -269,10 +279,10 @@
      *  Decode content from JSON string data
      *
      * @param {Uint8Array} data
-     * @param {SecureMessage} msg
+     * @param {SecureMessage} sMsg
      * @returns {Content}
      */
-    Transceiver.prototype.deserializeContent = function (data, msg) {
+    Transceiver.prototype.deserializeContent = function (data, sMsg) {
         var str = new ns.type.String(data, 'UTF-8');
         var dict = ns.format.JSON.decode(str.toString());
         // TODO: translate short keys
@@ -285,12 +295,12 @@
     //-------- InstantMessageDelegate --------
 
     // @override
-    Transceiver.prototype.encryptContent = function (content, pwd, msg) {
+    Transceiver.prototype.encryptContent = function (content, pwd, iMsg) {
         // NOTICE: check attachment for File/Image/Audio/Video message content
         //         before serialize content, this job should be do in subclass
         var key = SymmetricKey.getInstance(pwd);
         if (key) {
-            var data = this.serializeContent(content, msg);
+            var data = this.serializeContent(content, iMsg);
             return key.encrypt(data);
         } else {
             throw Error('key error: ' + pwd);
@@ -298,8 +308,8 @@
     };
 
     // @override
-    Transceiver.prototype.encodeData = function (data, msg) {
-        if (is_broadcast_msg.call(this, msg)) {
+    Transceiver.prototype.encodeData = function (data, iMsg) {
+        if (is_broadcast_msg.call(this, iMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so no need to encode to Base64 here
             var str = new ns.type.String(data, 'UTF-8');
@@ -309,15 +319,15 @@
     };
 
     // @override
-    Transceiver.prototype.encryptKey = function (pwd, receiver, msg) {
-        if (is_broadcast_msg.call(this, msg)) {
+    Transceiver.prototype.encryptKey = function (pwd, receiver, iMsg) {
+        if (is_broadcast_msg.call(this, iMsg)) {
             // broadcast message has no key
             return null;
         }
         var key = SymmetricKey.getInstance(pwd);
         // TODO: check whether support reused key
 
-        var data = this.serializeKey(key, msg);
+        var data = this.serializeKey(key, iMsg);
         // encrypt with receiver's public key
         receiver = this.entityDelegate.getIdentifier(receiver);
         var contact = this.entityDelegate.getUser(receiver);
@@ -329,25 +339,25 @@
     };
 
     // @override
-    Transceiver.prototype.encodeKey = function (key, msg) {
+    Transceiver.prototype.encodeKey = function (key, iMsg) {
         return ns.format.Base64.encode(key);
     };
 
     //-------- SecureMessageDelegate --------
 
     // @override
-    Transceiver.prototype.decodeKey = function (key, msg) {
+    Transceiver.prototype.decodeKey = function (key, sMsg) {
         return ns.format.Base64.decode(key);
     };
 
     // @override
-    Transceiver.prototype.decryptKey = function (key, sender, receiver, msg) {
+    Transceiver.prototype.decryptKey = function (key, sender, receiver, sMsg) {
         sender = this.entityDelegate.getIdentifier(sender);
         receiver = this.entityDelegate.getIdentifier(receiver);
-        var password = null;
+        var password;
         if (key) {
             // decrypt key data with the receiver/group member's private key
-            var identifier = msg.envelope.receiver;
+            var identifier = sMsg.envelope.receiver;
             identifier = this.entityDelegate.getIdentifier(identifier);
             var user = this.entityDelegate.getUser(identifier);
             if (!user) {
@@ -355,17 +365,20 @@
             }
             var plaintext = user.decrypt(key);
             if (!plaintext) {
-                throw Error('failed to decrypt key in msg: ' + msg);
+                throw Error('failed to decrypt key in msg: ' + sMsg);
             }
             // deserialize it to symmetric key
-            password = this.deserializeKey(plaintext, msg);
+            password = this.deserializeKey(plaintext, sMsg);
+        } else {
+            // get key from cache
+            password = this.cipherKeyDelegate.getCipherKey(sender, receiver);
         }
-        return this.cipherKeyDelegate.reuseCipherKey(sender, receiver, password);
+        return password;
     };
 
     // @override
-    Transceiver.prototype.decodeData = function (data, msg) {
-        if (is_broadcast_msg.call(this, msg)) {
+    Transceiver.prototype.decodeData = function (data, sMsg) {
+        if (is_broadcast_msg.call(this, sMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so return the string data directly
             return ns.type.String.from(data).getBytes('UTF-8');
@@ -374,7 +387,7 @@
     };
 
     // @override
-    Transceiver.prototype.decryptContent = function (data, pwd, msg) {
+    Transceiver.prototype.decryptContent = function (data, pwd, sMsg) {
         var key = SymmetricKey.getInstance(pwd);
         if (!key) {
             return null;
@@ -385,42 +398,58 @@
             // throw Error('failed to decrypt data: ' + pwd);
             return null;
         }
+        var content = this.deserializeContent(plaintext, sMsg);
+
+        // check and cache key for reuse
+        var sender = this.entityDelegate.getIdentifier(sMsg.envelope.sender);
+        var group = this.entityDelegate.getIdentifier(content.getGroup());
+        if (!group || (content instanceof Command)) {
+            var receiver = this.entityDelegate.getIdentifier(sMsg.envelope.receiver);
+            // personal message or (group) command
+            // cache key with direction (sender -> receiver)
+            this.cipherKeyDelegate.cacheCipherKey(sender, receiver, key);
+        } else {
+            // group message (excludes group command)
+            // cache the key with direction (sender -> group)
+            this.cipherKeyDelegate.cacheCipherKey(sender, group, key);
+        }
+
         // NOTICE: check attachment for File/Image/Audio/Video message content
         //         after deserialize content, this job should be do in subclass
-        return this.deserializeContent(plaintext, msg);
+        return content;
     };
 
     // @override
-    Transceiver.prototype.signData = function (data, sender, msg) {
+    Transceiver.prototype.signData = function (data, sender, sMsg) {
         sender = this.entityDelegate.getIdentifier(sender);
         var user = this.entityDelegate.getUser(sender);
         if (user) {
             return user.sign(data);
         } else {
-            throw Error('failed to get sign key for sender: ' + msg);
+            throw Error('failed to get sign key for sender: ' + sMsg);
         }
     };
 
     // @override
-    Transceiver.prototype.encodeSignature = function (signature, msg) {
+    Transceiver.prototype.encodeSignature = function (signature, sMsg) {
         return ns.format.Base64.encode(signature);
     };
 
     //-------- ReliableMessageDelegate --------
 
     // @override
-    Transceiver.prototype.decodeSignature = function (signature, msg) {
+    Transceiver.prototype.decodeSignature = function (signature, rMsg) {
         return ns.format.Base64.decode(signature);
     };
 
     // @override
-    Transceiver.prototype.verifyDataSignature = function (data, signature, sender, msg) {
+    Transceiver.prototype.verifyDataSignature = function (data, signature, sender, rMsg) {
         sender = this.entityDelegate.getIdentifier(sender);
         var contact = this.entityDelegate.getUser(sender);
         if (contact) {
             return contact.verify(data, signature);
         } else {
-            throw Error('failed to get verify key for sender: ' + msg);
+            throw Error('failed to get verify key for sender: ' + rMsg);
         }
     };
 
