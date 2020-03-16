@@ -83,6 +83,23 @@
     //  Transform
     //
 
+    var overt_group = function (content, facebook) {
+        var group = content.getGroup();
+        if (group) {
+            group = facebook.getIdentifier(group);
+            if (group.isBroadcast()) {
+                // broadcast message is always overt
+                return group;
+            }
+            if (content instanceof Command) {
+                // group command should be sent to each member directly, so
+                // don't expose group ID
+                return null;
+            }
+        }
+        return group;
+    };
+
     /**
      *  Encrypt instant message
      *
@@ -94,7 +111,6 @@
         var receiver = this.entityDelegate.getIdentifier(iMsg.envelope.receiver);
         // if 'group' exists and the 'receiver' is a group ID,
         // they must be equal
-        var group = this.entityDelegate.getIdentifier(iMsg.content.getGroup());
 
         // NOTICE: while sending group message, don't split it before encrypting.
         //         this means you could set group ID into message content, but
@@ -106,17 +122,18 @@
         //         if you don't want to share the symmetric key with other members,
         //         you could split it (set group ID into message content and
         //         set contact ID to the "receiver") before encrypting, this usually
-        //         for sending group command to robot assistant,
-        //         which cannot shared the symmetric key (msg key) with other members.
+        //         for sending group command to assistant robot, which should not
+        //         shared the symmetric key (group msg key) with other members.
 
         // 1. get symmetric key
+        var group = overt_group(iMsg.content, this.entityDelegate);
         var password;
-        if (!group || (iMsg.content instanceof Command)) {
-            // personal message or (group) command
-            password = get_key.call(this, sender, receiver);
-        } else {
+        if (group) {
             // group message (excludes group command)
             password = get_key.call(this, sender, group);
+        } else {
+            // personal message or (group) command
+            password = get_key.call(this, sender, receiver);
         }
 
         // check message delegate
@@ -134,6 +151,19 @@
             // personal message (or split group message)
             sMsg = iMsg.encrypt(password, null);
         }
+
+        // overt group ID
+        if (group && !receiver.equals(group)) {
+            // NOTICE: this help the receiver knows the group ID
+            //         when the group message separated to multi-messages,
+            //         if don't want the others know you are the group members,
+            //         remove it.
+            sMsg.envelope.setGroup(group);
+        }
+
+        // NOTICE: copy content type to envelope
+        //         this help the intermediate nodes to recognize message type
+        sMsg.envelope.setType(iMsg.content.type);
 
         // OK
         return sMsg;
@@ -402,16 +432,16 @@
 
         // check and cache key for reuse
         var sender = this.entityDelegate.getIdentifier(sMsg.envelope.sender);
-        var group = this.entityDelegate.getIdentifier(content.getGroup());
-        if (!group || (content instanceof Command)) {
+        var group = overt_group(content, this.entityDelegate);
+        if (group) {
+            // group message (excludes group command)
+            // cache the key with direction (sender -> group)
+            this.cipherKeyDelegate.cacheCipherKey(sender, group, key);
+        } else {
             var receiver = this.entityDelegate.getIdentifier(sMsg.envelope.receiver);
             // personal message or (group) command
             // cache key with direction (sender -> receiver)
             this.cipherKeyDelegate.cacheCipherKey(sender, receiver, key);
-        } else {
-            // group message (excludes group command)
-            // cache the key with direction (sender -> group)
-            this.cipherKeyDelegate.cacheCipherKey(sender, group, key);
         }
 
         // NOTICE: check attachment for File/Image/Audio/Video message content

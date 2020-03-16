@@ -1190,15 +1190,28 @@
         receiver = this.entityDelegate.getIdentifier(receiver);
         return receiver && receiver.isBroadcast()
     };
+    var overt_group = function(content, facebook) {
+        var group = content.getGroup();
+        if (group) {
+            group = facebook.getIdentifier(group);
+            if (group.isBroadcast()) {
+                return group
+            }
+            if (content instanceof Command) {
+                return null
+            }
+        }
+        return group
+    };
     Transceiver.prototype.encryptMessage = function(iMsg) {
         var sender = this.entityDelegate.getIdentifier(iMsg.envelope.sender);
         var receiver = this.entityDelegate.getIdentifier(iMsg.envelope.receiver);
-        var group = this.entityDelegate.getIdentifier(iMsg.content.getGroup());
+        var group = overt_group(iMsg.content, this.entityDelegate);
         var password;
-        if (!group || (iMsg.content instanceof Command)) {
-            password = get_key.call(this, sender, receiver)
-        } else {
+        if (group) {
             password = get_key.call(this, sender, group)
+        } else {
+            password = get_key.call(this, sender, receiver)
         }
         if (!iMsg.delegate) {
             iMsg.delegate = this
@@ -1210,6 +1223,10 @@
         } else {
             sMsg = iMsg.encrypt(password, null)
         }
+        if (group && !receiver.equals(group)) {
+            sMsg.envelope.setGroup(group)
+        }
+        sMsg.envelope.setType(iMsg.content.type);
         return sMsg
     };
     Transceiver.prototype.signMessage = function(sMsg) {
@@ -1331,12 +1348,12 @@
         }
         var content = this.deserializeContent(plaintext, sMsg);
         var sender = this.entityDelegate.getIdentifier(sMsg.envelope.sender);
-        var group = this.entityDelegate.getIdentifier(content.getGroup());
-        if (!group || (content instanceof Command)) {
+        var group = overt_group(content, this.entityDelegate);
+        if (group) {
+            this.cipherKeyDelegate.cacheCipherKey(sender, group, key)
+        } else {
             var receiver = this.entityDelegate.getIdentifier(sMsg.envelope.receiver);
             this.cipherKeyDelegate.cacheCipherKey(sender, receiver, key)
-        } else {
-            this.cipherKeyDelegate.cacheCipherKey(sender, group, key)
         }
         return content
     };

@@ -194,6 +194,7 @@ core_tests = [];
         log('secure message: ', sMsg);
         var nMsg = transceiver.decryptMessage(sMsg);
         log('decrypt message: ', nMsg);
+        nMsg.setValue('type', null);
         assert(nMsg.equals(iMsg) === true, 'decrypt failed');
     };
     core_tests.push(test_transceiver);
