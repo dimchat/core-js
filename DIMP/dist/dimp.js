@@ -3579,24 +3579,8 @@ if (typeof DaoKeDao !== "object") {
         var table = this.keyMap[sender];
         if (table) {
             var old = table[receiver];
-            if (old) {
-                var equals = true;
-                var v1, v2;
-                for (var k in key) {
-                    if (!key.hasOwnProperty(k)) {
-                        continue
-                    }
-                    v1 = key[k];
-                    v2 = old[k];
-                    if (v1 === v2) {
-                        continue
-                    }
-                    equals = false;
-                    break
-                }
-                if (equals) {
-                    return
-                }
+            if (old && old.equals(key)) {
+                return
             }
         } else {
             table = {};
