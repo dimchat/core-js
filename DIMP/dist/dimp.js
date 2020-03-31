@@ -4038,13 +4038,15 @@ if (typeof DaoKeDao !== "object") {
             return null
         }
         var content = this.deserializeContent(plaintext, sMsg);
-        var sender = this.entityDelegate.getIdentifier(sMsg.envelope.sender);
-        var group = overt_group(content, this.entityDelegate);
-        if (group) {
-            this.cipherKeyDelegate.cacheCipherKey(sender, group, key)
-        } else {
-            var receiver = this.entityDelegate.getIdentifier(sMsg.envelope.receiver);
-            this.cipherKeyDelegate.cacheCipherKey(sender, receiver, key)
+        if (!is_broadcast_msg.call(this, sMsg)) {
+            var sender = this.entityDelegate.getIdentifier(sMsg.envelope.sender);
+            var group = overt_group(content, this.entityDelegate);
+            if (group) {
+                this.cipherKeyDelegate.cacheCipherKey(sender, group, key)
+            } else {
+                var receiver = this.entityDelegate.getIdentifier(sMsg.envelope.receiver);
+                this.cipherKeyDelegate.cacheCipherKey(sender, receiver, key)
+            }
         }
         return content
     };
