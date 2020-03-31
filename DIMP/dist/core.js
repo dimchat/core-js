@@ -2,7 +2,7 @@
  * DIMP - Decentralized Instant Messaging Protocol (v0.1.0)
  *
  * @author    moKy <albert.moky at gmail.com>
- * @date      Mar. 10, 2020
+ * @date      Mar. 31, 2020
  * @copyright (c) 2020 Albert Moky
  * @license   {@link https://mit-license.org | MIT License}
  */
@@ -979,14 +979,13 @@
 }(DIMP);
 ! function(ns) {
     var ID = ns.ID;
-    var User = ns.User;
-    var Group = ns.Group;
+    var EncryptKey = ns.crypto.EncryptKey;
+    var VerifyKey = ns.crypto.VerifyKey;
     var EntityDelegate = ns.EntityDelegate;
     var UserDataSource = ns.UserDataSource;
     var GroupDataSource = ns.GroupDataSource;
     var Barrack = function() {
         this.idMap = {};
-        this.metaMap = {};
         this.userMap = {};
         this.groupMap = {}
     };
@@ -1007,17 +1006,12 @@
     Barrack.prototype.reduceMemory = function() {
         var finger = 0;
         finger = thanos(this.idMap, finger);
-        finger = thanos(this.metaMap, finger);
         finger = thanos(this.userMap, finger);
         finger = thanos(this.groupMap, finger);
         return finger >> 1
     };
     Barrack.prototype.cacheIdentifier = function(identifier) {
         this.idMap[identifier.toString()] = identifier;
-        return true
-    };
-    Barrack.prototype.cacheMeta = function(meta, identifier) {
-        this.metaMap[identifier] = meta;
         return true
     };
     Barrack.prototype.cacheUser = function(user) {
@@ -1035,13 +1029,16 @@
         return true
     };
     Barrack.prototype.createIdentifier = function(string) {
-        return ID.getInstance(string)
+        console.assert(false, "implement me!");
+        return null
     };
     Barrack.prototype.createUser = function(identifier) {
-        return new User(identifier)
+        console.assert(false, "implement me!");
+        return null
     };
     Barrack.prototype.createGroup = function(identifier) {
-        return new Group(identifier)
+        console.assert(false, "implement me!");
+        return null
     };
     Barrack.prototype.getIdentifier = function(string) {
         if (!string || string instanceof ID) {
@@ -1079,14 +1076,38 @@
         }
         return null
     };
-    Barrack.prototype.getMeta = function(identifier) {
-        return this.metaMap[identifier]
-    };
     Barrack.prototype.getPublicKeyForEncryption = function(identifier) {
+        var profile = this.getProfile(identifier);
+        if (profile) {
+            var key = profile.getKey();
+            if (key) {
+                return key
+            }
+        }
+        var meta = this.getMeta(identifier);
+        if (meta) {
+            if (ns.Interface.conforms(meta.key, EncryptKey)) {
+                return meta.key
+            }
+        }
         return null
     };
     Barrack.prototype.getPublicKeysForVerification = function(identifier) {
-        return null
+        var keys = [];
+        var profile = this.getProfile(identifier);
+        if (profile) {
+            var key = profile.getKey();
+            if (ns.Interface.conforms(key, VerifyKey)) {
+                keys.push(key)
+            }
+        }
+        var meta = this.getMeta(identifier);
+        if (meta) {
+            if (meta.key) {
+                keys.push(meta.key)
+            }
+        }
+        return keys
     };
     Barrack.prototype.getFounder = function(identifier) {
         if (identifier.isBroadcast()) {

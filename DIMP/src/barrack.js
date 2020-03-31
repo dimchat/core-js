@@ -47,7 +47,6 @@
     var Barrack = function () {
         // memory caches
         this.idMap    = {};  // String -> ID
-        this.metaMap  = {};  // ID -> Meta
         this.userMap  = {};  // ID -> User
         this.groupMap = {};  // ID -> Group
     };
@@ -84,7 +83,6 @@
     Barrack.prototype.reduceMemory = function () {
         var finger = 0;
         finger = thanos(this.idMap, finger);
-        finger = thanos(this.metaMap, finger);
         finger = thanos(this.userMap, finger);
         finger = thanos(this.groupMap, finger);
         return finger >> 1;
@@ -96,11 +94,6 @@
 
     Barrack.prototype.cacheIdentifier = function (identifier) {
         this.idMap[identifier.toString()] = identifier;
-        return true;
-    };
-
-    Barrack.prototype.cacheMeta = function (meta, identifier) {
-        this.metaMap[identifier] = meta;
         return true;
     };
 
@@ -193,13 +186,6 @@
         }
         // failed to create group
         return null;
-    };
-
-    //-------- EntityDataSource --------
-
-    // @override
-    Barrack.prototype.getMeta = function (identifier) {
-        return this.metaMap[identifier];
     };
 
     //-------- UserDataSource --------
