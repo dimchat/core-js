@@ -37,8 +37,8 @@
     'use strict';
 
     var ID = ns.ID;
-    var User = ns.User;
-    var Group = ns.Group;
+    var EncryptKey = ns.crypto.EncryptKey;
+    var VerifyKey = ns.crypto.VerifyKey;
 
     var EntityDelegate  = ns.EntityDelegate;
     var UserDataSource  = ns.UserDataSource;
@@ -124,18 +124,22 @@
     //  factory
     //
 
+    // noinspection JSUnusedLocalSymbols
     Barrack.prototype.createIdentifier = function (string) {
-        return ID.getInstance(string);
+        console.assert(false, 'implement me!');
+        return null;
     };
 
+    // noinspection JSUnusedLocalSymbols
     Barrack.prototype.createUser = function (identifier) {
-        // make sure meta exits before creating user
-        return new User(identifier);
+        console.assert(false, 'implement me!');
+        return null;
     };
 
+    // noinspection JSUnusedLocalSymbols
     Barrack.prototype.createGroup = function (identifier) {
-        // make sure meta exits before creating group
-        return new Group(identifier);
+        console.assert(false, 'implement me!');
+        return null;
     };
 
     //-------- EntityDelegate --------
@@ -201,17 +205,52 @@
     //-------- UserDataSource --------
 
     // @override
-    // noinspection JSUnusedLocalSymbols
     Barrack.prototype.getPublicKeyForEncryption = function (identifier) {
-        // NOTICE: return nothing to use profile.key or meta.key
+        // get profile.key
+        var profile = this.getProfile(identifier);
+        if (profile) {
+            var key = profile.getKey();
+            if (key) {
+                // if profile.key exists,
+                //     use it for encryption
+                return key;
+            }
+        }
+        // get meta.key
+        var meta = this.getMeta(identifier);
+        if (meta) {
+            if (ns.Interface.conforms(meta.key, EncryptKey)) {
+                // if profile.key not exists and meta.key is encrypt key,
+                //     use it for encryption
+                return meta.key;
+            }
+        }
         return null;
     };
 
     // @override
-    // noinspection JSUnusedLocalSymbols
     Barrack.prototype.getPublicKeysForVerification = function (identifier) {
-        // NOTICE: return nothing to use profile.key or meta.key
-        return null;
+        var keys = [];
+        // get profile.key
+        var profile = this.getProfile(identifier);
+        if (profile) {
+            var key = profile.getKey();
+            if (ns.Interface.conforms(key, VerifyKey)) {
+                // the sender may use communication key to sign message.data,
+                // so try to verify it with profile.key here
+                keys.push(key);
+            }
+        }
+        // get meta.key
+        var meta = this.getMeta(identifier);
+        if (meta) {
+            if (meta.key) {
+                // the sender may use identity key to sign message.data,
+                // try to verify it with meta.key
+                keys.push(meta.key);
+            }
+        }
+        return keys;
     };
 
     //-------- GroupDataSource --------
