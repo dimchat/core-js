@@ -2,7 +2,7 @@
  * DIMP - Decentralized Instant Messaging Protocol (v0.1.0)
  *
  * @author    moKy <albert.moky at gmail.com>
- * @date      Mar. 31, 2020
+ * @date      Apr. 1, 2020
  * @copyright (c) 2020 Albert Moky
  * @license   {@link https://mit-license.org | MIT License}
  */
@@ -1252,14 +1252,6 @@
         }
         return sMsg.decrypt()
     };
-    Transceiver.prototype.serializeContent = function(content, iMsg) {
-        var json = ns.format.JSON.encode(content);
-        return ns.type.String.from(json).getBytes("UTF-8")
-    };
-    Transceiver.prototype.serializeKey = function(password, iMsg) {
-        var json = ns.format.JSON.encode(password);
-        return ns.type.String.from(json).getBytes("UTF-8")
-    };
     Transceiver.prototype.serializeMessage = function(rMsg) {
         var json = ns.format.JSON.encode(rMsg);
         return ns.type.String.from(json).getBytes("UTF-8")
@@ -1269,24 +1261,13 @@
         var dict = ns.format.JSON.decode(str.toString());
         return ReliableMessage.getInstance(dict)
     };
-    Transceiver.prototype.deserializeKey = function(data, sMsg) {
-        var str = new ns.type.String(data, "UTF-8");
-        var dict = ns.format.JSON.decode(str.toString());
-        return SymmetricKey.getInstance(dict)
+    Transceiver.prototype.serializeContent = function(content, pwd, iMsg) {
+        var json = ns.format.JSON.encode(content);
+        return ns.type.String.from(json).getBytes("UTF-8")
     };
-    Transceiver.prototype.deserializeContent = function(data, sMsg) {
-        var str = new ns.type.String(data, "UTF-8");
-        var dict = ns.format.JSON.decode(str.toString());
-        return Content.getInstance(dict)
-    };
-    Transceiver.prototype.encryptContent = function(content, pwd, iMsg) {
+    Transceiver.prototype.encryptContent = function(data, pwd, iMsg) {
         var key = SymmetricKey.getInstance(pwd);
-        if (key) {
-            var data = this.serializeContent(content, iMsg);
-            return key.encrypt(data)
-        } else {
-            throw Error("key error: " + pwd)
-        }
+        return key.encrypt(data)
     };
     Transceiver.prototype.encodeData = function(data, iMsg) {
         if (is_broadcast_msg.call(this, iMsg)) {
@@ -1295,19 +1276,17 @@
         }
         return ns.format.Base64.encode(data)
     };
-    Transceiver.prototype.encryptKey = function(pwd, receiver, iMsg) {
+    Transceiver.prototype.serializeKey = function(pwd, iMsg) {
+        var json = ns.format.JSON.encode(pwd);
+        return ns.type.String.from(json).getBytes("UTF-8")
+    };
+    Transceiver.prototype.encryptKey = function(data, receiver, iMsg) {
         if (is_broadcast_msg.call(this, iMsg)) {
             return null
         }
-        var key = SymmetricKey.getInstance(pwd);
-        var data = this.serializeKey(key, iMsg);
         receiver = this.entityDelegate.getIdentifier(receiver);
         var contact = this.entityDelegate.getUser(receiver);
-        if (contact) {
-            return contact.encrypt(data)
-        } else {
-            throw Error("failed to get encrypt key for receiver: " + receiver)
-        }
+        return contact.encrypt(data)
     };
     Transceiver.prototype.encodeKey = function(key, iMsg) {
         return ns.format.Base64.encode(key)
@@ -1315,26 +1294,29 @@
     Transceiver.prototype.decodeKey = function(key, sMsg) {
         return ns.format.Base64.decode(key)
     };
-    Transceiver.prototype.decryptKey = function(key, sender, receiver, sMsg) {
-        sender = this.entityDelegate.getIdentifier(sender);
-        receiver = this.entityDelegate.getIdentifier(receiver);
-        var password;
-        if (key) {
-            var identifier = sMsg.envelope.receiver;
-            identifier = this.entityDelegate.getIdentifier(identifier);
-            var user = this.entityDelegate.getUser(identifier);
-            if (!user) {
-                throw Error("failed to get decrypt keys: " + identifier)
-            }
-            var plaintext = user.decrypt(key);
-            if (!plaintext) {
-                throw Error("failed to decrypt key in msg: " + sMsg)
-            }
-            password = this.deserializeKey(plaintext, sMsg)
-        } else {
-            password = this.cipherKeyDelegate.getCipherKey(sender, receiver)
+    Transceiver.prototype.decryptKey = function(data, sender, receiver, sMsg) {
+        if (!data) {
+            return null
         }
-        return password
+        var identifier = sMsg.envelope.receiver;
+        identifier = this.entityDelegate.getIdentifier(identifier);
+        var user = this.entityDelegate.getUser(identifier);
+        var plaintext = user.decrypt(data);
+        if (!plaintext) {
+            throw Error("failed to decrypt key in msg: " + sMsg)
+        }
+        return plaintext
+    };
+    Transceiver.prototype.deserializeKey = function(data, sender, receiver, sMsg) {
+        if (data) {
+            var str = new ns.type.String(data, "UTF-8");
+            var dict = ns.format.JSON.decode(str.toString());
+            return SymmetricKey.getInstance(dict)
+        } else {
+            sender = this.entityDelegate.getIdentifier(sender);
+            receiver = this.entityDelegate.getIdentifier(receiver);
+            return this.cipherKeyDelegate.getCipherKey(sender, receiver)
+        }
     };
     Transceiver.prototype.decodeData = function(data, sMsg) {
         if (is_broadcast_msg.call(this, sMsg)) {
@@ -1349,10 +1331,16 @@
         }
         var plaintext = key.decrypt(data);
         if (!plaintext) {
-            return null
+            throw Error("failed to decrypt data: " + pwd)
         }
-        var content = this.deserializeContent(plaintext, sMsg);
+        return plaintext
+    };
+    Transceiver.prototype.deserializeContent = function(data, pwd, sMsg) {
+        var str = new ns.type.String(data, "UTF-8");
+        var dict = ns.format.JSON.decode(str.toString());
+        var content = Content.getInstance(dict);
         if (!is_broadcast_msg.call(this, sMsg)) {
+            var key = SymmetricKey.getInstance(pwd);
             var sender = this.entityDelegate.getIdentifier(sMsg.envelope.sender);
             var group = overt_group(content, this.entityDelegate);
             if (group) {
