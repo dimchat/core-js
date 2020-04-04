@@ -260,16 +260,16 @@
     // @override
     // noinspection JSUnusedLocalSymbols
     Transceiver.prototype.serializeKey = function (pwd, iMsg) {
+        if (is_broadcast_msg.call(this, iMsg)) {
+            // broadcast message has no key
+            return null;
+        }
         var json = ns.format.JSON.encode(pwd);
         return ns.type.String.from(json).getBytes('UTF-8');
     };
 
     // @override
     Transceiver.prototype.encryptKey = function (data, receiver, iMsg) {
-        if (is_broadcast_msg.call(this, iMsg)) {
-            // broadcast message has no key
-            return null;
-        }
         // encrypt with receiver's public key
         receiver = this.entityDelegate.getIdentifier(receiver);
         var contact = this.entityDelegate.getUser(receiver);

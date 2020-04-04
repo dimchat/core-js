@@ -1268,13 +1268,13 @@
         return ns.format.Base64.encode(data)
     };
     Transceiver.prototype.serializeKey = function(pwd, iMsg) {
+        if (is_broadcast_msg.call(this, iMsg)) {
+            return null
+        }
         var json = ns.format.JSON.encode(pwd);
         return ns.type.String.from(json).getBytes("UTF-8")
     };
     Transceiver.prototype.encryptKey = function(data, receiver, iMsg) {
-        if (is_broadcast_msg.call(this, iMsg)) {
-            return null
-        }
         receiver = this.entityDelegate.getIdentifier(receiver);
         var contact = this.entityDelegate.getUser(receiver);
         return contact.encrypt(data)
