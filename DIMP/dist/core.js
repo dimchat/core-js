@@ -2,7 +2,7 @@
  * DIMP - Decentralized Instant Messaging Protocol (v0.1.0)
  *
  * @author    moKy <albert.moky at gmail.com>
- * @date      Apr. 1, 2020
+ * @date      Apr. 10, 2020
  * @copyright (c) 2020 Albert Moky
  * @license   {@link https://mit-license.org | MIT License}
  */
@@ -1228,6 +1228,9 @@
         } else {
             sMsg = iMsg.encrypt(password, null)
         }
+        if (!sMsg) {
+            return null
+        }
         if (group && !receiver.equals(group)) {
             sMsg.envelope.setGroup(group)
         }
@@ -1239,6 +1242,13 @@
             sMsg.delegate = this
         }
         return sMsg.sign()
+    };
+    Transceiver.prototype.serializeMessage = function(rMsg) {
+        return ns.format.JSON.encode(rMsg)
+    };
+    Transceiver.prototype.deserializeMessage = function(data) {
+        var dict = ns.format.JSON.decode(data);
+        return ReliableMessage.getInstance(dict)
     };
     Transceiver.prototype.verifyMessage = function(rMsg) {
         if (!rMsg.delegate) {
@@ -1253,8 +1263,7 @@
         return sMsg.decrypt()
     };
     Transceiver.prototype.serializeContent = function(content, pwd, iMsg) {
-        var json = ns.format.JSON.encode(content);
-        return ns.type.String.from(json).getBytes("UTF-8")
+        return ns.format.JSON.encode(content)
     };
     Transceiver.prototype.encryptContent = function(data, pwd, iMsg) {
         var key = SymmetricKey.getInstance(pwd);
@@ -1262,8 +1271,7 @@
     };
     Transceiver.prototype.encodeData = function(data, iMsg) {
         if (is_broadcast_msg.call(this, iMsg)) {
-            var str = new ns.type.String(data, "UTF-8");
-            return str.toString()
+            return ns.format.UTF8.decode(data)
         }
         return ns.format.Base64.encode(data)
     };
@@ -1271,8 +1279,7 @@
         if (is_broadcast_msg.call(this, iMsg)) {
             return null
         }
-        var json = ns.format.JSON.encode(pwd);
-        return ns.type.String.from(json).getBytes("UTF-8")
+        return ns.format.JSON.encode(pwd)
     };
     Transceiver.prototype.encryptKey = function(data, receiver, iMsg) {
         receiver = this.entityDelegate.getIdentifier(receiver);
@@ -1286,22 +1293,14 @@
         return ns.format.Base64.decode(key)
     };
     Transceiver.prototype.decryptKey = function(data, sender, receiver, sMsg) {
-        if (!data) {
-            return null
-        }
         var identifier = sMsg.envelope.receiver;
         identifier = this.entityDelegate.getIdentifier(identifier);
         var user = this.entityDelegate.getUser(identifier);
-        var plaintext = user.decrypt(data);
-        if (!plaintext) {
-            throw Error("failed to decrypt key in msg: " + sMsg)
-        }
-        return plaintext
+        return user.decrypt(data)
     };
     Transceiver.prototype.deserializeKey = function(data, sender, receiver, sMsg) {
         if (data) {
-            var str = new ns.type.String(data, "UTF-8");
-            var dict = ns.format.JSON.decode(str.toString());
+            var dict = ns.format.JSON.decode(data);
             return SymmetricKey.getInstance(dict)
         } else {
             sender = this.entityDelegate.getIdentifier(sender);
@@ -1311,24 +1310,19 @@
     };
     Transceiver.prototype.decodeData = function(data, sMsg) {
         if (is_broadcast_msg.call(this, sMsg)) {
-            return ns.type.String.from(data).getBytes("UTF-8")
+            return ns.format.UTF8.encode(data)
         }
         return ns.format.Base64.decode(data)
     };
     Transceiver.prototype.decryptContent = function(data, pwd, sMsg) {
         var key = SymmetricKey.getInstance(pwd);
         if (!key) {
-            return null
+            throw Error("irregular symmetric key: " + pwd)
         }
-        var plaintext = key.decrypt(data);
-        if (!plaintext) {
-            throw Error("failed to decrypt data: " + pwd)
-        }
-        return plaintext
+        return key.decrypt(data)
     };
     Transceiver.prototype.deserializeContent = function(data, pwd, sMsg) {
-        var str = new ns.type.String(data, "UTF-8");
-        var dict = ns.format.JSON.decode(str.toString());
+        var dict = ns.format.JSON.decode(data);
         var content = Content.getInstance(dict);
         if (!is_broadcast_msg.call(this, sMsg)) {
             var key = SymmetricKey.getInstance(pwd);
@@ -1346,11 +1340,7 @@
     Transceiver.prototype.signData = function(data, sender, sMsg) {
         sender = this.entityDelegate.getIdentifier(sender);
         var user = this.entityDelegate.getUser(sender);
-        if (user) {
-            return user.sign(data)
-        } else {
-            throw Error("failed to get sign key for sender: " + sMsg)
-        }
+        return user.sign(data)
     };
     Transceiver.prototype.encodeSignature = function(signature, sMsg) {
         return ns.format.Base64.encode(signature)
@@ -1361,11 +1351,7 @@
     Transceiver.prototype.verifyDataSignature = function(data, signature, sender, rMsg) {
         sender = this.entityDelegate.getIdentifier(sender);
         var contact = this.entityDelegate.getUser(sender);
-        if (contact) {
-            return contact.verify(data, signature)
-        } else {
-            throw Error("failed to get verify key for sender: " + rMsg)
-        }
+        return contact.verify(data, signature)
     };
     ns.core.Transceiver = Transceiver;
     ns.core.register("Transceiver")

@@ -152,6 +152,11 @@
             // personal message (or split group message)
             sMsg = iMsg.encrypt(password, null);
         }
+        if (!sMsg) {
+            // public key for encryption not found
+            // TODO: suspend this message for waiting receiver's meta
+            return null;
+        }
 
         // overt group ID
         if (group && !receiver.equals(group)) {
@@ -183,6 +188,41 @@
         }
         // sign 'data' by sender
         return sMsg.sign();
+    };
+
+    // noinspection JSUnusedGlobalSymbols
+    /**
+     *  Encode reliable message to JSON string data
+     *
+     * @param {ReliableMessage} rMsg
+     * @returns {Uint8Array}
+     */
+    Transceiver.prototype.serializeMessage = function (rMsg) {
+        return ns.format.JSON.encode(rMsg);
+    };
+
+    // noinspection JSUnusedGlobalSymbols
+    /**
+     *  Decode reliable message from JSON string data
+     *
+     * @param {Uint8Array} data
+     * @returns {ReliableMessage}
+     */
+    Transceiver.prototype.deserializeMessage = function (data) {
+        var dict = ns.format.JSON.decode(data);
+        // TODO: translate short keys
+        //       'S' -> 'sender'
+        //       'R' -> 'receiver'
+        //       'W' -> 'time'
+        //       'T' -> 'type'
+        //       'G' -> 'group'
+        //       ------------------
+        //       'D' -> 'data'
+        //       'V' -> 'signature'
+        //       'K' -> 'key'
+        //       ------------------
+        //       'M' -> 'meta'
+        return ReliableMessage.getInstance(dict);
     };
 
     // noinspection JSUnusedGlobalSymbols
@@ -223,6 +263,7 @@
         }
         // decrypt 'data' to 'content'
         return sMsg.decrypt();
+
         // TODO: check top-secret message
         //       (do it by application)
     };
@@ -235,8 +276,7 @@
         // NOTICE: check attachment for File/Image/Audio/Video message content
         //         before serialize content, this job should be do in subclass
 
-        var json = ns.format.JSON.encode(content);
-        return ns.type.String.from(json).getBytes('UTF-8');
+        return ns.format.JSON.encode(content);
     };
 
     // @override
@@ -251,8 +291,7 @@
         if (is_broadcast_msg.call(this, iMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so no need to encode to Base64 here
-            var str = new ns.type.String(data, 'UTF-8');
-            return str.toString();
+            return ns.format.UTF8.decode(data);
         }
         return ns.format.Base64.encode(data);
     };
@@ -264,8 +303,7 @@
             // broadcast message has no key
             return null;
         }
-        var json = ns.format.JSON.encode(pwd);
-        return ns.type.String.from(json).getBytes('UTF-8');
+        return ns.format.JSON.encode(pwd);
     };
 
     // @override
@@ -292,26 +330,18 @@
 
     // @override
     Transceiver.prototype.decryptKey = function (data, sender, receiver, sMsg) {
-        if (!data) {
-            return null;
-        }
         // decrypt key data with the receiver/group member's private key
         var identifier = sMsg.envelope.receiver;
         identifier = this.entityDelegate.getIdentifier(identifier);
         var user = this.entityDelegate.getUser(identifier);
-        var plaintext = user.decrypt(data);
-        if (!plaintext) {
-            throw Error('failed to decrypt key in msg: ' + sMsg);
-        }
-        return plaintext;
+        return user.decrypt(data);
     };
 
     // @override
     // noinspection JSUnusedLocalSymbols
     Transceiver.prototype.deserializeKey = function (data, sender, receiver, sMsg) {
         if (data) {
-            var str = new ns.type.String(data, 'UTF-8');
-            var dict = ns.format.JSON.decode(str.toString());
+            var dict = ns.format.JSON.decode(data);
             // TODO: translate short keys
             //       'A' -> 'algorithm'
             //       'D' -> 'data'
@@ -332,7 +362,7 @@
         if (is_broadcast_msg.call(this, sMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so return the string data directly
-            return ns.type.String.from(data).getBytes('UTF-8');
+            return ns.format.UTF8.encode(data);
         }
         return ns.format.Base64.decode(data);
     };
@@ -342,20 +372,14 @@
     Transceiver.prototype.decryptContent = function (data, pwd, sMsg) {
         var key = SymmetricKey.getInstance(pwd);
         if (!key) {
-            return null;
+            throw Error('irregular symmetric key: ' + pwd);
         }
-        // decrypt message.data
-        var plaintext = key.decrypt(data);
-        if (!plaintext) {
-            throw Error('failed to decrypt data: ' + pwd);
-        }
-        return plaintext;
+        return key.decrypt(data);
     };
 
     // @override
     Transceiver.prototype.deserializeContent = function (data, pwd, sMsg) {
-        var str = new ns.type.String(data, 'UTF-8');
-        var dict = ns.format.JSON.decode(str.toString());
+        var dict = ns.format.JSON.decode(data);
         // TODO: translate short keys
         //       'T' -> 'type'
         //       'N' -> 'sn'
@@ -388,11 +412,7 @@
     Transceiver.prototype.signData = function (data, sender, sMsg) {
         sender = this.entityDelegate.getIdentifier(sender);
         var user = this.entityDelegate.getUser(sender);
-        if (user) {
-            return user.sign(data);
-        } else {
-            throw Error('failed to get sign key for sender: ' + sMsg);
-        }
+        return user.sign(data);
     };
 
     // @override
@@ -413,11 +433,7 @@
     Transceiver.prototype.verifyDataSignature = function (data, signature, sender, rMsg) {
         sender = this.entityDelegate.getIdentifier(sender);
         var contact = this.entityDelegate.getUser(sender);
-        if (contact) {
-            return contact.verify(data, signature);
-        } else {
-            throw Error('failed to get verify key for sender: ' + rMsg);
-        }
+        return contact.verify(data, signature);
     };
 
 
