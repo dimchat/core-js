@@ -2,7 +2,7 @@
  * DIMP - Decentralized Instant Messaging Protocol (v0.1.0)
  *
  * @author    moKy <albert.moky at gmail.com>
- * @date      Apr. 10, 2020
+ * @date      Apr. 18, 2020
  * @copyright (c) 2020 Albert Moky
  * @license   {@link https://mit-license.org | MIT License}
  */
@@ -3035,10 +3035,11 @@ if (typeof DaoKeDao !== "object") {
     Command.prototype.setCommand = function(name) {
         this.setValue("command", name)
     };
-    Command.HANDSHAKE = "handshake";
-    Command.RECEIPT = "receipt";
     Command.META = "meta";
     Command.PROFILE = "profile";
+    Command.RECEIPT = "receipt";
+    Command.HANDSHAKE = "handshake";
+    Command.LOGIN = "login";
     var command_classes = {};
     Command.register = function(name, clazz) {
         command_classes[name] = clazz
@@ -3185,86 +3186,6 @@ if (typeof DaoKeDao !== "object") {
     Command.register(Command.PROFILE, ProfileCommand);
     ns.protocol.ProfileCommand = ProfileCommand;
     ns.protocol.register("ProfileCommand")
-}(DIMP);
-! function(ns) {
-    var HandshakeState = ns.type.Enum(null, {
-        INIT: 0,
-        START: 1,
-        AGAIN: 2,
-        RESTART: 3,
-        SUCCESS: 4
-    });
-    var Command = ns.protocol.Command;
-    var HandshakeCommand = function(info) {
-        var message = null;
-        if (!info) {
-            info = Command.HANDSHAKE
-        } else {
-            if (typeof info === "string") {
-                message = info;
-                info = Command.HANDSHAKE
-            }
-        }
-        Command.call(this, info);
-        if (message) {
-            this.setMessage(message)
-        }
-    };
-    ns.Class(HandshakeCommand, Command, null);
-    HandshakeCommand.prototype.getMessage = function() {
-        return this.getValue("message")
-    };
-    HandshakeCommand.prototype.setMessage = function(text) {
-        this.setValue("message", text)
-    };
-    HandshakeCommand.prototype.getSessionKey = function() {
-        return this.getValue("session")
-    };
-    HandshakeCommand.prototype.setSessionKey = function(session) {
-        this.setValue("session", session)
-    };
-    HandshakeCommand.prototype.getState = function() {
-        var text = this.getMessage();
-        var session = this.getSessionKey();
-        if (!text) {
-            return HandshakeState.INIT
-        }
-        if (text === "DIM?") {
-            return HandshakeState.AGAIN
-        }
-        if (text === "DIM!" || text === "OK!") {
-            return HandshakeState.SUCCESS
-        }
-        if (session) {
-            return HandshakeState.RESTART
-        } else {
-            return HandshakeState.START
-        }
-    };
-    var handshake = function(text, session) {
-        var cmd = new HandshakeCommand(text);
-        if (session) {
-            cmd.setSessionKey(session)
-        }
-        return cmd
-    };
-    HandshakeCommand.start = function() {
-        return handshake("Hello world!")
-    };
-    HandshakeCommand.restart = function(session) {
-        return handshake("Hello world!", session)
-    };
-    HandshakeCommand.again = function(session) {
-        return handshake("DIM?", session)
-    };
-    HandshakeCommand.success = function() {
-        return handshake("DIM!")
-    };
-    Command.register(Command.HANDSHAKE, HandshakeCommand);
-    ns.protocol.HandshakeCommand = HandshakeCommand;
-    ns.protocol.HandshakeState = HandshakeState;
-    ns.protocol.register("HandshakeCommand");
-    ns.protocol.register("HandshakeState")
 }(DIMP);
 ! function(ns) {
     var Content = ns.Content;

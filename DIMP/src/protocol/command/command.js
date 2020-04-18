@@ -84,10 +84,11 @@
     };
 
     //-------- command names --------
-    Command.HANDSHAKE = 'handshake';
-    Command.RECEIPT   = 'receipt';
     Command.META      = 'meta';
     Command.PROFILE   = 'profile';
+    Command.RECEIPT   = 'receipt';
+    Command.HANDSHAKE = 'handshake';
+    Command.LOGIN     = 'login';
 
     //-------- Runtime --------
     var command_classes = {};

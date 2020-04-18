@@ -49,34 +49,6 @@ core_tests = [];
 !function (ns) {
     'use strict';
 
-    var ContentType = ns.protocol.ContentType;
-
-    var Command = ns.protocol.Command;
-
-    var HandshakeCommand = ns.protocol.HandshakeCommand;
-    var HandshakeState = ns.protocol.HandshakeState;
-
-    var test_command = function () {
-        var cmd = new Command();
-        log('command: ', cmd);
-        assert(ContentType.COMMAND.equals(cmd.type) === true, 'command error');
-    };
-    core_tests.push(test_command);
-
-    var test_handshake = function () {
-        var cmd = HandshakeCommand.start();
-        log('handshake: ', cmd);
-        var state = cmd.getState();
-        log('handshake state: ', state);
-        assert(HandshakeState.START.equals(state) === true, 'handshake command error');
-    };
-    core_tests.push(test_handshake);
-
-}(DIMP);
-
-!function (ns) {
-    'use strict';
-
     var GroupCommand = ns.protocol.GroupCommand;
 
     var InviteCommand = ns.protocol.group.InviteCommand;
