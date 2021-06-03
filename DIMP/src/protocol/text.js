@@ -39,36 +39,39 @@
  *  }
  */
 
-//! require <dkd.js>
+//! require 'namespace.js'
 
-!function (ns) {
+(function (ns) {
     'use strict';
 
-    var Content = ns.Content;
     var ContentType = ns.protocol.ContentType;
+    var Content = ns.protocol.Content;
+    var BaseContent = ns.BaseContent;
 
     /**
      *  Create text message content
      *
-     * @param {{}|String} content
-     * @constructor
+     *  Usages:
+     *      1. new TextContent();
+     *      2. new TextContent(text);
+     *      3. new TextContent(map);
      */
-    var TextContent = function (content) {
-        var text = null;
-        if (!content) {
+    var TextContent = function (info) {
+        if (!info) {
             // create empty text content
-            content = ContentType.TEXT;
-        } else if (typeof content === 'string') {
+            info = {
+                'type': ContentType.TEXT
+            };
+        } else if (typeof info === 'string') {
             // create text content with message string
-            text = content;
-            content = ContentType.TEXT;
+            info = {
+                'type': ContentType.TEXT,
+                'text': info
+            };
         }
-        Content.call(this, content);
-        if (text) {
-            this.setText(text);
-        }
+        BaseContent.call(this, info);
     };
-    ns.Class(TextContent, Content, null);
+    ns.Class(TextContent, BaseContent, null);
 
     //-------- setter/getter --------
 
@@ -88,4 +91,4 @@
 
     ns.protocol.register('TextContent');
 
-}(DIMP);
+})(DIMP);

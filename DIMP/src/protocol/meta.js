@@ -43,48 +43,85 @@
 
 //! require 'command.js'
 
-!function (ns) {
+(function (ns) {
     'use strict';
 
-    var ID = ns.ID;
-    var Meta = ns.Meta;
+    var ID = ns.protocol.ID;
+    var Meta = ns.protocol.Meta;
 
     var Command = ns.protocol.Command;
 
     /**
      *  Create meta command
      *
-     * @param {{}|ID} info - command info; or entity ID
-     * @constructor
+     *  Usages:
+     *      1. new MetaCommand(map);
+     *      2. new MetaCommand(identifier);
+     *      3. new MetaCommand(identifier, meta);
+     *      4. new MetaCommand(command, identifier, meta);
      */
-    var MetaCommand = function (info) {
-        var identifier = null;
-        if (!info) {
-            // create empty meta command
-            info = Command.META;
-        } else if (info instanceof ID) {
-            // create query meta command with entity ID
-            identifier = info;
-            info = Command.META;
+    var MetaCommand = function () {
+        if (arguments.length === 1) {
+            if (arguments[0] instanceof ID) {
+                // new MetaCommand(identifier);
+                Command.call(this, Command.META);
+                this.setIdentifier(arguments[0]);
+            } else {
+                // new MetaCommand(map);
+                Command.call(this, arguments[0]);
+                this.identifier = null;
+            }
+            this.meta = null;
+        } else if (arguments.length === 2) {
+            // new MetaCommand(identifier, meta);
+            Command.call(this, Command.META);
+            this.setIdentifier(arguments[0]);
+            this.setMeta(arguments[1]);
+        } else if (arguments.length === 3) {
+            // new MetaCommand(command, identifier, meta);
+            Command.call(this, arguments[0]);
+            this.setIdentifier(arguments[1]);
+            this.setMeta(arguments[2]);
+        } else {
+            throw SyntaxError('meta command arguments error: ' + arguments);
         }
-        Command.call(this, info);
-        if (identifier) {
-            this.setIdentifier(identifier);
-        }
-        // lazy
-        this.meta = null;
     };
     ns.Class(MetaCommand, Command, null);
+
+    MetaCommand.getIdentifier = function (cmd) {
+        return ID.parse(cmd['ID']);
+    };
+    MetaCommand.setIdentifier = function (identifier, cmd) {
+        if (identifier) {
+            cmd['ID'] = identifier.toString();
+        } else {
+            delete cmd['ID'];
+        }
+    };
+
+    MetaCommand.getMeta = function (cmd) {
+        return Meta.parse(cmd['meta']);
+    };
+    MetaCommand.setMeta = function (meta, cmd) {
+        if (meta) {
+            cmd['meta'] = meta.getMap();
+        } else {
+            delete cmd['meta'];
+        }
+    }
 
     //-------- setter/getter --------
 
     /**
      *  Get entity ID for meta
      *
-     * @returns {ID|String}
+     * @returns {ID}
      */
     MetaCommand.prototype.getIdentifier = function () {
-        return this.getValue('ID');
+        if (!this.identifier) {
+            this.identifier = MetaCommand.getIdentifier(this.getMap());
+        }
+        return this.identifier;
     };
     /**
      *  Set entity ID for meta
@@ -92,7 +129,8 @@
      * @param {ID} identifier
      */
     MetaCommand.prototype.setIdentifier = function (identifier) {
-        this.setValue('ID', identifier);
+        MetaCommand.setIdentifier(identifier, this.getMap());
+        this.identifier = identifier;
     };
 
     /**
@@ -102,8 +140,7 @@
      */
     MetaCommand.prototype.getMeta = function () {
         if (!this.meta) {
-            var dict = this.getValue('meta');
-            this.meta = Meta.getInstance(dict);
+            this.meta = MetaCommand.getMeta(this.getMap());
         }
         return this.meta;
     };
@@ -113,7 +150,7 @@
      * @param {Meta} meta
      */
     MetaCommand.prototype.setMeta = function (meta) {
-        this.setValue('meta', meta);
+        MetaCommand.setMeta(meta, this.getMap());
         this.meta = meta;
     };
 
@@ -136,9 +173,7 @@
      * @returns {MetaCommand}
      */
     MetaCommand.response = function (identifier, meta) {
-        var cmd = new MetaCommand(identifier);
-        cmd.setMeta(meta);
-        return cmd;
+        return new MetaCommand(identifier, meta);
     };
 
     //-------- register --------
@@ -149,4 +184,4 @@
 
     ns.protocol.register('MetaCommand');
 
-}(DIMP);
+})(DIMP);

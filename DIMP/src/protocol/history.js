@@ -31,81 +31,60 @@
 //
 
 /**
- *  Image message: {
- *      type : 0x12,
+ *  History command: {
+ *      type : 0x89,
  *      sn   : 123,
  *
- *      URL      : "http://",      // for encrypted file data from CDN
- *      filename : "photo.png",
- *      thumbnail : "...",         // base64_encode(smallImage)
+ *      command : "...", // command name
+ *      time    : 0,     // command timestamp
+ *      extra   : info   // command parameters
  *  }
  */
 
-//! require <dkd.js>
-//! require 'file.js'
+//! require 'command.js'
 
-!function (ns) {
+(function (ns) {
     'use strict';
 
-    var Base64 = ns.format.Base64;
-
-    var Content = ns.Content;
+    var Content = ns.protocol.Content;
     var ContentType = ns.protocol.ContentType;
-    var FileContent = ns.protocol.FileContent;
+    var Command = ns.protocol.Command;
 
     /**
-     *  Create image content
+     *  Create history command
      *
-     * @param {{}} content
-     * @constructor
+     *  Usages:
+     *      1. new HistoryCommand(map);
+     *      2. new HistoryCommand(cmd);
+     *      3. new HistoryCommand(type, cmd);
      */
-    var ImageContent = function (content) {
-        if (!content) {
-            // create empty image file content
-            content = ContentType.IMAGE;
-        }
-        FileContent.call(this, content);
-        this.thumbnail = null;
-    };
-    ns.Class(ImageContent, FileContent, null);
-
-    //-------- setter/getter --------
-
-    /**
-     *  Get small image data
-     *
-     * @returns {Uint8Array}
-     */
-    ImageContent.prototype.getThumbnail = function () {
-        if (!this.thumbnail) {
-            var base64 = this.getValue('thumbnail');
-            if (base64) {
-                this.thumbnail = Base64.decode(base64);
-            }
-        }
-        return this.thumbnail;
-    };
-    /**
-     *  Set small image data
-     *
-     * @param {Uint8Array} image
-     */
-    ImageContent.prototype.setThumbnail = function (image) {
-        if (image) {
-            var base64 = Base64.encode(image);
-            this.setValue('thumbnail', base64);
+    var HistoryCommand = function () {
+        if (arguments.length === 2) {
+            // new HistoryCommand(type, cmd);
+            Command.call(this, arguments[0], arguments[1]);
+        } else if (typeof arguments[0] === 'string') {
+            // new HistoryCommand(cmd);
+            Command.call(this, ContentType.HISTORY, arguments[0]);
         } else {
-            this.setValue('thumbnail', null);
+            // new HistoryCommand(map);
+            Command.call(this, arguments[0]);
         }
-        this.thumbnail = image;
     };
+    ns.Class(HistoryCommand, Command, null);
+
+    HistoryCommand.register = Command.register;
+
+    //-------- history command names --------
+    // account
+    HistoryCommand.REGISTER = 'register';
+    HistoryCommand.SUICIDE  = 'suicide';
 
     //-------- register --------
-    Content.register(ContentType.IMAGE, ImageContent);
+    Content.register(ContentType.HISTORY, HistoryCommand);
 
     //-------- namespace --------
-    ns.protocol.ImageContent = ImageContent;
+    ns.protocol.HistoryCommand = HistoryCommand;
 
-    ns.protocol.register('ImageContent');
+    ns.protocol.register('HistoryCommand');
 
-}(DIMP);
+})(DIMP);

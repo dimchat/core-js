@@ -31,415 +31,267 @@
 //
 
 //! require 'namespace.js'
-//! require 'cache.js'
-//! require 'barrack.js'
 
-!function (ns) {
+(function (ns) {
     'use strict';
 
-    var SymmetricKey = ns.crypto.SymmetricKey;
-
-    var Content = ns.Content;
-    var Command = ns.protocol.Command;
-
-    var InstantMessage = ns.InstantMessage;
-    var ReliableMessage = ns.ReliableMessage;
-
-    var InstantMessageDelegate = ns.InstantMessageDelegate;
-    var SecureMessageDelegate = ns.SecureMessageDelegate;
-    var ReliableMessageDelegate = ns.ReliableMessageDelegate;
-
-    var Transceiver = function () {
-        this.entityDelegate = null;
-        this.cipherKeyDelegate = null;
-    };
-    ns.Class(Transceiver, ns.type.Object, [InstantMessageDelegate, SecureMessageDelegate, ReliableMessageDelegate]);
-
-    var get_key = function (sender, receiver) {
-        var key = this.cipherKeyDelegate.getCipherKey(sender, receiver);
-        if (!key) {
-            // create new key and cache it
-            key = SymmetricKey.generate(SymmetricKey.AES);
-            this.cipherKeyDelegate.cacheCipherKey(sender, receiver, key);
-        }
-        return key;
-    };
-
-    var is_broadcast_msg = function (msg) {
-        var receiver;
-        if (msg instanceof InstantMessage) {
-            receiver = msg.content.getGroup();
-        } else {
-            receiver = msg.envelope.getGroup();
-        }
-        if (!receiver) {
-            receiver = msg.envelope.receiver;
-        }
-        receiver = this.entityDelegate.getIdentifier(receiver);
-        return receiver && receiver.isBroadcast();
-    };
-
-    //
-    //  Transform
-    //
-
-    var overt_group = function (content, facebook) {
-        var group = content.getGroup();
-        if (group) {
-            group = facebook.getIdentifier(group);
-            if (group.isBroadcast()) {
-                // broadcast message is always overt
-                return group;
-            }
-            if (content instanceof Command) {
-                // group command should be sent to each member directly, so
-                // don't expose group ID
-                return null;
-            }
-        }
-        return group;
-    };
-
-    // noinspection JSUnusedGlobalSymbols
     /**
-     *  Encrypt instant message
-     *
-     * @param {InstantMessage|Message} iMsg
-     * @returns {SecureMessage}
+     *  Cipher Key Delegate
+     *  ~~~~~~~~~~~~~~~~~~~
      */
-    Transceiver.prototype.encryptMessage = function (iMsg) {
-        var sender = this.entityDelegate.getIdentifier(iMsg.envelope.sender);
-        var receiver = this.entityDelegate.getIdentifier(iMsg.envelope.receiver);
-        // if 'group' exists and the 'receiver' is a group ID,
-        // they must be equal
-
-        // NOTICE: while sending group message, don't split it before encrypting.
-        //         this means you could set group ID into message content, but
-        //         keep the "receiver" to be the group ID;
-        //         after encrypted (and signed), you could split the message
-        //         with group members before sending out, or just send it directly
-        //         to the group assistant to let it split messages for you!
-        //    BUT,
-        //         if you don't want to share the symmetric key with other members,
-        //         you could split it (set group ID into message content and
-        //         set contact ID to the "receiver") before encrypting, this usually
-        //         for sending group command to assistant robot, which should not
-        //         share the symmetric key (group msg key) with other members.
-
-        // 1. get symmetric key
-        var group = overt_group(iMsg.content, this.entityDelegate);
-        var password;
-        if (group) {
-            // group message (excludes group command)
-            password = get_key.call(this, sender, group);
-        } else {
-            // personal message or (group) command
-            password = get_key.call(this, sender, receiver);
-        }
-
-        // check message delegate
-        if (!iMsg.delegate) {
-            iMsg.delegate = this;
-        }
-
-        // 2. encrypt 'content' to 'data' for receiver/group members
-        var sMsg;
-        if (receiver.isGroup()) {
-            // group message
-            var members = this.entityDelegate.getMembers(receiver);
-            sMsg = iMsg.encrypt(password, members);
-        } else {
-            // personal message (or split group message)
-            sMsg = iMsg.encrypt(password, null);
-        }
-        if (!sMsg) {
-            // public key for encryption not found
-            // TODO: suspend this message for waiting receiver's meta
-            return null;
-        }
-
-        // overt group ID
-        if (group && !receiver.equals(group)) {
-            // NOTICE: this help the receiver knows the group ID
-            //         when the group message separated to multi-messages,
-            //         if don't want the others know you are the group members,
-            //         remove it.
-            sMsg.envelope.setGroup(group);
-        }
-
-        // NOTICE: copy content type to envelope
-        //         this help the intermediate nodes to recognize message type
-        sMsg.envelope.setType(iMsg.content.type);
-
-        // OK
-        return sMsg;
+    var CipherKeyDelegate = function () {
     };
+    ns.Interface(CipherKeyDelegate, null);
 
-    // noinspection JSUnusedGlobalSymbols
+    // noinspection JSUnusedLocalSymbols
     /**
-     *  Sign secure message
+     *  Get cipher key for encrypt message from 'sender' to 'receiver'
      *
-     * @param {SecureMessage|Message} sMsg
-     * @returns {ReliableMessage}
+     * @param {ID} from          - sender (user or contact ID)
+     * @param {ID} to            - receiver (contact or user/group ID)
+     * @param {boolean} generate - generate when key not exists
+     * @returns {SymmetricKey}
      */
-    Transceiver.prototype.signMessage = function (sMsg) {
-        if (!sMsg.delegate) {
-            sMsg.delegate = this;
-        }
-        // sign 'data' by sender
-        return sMsg.sign();
+    CipherKeyDelegate.prototype.getCipherKey = function (from, to, generate) {
+        console.assert(false, 'implement me!');
+        return null;
     };
 
-    // noinspection JSUnusedGlobalSymbols
+    // noinspection JSUnusedLocalSymbols
     /**
-     *  Encode reliable message to JSON string data
+     *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
      *
-     * @param {ReliableMessage} rMsg
-     * @returns {Uint8Array}
+     * @param {ID} from          - sender (user or contact ID)
+     * @param {ID} to            - receiver (contact or user/group ID)
+     * @param {SymmetricKey} key
      */
-    Transceiver.prototype.serializeMessage = function (rMsg) {
-        return ns.format.JSON.encode(rMsg);
+    CipherKeyDelegate.prototype.cacheCipherKey = function (from, to, key) {
+        console.assert(false, 'implement me!');
     };
-
-    // noinspection JSUnusedGlobalSymbols
-    /**
-     *  Decode reliable message from JSON string data
-     *
-     * @param {Uint8Array} data
-     * @returns {ReliableMessage}
-     */
-    Transceiver.prototype.deserializeMessage = function (data) {
-        var dict = ns.format.JSON.decode(data);
-        // TODO: translate short keys
-        //       'S' -> 'sender'
-        //       'R' -> 'receiver'
-        //       'W' -> 'time'
-        //       'T' -> 'type'
-        //       'G' -> 'group'
-        //       ------------------
-        //       'D' -> 'data'
-        //       'V' -> 'signature'
-        //       'K' -> 'key'
-        //       ------------------
-        //       'M' -> 'meta'
-        return ReliableMessage.getInstance(dict);
-    };
-
-    // noinspection JSUnusedGlobalSymbols
-    /**
-     *  Verify reliable message
-     *
-     * @param {ReliableMessage|Message} rMsg
-     * @returns {SecureMessage}
-     */
-    Transceiver.prototype.verifyMessage = function (rMsg) {
-        //
-        //  TODO: check [Meta Protocol]
-        //        make sure the sender's meta exists
-        //        (do in by application)
-        //
-        if (!rMsg.delegate) {
-            rMsg.delegate = this;
-        }
-        // verify 'data' with 'signature'
-        return rMsg.verify();
-    };
-
-    // noinspection JSUnusedGlobalSymbols
-    /**
-     *  Decrypt secure message
-     *
-     * @param {SecureMessage|Message} sMsg
-     * @returns {InstantMessage}
-     */
-    Transceiver.prototype.decryptMessage = function (sMsg) {
-        //
-        //  NOTICE: make sure the receiver is YOU!
-        //          which means the receiver's private key exists;
-        //          if the receiver is a group ID, split it first
-        //
-        if (!sMsg.delegate) {
-            sMsg.delegate = this;
-        }
-        // decrypt 'data' to 'content'
-        return sMsg.decrypt();
-
-        // TODO: check top-secret message
-        //       (do it by application)
-    };
-
-    //-------- InstantMessageDelegate --------
-
-    // @override
-    // noinspection JSUnusedLocalSymbols
-    Transceiver.prototype.serializeContent = function (content, pwd, iMsg) {
-        // NOTICE: check attachment for File/Image/Audio/Video message content
-        //         before serialize content, this job should be do in subclass
-
-        return ns.format.JSON.encode(content);
-    };
-
-    // @override
-    // noinspection JSUnusedLocalSymbols
-    Transceiver.prototype.encryptContent = function (data, pwd, iMsg) {
-        var key = SymmetricKey.getInstance(pwd);
-        return key.encrypt(data);
-    };
-
-    // @override
-    Transceiver.prototype.encodeData = function (data, iMsg) {
-        if (is_broadcast_msg.call(this, iMsg)) {
-            // broadcast message content will not be encrypted (just encoded to JsON),
-            // so no need to encode to Base64 here
-            return ns.format.UTF8.decode(data);
-        }
-        return ns.format.Base64.encode(data);
-    };
-
-    // @override
-    // noinspection JSUnusedLocalSymbols
-    Transceiver.prototype.serializeKey = function (pwd, iMsg) {
-        if (is_broadcast_msg.call(this, iMsg)) {
-            // broadcast message has no key
-            return null;
-        }
-        return ns.format.JSON.encode(pwd);
-    };
-
-    // @override
-    Transceiver.prototype.encryptKey = function (data, receiver, iMsg) {
-        // encrypt with receiver's public key
-        receiver = this.entityDelegate.getIdentifier(receiver);
-        var contact = this.entityDelegate.getUser(receiver);
-        return contact.encrypt(data);
-    };
-
-    // @override
-    // noinspection JSUnusedLocalSymbols
-    Transceiver.prototype.encodeKey = function (key, iMsg) {
-        return ns.format.Base64.encode(key);
-    };
-
-    //-------- SecureMessageDelegate --------
-
-    // @override
-    // noinspection JSUnusedLocalSymbols
-    Transceiver.prototype.decodeKey = function (key, sMsg) {
-        return ns.format.Base64.decode(key);
-    };
-
-    // @override
-    Transceiver.prototype.decryptKey = function (data, sender, receiver, sMsg) {
-        // decrypt key data with the receiver/group member's private key
-        var identifier = sMsg.envelope.receiver;
-        identifier = this.entityDelegate.getIdentifier(identifier);
-        var user = this.entityDelegate.getUser(identifier);
-        return user.decrypt(data);
-    };
-
-    // @override
-    // noinspection JSUnusedLocalSymbols
-    Transceiver.prototype.deserializeKey = function (data, sender, receiver, sMsg) {
-        if (data) {
-            var dict = ns.format.JSON.decode(data);
-            // TODO: translate short keys
-            //       'A' -> 'algorithm'
-            //       'D' -> 'data'
-            //       'V' -> 'iv'
-            //       'M' -> 'mode'
-            //       'P' -> 'padding'
-            return SymmetricKey.getInstance(dict);
-        } else {
-            // get key from cache
-            sender = this.entityDelegate.getIdentifier(sender);
-            receiver = this.entityDelegate.getIdentifier(receiver);
-            return this.cipherKeyDelegate.getCipherKey(sender, receiver);
-        }
-    };
-
-    // @override
-    Transceiver.prototype.decodeData = function (data, sMsg) {
-        if (is_broadcast_msg.call(this, sMsg)) {
-            // broadcast message content will not be encrypted (just encoded to JsON),
-            // so return the string data directly
-            return ns.format.UTF8.encode(data);
-        }
-        return ns.format.Base64.decode(data);
-    };
-
-    // @override
-    // noinspection JSUnusedLocalSymbols
-    Transceiver.prototype.decryptContent = function (data, pwd, sMsg) {
-        var key = SymmetricKey.getInstance(pwd);
-        if (!key) {
-            throw Error('irregular symmetric key: ' + pwd);
-        }
-        return key.decrypt(data);
-    };
-
-    // @override
-    Transceiver.prototype.deserializeContent = function (data, pwd, sMsg) {
-        var dict = ns.format.JSON.decode(data);
-        // TODO: translate short keys
-        //       'T' -> 'type'
-        //       'N' -> 'sn'
-        //       'G' -> 'group'
-        var content = Content.getInstance(dict);
-
-        if (!is_broadcast_msg.call(this, sMsg)) {
-            var key = SymmetricKey.getInstance(pwd);
-            // check and cache key for reuse
-            var sender = this.entityDelegate.getIdentifier(sMsg.envelope.sender);
-            var group = overt_group(content, this.entityDelegate);
-            if (group) {
-                // group message (excludes group command)
-                // cache the key with direction (sender -> group)
-                this.cipherKeyDelegate.cacheCipherKey(sender, group, key);
-            } else {
-                var receiver = this.entityDelegate.getIdentifier(sMsg.envelope.receiver);
-                // personal message or (group) command
-                // cache key with direction (sender -> receiver)
-                this.cipherKeyDelegate.cacheCipherKey(sender, receiver, key);
-            }
-        }
-
-        // NOTICE: check attachment for File/Image/Audio/Video message content
-        //         after deserialize content, this job should be do in subclass
-        return content;
-    };
-
-    // @override
-    Transceiver.prototype.signData = function (data, sender, sMsg) {
-        sender = this.entityDelegate.getIdentifier(sender);
-        var user = this.entityDelegate.getUser(sender);
-        return user.sign(data);
-    };
-
-    // @override
-    // noinspection JSUnusedLocalSymbols
-    Transceiver.prototype.encodeSignature = function (signature, sMsg) {
-        return ns.format.Base64.encode(signature);
-    };
-
-    //-------- ReliableMessageDelegate --------
-
-    // @override
-    // noinspection JSUnusedLocalSymbols
-    Transceiver.prototype.decodeSignature = function (signature, rMsg) {
-        return ns.format.Base64.decode(signature);
-    };
-
-    // @override
-    Transceiver.prototype.verifyDataSignature = function (data, signature, sender, rMsg) {
-        sender = this.entityDelegate.getIdentifier(sender);
-        var contact = this.entityDelegate.getUser(sender);
-        return contact.verify(data, signature);
-    };
-
 
     //-------- namespace --------
-    ns.core.Transceiver = Transceiver;
+    ns.CipherKeyDelegate = CipherKeyDelegate;
 
-    ns.core.register('Transceiver');
+    ns.register('CipherKeyDelegate');
 
-}(DIMP);
+})(DIMP);
+
+(function (ns) {
+    'use strict';
+
+    /**
+     *  Message Packer
+     *  ~~~~~~~~~~~~~~
+     */
+    var Packer = function () {
+    };
+    ns.Interface(Packer, null);
+
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Get group ID which should be exposed to public network
+     *
+     * @param {Content} content - message content
+     * @return {ID} exposed group ID
+     */
+    Packer.prototype.getOvertGroup = function (content) {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+
+    //
+    //  InstantMessage -> SecureMessage -> ReliableMessage -> Data
+    //
+
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Encrypt message content
+     *
+     * @param {InstantMessage} iMsg - plain message
+     * @return {SecureMessage} encrypted message
+     */
+    Packer.prototype.encryptMessage = function (iMsg) {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Sign content data
+     *
+     * @param {SecureMessage} sMsg - encrypted message
+     * @return {ReliableMessage} network message
+     */
+    Packer.prototype.signMessage = function (sMsg) {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Serialize network message
+     *
+     * @param {ReliableMessage} rMsg - network message
+     * @return {Uint8Array} data package
+     */
+    Packer.prototype.serializeMessage = function (rMsg) {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+
+    //
+    //  Data -> ReliableMessage -> SecureMessage -> InstantMessage
+    //
+
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Deserialize network message
+     *
+     * @param {Uint8Array} data - data package
+     * @return {ReliableMessage} network message
+     */
+    Packer.prototype.deserializeMessage = function (data) {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Verify encrypted content data
+     *
+     * @param {ReliableMessage} rMsg - network message
+     * @return {SecureMessage} encrypted message
+     */
+    Packer.prototype.verifyMessage = function (rMsg) {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Decrypt message content
+     *
+     * @param {SecureMessage} sMsg - encrypted message
+     * @return {InstantMessage} plain message
+     */
+    Packer.prototype.decryptMessage = function (sMsg) {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+
+//     //-------- namespace --------
+//     ns.Packer = Packer;
+//
+//     ns.register('Packer');
+//
+// })(DIMP);
+//
+// (function (ns) {
+//     'use strict';
+
+    /**
+     *  Message Processor
+     *  ~~~~~~~~~~~~~~~~~
+     */
+    var Processor = function () {
+    };
+    ns.Interface(Processor, null);
+
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Process data package
+     *
+     * @param {Uint8Array} data - data to be processed
+     * @return {Uint8Array} response data
+     */
+    Processor.prototype.processData = function (data) {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Process network message
+     *
+     * @param {ReliableMessage} rMsg - message to be processed
+     * @return {ReliableMessage} response message
+     */
+    Processor.prototype.processReliableMessage = function (rMsg) {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Process encrypted message
+     *
+     * @param {SecureMessage} sMsg - message to be processed
+     * @param {ReliableMessage} rMsg - message received
+     * @return {SecureMessage} response message
+     */
+    Processor.prototype.processSecureMessage = function (sMsg, rMsg) {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Process plain message
+     *
+     * @param {InstantMessage} iMsg - message to be processed
+     * @param {ReliableMessage} rMsg - message received
+     * @return {InstantMessage} response message
+     */
+    Processor.prototype.processInstantMessage = function (iMsg, rMsg) {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Process message content
+     *
+     * @param {Content} content - content to be processed
+     * @param {ReliableMessage} rMsg - message received
+     * @return {Content} response content
+     */
+    Processor.prototype.processContent = function (content, rMsg) {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+
+//     //-------- namespace --------
+//     ns.Processor = Processor;
+//
+//     ns.register('Processor');
+//
+// })(DIMP);
+//
+// (function (ns) {
+//     'use strict';
+//
+//     var Packer = ns.Packer;
+//     var Processor = ns.Processor;
+
+    var Message = ns.protocol.Message;
+
+    var Entity = ns.Entity;
+    var CipherKeyDelegate = ns.CipherKeyDelegate;
+
+    /**
+     *  Message Transceiver
+     *  ~~~~~~~~~~~~~~~~~~~
+     */
+    var Transceiver = function () {
+    };
+    ns.Interface(Transceiver, [Entity.Delegate, CipherKeyDelegate, Message.Delegate, Packer, Processor]);
+
+    Transceiver.Packer = Packer;
+    Transceiver.Processor = Processor;
+
+    //-------- namespace --------
+    ns.Transceiver = Transceiver;
+
+    ns.register('Transceiver');
+
+})(DIMP);

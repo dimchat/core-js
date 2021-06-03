@@ -42,59 +42,118 @@
  *  }
  */
 
-//! require <dkd.js>
+//! require 'namespace.js'
 
-!function (ns) {
+(function (ns) {
     'use strict';
 
-    var Content = ns.Content;
     var ContentType = ns.protocol.ContentType;
+    var Content = ns.protocol.Content;
+    var BaseContent = ns.BaseContent;
 
     /**
      *  Create web page message content
      *
-     * @param {{}|String} content
-     * @constructor
+     *  Usages:
+     *      1. new PageContent(map);
+     *      2. new PageContent(url, title, desc, icon);
      */
-    var PageContent = function (content) {
-        var url = null;
-        if (!content) {
-            // create empty web page content
-            content = ContentType.PAGE;
-        } else if (typeof content === 'string') {
-            // create web page content with URL
-            url = content;
-            content = ContentType.PAGE;
+    var PageContent = function () {
+        var url, title, desc, icon;
+        var content;
+        if (arguments.length === 1) {
+            // new PageContent(map);
+            content = arguments[0];
+            icon = PageContent.getIcon(content);
+        } else if (arguments.length === 4) {
+            // new PageContent(url, title, desc, icon);
+            content = {
+                'type': ContentType.PAGE
+            }
+            url = arguments[0];
+            title = arguments[1];
+            desc = arguments[2];
+            icon = arguments[3];
+            PageContent.setURL(url, content);
+            PageContent.setTitle(title, content);
+            PageContent.setDesc(desc, content);
+            PageContent.setIcon(icon, content);
         }
-        Content.call(this, content);
-        if (url) {
-            this.setURL(url);
-        }
-        this.icon = null;
+        BaseContent.call(this, content);
+        this.icon = icon;
     };
-    ns.Class(PageContent, Content, null);
+    ns.Class(PageContent, BaseContent, null);
+
+    PageContent.getURL = function (content) {
+        return content['URL'];
+    };
+    PageContent.setURL = function (url, content) {
+        if (url && url.indexOf('://') > 0) {
+            content['URL'] = url;
+        } else {
+            delete content['URL'];
+        }
+    };
+
+    PageContent.getTitle = function (content) {
+        return content['title'];
+    };
+    PageContent.setTitle = function (title, content) {
+        if (title && title.length > 0) {
+            content['title'] = title;
+        } else {
+            delete content['title'];
+        }
+    };
+
+    PageContent.getDesc = function (content) {
+        return content['desc'];
+    };
+    PageContent.setDesc = function (text, content) {
+        if (text && text.length > 0) {
+            content['desc'] = text;
+        } else {
+            delete content['desc'];
+        }
+    };
+
+    PageContent.getIcon = function (content) {
+        var base64 = content['icon'];
+        if (base64 && base64.length > 0) {
+            return ns.format.Base64.decode(base64);
+        } else {
+            return null;
+        }
+    };
+    PageContent.setIcon = function (image, content) {
+        if (image && image.length > 0) {
+            content['icon'] = ns.format.Base64.encode(image);
+        } else {
+            delete content['icon'];
+        }
+    };
 
     //-------- setter/getter --------
 
     PageContent.prototype.getURL = function () {
-        return this.getValue('URL');
+        return PageContent.getURL(this.getMap());
     };
     PageContent.prototype.setURL = function (url) {
-        this.setValue('URL', url);
+        PageContent.setURL(url, this.getMap());
     };
 
     PageContent.prototype.getTitle = function () {
-        return this.getValue('title');
+        return PageContent.getTitle(this.getMap());
     };
-    PageContent.prototype.setTitle = function (text) {
-        this.setValue('title', text);
+    PageContent.prototype.setTitle = function (title) {
+        PageContent.setTitle(title, this.getMap());
     };
 
     PageContent.prototype.getDesc = function () {
-        return this.getValue('desc');
+        return PageContent.getDesc(this.getMap());
     };
     PageContent.prototype.setDesc = function (text) {
-        this.setValue('desc', text);
+        PageContent.setDesc(text, this.getMap());
     };
 
     /**
@@ -104,25 +163,18 @@
      */
     PageContent.prototype.getIcon = function () {
         if (!this.icon) {
-            var base64 = this.getValue('icon');
-            if (base64) {
-                this.icon = ns.format.Base64.decode(base64);
-            }
+            this.icon = PageContent.getIcon(this.getMap());
         }
         return this.icon;
     };
     /**
      *  Set small image data
      *
-     * @param {Uint8Array} data
+     * @param {Uint8Array} image
      */
-    PageContent.prototype.setIcon = function (data) {
-        var base64 = null;
-        if (data) {
-            base64 = ns.format.Base64.encode(data);
-        }
-        this.setValue('icon', base64);
-        this.icon = data;
+    PageContent.prototype.setIcon = function (image) {
+        PageContent.setIcon(image, this.getMap());
+        this.icon = image;
     };
 
     //-------- register --------
@@ -133,4 +185,4 @@
 
     ns.protocol.register('PageContent');
 
-}(DIMP);
+})(DIMP);

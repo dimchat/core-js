@@ -34,13 +34,11 @@
 //! require <dkd.js>
 //! require <mkm.js>
 
-!function (ns) {
+(function (ns, base) {
     'use strict';
 
     // exports namespace from DaoKeDao
-    DaoKeDao.exports(ns);
-    // exports namespace from MingKeMing
-    MingKeMing.exports(ns);
+    base.exports(ns);
 
     //-------- namespace --------
     if (typeof ns.protocol !== 'object') {
@@ -61,4 +59,4 @@
     ns.register('plugins');
     ns.register('core');
 
-}(DIMP);
+})(DIMP, DaoKeDao);
