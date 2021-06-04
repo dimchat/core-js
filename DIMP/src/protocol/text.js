@@ -45,7 +45,6 @@
     'use strict';
 
     var ContentType = ns.protocol.ContentType;
-    var Content = ns.protocol.Content;
     var BaseContent = ns.BaseContent;
 
     /**
@@ -56,20 +55,18 @@
      *      2. new TextContent(text);
      *      3. new TextContent(map);
      */
-    var TextContent = function (info) {
-        if (!info) {
-            // create empty text content
-            info = {
-                'type': ContentType.TEXT
-            };
-        } else if (typeof info === 'string') {
-            // create text content with message string
-            info = {
-                'type': ContentType.TEXT,
-                'text': info
-            };
+    var TextContent = function () {
+        if (arguments.length === 0) {
+            // new TextContent();
+            BaseContent.call(this, ContentType.TEXT);
+        } else if (typeof arguments[0] === 'string') {
+            // new TextContent(text);
+            BaseContent.call(this, ContentType.TEXT);
+            this.setText(arguments[0]);
+        } else {
+            // new TextContent(map);
+            BaseContent.call(this, arguments[0]);
         }
-        BaseContent.call(this, info);
     };
     ns.Class(TextContent, BaseContent, null);
 
@@ -82,9 +79,6 @@
     TextContent.prototype.setText = function (text) {
         this.setValue('text', text);
     };
-
-    //-------- register --------
-    Content.register(ContentType.TEXT, TextContent);
 
     //-------- namespace --------
     ns.protocol.TextContent = TextContent;

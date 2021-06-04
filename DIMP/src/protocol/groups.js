@@ -54,7 +54,7 @@
     //
     //  Invite group command
     //
-    var InviteCommand = function (info) {
+    var InviteCommand = function () {
         if (arguments.length === 1) {
             // new InviteCommand(map);
             GroupCommand.call(this, arguments[0]);
@@ -69,7 +69,7 @@
     //
     //  Expel group command
     //
-    var ExpelCommand = function (info) {
+    var ExpelCommand = function () {
         if (arguments.length === 1) {
             // new ExpelCommand(map);
             GroupCommand.call(this, arguments[0]);
@@ -84,7 +84,7 @@
     //
     //  Join group command
     //
-    var JoinCommand = function (info) {
+    var JoinCommand = function () {
         if (arguments[0] instanceof ID) {
             // new JoinCommand(group);
             GroupCommand.call(this, GroupCommand.JOIN, arguments[0]);
@@ -98,7 +98,7 @@
     //
     //  Quit group command
     //
-    var QuitCommand = function (info) {
+    var QuitCommand = function () {
         if (arguments[0] instanceof ID) {
             // new QuitCommand(group);
             GroupCommand.call(this, GroupCommand.QUIT, arguments[0]);
@@ -112,7 +112,7 @@
     //
     //  Reset group command
     //
-    var ResetCommand = function (info) {
+    var ResetCommand = function () {
         if (arguments.length === 1) {
             // new ResetCommand(map);
             GroupCommand.call(this, arguments[0]);

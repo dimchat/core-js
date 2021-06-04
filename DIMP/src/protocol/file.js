@@ -50,7 +50,6 @@
     var SymmetricKey = ns.crypto.SymmetricKey;
 
     var ContentType = ns.protocol.ContentType;
-    var Content = ns.protocol.Content;
     var BaseContent = ns.BaseContent;
 
     /**
@@ -206,9 +205,6 @@
         FileContent.setPassword(key, this.getMap());
         this.password = key;
     };
-
-    //-------- register --------
-    Content.register(ContentType.FILE, FileContent);
 
     //-------- namespace --------
     ns.protocol.FileContent = FileContent;

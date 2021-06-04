@@ -176,9 +176,6 @@
         return new MetaCommand(identifier, meta);
     };
 
-    //-------- register --------
-    Command.register(Command.META, MetaCommand);
-
     //-------- namespace --------
     ns.protocol.MetaCommand = MetaCommand;
 

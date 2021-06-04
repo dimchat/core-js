@@ -44,16 +44,16 @@
     var InstantMessage = ns.protocol.InstantMessage;
     var Transceiver = ns.Transceiver;
 
-    var Processor = function (transceiver) {
+    var CoreProcessor = function (transceiver) {
         this.transceiver = transceiver;
     };
-    ns.Class(Processor, ns.type.Object, [Transceiver.Processor]);
+    ns.Class(CoreProcessor, ns.type.Object, [Transceiver.Processor]);
 
-    Processor.prototype.getTransceiver = function () {
+    CoreProcessor.prototype.getTransceiver = function () {
         return this.transceiver;
     };
 
-    Processor.prototype.processData = function (data) {
+    CoreProcessor.prototype.processData = function (data) {
         var transceiver = this.getTransceiver();
         // 1. deserialize message
         var rMsg = transceiver.deserializeMessage(data);
@@ -71,7 +71,7 @@
         return transceiver.serializeMessage(rMsg);
     };
 
-    Processor.prototype.processReliableMessage = function (rMsg) {
+    CoreProcessor.prototype.processReliableMessage = function (rMsg) {
         var transceiver = this.getTransceiver();
         // TODO: override to check broadcast message before calling it
         // 1. verify message
@@ -91,7 +91,7 @@
         // TODO: override to deliver to the receiver when catch exception "receiver error ..."
     };
 
-    Processor.prototype.processSecureMessage = function (sMsg, rMsg) {
+    CoreProcessor.prototype.processSecureMessage = function (sMsg, rMsg) {
         var transceiver = this.getTransceiver();
         // 1. decrypt message
         var iMsg = transceiver.decryptMessage(sMsg);
@@ -110,7 +110,7 @@
         return transceiver.encryptMessage(iMsg);
     };
 
-    Processor.prototype.processInstantMessage = function (iMsg, rMsg) {
+    CoreProcessor.prototype.processInstantMessage = function (iMsg, rMsg) {
         var transceiver = this.getTransceiver();
         // 1. process content
         var response = transceiver.processContent(iMsg.getContent(), rMsg);
@@ -129,13 +129,13 @@
         return InstantMessage.create(env, response);
     };
 
-    // Processor.prototype.processContent = function (content, rMsg) {
+    // CoreProcessor.prototype.processContent = function (content, rMsg) {
     //     console.assert(false, 'implement me!');
     //     return null;
     // };
 
     //-------- namespace --------
-    ns.core.Processor = Processor;
+    ns.core.Processor = CoreProcessor;
 
     ns.core.register('Processor');
 

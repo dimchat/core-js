@@ -46,7 +46,6 @@
 (function (ns) {
     'use strict';
 
-    var Content = ns.protocol.Content;
     var ContentType = ns.protocol.ContentType;
     var FileContent = ns.protocol.FileContent;
 
@@ -58,7 +57,7 @@
      *      2. new ImageContent(map);
      *      3. new ImageContent(filename, data);
      */
-    var ImageContent = function (content) {
+    var ImageContent = function () {
         if (arguments.length === 0) {
             // new ImageContent();
             FileContent.call(this, ContentType.IMAGE);
@@ -114,9 +113,6 @@
         this.thumbnail = image;
     };
 
-    //-------- register --------
-    Content.register(ContentType.IMAGE, ImageContent);
-
     //-------- namespace --------
     ns.protocol.ImageContent = ImageContent;
 
@@ -138,7 +134,6 @@
 (function (ns) {
     'use strict';
 
-    var Content = ns.protocol.Content;
     var ContentType = ns.protocol.ContentType;
     var FileContent = ns.protocol.FileContent;
 
@@ -206,9 +201,6 @@
         this.snapshot = image;
     };
 
-    //-------- register --------
-    Content.register(ContentType.VIDEO, VideoContent);
-
     //-------- namespace --------
     ns.protocol.VideoContent = VideoContent;
 
@@ -231,7 +223,6 @@
 (function (ns) {
     'use strict';
 
-    var Content = ns.protocol.Content;
     var ContentType = ns.protocol.ContentType;
     var FileContent = ns.protocol.FileContent;
 
@@ -277,9 +268,6 @@
     AudioContent.prototype.setText = function (asr) {
         this.setValue('text', asr);
     };
-
-    //-------- register --------
-    Content.register(ContentType.AUDIO, AudioContent);
 
     //-------- namespace --------
     ns.protocol.AudioContent = AudioContent;

@@ -102,16 +102,16 @@
     //
 
     var cacheUser = function (user) {
-        if (!user.getDelegate()) {
-            user.setDelegate(this);
+        if (!user.getDataSource()) {
+            user.setDataSource(this);
         }
         this.userMap[user.identifier.toString()] = user;
         return true;
     };
 
     var cacheGroup = function (group) {
-        if (!group.getDelegate()) {
-            group.setDelegate(this);
+        if (!group.getDataSource()) {
+            group.setDataSource(this);
         }
         this.groupMap[group.identifier.toString()] = group;
         return true;

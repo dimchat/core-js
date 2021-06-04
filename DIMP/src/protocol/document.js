@@ -205,10 +205,6 @@
         return new DocumentCommand(identifier, meta, doc);
     };
 
-    //-------- register --------
-    Command.register(Command.DOCUMENT, DocumentCommand);
-    Command.register(Command.PROFILE, DocumentCommand);
-
     //-------- namespace --------
     ns.protocol.DocumentCommand = DocumentCommand;
 

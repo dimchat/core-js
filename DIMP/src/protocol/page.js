@@ -48,7 +48,6 @@
     'use strict';
 
     var ContentType = ns.protocol.ContentType;
-    var Content = ns.protocol.Content;
     var BaseContent = ns.BaseContent;
 
     /**
@@ -59,28 +58,20 @@
      *      2. new PageContent(url, title, desc, icon);
      */
     var PageContent = function () {
-        var url, title, desc, icon;
-        var content;
         if (arguments.length === 1) {
             // new PageContent(map);
-            content = arguments[0];
-            icon = PageContent.getIcon(content);
+            BaseContent.call(this, arguments[0]);
+            this.icon = null;
         } else if (arguments.length === 4) {
             // new PageContent(url, title, desc, icon);
-            content = {
-                'type': ContentType.PAGE
-            }
-            url = arguments[0];
-            title = arguments[1];
-            desc = arguments[2];
-            icon = arguments[3];
-            PageContent.setURL(url, content);
-            PageContent.setTitle(title, content);
-            PageContent.setDesc(desc, content);
-            PageContent.setIcon(icon, content);
+            BaseContent.call(this, ContentType.PAGE);
+            this.setURL(arguments[0]);
+            this.setTitle(arguments[1]);
+            this.setDesc(arguments[2]);
+            this.setIcon(arguments[3]);
+        } else {
+            throw SyntaxError('web page content arguments error: ' + arguments);
         }
-        BaseContent.call(this, content);
-        this.icon = icon;
     };
     ns.Class(PageContent, BaseContent, null);
 
@@ -176,9 +167,6 @@
         PageContent.setIcon(image, this.getMap());
         this.icon = image;
     };
-
-    //-------- register --------
-    Content.register(ContentType.PAGE, PageContent);
 
     //-------- namespace --------
     ns.protocol.PageContent = PageContent;

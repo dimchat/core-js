@@ -27,28 +27,20 @@
 (function(ns) {
     var ReliableMessage = ns.protocol.ReliableMessage;
     var ContentType = ns.protocol.ContentType;
-    var Content = ns.protocol.Content;
     var BaseContent = ns.BaseContent;
-    var ForwardContent = function(info) {
-        var secret;
-        if (!info) {
-            secret = null;
-            info = {
-                "type": ContentType.FORWARD
-            }
+    var ForwardContent = function() {
+        if (arguments.length === 0) {
+            BaseContent.call(this, ContentType.FORWARD);
+            this.forward = null
         } else {
-            if (info instanceof ReliableMessage) {
-                secret = info;
-                info = {
-                    "type": ContentType.FORWARD
-                };
-                ForwardContent.setMessage(secret, info)
+            if (arguments[0] instanceof ReliableMessage) {
+                BaseContent.call(this, ContentType.FORWARD);
+                this.setMessage(arguments[0])
             } else {
-                secret = null
+                BaseContent.call(this, arguments[0]);
+                this.forward = null
             }
         }
-        BaseContent.call(this, info);
-        this.forward = secret
     };
     ns.Class(ForwardContent, BaseContent, null);
     ForwardContent.getMessage = function(content) {
@@ -76,14 +68,12 @@
         ForwardContent.setMessage(secret, this.getMap());
         this.forward = secret
     };
-    Content.register(ContentType.FORWARD, ForwardContent);
     ns.protocol.ForwardContent = ForwardContent;
     ns.protocol.register("ForwardContent")
 })(DaoKeDao);
 (function(ns) {
     var SymmetricKey = ns.crypto.SymmetricKey;
     var ContentType = ns.protocol.ContentType;
-    var Content = ns.protocol.Content;
     var BaseContent = ns.BaseContent;
     var FileContent = function() {
         if (arguments.length === 0) {
@@ -200,15 +190,13 @@
         FileContent.setPassword(key, this.getMap());
         this.password = key
     };
-    Content.register(ContentType.FILE, FileContent);
     ns.protocol.FileContent = FileContent;
     ns.protocol.register("FileContent")
 })(DIMP);
 (function(ns) {
-    var Content = ns.protocol.Content;
     var ContentType = ns.protocol.ContentType;
     var FileContent = ns.protocol.FileContent;
-    var ImageContent = function(content) {
+    var ImageContent = function() {
         if (arguments.length === 0) {
             FileContent.call(this, ContentType.IMAGE)
         } else {
@@ -250,12 +238,10 @@
         ImageContent.setThumbnail(image, this.getMap());
         this.thumbnail = image
     };
-    Content.register(ContentType.IMAGE, ImageContent);
     ns.protocol.ImageContent = ImageContent;
     ns.protocol.register("ImageContent")
 })(DIMP);
 (function(ns) {
-    var Content = ns.protocol.Content;
     var ContentType = ns.protocol.ContentType;
     var FileContent = ns.protocol.FileContent;
     var VideoContent = function() {
@@ -300,12 +286,10 @@
         VideoContent.setSnapshot(image, this.getMap());
         this.snapshot = image
     };
-    Content.register(ContentType.VIDEO, VideoContent);
     ns.protocol.VideoContent = VideoContent;
     ns.protocol.register("VideoContent")
 })(DIMP);
 (function(ns) {
-    var Content = ns.protocol.Content;
     var ContentType = ns.protocol.ContentType;
     var FileContent = ns.protocol.FileContent;
     var AudioContent = function() {
@@ -330,28 +314,23 @@
     AudioContent.prototype.setText = function(asr) {
         this.setValue("text", asr)
     };
-    Content.register(ContentType.AUDIO, AudioContent);
     ns.protocol.AudioContent = AudioContent;
     ns.protocol.register("AudioContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
-    var Content = ns.protocol.Content;
     var BaseContent = ns.BaseContent;
-    var TextContent = function(info) {
-        if (!info) {
-            info = {
-                "type": ContentType.TEXT
-            }
+    var TextContent = function() {
+        if (arguments.length === 0) {
+            BaseContent.call(this, ContentType.TEXT)
         } else {
-            if (typeof info === "string") {
-                info = {
-                    "type": ContentType.TEXT,
-                    "text": info
-                }
+            if (typeof arguments[0] === "string") {
+                BaseContent.call(this, ContentType.TEXT);
+                this.setText(arguments[0])
+            } else {
+                BaseContent.call(this, arguments[0])
             }
         }
-        BaseContent.call(this, info)
     };
     ns.Class(TextContent, BaseContent, null);
     TextContent.prototype.getText = function() {
@@ -360,37 +339,27 @@
     TextContent.prototype.setText = function(text) {
         this.setValue("text", text)
     };
-    Content.register(ContentType.TEXT, TextContent);
     ns.protocol.TextContent = TextContent;
     ns.protocol.register("TextContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
-    var Content = ns.protocol.Content;
     var BaseContent = ns.BaseContent;
     var PageContent = function() {
-        var url, title, desc, icon;
-        var content;
         if (arguments.length === 1) {
-            content = arguments[0];
-            icon = PageContent.getIcon(content)
+            BaseContent.call(this, arguments[0]);
+            this.icon = null
         } else {
             if (arguments.length === 4) {
-                content = {
-                    "type": ContentType.PAGE
-                };
-                url = arguments[0];
-                title = arguments[1];
-                desc = arguments[2];
-                icon = arguments[3];
-                PageContent.setURL(url, content);
-                PageContent.setTitle(title, content);
-                PageContent.setDesc(desc, content);
-                PageContent.setIcon(icon, content)
+                BaseContent.call(this, ContentType.PAGE);
+                this.setURL(arguments[0]);
+                this.setTitle(arguments[1]);
+                this.setDesc(arguments[2]);
+                this.setIcon(arguments[3])
+            } else {
+                throw SyntaxError("web page content arguments error: " + arguments)
             }
         }
-        BaseContent.call(this, content);
-        this.icon = icon
     };
     ns.Class(PageContent, BaseContent, null);
     PageContent.getURL = function(content) {
@@ -466,13 +435,11 @@
         PageContent.setIcon(image, this.getMap());
         this.icon = image
     };
-    Content.register(ContentType.PAGE, PageContent);
     ns.protocol.PageContent = PageContent;
     ns.protocol.register("PageContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
-    var Content = ns.protocol.Content;
     var BaseContent = ns.BaseContent;
     var MoneyContent = function() {
         if (arguments.length === 3) {
@@ -519,13 +486,11 @@
     MoneyContent.prototype.setAmount = function(amount) {
         MoneyContent.setAmount(amount, this.getMap())
     };
-    Content.register(ContentType.MONEY, MoneyContent);
     ns.protocol.MoneyContent = MoneyContent;
     ns.protocol.register("MoneyContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
-    var Content = ns.protocol.Content;
     var MoneyContent = ns.MoneyContent;
     var TransferContent = function() {
         if (arguments.length === 2) {
@@ -539,35 +504,24 @@
         }
     };
     ns.Class(TransferContent, MoneyContent, null);
-    Content.register(ContentType.TRANSFER, TransferContent);
     ns.protocol.TransferContent = TransferContent;
     ns.protocol.register("TransferContent")
 })(DIMP);
 (function(ns) {
-    var Content = ns.protocol.Content;
     var ContentType = ns.protocol.ContentType;
     var BaseContent = ns.BaseContent;
     var Command = function() {
-        var cmd;
         if (arguments.length === 2) {
-            var type = arguments[0];
-            var name = arguments[1];
-            if (type instanceof ContentType) {
-                type = type.valueOf()
-            }
-            cmd = {
-                "type": type
-            };
-            Command.setCommand(name, cmd)
+            BaseContent.call(this, arguments[0]);
+            this.setCommand(arguments[1])
         } else {
             if (typeof arguments[0] === "string") {
-                cmd = {
-                    "type": ContentType.COMMAND.valueOf()
-                };
-                Command.setCommand(arguments[0], cmd)
+                BaseContent.call(this, ContentType.COMMAND);
+                this.setCommand(arguments[0])
+            } else {
+                BaseContent.call(this, arguments[0])
             }
         }
-        BaseContent.call(this, cmd)
     };
     ns.Class(Command, BaseContent, null);
     Command.getCommand = function(cmd) {
@@ -592,7 +546,6 @@
     Command.RECEIPT = "receipt";
     Command.HANDSHAKE = "handshake";
     Command.LOGIN = "login";
-    Content.register(ContentType.COMMAND, Command);
     ns.protocol.Command = Command;
     ns.protocol.register("Command")
 })(DIMP);
@@ -690,7 +643,6 @@
     MetaCommand.response = function(identifier, meta) {
         return new MetaCommand(identifier, meta)
     };
-    Command.register(Command.META, MetaCommand);
     ns.protocol.MetaCommand = MetaCommand;
     ns.protocol.register("MetaCommand")
 })(DIMP);
@@ -786,13 +738,10 @@
     DocumentCommand.response = function(identifier, meta, doc) {
         return new DocumentCommand(identifier, meta, doc)
     };
-    Command.register(Command.DOCUMENT, DocumentCommand);
-    Command.register(Command.PROFILE, DocumentCommand);
     ns.protocol.DocumentCommand = DocumentCommand;
     ns.protocol.register("DocumentCommand")
 })(DIMP);
 (function(ns) {
-    var Content = ns.protocol.Content;
     var ContentType = ns.protocol.ContentType;
     var Command = ns.protocol.Command;
     var HistoryCommand = function() {
@@ -810,7 +759,6 @@
     HistoryCommand.register = Command.register;
     HistoryCommand.REGISTER = "register";
     HistoryCommand.SUICIDE = "suicide";
-    Content.register(ContentType.HISTORY, HistoryCommand);
     ns.protocol.HistoryCommand = HistoryCommand;
     ns.protocol.register("HistoryCommand")
 })(DIMP);
@@ -909,7 +857,7 @@
 (function(ns) {
     var ID = ns.protocol.ID;
     var GroupCommand = ns.protocol.GroupCommand;
-    var InviteCommand = function(info) {
+    var InviteCommand = function() {
         if (arguments.length === 1) {
             GroupCommand.call(this, arguments[0])
         } else {
@@ -917,7 +865,7 @@
         }
     };
     ns.Class(InviteCommand, GroupCommand, null);
-    var ExpelCommand = function(info) {
+    var ExpelCommand = function() {
         if (arguments.length === 1) {
             GroupCommand.call(this, arguments[0])
         } else {
@@ -925,7 +873,7 @@
         }
     };
     ns.Class(ExpelCommand, GroupCommand, null);
-    var JoinCommand = function(info) {
+    var JoinCommand = function() {
         if (arguments[0] instanceof ID) {
             GroupCommand.call(this, GroupCommand.JOIN, arguments[0])
         } else {
@@ -933,7 +881,7 @@
         }
     };
     ns.Class(JoinCommand, GroupCommand, null);
-    var QuitCommand = function(info) {
+    var QuitCommand = function() {
         if (arguments[0] instanceof ID) {
             GroupCommand.call(this, GroupCommand.QUIT, arguments[0])
         } else {
@@ -941,7 +889,7 @@
         }
     };
     ns.Class(QuitCommand, GroupCommand, null);
-    var ResetCommand = function(info) {
+    var ResetCommand = function() {
         if (arguments.length === 1) {
             GroupCommand.call(this, arguments[0])
         } else {
@@ -1038,6 +986,9 @@
     };
     Entity.prototype.getDataSource = function() {
         return this.datasource
+    };
+    Entity.prototype.setDataSource = function(delegate) {
+        this.datasource = delegate
     };
     Entity.prototype.getMeta = function() {
         return this.getDataSource().getMeta(this.identifier)
@@ -1366,15 +1317,15 @@
         return finger >> 1
     };
     var cacheUser = function(user) {
-        if (!user.getDelegate()) {
-            user.setDelegate(this)
+        if (!user.getDataSource()) {
+            user.setDataSource(this)
         }
         this.userMap[user.identifier.toString()] = user;
         return true
     };
     var cacheGroup = function(group) {
-        if (!group.getDelegate()) {
-            group.setDelegate(this)
+        if (!group.getDataSource()) {
+            group.setDataSource(this)
         }
         this.groupMap[group.identifier.toString()] = group;
         return true
@@ -1573,14 +1524,14 @@
     var Command = ns.protocol.Command;
     var ReliableMessage = ns.protocol.ReliableMessage;
     var Transceiver = ns.Transceiver;
-    var Packer = function(transceiver) {
+    var CorePacker = function(transceiver) {
         this.transceiver = transceiver
     };
-    ns.Class(Packer, ns.type.Object, [Transceiver.Packer]);
-    Packer.prototype.getTransceiver = function() {
+    ns.Class(CorePacker, ns.type.Object, [Transceiver.Packer]);
+    CorePacker.prototype.getTransceiver = function() {
         return this.transceiver
     };
-    Packer.prototype.getOvertGroup = function(content) {
+    CorePacker.prototype.getOvertGroup = function(content) {
         var group = content.getGroup();
         if (!group) {
             return null
@@ -1593,7 +1544,7 @@
         }
         return group
     };
-    Packer.prototype.encryptMessage = function(iMsg) {
+    CorePacker.prototype.encryptMessage = function(iMsg) {
         var transceiver = this.getTransceiver();
         if (!iMsg.getDelegate()) {
             iMsg.setDelegate(transceiver)
@@ -1630,46 +1581,46 @@
         sMsg.getEnvelope().setType(iMsg.getContent().getType());
         return sMsg
     };
-    Packer.prototype.signMessage = function(sMsg) {
+    CorePacker.prototype.signMessage = function(sMsg) {
         if (!sMsg.getDelegate()) {
             sMsg.setDelegate(this.getTransceiver())
         }
         return sMsg.sign()
     };
-    Packer.prototype.serializeMessage = function(rMsg) {
+    CorePacker.prototype.serializeMessage = function(rMsg) {
         return ns.format.JSON.encode(rMsg.getMap())
     };
-    Packer.prototype.deserializeMessage = function(data) {
+    CorePacker.prototype.deserializeMessage = function(data) {
         var dict = ns.format.JSON.decode(data);
         return ReliableMessage.parse(dict)
     };
-    Packer.prototype.verifyMessage = function(rMsg) {
+    CorePacker.prototype.verifyMessage = function(rMsg) {
         if (!rMsg.getDelegate()) {
             rMsg.setDelegate(this.getTransceiver())
         }
         return rMsg.verify()
     };
-    Packer.prototype.decryptMessage = function(sMsg) {
+    CorePacker.prototype.decryptMessage = function(sMsg) {
         if (!sMsg.getDelegate()) {
             sMsg.setDelegate(this.getTransceiver())
         }
         return sMsg.decrypt()
     };
-    ns.core.Packer = Packer;
+    ns.core.Packer = CorePacker;
     ns.core.register("Packer")
 })(DIMP);
 (function(ns) {
     var Envelope = ns.protocol.Envelope;
     var InstantMessage = ns.protocol.InstantMessage;
     var Transceiver = ns.Transceiver;
-    var Processor = function(transceiver) {
+    var CoreProcessor = function(transceiver) {
         this.transceiver = transceiver
     };
-    ns.Class(Processor, ns.type.Object, [Transceiver.Processor]);
-    Processor.prototype.getTransceiver = function() {
+    ns.Class(CoreProcessor, ns.type.Object, [Transceiver.Processor]);
+    CoreProcessor.prototype.getTransceiver = function() {
         return this.transceiver
     };
-    Processor.prototype.processData = function(data) {
+    CoreProcessor.prototype.processData = function(data) {
         var transceiver = this.getTransceiver();
         var rMsg = transceiver.deserializeMessage(data);
         if (rMsg == null) {
@@ -1681,7 +1632,7 @@
         }
         return transceiver.serializeMessage(rMsg)
     };
-    Processor.prototype.processReliableMessage = function(rMsg) {
+    CoreProcessor.prototype.processReliableMessage = function(rMsg) {
         var transceiver = this.getTransceiver();
         var sMsg = transceiver.verifyMessage(rMsg);
         if (sMsg == null) {
@@ -1693,7 +1644,7 @@
         }
         return transceiver.signMessage(sMsg)
     };
-    Processor.prototype.processSecureMessage = function(sMsg, rMsg) {
+    CoreProcessor.prototype.processSecureMessage = function(sMsg, rMsg) {
         var transceiver = this.getTransceiver();
         var iMsg = transceiver.decryptMessage(sMsg);
         if (iMsg == null) {
@@ -1705,7 +1656,7 @@
         }
         return transceiver.encryptMessage(iMsg)
     };
-    Processor.prototype.processInstantMessage = function(iMsg, rMsg) {
+    CoreProcessor.prototype.processInstantMessage = function(iMsg, rMsg) {
         var transceiver = this.getTransceiver();
         var response = transceiver.processContent(iMsg.getContent(), rMsg);
         if (response == null) {
@@ -1717,7 +1668,7 @@
         var env = Envelope.create(user.identifier, sender, null);
         return InstantMessage.create(env, response)
     };
-    ns.core.Processor = Processor;
+    ns.core.Processor = CoreProcessor;
     ns.core.register("Processor")
 })(DIMP);
 (function(ns) {

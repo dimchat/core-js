@@ -46,7 +46,6 @@
     'use strict';
 
     var ContentType = ns.protocol.ContentType;
-    var Content = ns.protocol.Content;
     var BaseContent = ns.BaseContent;
 
     /**
@@ -112,9 +111,6 @@
         MoneyContent.setAmount(amount, this.getMap());
     };
 
-    //-------- register --------
-    Content.register(ContentType.MONEY, MoneyContent);
-
     //-------- namespace --------
     ns.protocol.MoneyContent = MoneyContent;
 
@@ -136,7 +132,6 @@
     'use strict';
 
     var ContentType = ns.protocol.ContentType;
-    var Content = ns.protocol.Content;
     var MoneyContent = ns.MoneyContent;
 
     /**
@@ -160,9 +155,6 @@
         }
     };
     ns.Class(TransferContent, MoneyContent, null);
-
-    //-------- register --------
-    Content.register(ContentType.TRANSFER, TransferContent);
 
     //-------- namespace --------
     ns.protocol.TransferContent = TransferContent;

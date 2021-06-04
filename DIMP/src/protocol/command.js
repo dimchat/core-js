@@ -45,7 +45,6 @@
 (function (ns) {
     'use strict';
 
-    var Content = ns.protocol.Content;
     var ContentType = ns.protocol.ContentType;
     var BaseContent = ns.BaseContent;
 
@@ -58,26 +57,18 @@
      *      3. new Command(type, cmd);
      */
     var Command = function () {
-        var cmd;
         if (arguments.length === 2) {
             // new Command(type, cmd);
-            var type = arguments[0];
-            var name = arguments[1];
-            if (type instanceof ContentType) {
-                type = type.valueOf();
-            }
-            cmd = {
-                'type': type
-            }
-            Command.setCommand(name, cmd);
+            BaseContent.call(this, arguments[0]);
+            this.setCommand(arguments[1]);
         } else if (typeof arguments[0] === 'string') {
             // new Command(cmd);
-            cmd = {
-                'type': ContentType.COMMAND.valueOf()
-            }
-            Command.setCommand(arguments[0], cmd);
+            BaseContent.call(this, ContentType.COMMAND);
+            this.setCommand(arguments[0]);
+        } else {
+            // new Command(map);
+            BaseContent.call(this, arguments[0]);
         }
-        BaseContent.call(this, cmd);
     };
     ns.Class(Command, BaseContent, null);
 
@@ -113,9 +104,6 @@
     Command.RECEIPT   = 'receipt';
     Command.HANDSHAKE = 'handshake';
     Command.LOGIN     = 'login';
-
-    //-------- register --------
-    Content.register(ContentType.COMMAND, Command);
 
     //-------- namespace --------
     ns.protocol.Command = Command;

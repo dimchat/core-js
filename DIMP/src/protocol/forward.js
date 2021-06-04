@@ -46,7 +46,6 @@
 
     var ReliableMessage = ns.protocol.ReliableMessage;
     var ContentType = ns.protocol.ContentType;
-    var Content = ns.protocol.Content;
     var BaseContent = ns.BaseContent;
 
     /**
@@ -57,27 +56,20 @@
      *      2. new ForwardContent(msg);
      *      3. new ForwardContent(map);
      */
-    var ForwardContent = function (info) {
-        var secret;
-        if (!info) {
-            // create empty forward content
-            secret = null;
-            info = {
-                'type': ContentType.FORWARD
-            };
-        } else if (info instanceof ReliableMessage) {
-            // create new forward content with secret message
-            secret = info;
-            info = {
-                'type': ContentType.FORWARD
-            };
-            ForwardContent.setMessage(secret, info);
+    var ForwardContent = function () {
+        if (arguments.length === 0) {
+            // new ForwardContent();
+            BaseContent.call(this, ContentType.FORWARD);
+            this.forward = null;
+        } else if (arguments[0] instanceof ReliableMessage) {
+            // new ForwardContent(msg);
+            BaseContent.call(this, ContentType.FORWARD);
+            this.setMessage(arguments[0]);
         } else {
-            // create forward content
-            secret = null;
+            // new ForwardContent(map);
+            BaseContent.call(this, arguments[0]);
+            this.forward = null;
         }
-        BaseContent.call(this, info);
-        this.forward = secret;
     };
     ns.Class(ForwardContent, BaseContent, null);
 
@@ -117,9 +109,6 @@
         ForwardContent.setMessage(secret, this.getMap());
         this.forward = secret;
     };
-
-    //-------- register --------
-    Content.register(ContentType.FORWARD, ForwardContent);
 
     //-------- namespace --------
     ns.protocol.ForwardContent = ForwardContent;

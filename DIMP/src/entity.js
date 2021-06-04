@@ -112,6 +112,9 @@
     Entity.prototype.getDataSource = function () {
         return this.datasource;
     };
+    Entity.prototype.setDataSource = function (delegate) {
+        this.datasource = delegate;
+    };
 
     /**
      *  Get meta for this entity

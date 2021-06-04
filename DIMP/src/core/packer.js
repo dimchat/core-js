@@ -44,12 +44,12 @@
     var ReliableMessage = ns.protocol.ReliableMessage;
     var Transceiver = ns.Transceiver;
 
-    var Packer = function (transceiver) {
+    var CorePacker = function (transceiver) {
         this.transceiver = transceiver;
     };
-    ns.Class(Packer, ns.type.Object, [Transceiver.Packer]);
+    ns.Class(CorePacker, ns.type.Object, [Transceiver.Packer]);
 
-    Packer.prototype.getTransceiver = function () {
+    CorePacker.prototype.getTransceiver = function () {
         return this.transceiver;
     };
 
@@ -57,7 +57,7 @@
     //  Transform
     //
 
-    Packer.prototype.getOvertGroup = function (content) {
+    CorePacker.prototype.getOvertGroup = function (content) {
         var group = content.getGroup();
         if (!group) {
             return null;
@@ -78,7 +78,7 @@
     //  InstantMessage -> SecureMessage -> ReliableMessage -> Data
     //
 
-    Packer.prototype.encryptMessage = function (iMsg) {
+    CorePacker.prototype.encryptMessage = function (iMsg) {
         var transceiver = this.getTransceiver();
         // check message delegate
         if (!iMsg.getDelegate()) {
@@ -157,7 +157,7 @@
         return sMsg;
     };
 
-    Packer.prototype.signMessage = function (sMsg) {
+    CorePacker.prototype.signMessage = function (sMsg) {
         // check message delegate
         if (!sMsg.getDelegate()) {
             sMsg.setDelegate(this.getTransceiver());
@@ -166,7 +166,7 @@
         return sMsg.sign();
     };
 
-    Packer.prototype.serializeMessage = function (rMsg) {
+    CorePacker.prototype.serializeMessage = function (rMsg) {
         return ns.format.JSON.encode(rMsg.getMap());
     };
 
@@ -174,7 +174,7 @@
     //  Data -> ReliableMessage -> SecureMessage -> InstantMessage
     //
 
-    Packer.prototype.deserializeMessage = function (data) {
+    CorePacker.prototype.deserializeMessage = function (data) {
         var dict = ns.format.JSON.decode(data);
         // TODO: translate short keys
         //       'S' -> 'sender'
@@ -191,7 +191,7 @@
         return ReliableMessage.parse(dict);
     };
 
-    Packer.prototype.verifyMessage = function (rMsg) {
+    CorePacker.prototype.verifyMessage = function (rMsg) {
         // check message delegate
         if (!rMsg.getDelegate()) {
             rMsg.setDelegate(this.getTransceiver());
@@ -206,7 +206,7 @@
         return rMsg.verify();
     };
 
-    Packer.prototype.decryptMessage = function (sMsg) {
+    CorePacker.prototype.decryptMessage = function (sMsg) {
         // check message delegate
         if (!sMsg.getDelegate()) {
             sMsg.setDelegate(this.getTransceiver());
@@ -225,7 +225,7 @@
     };
 
     //-------- namespace --------
-    ns.core.Packer = Packer;
+    ns.core.Packer = CorePacker;
 
     ns.core.register('Packer');
 

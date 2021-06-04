@@ -46,7 +46,6 @@
 (function (ns) {
     'use strict';
 
-    var Content = ns.protocol.Content;
     var ContentType = ns.protocol.ContentType;
     var Command = ns.protocol.Command;
 
@@ -78,9 +77,6 @@
     // account
     HistoryCommand.REGISTER = 'register';
     HistoryCommand.SUICIDE  = 'suicide';
-
-    //-------- register --------
-    Content.register(ContentType.HISTORY, HistoryCommand);
 
     //-------- namespace --------
     ns.protocol.HistoryCommand = HistoryCommand;
