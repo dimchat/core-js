@@ -1630,6 +1630,10 @@ if (typeof DIMP !== "object") {
         console.assert(false, "implement me!");
         return null
     };
+    DecryptKey.prototype.matches = function(pKey) {
+        console.assert(false, "implement me!");
+        return false
+    };
     ns.crypto.EncryptKey = EncryptKey;
     ns.crypto.DecryptKey = DecryptKey;
     ns.crypto.register("EncryptKey");
@@ -1714,6 +1718,10 @@ if (typeof DIMP !== "object") {
     var VerifyKey = function() {};
     ns.Interface(VerifyKey, [AsymmetricKey]);
     VerifyKey.prototype.verify = function(data, signature) {
+        console.assert(false, "implement me!");
+        return false
+    };
+    VerifyKey.prototype.matches = function(sKey) {
         console.assert(false, "implement me!");
         return false
     };
@@ -2018,7 +2026,7 @@ if (typeof MingKeMing !== "object") {
         s_factory = factory
     };
     ID.create = function(name, address, terminal) {
-        return ID.getFactory().create(name, address, terminal)
+        return ID.getFactory().createID(name, address, terminal)
     };
     ID.parse = function(identifier) {
         if (!identifier) {
@@ -2455,7 +2463,7 @@ if (typeof MingKeMing !== "object") {
         this.addresses[Address.ANYWHERE.toString()] = Address.ANYWHERE;
         this.addresses[Address.EVERYWHERE.toString()] = Address.EVERYWHERE
     };
-    ns.Interface(AddressFactory, [Address.Factory]);
+    ns.Class(AddressFactory, null, [Address.Factory]);
     AddressFactory.prototype.parseAddress = function(string) {
         var address = this.addresses[string];
         if (!address) {
@@ -2487,10 +2495,8 @@ if (typeof MingKeMing !== "object") {
     var Dictionary = ns.type.Dictionary;
     var PublicKey = ns.crypto.PublicKey;
     var MetaType = ns.protocol.MetaType;
-    var NetworkType = ns.protocol.NetworkType;
     var ID = ns.protocol.ID;
     var Meta = ns.protocol.Meta;
-    var Address = ns.protocol.Address;
     var BaseMeta = function() {
         var type, key, seed, fingerprint;
         var meta, status;
