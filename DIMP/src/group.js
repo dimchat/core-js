@@ -48,7 +48,7 @@
 
     Group.prototype.getBulletin = function () {
         var doc = this.getDocument(Document.BULLETIN);
-        if (doc instanceof Bulletin) {
+        if (ns.Interface.conforms(doc, Bulletin)) {
             return doc;
         } else {
             return null;

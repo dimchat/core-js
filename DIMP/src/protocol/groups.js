@@ -85,7 +85,7 @@
     //  Join group command
     //
     var JoinCommand = function () {
-        if (arguments[0] instanceof ID) {
+        if (ns.Interface.conforms(arguments[0], ID)) {
             // new JoinCommand(group);
             GroupCommand.call(this, GroupCommand.JOIN, arguments[0]);
         } else {
@@ -99,7 +99,7 @@
     //  Quit group command
     //
     var QuitCommand = function () {
-        if (arguments[0] instanceof ID) {
+        if (ns.Interface.conforms(arguments[0], ID)) {
             // new QuitCommand(group);
             GroupCommand.call(this, GroupCommand.QUIT, arguments[0]);
         } else {
@@ -127,7 +127,7 @@
     //  Query group command
     //
     var QueryCommand = function () {
-        if (arguments[0] instanceof ID) {
+        if (ns.Interface.conforms(arguments[0], ID)) {
             // new QueryCommand(group);
             GroupCommand.call(this, GroupCommand.QUERY, arguments[0]);
         } else {
@@ -173,12 +173,6 @@
     GroupCommand.register(GroupCommand.QUERY, QueryCommand);
 
     //-------- namespace --------
-    if (typeof ns.protocol.group !== 'object') {
-        ns.protocol.group = {};
-    }
-    ns.Namespace(ns.protocol.group);
-    ns.protocol.register('group');
-
     ns.protocol.group.InviteCommand = InviteCommand;
     ns.protocol.group.ExpelCommand = ExpelCommand;
     ns.protocol.group.JoinCommand = JoinCommand;

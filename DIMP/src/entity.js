@@ -68,7 +68,7 @@
         } else if (other instanceof Entity) {
             // check with entity ID
             return this.identifier.equals(other.identifier);
-        } else if (other instanceof ID) {
+        } else if (ns.Interface.conforms(other, ID)) {
             return this.identifier.equals(other);
         } else {
             // null or unknown object

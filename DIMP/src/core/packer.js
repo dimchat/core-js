@@ -103,7 +103,7 @@
         //         share the symmetric key (group msg key) with other members.
 
         // 1. get symmetric key
-        var group = transceiver.getOverGroup(iMsg.getContent());
+        var group = transceiver.getOvertGroup(iMsg.getContent());
         var password;
         if (group) {
             // group message (excludes group command)

@@ -85,7 +85,7 @@
             this.setFilename(arguments[1]);
             this.setData(arguments[2]);
         } else {
-            throw SyntaxError('file content arguments error: ' + arguments);
+            throw new SyntaxError('file content arguments error: ' + arguments);
         }
         this.password = null;  // symmetric key for decrypting file data
     };
@@ -188,7 +188,7 @@
     /**
      *  Get password for decrypt file data download from CDN
      *
-     * @returns {SymmetricKey}
+     * @returns {DecryptKey}
      */
     FileContent.prototype.getPassword = function () {
         if (!this.password) {
@@ -199,7 +199,7 @@
     /**
      *  Set password for decryption
      *
-     * @param {SymmetricKey} key - symmetric key to decrypt file data
+     * @param {DecryptKey} key - symmetric key to decrypt file data
      */
     FileContent.prototype.setPassword = function (key) {
         FileContent.setPassword(key, this.getMap());

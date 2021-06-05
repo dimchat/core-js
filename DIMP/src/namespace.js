@@ -41,22 +41,22 @@
     base.exports(ns);
 
     //-------- namespace --------
-    if (typeof ns.protocol !== 'object') {
-        ns.protocol = {};
-    }
-    if (typeof ns.plugins !== 'object') {
-        ns.plugins = {};
-    }
     if (typeof ns.core !== 'object') {
         ns.core = {};
     }
+    if (typeof ns.protocol !== 'object') {
+        ns.protocol = {};
+    }
+    if (typeof ns.protocol.group !== 'object') {
+        ns.protocol.group = {};
+    }
 
-    ns.Namespace(ns.protocol);
-    ns.Namespace(ns.plugins);
     ns.Namespace(ns.core);
+    ns.Namespace(ns.protocol);
+    ns.Namespace(ns.protocol.group);
 
-    ns.register('protocol');
-    ns.register('plugins');
     ns.register('core');
+    ns.register('protocol');
+    ns.protocol.register('group');
 
 })(DIMP, DaoKeDao);

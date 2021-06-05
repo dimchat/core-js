@@ -70,7 +70,7 @@
             this.setDesc(arguments[2]);
             this.setIcon(arguments[3]);
         } else {
-            throw SyntaxError('web page content arguments error: ' + arguments);
+            throw new SyntaxError('web page content arguments error: ' + arguments);
         }
     };
     ns.Class(PageContent, BaseContent, null);

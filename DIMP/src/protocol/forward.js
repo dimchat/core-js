@@ -61,7 +61,7 @@
             // new ForwardContent();
             BaseContent.call(this, ContentType.FORWARD);
             this.forward = null;
-        } else if (arguments[0] instanceof ReliableMessage) {
+        } else if (ns.Interface.conforms(arguments[0], ReliableMessage)) {
             // new ForwardContent(msg);
             BaseContent.call(this, ContentType.FORWARD);
             this.setMessage(arguments[0]);

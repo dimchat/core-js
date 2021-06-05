@@ -215,7 +215,7 @@
 
     var visa_key = function (user) {
         var doc = this.getDocument(user, Document.VISA);
-        if (doc instanceof Visa) {
+        if (ns.Interface.conforms(doc, Visa)) {
             if (doc.isValid()) {
                 return doc.getKey();
             }
@@ -239,7 +239,7 @@
         }
         // 2. get key from meta
         key = meta_key.call(this, identifier);
-        if (key instanceof EncryptKey) {
+        if (ns.Interface.conforms(key, EncryptKey)) {
             // if visa.key not exists and meta.key is encrypt key,
             // use it for encryption
             return key;
@@ -251,7 +251,7 @@
         var keys = [];
         // 1. get key from visa
         var key = visa_key.call(this, identifier);
-        if (key instanceof VerifyKey) {
+        if (ns.Interface.conforms(key, VerifyKey)) {
             // the sender may use communication key to sign message.data,
             // so try to verify it with visa.key here
             keys.push(key);
@@ -379,7 +379,7 @@
 
     Barrack.prototype.getAssistants = function (group) {
         var doc = this.getDocument(group, Document.BULLETIN);
-        if (doc instanceof Bulletin) {
+        if (ns.Interface.conforms(doc, Bulletin)) {
             if (doc.isValid()) {
                 return doc.getAssistants();
             }

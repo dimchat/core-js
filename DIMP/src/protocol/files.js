@@ -68,7 +68,7 @@
             // new ImageContent(filename, data);
             FileContent.call(this, ContentType.IMAGE, arguments[0], arguments[1]);
         } else {
-            throw SyntaxError('image content arguments error: ' + arguments);
+            throw new SyntaxError('image content arguments error: ' + arguments);
         }
         this.thumbnail = null;
     };
@@ -156,7 +156,7 @@
             // new VideoContent(filename, data);
             FileContent.call(this, ContentType.VIDEO, arguments[0], arguments[1]);
         } else {
-            throw SyntaxError('video content arguments error: ' + arguments);
+            throw new SyntaxError('video content arguments error: ' + arguments);
         }
         this.snapshot = null;
     };
@@ -245,7 +245,7 @@
             // new AudioContent(filename, data);
             FileContent.call(this, ContentType.AUDIO, arguments[0], arguments[1]);
         } else {
-            throw SyntaxError('audio content arguments error: ' + arguments);
+            throw new SyntaxError('audio content arguments error: ' + arguments);
         }
     };
     ns.Class(AudioContent, FileContent, null);

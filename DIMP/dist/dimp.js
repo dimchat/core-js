@@ -53,7 +53,7 @@ if (typeof DIMP !== "object") {
             name = all[i];
             inner = this[name];
             if (!inner) {
-                throw Error("empty object: " + name)
+                throw new Error("empty object: " + name)
             }
             if (is_space(inner)) {
                 if (typeof outerSpace[name] !== "object") {
@@ -112,44 +112,44 @@ if (typeof DIMP !== "object") {
         }
         return true
     };
-    var inherit = function(clazz, protocol) {
-        var prototype = protocol.prototype;
+    var inherits = function(child, parent) {
+        var prototype = parent.prototype;
         var names = Object.getOwnPropertyNames(prototype);
         var key;
         for (var i = 0; i < names.length; ++i) {
             key = names[i];
-            if (clazz.prototype.hasOwnProperty(key)) {
+            if (child.prototype.hasOwnProperty(key)) {
                 continue
             }
             var fn = prototype[key];
             if (typeof fn !== "function") {
                 continue
             }
-            clazz.prototype[key] = fn
+            child.prototype[key] = fn
         }
-        return clazz
+        return child
     };
-    var inherits = function(clazz, interfaces) {
+    var inherits_interfaces = function(child, interfaces) {
         for (var i = 0; i < interfaces.length; ++i) {
-            clazz = inherit(clazz, interfaces[i])
+            child = inherits(child, interfaces[i])
         }
-        return clazz
+        return child
     };
-    var interfacefy = function(child, parent) {
+    var interfacefy = function(child, parents) {
         if (!child) {
             child = function() {}
         }
-        if (parent) {
+        if (parents) {
             var ancestors;
-            if (parent instanceof Array) {
-                ancestors = parent
+            if (parents instanceof Array) {
+                ancestors = parents
             } else {
                 ancestors = [];
                 for (var i = 1; i < arguments.length; ++i) {
                     ancestors.push(arguments[i])
                 }
             }
-            child = inherits(child, ancestors)
+            child = inherits_interfaces(child, ancestors)
         }
         return child
     };
@@ -162,7 +162,7 @@ if (typeof DIMP !== "object") {
             parent = Object
         }
         child.prototype = Object.create(parent.prototype);
-        inherit(child, parent);
+        inherits(child, parent);
         if (interfaces) {
             var ancestors;
             if (interfaces instanceof Array) {
@@ -173,7 +173,7 @@ if (typeof DIMP !== "object") {
                     ancestors.push(arguments[i])
                 }
             }
-            child = inherits(child, ancestors)
+            child = inherits_interfaces(child, ancestors)
         }
         child.prototype.constructor = child;
         return child
@@ -463,7 +463,7 @@ if (typeof DIMP !== "object") {
                 v = v.value
             } else {
                 if (typeof v !== "number") {
-                    throw TypeError("Enum value must be a number!")
+                    throw new TypeError("Enum value must be a number!")
                 }
             }
             e = new enumeration(v, name);
@@ -510,7 +510,7 @@ if (typeof DIMP !== "object") {
                     this.offset = arguments[1];
                     this.length = arguments[2]
                 } else {
-                    throw SyntaxError("arguments error: " + arguments)
+                    throw new SyntaxError("arguments error: " + arguments)
                 }
             }
         }
@@ -620,7 +620,7 @@ if (typeof DIMP !== "object") {
                     start = adjust(start, this.length);
                     end = adjust(end, this.length)
                 } else {
-                    throw SyntaxError("arguments error: " + arguments)
+                    throw new SyntaxError("arguments error: " + arguments)
                 }
             }
         }
@@ -638,11 +638,11 @@ if (typeof DIMP !== "object") {
         if (index < 0) {
             index += this.length;
             if (index < 0) {
-                throw RangeError("error index: " + (index - this.length) + ", length: " + this.length)
+                throw new RangeError("error index: " + (index - this.length) + ", length: " + this.length)
             }
         } else {
             if (index >= this.length) {
-                throw RangeError("error index: " + index + ", length: " + this.length)
+                throw new RangeError("error index: " + index + ", length: " + this.length)
             }
         }
         return this.buffer[this.offset + index]
@@ -677,7 +677,7 @@ if (typeof DIMP !== "object") {
                     start = adjust(start, this.length);
                     end = adjust(end, this.length)
                 } else {
-                    throw SyntaxError("arguments error: " + arguments)
+                    throw new SyntaxError("arguments error: " + arguments)
                 }
             }
         }
@@ -814,7 +814,7 @@ if (typeof DIMP !== "object") {
         if (pos < 0) {
             pos += this.length;
             if (pos < 0) {
-                throw RangeError("error position: " + (pos - this.length) + ", length: " + this.length)
+                throw new RangeError("error position: " + (pos - this.length) + ", length: " + this.length)
             }
         }
         var start, end;
@@ -920,11 +920,11 @@ if (typeof DIMP !== "object") {
         if (index < 0) {
             index += this.length;
             if (index < 0) {
-                throw RangeError("error index: " + (index - this.length) + ", length: " + this.length)
+                throw new RangeError("error index: " + (index - this.length) + ", length: " + this.length)
             }
         } else {
             if (index >= this.length) {
-                throw RangeError("index error: " + index + ", length: " + this.length)
+                throw new RangeError("index error: " + index + ", length: " + this.length)
             }
         }
         if (index === 0) {
@@ -944,7 +944,7 @@ if (typeof DIMP !== "object") {
     };
     bytes.prototype.shift = function() {
         if (this.length < 1) {
-            throw RangeError("data empty!")
+            throw new RangeError("data empty!")
         }
         var erased = this.buffer[this.offset];
         this.offset += 1;
@@ -953,7 +953,7 @@ if (typeof DIMP !== "object") {
     };
     bytes.prototype.pop = function() {
         if (this.length < 1) {
-            throw RangeError("data empty!")
+            throw new RangeError("data empty!")
         }
         this.length -= 1;
         return this.buffer[this.offset + this.length]
@@ -1031,7 +1031,7 @@ if (typeof DIMP !== "object") {
         return null
     };
     map.copyMap = function(dictionary) {
-        if (dictionary instanceof map) {
+        if (ns.Interface.conforms(dictionary, map)) {
             dictionary = dictionary.getMap()
         }
         var json = ns.format.JSON.encode(dictionary);
@@ -1062,7 +1062,7 @@ if (typeof DIMP !== "object") {
         if (!dictionary) {
             dictionary = {}
         } else {
-            if (dictionary instanceof map) {
+            if (ns.Interface.conforms(dictionary, map)) {
                 dictionary = dictionary.getMap()
             }
         }
@@ -1083,7 +1083,7 @@ if (typeof DIMP !== "object") {
         if (!other) {
             return !this.dictionary
         } else {
-            if (other instanceof map) {
+            if (ns.Interface.conforms(other, map)) {
                 return Arrays.equals(this.dictionary, other.getMap())
             } else {
                 return Arrays.equals(this.dictionary, other)
@@ -1165,13 +1165,13 @@ if (typeof DIMP !== "object") {
                     return list_unwrap(object)
                 }
             } else {
-                if (object instanceof map) {
+                if (ns.Interface.conforms(object, map)) {
                     object = object.getMap()
                 }
                 return map_unwrap(object)
             }
         } else {
-            if (object instanceof map) {
+            if (ns.Interface.conforms(object, map)) {
                 object = object.getMap()
             }
         }
@@ -1419,7 +1419,7 @@ if (typeof DIMP !== "object") {
         var str = string.replace(/[^A-Za-z0-9+\/=]/g, "");
         var length = str.length;
         if ((length % 4) !== 0 || !/^[A-Za-z0-9+\/]+={0,2}$/.test(str)) {
-            throw Error("base64 string error: " + string)
+            throw new Error("base64 string error: " + string)
         }
         var array = new Data(length * 3 / 4);
         var ch1, ch2, ch3, ch4;
@@ -1564,7 +1564,7 @@ if (typeof DIMP !== "object") {
     json.prototype.encode = function(container) {
         var string = JSON.stringify(container);
         if (!string) {
-            throw TypeError("failed to encode JSON object: " + container)
+            throw new TypeError("failed to encode JSON object: " + container)
         }
         return ns.format.UTF8.encode(string)
     };
@@ -1576,7 +1576,7 @@ if (typeof DIMP !== "object") {
             string = ns.format.UTF8.decode(json)
         }
         if (!string) {
-            throw TypeError("failed to decode JSON data: " + json)
+            throw new TypeError("failed to decode JSON data: " + json)
         }
         return JSON.parse(string)
     };
@@ -1674,7 +1674,7 @@ if (typeof DIMP !== "object") {
     SymmetricKey.generate = function(algorithm) {
         var factory = SymmetricKey.getFactory(algorithm);
         if (!factory) {
-            throw ReferenceError("key algorithm not support: " + algorithm)
+            throw new ReferenceError("key algorithm not support: " + algorithm)
         }
         return factory.generateSymmetricKey()
     };
@@ -1682,10 +1682,10 @@ if (typeof DIMP !== "object") {
         if (!key) {
             return null
         } else {
-            if (key instanceof SymmetricKey) {
+            if (ns.Interface.conforms(key, SymmetricKey)) {
                 return key
             } else {
-                if (key instanceof map) {
+                if (ns.Interface.conforms(key, map)) {
                     key = key.getMap()
                 }
             }
@@ -1733,9 +1733,12 @@ if (typeof DIMP !== "object") {
     ns.crypto.register("VerifyKey")
 })(DIMP);
 (function(ns) {
+    var AsymmetricKey = ns.crypto.AsymmetricKey;
     var VerifyKey = ns.crypto.VerifyKey;
     var PublicKey = function() {};
     ns.Interface(PublicKey, [VerifyKey]);
+    PublicKey.RSA = AsymmetricKey.RSA;
+    PublicKey.ECC = AsymmetricKey.ECC;
     ns.crypto.PublicKey = PublicKey;
     ns.crypto.register("PublicKey")
 })(DIMP);
@@ -1761,10 +1764,10 @@ if (typeof DIMP !== "object") {
         if (!key) {
             return null
         } else {
-            if (key instanceof PublicKey) {
+            if (ns.Interface.conforms(key, PublicKey)) {
                 return key
             } else {
-                if (key instanceof map) {
+                if (ns.Interface.conforms(key, map)) {
                     key = key.getMap()
                 }
             }
@@ -1778,9 +1781,12 @@ if (typeof DIMP !== "object") {
     }
 })(DIMP);
 (function(ns) {
+    var AsymmetricKey = ns.crypto.AsymmetricKey;
     var SignKey = ns.crypto.SignKey;
     var PrivateKey = function() {};
     ns.Interface(PrivateKey, [SignKey]);
+    PrivateKey.RSA = AsymmetricKey.RSA;
+    PrivateKey.ECC = AsymmetricKey.ECC;
     PrivateKey.prototype.getPublicKey = function() {
         console.assert(false, "implement me!");
         return null
@@ -1813,7 +1819,7 @@ if (typeof DIMP !== "object") {
     PrivateKey.generate = function(algorithm) {
         var factory = PrivateKey.getFactory(algorithm);
         if (!factory) {
-            throw ReferenceError("key algorithm not support: " + algorithm)
+            throw new ReferenceError("key algorithm not support: " + algorithm)
         }
         return factory.generatePrivateKey()
     };
@@ -1821,10 +1827,10 @@ if (typeof DIMP !== "object") {
         if (!key) {
             return null
         } else {
-            if (key instanceof PrivateKey) {
+            if (ns.Interface.conforms(key, PrivateKey)) {
                 return key
             } else {
-                if (key instanceof map) {
+                if (ns.Interface.conforms(key, map)) {
                     key = key.getMap()
                 }
             }
@@ -1913,6 +1919,7 @@ if (typeof MingKeMing !== "object") {
     ns.protocol.register("Address")
 })(MingKeMing);
 (function(ns) {
+    var str = ns.type.String;
     var Address = ns.protocol.Address;
     var AddressFactory = function() {};
     ns.Interface(AddressFactory, null);
@@ -1932,10 +1939,10 @@ if (typeof MingKeMing !== "object") {
         if (!address) {
             return null
         } else {
-            if (address instanceof Address) {
+            if (ns.Interface.conforms(address, Address)) {
                 return address
             } else {
-                if (address instanceof ns.type.String) {
+                if (address instanceof str) {
                     address = address.toString()
                 }
             }
@@ -2006,6 +2013,7 @@ if (typeof MingKeMing !== "object") {
     ns.protocol.register("ID")
 })(MingKeMing);
 (function(ns) {
+    var str = ns.type.String;
     var ID = ns.protocol.ID;
     var IDFactory = function() {};
     ns.Interface(IDFactory, null);
@@ -2032,10 +2040,10 @@ if (typeof MingKeMing !== "object") {
         if (!identifier) {
             return null
         } else {
-            if (identifier instanceof ID) {
+            if (ns.Interface.conforms(identifier, ID)) {
                 return identifier
             } else {
-                if (identifier instanceof ns.type.String) {
+                if (identifier instanceof str) {
                     identifier = identifier.toString()
                 }
             }
@@ -2067,7 +2075,7 @@ if (typeof MingKeMing !== "object") {
     Meta.getKey = function(meta) {
         var key = meta["key"];
         if (!key) {
-            throw TypeError("meta key not found: " + meta)
+            throw new TypeError("meta key not found: " + meta)
         }
         return PublicKey.parse(key)
     };
@@ -2139,14 +2147,14 @@ if (typeof MingKeMing !== "object") {
     Meta.create = function(type, key, seed, fingerprint) {
         var factory = Meta.getFactory(type);
         if (!factory) {
-            throw ReferenceError("meta type not support: " + type)
+            throw new ReferenceError("meta type not support: " + type)
         }
         return factory.createMeta(key, seed, fingerprint)
     };
     Meta.generate = function(type, sKey, seed) {
         var factory = Meta.getFactory(type);
         if (!factory) {
-            throw ReferenceError("meta type not support: " + type)
+            throw new ReferenceError("meta type not support: " + type)
         }
         return factory.generateMeta(sKey, seed)
     };
@@ -2154,10 +2162,10 @@ if (typeof MingKeMing !== "object") {
         if (!meta) {
             return null
         } else {
-            if (meta instanceof Meta) {
+            if (ns.Interface.conforms(meta, Meta)) {
                 return meta
             } else {
-                if (meta instanceof map) {
+                if (ns.Interface.conforms(meta, map)) {
                     meta = meta.getMap()
                 }
             }
@@ -2276,7 +2284,7 @@ if (typeof MingKeMing !== "object") {
     Document.create = function(type, identifier, data, signature) {
         var factory = Document.getFactory(type);
         if (!factory) {
-            throw ReferenceError("document type not support: " + type)
+            throw new ReferenceError("document type not support: " + type)
         }
         return factory.createDocument(identifier, data, signature)
     };
@@ -2284,10 +2292,10 @@ if (typeof MingKeMing !== "object") {
         if (!doc) {
             return null
         } else {
-            if (doc instanceof Document) {
+            if (ns.Interface.conforms(doc, Document)) {
                 return doc
             } else {
-                if (doc instanceof map) {
+                if (ns.Interface.conforms(doc, map)) {
                     doc = doc.getMap()
                 }
             }
@@ -2538,7 +2546,7 @@ if (typeof MingKeMing !== "object") {
                     };
                     status = 1
                 } else {
-                    throw SyntaxError("meta arguments error: " + arguments)
+                    throw new SyntaxError("meta arguments error: " + arguments)
                 }
             }
         }
@@ -2599,10 +2607,10 @@ if (typeof MingKeMing !== "object") {
         if (!this.isValid()) {
             return false
         }
-        if (id_or_key instanceof ID) {
+        if (ns.Interface.conforms(id_or_key, ID)) {
             return match_identifier.call(this, id_or_key)
         } else {
-            if (id_or_key instanceof PublicKey) {
+            if (ns.Interface.conforms(id_or_key, PublicKey)) {
                 return match_public_key.call(this, id_or_key)
             }
         }
@@ -2676,7 +2684,7 @@ if (typeof MingKeMing !== "object") {
                     properties = null;
                     status = 1
                 } else {
-                    throw SyntaxError("document arguments error: " + arguments)
+                    throw new SyntaxError("document arguments error: " + arguments)
                 }
             }
         }
@@ -2802,7 +2810,7 @@ if (typeof MingKeMing !== "object") {
         if (arguments.length === 3) {
             BaseDocument.call(this, arguments[0], arguments[1], arguments[2])
         } else {
-            if (arguments[0] instanceof ID) {
+            if (ns.Interface.conforms(arguments[0], ID)) {
                 BaseDocument.call(this, arguments[0], Document.VISA)
             } else {
                 if (arguments.length === 1) {
@@ -2818,7 +2826,7 @@ if (typeof MingKeMing !== "object") {
             var key = this.getProperty("key");
             if (key) {
                 key = PublicKey.parse(key);
-                if (key instanceof EncryptKey) {
+                if (ns.Interface.conforms(key, EncryptKey)) {
                     this.key = key
                 }
             }
@@ -2847,7 +2855,7 @@ if (typeof MingKeMing !== "object") {
         if (arguments.length === 3) {
             BaseDocument.call(this, arguments[0], arguments[1], arguments[2])
         } else {
-            if (arguments[0] instanceof ID) {
+            if (ns.Interface.conforms(arguments[0], ID)) {
                 BaseDocument.call(this, arguments[0], Document.BULLETIN)
             } else {
                 if (arguments.length === 1) {
@@ -2988,10 +2996,10 @@ if (typeof DaoKeDao !== "object") {
         if (!content) {
             return null
         } else {
-            if (content instanceof Content) {
+            if (ns.Interface.conforms(content, Content)) {
                 return content
             } else {
-                if (content instanceof map) {
+                if (ns.Interface.conforms(content, map)) {
                     content = content.getMap()
                 }
             }
@@ -3109,10 +3117,10 @@ if (typeof DaoKeDao !== "object") {
         if (!env) {
             return null
         } else {
-            if (env instanceof Envelope) {
+            if (ns.Interface.conforms(env, Envelope)) {
                 return env
             } else {
-                if (env instanceof map) {
+                if (ns.Interface.conforms(env, map)) {
                     env = env.getMap()
                 }
             }
@@ -3246,10 +3254,10 @@ if (typeof DaoKeDao !== "object") {
         if (!msg) {
             return null
         } else {
-            if (msg instanceof InstantMessage) {
+            if (ns.Interface.conforms(msg, InstantMessage)) {
                 return msg
             } else {
-                if (msg instanceof map) {
+                if (ns.Interface.conforms(msg, map)) {
                     msg = msg.getMap()
                 }
             }
@@ -3352,10 +3360,10 @@ if (typeof DaoKeDao !== "object") {
         if (!msg) {
             return null
         } else {
-            if (msg instanceof SecureMessage) {
+            if (ns.Interface.conforms(msg, SecureMessage)) {
                 return msg
             } else {
-                if (msg instanceof map) {
+                if (ns.Interface.conforms(msg, map)) {
                     msg = msg.getMap()
                 }
             }
@@ -3383,15 +3391,9 @@ if (typeof DaoKeDao !== "object") {
         return null
     };
     ReliableMessage.getMeta = function(msg) {
-        if (msg instanceof map) {
-            msg = msg.getMap()
-        }
         return Meta.parse(msg["meta"])
     };
     ReliableMessage.setMeta = function(meta, msg) {
-        if (msg instanceof map) {
-            msg = msg.getMap()
-        }
         if (meta) {
             msg["meta"] = meta.getMap()
         } else {
@@ -3407,9 +3409,6 @@ if (typeof DaoKeDao !== "object") {
         return null
     };
     ReliableMessage.getVisa = function(msg) {
-        if (msg instanceof map) {
-            msg = msg.getMap()
-        }
         var doc = msg["visa"];
         if (!doc) {
             doc = msg["profile"]
@@ -3417,9 +3416,6 @@ if (typeof DaoKeDao !== "object") {
         return Document.parse(doc)
     };
     ReliableMessage.setVisa = function(doc, msg) {
-        if (msg instanceof map) {
-            msg = msg.getMap()
-        }
         delete msg["visa"];
         if (doc) {
             msg["profile"] = doc.getMap()
@@ -3470,10 +3466,10 @@ if (typeof DaoKeDao !== "object") {
         if (!msg) {
             return null
         } else {
-            if (msg instanceof ReliableMessage) {
+            if (ns.Interface.conforms(msg, ReliableMessage)) {
                 return msg
             } else {
-                if (msg instanceof map) {
+                if (ns.Interface.conforms(msg, map)) {
                     msg = msg.getMap()
                 }
             }
@@ -3589,7 +3585,7 @@ if (typeof DaoKeDao !== "object") {
                         "time": Math.ceil(when.getTime() / 1000)
                     }
                 } else {
-                    throw SyntaxError("envelope arguments error: " + arguments)
+                    throw new SyntaxError("envelope arguments error: " + arguments)
                 }
             }
         }
@@ -3629,7 +3625,7 @@ if (typeof DaoKeDao !== "object") {
     var Message = ns.protocol.Message;
     var BaseMessage = function(msg) {
         var env;
-        if (msg instanceof Envelope) {
+        if (ns.Interface.conforms(msg, Envelope)) {
             env = msg;
             msg = env.getMap()
         } else {
@@ -3685,7 +3681,7 @@ if (typeof DaoKeDao !== "object") {
                 msg = head.getMap();
                 msg["content"] = body.getMap()
             } else {
-                throw SyntaxError("message arguments error: " + arguments)
+                throw new SyntaxError("message arguments error: " + arguments)
             }
         }
         BaseMessage.call(this, msg);
@@ -3821,24 +3817,24 @@ if (typeof DaoKeDao !== "object") {
         if (key) {
             key = delegate.decryptKey(key, sender, receiver, this);
             if (!key) {
-                throw Error("failed to decrypt key in msg: " + this)
+                throw new Error("failed to decrypt key in msg: " + this)
             }
         }
         var password = delegate.deserializeKey(key, sender, receiver, this);
         if (!password) {
-            throw Error("failed to get msg key: " + sender + " -> " + receiver + ", " + key)
+            throw new Error("failed to get msg key: " + sender + " -> " + receiver + ", " + key)
         }
         var data = this.getData();
         if (!data) {
-            throw Error("failed to decode content data: " + this)
+            throw new Error("failed to decode content data: " + this)
         }
         data = delegate.decryptContent(data, password, this);
         if (!data) {
-            throw Error("failed to decrypt data with key: " + password)
+            throw new Error("failed to decrypt data with key: " + password)
         }
         var content = delegate.deserializeContent(data, password, this);
         if (!content) {
-            throw Error("failed to deserialize content: " + data)
+            throw new Error("failed to deserialize content: " + data)
         }
         var msg = this.copyMap();
         delete msg["key"];
@@ -3945,11 +3941,11 @@ if (typeof DaoKeDao !== "object") {
     NetworkMessage.prototype.verify = function() {
         var data = this.getData();
         if (!data) {
-            throw Error("failed to decode content data: " + this)
+            throw new Error("failed to decode content data: " + this)
         }
         var signature = this.getSignature();
         if (!signature) {
-            throw Error("failed to decode message signature: " + this)
+            throw new Error("failed to decode message signature: " + this)
         }
         if (this.getDelegate().verifyDataSignature(data, signature, this.getSender(), this)) {
             var msg = this.copyMap();
@@ -4024,21 +4020,21 @@ if (typeof DaoKeDao !== "object") {
 })(DaoKeDao);
 (function(ns, base) {
     base.exports(ns);
-    if (typeof ns.protocol !== "object") {
-        ns.protocol = {}
-    }
-    if (typeof ns.plugins !== "object") {
-        ns.plugins = {}
-    }
     if (typeof ns.core !== "object") {
         ns.core = {}
     }
-    ns.Namespace(ns.protocol);
-    ns.Namespace(ns.plugins);
+    if (typeof ns.protocol !== "object") {
+        ns.protocol = {}
+    }
+    if (typeof ns.protocol.group !== "object") {
+        ns.protocol.group = {}
+    }
     ns.Namespace(ns.core);
+    ns.Namespace(ns.protocol);
+    ns.Namespace(ns.protocol.group);
+    ns.register("core");
     ns.register("protocol");
-    ns.register("plugins");
-    ns.register("core")
+    ns.protocol.register("group")
 })(DIMP, DaoKeDao);
 (function(ns) {
     var ReliableMessage = ns.protocol.ReliableMessage;
@@ -4049,7 +4045,7 @@ if (typeof DaoKeDao !== "object") {
             BaseContent.call(this, ContentType.FORWARD);
             this.forward = null
         } else {
-            if (arguments[0] instanceof ReliableMessage) {
+            if (ns.Interface.conforms(arguments[0], ReliableMessage)) {
                 BaseContent.call(this, ContentType.FORWARD);
                 this.setMessage(arguments[0])
             } else {
@@ -4112,7 +4108,7 @@ if (typeof DaoKeDao !== "object") {
                         this.setFilename(arguments[1]);
                         this.setData(arguments[2])
                     } else {
-                        throw SyntaxError("file content arguments error: " + arguments)
+                        throw new SyntaxError("file content arguments error: " + arguments)
                     }
                 }
             }
@@ -4222,7 +4218,7 @@ if (typeof DaoKeDao !== "object") {
                 if (arguments.length === 2) {
                     FileContent.call(this, ContentType.IMAGE, arguments[0], arguments[1])
                 } else {
-                    throw SyntaxError("image content arguments error: " + arguments)
+                    throw new SyntaxError("image content arguments error: " + arguments)
                 }
             }
         }
@@ -4270,7 +4266,7 @@ if (typeof DaoKeDao !== "object") {
                 if (arguments.length === 2) {
                     FileContent.call(this, ContentType.VIDEO, arguments[0], arguments[1])
                 } else {
-                    throw SyntaxError("video content arguments error: " + arguments)
+                    throw new SyntaxError("video content arguments error: " + arguments)
                 }
             }
         }
@@ -4318,7 +4314,7 @@ if (typeof DaoKeDao !== "object") {
                 if (arguments.length === 2) {
                     FileContent.call(this, ContentType.AUDIO, arguments[0], arguments[1])
                 } else {
-                    throw SyntaxError("audio content arguments error: " + arguments)
+                    throw new SyntaxError("audio content arguments error: " + arguments)
                 }
             }
         }
@@ -4373,7 +4369,7 @@ if (typeof DaoKeDao !== "object") {
                 this.setDesc(arguments[2]);
                 this.setIcon(arguments[3])
             } else {
-                throw SyntaxError("web page content arguments error: " + arguments)
+                throw new SyntaxError("web page content arguments error: " + arguments)
             }
         }
     };
@@ -4588,7 +4584,7 @@ if (typeof DaoKeDao !== "object") {
     var Command = ns.protocol.Command;
     var MetaCommand = function() {
         if (arguments.length === 1) {
-            if (arguments[0] instanceof ID) {
+            if (ns.Interface.conforms(arguments[0], ID)) {
                 Command.call(this, Command.META);
                 this.setIdentifier(arguments[0])
             } else {
@@ -4607,7 +4603,7 @@ if (typeof DaoKeDao !== "object") {
                     this.setIdentifier(arguments[1]);
                     this.setMeta(arguments[2])
                 } else {
-                    throw SyntaxError("meta command arguments error: " + arguments)
+                    throw new SyntaxError("meta command arguments error: " + arguments)
                 }
             }
         }
@@ -4670,7 +4666,7 @@ if (typeof DaoKeDao !== "object") {
     var MetaCommand = ns.protocol.MetaCommand;
     var DocumentCommand = function() {
         if (arguments.length === 1) {
-            if (arguments[0] instanceof ID) {
+            if (ns.Interface.conforms(arguments[0], ID)) {
                 MetaCommand.call(this, Command.PROFILE, arguments[0])
             } else {
                 MetaCommand.call(this, arguments[0])
@@ -4678,14 +4674,14 @@ if (typeof DaoKeDao !== "object") {
             this.document = null
         } else {
             if (arguments.length === 2) {
-                if (arguments[1] instanceof Meta) {
+                if (ns.Interface.conforms(arguments[1], Meta)) {
                     MetaCommand.call(this, Command.PROFILE, arguments[0], arguments[1])
                 } else {
                     if (typeof arguments[1] === "string") {
                         MetaCommand.call(this, Command.PROFILE, arguments[0], null);
                         this.setSignature(arguments[1])
                     } else {
-                        throw SyntaxError("document command arguments error: " + arguments)
+                        throw new SyntaxError("document command arguments error: " + arguments)
                     }
                 }
                 this.document = null
@@ -4694,7 +4690,7 @@ if (typeof DaoKeDao !== "object") {
                     MetaCommand.call(this, Command.PROFILE, arguments[0], arguments[1]);
                     this.setDocument(arguments[2])
                 } else {
-                    throw SyntaxError("document command arguments error: " + arguments)
+                    throw new SyntaxError("document command arguments error: " + arguments)
                 }
             }
         }
@@ -4890,7 +4886,7 @@ if (typeof DaoKeDao !== "object") {
     };
     ns.Class(ExpelCommand, GroupCommand, null);
     var JoinCommand = function() {
-        if (arguments[0] instanceof ID) {
+        if (ns.Interface.conforms(arguments[0], ID)) {
             GroupCommand.call(this, GroupCommand.JOIN, arguments[0])
         } else {
             GroupCommand.call(this, arguments[0])
@@ -4898,7 +4894,7 @@ if (typeof DaoKeDao !== "object") {
     };
     ns.Class(JoinCommand, GroupCommand, null);
     var QuitCommand = function() {
-        if (arguments[0] instanceof ID) {
+        if (ns.Interface.conforms(arguments[0], ID)) {
             GroupCommand.call(this, GroupCommand.QUIT, arguments[0])
         } else {
             GroupCommand.call(this, arguments[0])
@@ -4914,7 +4910,7 @@ if (typeof DaoKeDao !== "object") {
     };
     ns.Class(ResetCommand, GroupCommand, null);
     var QueryCommand = function() {
-        if (arguments[0] instanceof ID) {
+        if (ns.Interface.conforms(arguments[0], ID)) {
             GroupCommand.call(this, GroupCommand.QUERY, arguments[0])
         } else {
             GroupCommand.call(this, arguments[0])
@@ -4945,11 +4941,6 @@ if (typeof DaoKeDao !== "object") {
     GroupCommand.register(GroupCommand.QUIT, QuitCommand);
     GroupCommand.register(GroupCommand.RESET, ResetCommand);
     GroupCommand.register(GroupCommand.QUERY, QueryCommand);
-    if (typeof ns.protocol.group !== "object") {
-        ns.protocol.group = {}
-    }
-    ns.Namespace(ns.protocol.group);
-    ns.protocol.register("group");
     ns.protocol.group.InviteCommand = InviteCommand;
     ns.protocol.group.ExpelCommand = ExpelCommand;
     ns.protocol.group.JoinCommand = JoinCommand;
@@ -4977,7 +4968,7 @@ if (typeof DaoKeDao !== "object") {
             if (other instanceof Entity) {
                 return this.identifier.equals(other.identifier)
             } else {
-                if (other instanceof ID) {
+                if (ns.Interface.conforms(other, ID)) {
                     return this.identifier.equals(other)
                 } else {
                     return false
@@ -5059,7 +5050,7 @@ if (typeof DaoKeDao !== "object") {
     ns.Class(User, Entity, null);
     User.prototype.getVisa = function() {
         var doc = this.getDocument(Document.VISA);
-        if (doc instanceof Visa) {
+        if (ns.Interface.conforms(doc, Visa)) {
             return doc
         } else {
             return null
@@ -5071,7 +5062,7 @@ if (typeof DaoKeDao !== "object") {
     User.prototype.verify = function(data, signature) {
         var keys = this.getDataSource().getPublicKeysForVerification(this.identifier);
         if (!keys || keys.length === 0) {
-            throw Error("failed to get verify keys for user: " + this.identifier)
+            throw new Error("failed to get verify keys for user: " + this.identifier)
         }
         for (var i = 0; i < keys.length; ++i) {
             if (keys[i].verify(data, signature)) {
@@ -5083,21 +5074,21 @@ if (typeof DaoKeDao !== "object") {
     User.prototype.encrypt = function(plaintext) {
         var key = this.getDataSource().getPublicKeyForEncryption(this.identifier);
         if (!key) {
-            throw Error("failed to get encrypt key for user: " + this.identifier)
+            throw new Error("failed to get encrypt key for user: " + this.identifier)
         }
         return key.encrypt(plaintext)
     };
     User.prototype.sign = function(data) {
         var key = this.getDataSource().getPrivateKeyForSignature(this.identifier);
         if (!key) {
-            throw Error("failed to get sign key for user: " + this.identifier)
+            throw new Error("failed to get sign key for user: " + this.identifier)
         }
         return key.sign(data)
     };
     User.prototype.decrypt = function(ciphertext) {
         var keys = this.getDataSource().getPrivateKeysForDecryption(this.identifier);
         if (!keys || keys.length === 0) {
-            throw Error("failed to get decrypt keys for user: " + this.identifier)
+            throw new Error("failed to get decrypt keys for user: " + this.identifier)
         }
         var plaintext;
         for (var i = 0; i < keys.length; ++i) {
@@ -5116,7 +5107,7 @@ if (typeof DaoKeDao !== "object") {
         }
         var key = this.getDataSource().getPrivateKeyForVisaSignature(this.identifier);
         if (!key) {
-            throw Error("failed to get sign key for user: " + this.identifier)
+            throw new Error("failed to get sign key for user: " + this.identifier)
         }
         visa.sign(key);
         return visa
@@ -5127,7 +5118,7 @@ if (typeof DaoKeDao !== "object") {
         }
         var key = this.getMeta().getKey();
         if (!key) {
-            throw Error("failed to get meta key for user: " + this.identifier)
+            throw new Error("failed to get meta key for user: " + this.identifier)
         }
         return visa.verify(key)
     };
@@ -5174,7 +5165,7 @@ if (typeof DaoKeDao !== "object") {
     ns.Class(Group, Entity, null);
     Group.prototype.getBulletin = function() {
         var doc = this.getDocument(Document.BULLETIN);
-        if (doc instanceof Bulletin) {
+        if (ns.Interface.conforms(doc, Bulletin)) {
             return doc
         } else {
             return null
@@ -5415,7 +5406,7 @@ if (typeof DaoKeDao !== "object") {
     };
     var visa_key = function(user) {
         var doc = this.getDocument(user, Document.VISA);
-        if (doc instanceof Visa) {
+        if (ns.Interface.conforms(doc, Visa)) {
             if (doc.isValid()) {
                 return doc.getKey()
             }
@@ -5435,7 +5426,7 @@ if (typeof DaoKeDao !== "object") {
             return key
         }
         key = meta_key.call(this, identifier);
-        if (key instanceof EncryptKey) {
+        if (ns.Interface.conforms(key, EncryptKey)) {
             return key
         }
         return null
@@ -5443,7 +5434,7 @@ if (typeof DaoKeDao !== "object") {
     Barrack.prototype.getPublicKeysForVerification = function(identifier) {
         var keys = [];
         var key = visa_key.call(this, identifier);
-        if (key instanceof VerifyKey) {
+        if (ns.Interface.conforms(key, VerifyKey)) {
             keys.push(key)
         }
         key = meta_key.call(this, identifier);
@@ -5526,7 +5517,7 @@ if (typeof DaoKeDao !== "object") {
     };
     Barrack.prototype.getAssistants = function(group) {
         var doc = this.getDocument(group, Document.BULLETIN);
-        if (doc instanceof Bulletin) {
+        if (ns.Interface.conforms(doc, Bulletin)) {
             if (doc.isValid()) {
                 return doc.getAssistants()
             }
@@ -5567,7 +5558,7 @@ if (typeof DaoKeDao !== "object") {
         }
         var sender = iMsg.getSender();
         var receiver = iMsg.getReceiver();
-        var group = transceiver.getOverGroup(iMsg.getContent());
+        var group = transceiver.getOvertGroup(iMsg.getContent());
         var password;
         if (group) {
             password = transceiver.getCipherKey(sender, group, true)

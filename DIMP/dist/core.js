@@ -8,21 +8,21 @@
  */;
 (function(ns, base) {
     base.exports(ns);
-    if (typeof ns.protocol !== "object") {
-        ns.protocol = {}
-    }
-    if (typeof ns.plugins !== "object") {
-        ns.plugins = {}
-    }
     if (typeof ns.core !== "object") {
         ns.core = {}
     }
-    ns.Namespace(ns.protocol);
-    ns.Namespace(ns.plugins);
+    if (typeof ns.protocol !== "object") {
+        ns.protocol = {}
+    }
+    if (typeof ns.protocol.group !== "object") {
+        ns.protocol.group = {}
+    }
     ns.Namespace(ns.core);
+    ns.Namespace(ns.protocol);
+    ns.Namespace(ns.protocol.group);
+    ns.register("core");
     ns.register("protocol");
-    ns.register("plugins");
-    ns.register("core")
+    ns.protocol.register("group")
 })(DIMP, DaoKeDao);
 (function(ns) {
     var ReliableMessage = ns.protocol.ReliableMessage;
@@ -33,7 +33,7 @@
             BaseContent.call(this, ContentType.FORWARD);
             this.forward = null
         } else {
-            if (arguments[0] instanceof ReliableMessage) {
+            if (ns.Interface.conforms(arguments[0], ReliableMessage)) {
                 BaseContent.call(this, ContentType.FORWARD);
                 this.setMessage(arguments[0])
             } else {
@@ -96,7 +96,7 @@
                         this.setFilename(arguments[1]);
                         this.setData(arguments[2])
                     } else {
-                        throw SyntaxError("file content arguments error: " + arguments)
+                        throw new SyntaxError("file content arguments error: " + arguments)
                     }
                 }
             }
@@ -206,7 +206,7 @@
                 if (arguments.length === 2) {
                     FileContent.call(this, ContentType.IMAGE, arguments[0], arguments[1])
                 } else {
-                    throw SyntaxError("image content arguments error: " + arguments)
+                    throw new SyntaxError("image content arguments error: " + arguments)
                 }
             }
         }
@@ -254,7 +254,7 @@
                 if (arguments.length === 2) {
                     FileContent.call(this, ContentType.VIDEO, arguments[0], arguments[1])
                 } else {
-                    throw SyntaxError("video content arguments error: " + arguments)
+                    throw new SyntaxError("video content arguments error: " + arguments)
                 }
             }
         }
@@ -302,7 +302,7 @@
                 if (arguments.length === 2) {
                     FileContent.call(this, ContentType.AUDIO, arguments[0], arguments[1])
                 } else {
-                    throw SyntaxError("audio content arguments error: " + arguments)
+                    throw new SyntaxError("audio content arguments error: " + arguments)
                 }
             }
         }
@@ -357,7 +357,7 @@
                 this.setDesc(arguments[2]);
                 this.setIcon(arguments[3])
             } else {
-                throw SyntaxError("web page content arguments error: " + arguments)
+                throw new SyntaxError("web page content arguments error: " + arguments)
             }
         }
     };
@@ -572,7 +572,7 @@
     var Command = ns.protocol.Command;
     var MetaCommand = function() {
         if (arguments.length === 1) {
-            if (arguments[0] instanceof ID) {
+            if (ns.Interface.conforms(arguments[0], ID)) {
                 Command.call(this, Command.META);
                 this.setIdentifier(arguments[0])
             } else {
@@ -591,7 +591,7 @@
                     this.setIdentifier(arguments[1]);
                     this.setMeta(arguments[2])
                 } else {
-                    throw SyntaxError("meta command arguments error: " + arguments)
+                    throw new SyntaxError("meta command arguments error: " + arguments)
                 }
             }
         }
@@ -654,7 +654,7 @@
     var MetaCommand = ns.protocol.MetaCommand;
     var DocumentCommand = function() {
         if (arguments.length === 1) {
-            if (arguments[0] instanceof ID) {
+            if (ns.Interface.conforms(arguments[0], ID)) {
                 MetaCommand.call(this, Command.PROFILE, arguments[0])
             } else {
                 MetaCommand.call(this, arguments[0])
@@ -662,14 +662,14 @@
             this.document = null
         } else {
             if (arguments.length === 2) {
-                if (arguments[1] instanceof Meta) {
+                if (ns.Interface.conforms(arguments[1], Meta)) {
                     MetaCommand.call(this, Command.PROFILE, arguments[0], arguments[1])
                 } else {
                     if (typeof arguments[1] === "string") {
                         MetaCommand.call(this, Command.PROFILE, arguments[0], null);
                         this.setSignature(arguments[1])
                     } else {
-                        throw SyntaxError("document command arguments error: " + arguments)
+                        throw new SyntaxError("document command arguments error: " + arguments)
                     }
                 }
                 this.document = null
@@ -678,7 +678,7 @@
                     MetaCommand.call(this, Command.PROFILE, arguments[0], arguments[1]);
                     this.setDocument(arguments[2])
                 } else {
-                    throw SyntaxError("document command arguments error: " + arguments)
+                    throw new SyntaxError("document command arguments error: " + arguments)
                 }
             }
         }
@@ -874,7 +874,7 @@
     };
     ns.Class(ExpelCommand, GroupCommand, null);
     var JoinCommand = function() {
-        if (arguments[0] instanceof ID) {
+        if (ns.Interface.conforms(arguments[0], ID)) {
             GroupCommand.call(this, GroupCommand.JOIN, arguments[0])
         } else {
             GroupCommand.call(this, arguments[0])
@@ -882,7 +882,7 @@
     };
     ns.Class(JoinCommand, GroupCommand, null);
     var QuitCommand = function() {
-        if (arguments[0] instanceof ID) {
+        if (ns.Interface.conforms(arguments[0], ID)) {
             GroupCommand.call(this, GroupCommand.QUIT, arguments[0])
         } else {
             GroupCommand.call(this, arguments[0])
@@ -898,7 +898,7 @@
     };
     ns.Class(ResetCommand, GroupCommand, null);
     var QueryCommand = function() {
-        if (arguments[0] instanceof ID) {
+        if (ns.Interface.conforms(arguments[0], ID)) {
             GroupCommand.call(this, GroupCommand.QUERY, arguments[0])
         } else {
             GroupCommand.call(this, arguments[0])
@@ -929,11 +929,6 @@
     GroupCommand.register(GroupCommand.QUIT, QuitCommand);
     GroupCommand.register(GroupCommand.RESET, ResetCommand);
     GroupCommand.register(GroupCommand.QUERY, QueryCommand);
-    if (typeof ns.protocol.group !== "object") {
-        ns.protocol.group = {}
-    }
-    ns.Namespace(ns.protocol.group);
-    ns.protocol.register("group");
     ns.protocol.group.InviteCommand = InviteCommand;
     ns.protocol.group.ExpelCommand = ExpelCommand;
     ns.protocol.group.JoinCommand = JoinCommand;
@@ -961,7 +956,7 @@
             if (other instanceof Entity) {
                 return this.identifier.equals(other.identifier)
             } else {
-                if (other instanceof ID) {
+                if (ns.Interface.conforms(other, ID)) {
                     return this.identifier.equals(other)
                 } else {
                     return false
@@ -1043,7 +1038,7 @@
     ns.Class(User, Entity, null);
     User.prototype.getVisa = function() {
         var doc = this.getDocument(Document.VISA);
-        if (doc instanceof Visa) {
+        if (ns.Interface.conforms(doc, Visa)) {
             return doc
         } else {
             return null
@@ -1055,7 +1050,7 @@
     User.prototype.verify = function(data, signature) {
         var keys = this.getDataSource().getPublicKeysForVerification(this.identifier);
         if (!keys || keys.length === 0) {
-            throw Error("failed to get verify keys for user: " + this.identifier)
+            throw new Error("failed to get verify keys for user: " + this.identifier)
         }
         for (var i = 0; i < keys.length; ++i) {
             if (keys[i].verify(data, signature)) {
@@ -1067,21 +1062,21 @@
     User.prototype.encrypt = function(plaintext) {
         var key = this.getDataSource().getPublicKeyForEncryption(this.identifier);
         if (!key) {
-            throw Error("failed to get encrypt key for user: " + this.identifier)
+            throw new Error("failed to get encrypt key for user: " + this.identifier)
         }
         return key.encrypt(plaintext)
     };
     User.prototype.sign = function(data) {
         var key = this.getDataSource().getPrivateKeyForSignature(this.identifier);
         if (!key) {
-            throw Error("failed to get sign key for user: " + this.identifier)
+            throw new Error("failed to get sign key for user: " + this.identifier)
         }
         return key.sign(data)
     };
     User.prototype.decrypt = function(ciphertext) {
         var keys = this.getDataSource().getPrivateKeysForDecryption(this.identifier);
         if (!keys || keys.length === 0) {
-            throw Error("failed to get decrypt keys for user: " + this.identifier)
+            throw new Error("failed to get decrypt keys for user: " + this.identifier)
         }
         var plaintext;
         for (var i = 0; i < keys.length; ++i) {
@@ -1100,7 +1095,7 @@
         }
         var key = this.getDataSource().getPrivateKeyForVisaSignature(this.identifier);
         if (!key) {
-            throw Error("failed to get sign key for user: " + this.identifier)
+            throw new Error("failed to get sign key for user: " + this.identifier)
         }
         visa.sign(key);
         return visa
@@ -1111,7 +1106,7 @@
         }
         var key = this.getMeta().getKey();
         if (!key) {
-            throw Error("failed to get meta key for user: " + this.identifier)
+            throw new Error("failed to get meta key for user: " + this.identifier)
         }
         return visa.verify(key)
     };
@@ -1158,7 +1153,7 @@
     ns.Class(Group, Entity, null);
     Group.prototype.getBulletin = function() {
         var doc = this.getDocument(Document.BULLETIN);
-        if (doc instanceof Bulletin) {
+        if (ns.Interface.conforms(doc, Bulletin)) {
             return doc
         } else {
             return null
@@ -1399,7 +1394,7 @@
     };
     var visa_key = function(user) {
         var doc = this.getDocument(user, Document.VISA);
-        if (doc instanceof Visa) {
+        if (ns.Interface.conforms(doc, Visa)) {
             if (doc.isValid()) {
                 return doc.getKey()
             }
@@ -1419,7 +1414,7 @@
             return key
         }
         key = meta_key.call(this, identifier);
-        if (key instanceof EncryptKey) {
+        if (ns.Interface.conforms(key, EncryptKey)) {
             return key
         }
         return null
@@ -1427,7 +1422,7 @@
     Barrack.prototype.getPublicKeysForVerification = function(identifier) {
         var keys = [];
         var key = visa_key.call(this, identifier);
-        if (key instanceof VerifyKey) {
+        if (ns.Interface.conforms(key, VerifyKey)) {
             keys.push(key)
         }
         key = meta_key.call(this, identifier);
@@ -1510,7 +1505,7 @@
     };
     Barrack.prototype.getAssistants = function(group) {
         var doc = this.getDocument(group, Document.BULLETIN);
-        if (doc instanceof Bulletin) {
+        if (ns.Interface.conforms(doc, Bulletin)) {
             if (doc.isValid()) {
                 return doc.getAssistants()
             }
@@ -1551,7 +1546,7 @@
         }
         var sender = iMsg.getSender();
         var receiver = iMsg.getReceiver();
-        var group = transceiver.getOverGroup(iMsg.getContent());
+        var group = transceiver.getOvertGroup(iMsg.getContent());
         var password;
         if (group) {
             password = transceiver.getCipherKey(sender, group, true)

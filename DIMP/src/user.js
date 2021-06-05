@@ -64,7 +64,7 @@
 
     User.prototype.getVisa = function () {
         var doc = this.getDocument(Document.VISA);
-        if (doc instanceof Visa) {
+        if (ns.Interface.conforms(doc, Visa)) {
             return doc;
         } else {
             return null;
@@ -92,7 +92,7 @@
         //         so here should return the meta.key
         var keys = this.getDataSource().getPublicKeysForVerification(this.identifier);
         if (!keys || keys.length === 0) {
-            throw Error('failed to get verify keys for user: ' + this.identifier);
+            throw new Error('failed to get verify keys for user: ' + this.identifier);
         }
         for (var i = 0; i < keys.length; ++i) {
             if (keys[i].verify(data, signature)) {
@@ -114,7 +114,7 @@
         //         is the better way
         var key = this.getDataSource().getPublicKeyForEncryption(this.identifier);
         if (!key) {
-            throw Error('failed to get encrypt key for user: ' + this.identifier);
+            throw new Error('failed to get encrypt key for user: ' + this.identifier);
         }
         return key.encrypt(plaintext);
     };
@@ -134,7 +134,7 @@
         //         to sign message
         var key = this.getDataSource().getPrivateKeyForSignature(this.identifier);
         if (!key) {
-            throw Error('failed to get sign key for user: ' + this.identifier);
+            throw new Error('failed to get sign key for user: ' + this.identifier);
         }
         return key.sign(data);
     };
@@ -150,7 +150,7 @@
         //         here you should return the private key paired with profile.key
         var keys = this.getDataSource().getPrivateKeysForDecryption(this.identifier);
         if (!keys || keys.length === 0) {
-            throw Error('failed to get decrypt keys for user: ' + this.identifier);
+            throw new Error('failed to get decrypt keys for user: ' + this.identifier);
         }
         var plaintext;
         for (var i = 0; i < keys.length; ++i) {
@@ -179,7 +179,7 @@
         }
         var key = this.getDataSource().getPrivateKeyForVisaSignature(this.identifier);
         if (!key) {
-            throw Error('failed to get sign key for user: ' + this.identifier);
+            throw new Error('failed to get sign key for user: ' + this.identifier);
         }
         visa.sign(key);
         return visa;
@@ -194,7 +194,7 @@
         // if meta not exists, user won't be created
         var key = this.getMeta().getKey();
         if (!key) {
-            throw Error('failed to get meta key for user: ' + this.identifier);
+            throw new Error('failed to get meta key for user: ' + this.identifier);
         }
         return visa.verify(key);
     };

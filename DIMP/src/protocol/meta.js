@@ -62,7 +62,7 @@
      */
     var MetaCommand = function () {
         if (arguments.length === 1) {
-            if (arguments[0] instanceof ID) {
+            if (ns.Interface.conforms(arguments[0], ID)) {
                 // new MetaCommand(identifier);
                 Command.call(this, Command.META);
                 this.setIdentifier(arguments[0]);
@@ -83,7 +83,7 @@
             this.setIdentifier(arguments[1]);
             this.setMeta(arguments[2]);
         } else {
-            throw SyntaxError('meta command arguments error: ' + arguments);
+            throw new SyntaxError('meta command arguments error: ' + arguments);
         }
     };
     ns.Class(MetaCommand, Command, null);
