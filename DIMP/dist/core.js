@@ -31,14 +31,14 @@
     var ForwardContent = function() {
         if (arguments.length === 0) {
             BaseContent.call(this, ContentType.FORWARD);
-            this.forward = null
+            this.__forward = null
         } else {
             if (ns.Interface.conforms(arguments[0], ReliableMessage)) {
                 BaseContent.call(this, ContentType.FORWARD);
                 this.setMessage(arguments[0])
             } else {
                 BaseContent.call(this, arguments[0]);
-                this.forward = null
+                this.__forward = null
             }
         }
     };
@@ -59,14 +59,14 @@
         }
     };
     ForwardContent.prototype.getMessage = function() {
-        if (!this.forward) {
-            this.forward = ForwardContent.getMessage(this.getMap())
+        if (!this.__forward) {
+            this.__forward = ForwardContent.getMessage(this.getMap())
         }
-        return this.forward
+        return this.__forward
     };
     ForwardContent.prototype.setMessage = function(secret) {
         ForwardContent.setMessage(secret, this.getMap());
-        this.forward = secret
+        this.__forward = secret
     };
     ns.protocol.ForwardContent = ForwardContent;
     ns.protocol.register("ForwardContent")
@@ -78,13 +78,11 @@
     var FileContent = function() {
         if (arguments.length === 0) {
             BaseContent.call(this, ContentType.FILE);
-            this.filename = null;
-            this.attachment = null
+            this.__data = null
         } else {
             if (arguments.length === 1) {
                 BaseContent.call(this, arguments[0]);
-                this.filename = null;
-                this.attachment = null
+                this.__data = null
             } else {
                 if (arguments.length === 2) {
                     BaseContent.call(this, ContentType.FILE);
@@ -101,7 +99,7 @@
                 }
             }
         }
-        this.password = null
+        this.__password = null
     };
     ns.Class(FileContent, BaseContent, null);
     FileContent.getURL = function(content) {
@@ -161,34 +159,30 @@
         FileContent.setURL(url, this.getMap())
     };
     FileContent.prototype.getFilename = function() {
-        if (!this.filename) {
-            this.filename = FileContent.getFilename(this.getMap())
-        }
-        return this.filename
+        return FileContent.getFilename(this.getMap())
     };
     FileContent.prototype.setFilename = function(filename) {
-        FileContent.setFilename(filename, this.getMap());
-        this.filename = filename
+        FileContent.setFilename(filename, this.getMap())
     };
     FileContent.prototype.getData = function() {
-        if (!this.attachment) {
-            this.attachment = FileContent.getData(this.getMap())
+        if (!this.__data) {
+            this.__data = FileContent.getData(this.getMap())
         }
-        return this.attachment
+        return this.__data
     };
     FileContent.prototype.setData = function(data) {
         FileContent.setData(data, this.getMap());
-        this.attachment = data
+        this.__data = data
     };
     FileContent.prototype.getPassword = function() {
-        if (!this.password) {
-            this.password = FileContent.getPassword(console)
+        if (!this.__password) {
+            this.__password = FileContent.getPassword(console)
         }
-        return this.password
+        return this.__password
     };
     FileContent.prototype.setPassword = function(key) {
         FileContent.setPassword(key, this.getMap());
-        this.password = key
+        this.__password = key
     };
     ns.protocol.FileContent = FileContent;
     ns.protocol.register("FileContent")
@@ -210,7 +204,7 @@
                 }
             }
         }
-        this.thumbnail = null
+        this.__thumbnail = null
     };
     ns.Class(ImageContent, FileContent, null);
     ImageContent.getThumbnail = function(content) {
@@ -229,14 +223,14 @@
         }
     };
     ImageContent.prototype.getThumbnail = function() {
-        if (!this.thumbnail) {
-            this.thumbnail = ImageContent.getThumbnail(this.getMap())
+        if (!this.__thumbnail) {
+            this.__thumbnail = ImageContent.getThumbnail(this.getMap())
         }
-        return this.thumbnail
+        return this.__thumbnail
     };
     ImageContent.prototype.setThumbnail = function(image) {
         ImageContent.setThumbnail(image, this.getMap());
-        this.thumbnail = image
+        this.__thumbnail = image
     };
     ns.protocol.ImageContent = ImageContent;
     ns.protocol.register("ImageContent")
@@ -258,7 +252,7 @@
                 }
             }
         }
-        this.snapshot = null
+        this.__snapshot = null
     };
     ns.Class(VideoContent, FileContent, null);
     VideoContent.getSnapshot = function(content) {
@@ -277,14 +271,14 @@
         }
     };
     VideoContent.prototype.getSnapshot = function() {
-        if (!this.snapshot) {
-            this.snapshot = VideoContent.getSnapshot(this.getMap())
+        if (!this.__snapshot) {
+            this.__snapshot = VideoContent.getSnapshot(this.getMap())
         }
-        return this.snapshot
+        return this.__snapshot
     };
     VideoContent.prototype.setSnapshot = function(image) {
         VideoContent.setSnapshot(image, this.getMap());
-        this.snapshot = image
+        this.__snapshot = image
     };
     ns.protocol.VideoContent = VideoContent;
     ns.protocol.register("VideoContent")
@@ -348,7 +342,7 @@
     var PageContent = function() {
         if (arguments.length === 1) {
             BaseContent.call(this, arguments[0]);
-            this.icon = null
+            this.__icon = null
         } else {
             if (arguments.length === 4) {
                 BaseContent.call(this, ContentType.PAGE);
@@ -426,14 +420,14 @@
         PageContent.setDesc(text, this.getMap())
     };
     PageContent.prototype.getIcon = function() {
-        if (!this.icon) {
-            this.icon = PageContent.getIcon(this.getMap())
+        if (!this.__icon) {
+            this.__icon = PageContent.getIcon(this.getMap())
         }
-        return this.icon
+        return this.__icon
     };
     PageContent.prototype.setIcon = function(image) {
         PageContent.setIcon(image, this.getMap());
-        this.icon = image
+        this.__icon = image
     };
     ns.protocol.PageContent = PageContent;
     ns.protocol.register("PageContent")
@@ -577,9 +571,9 @@
                 this.setIdentifier(arguments[0])
             } else {
                 Command.call(this, arguments[0]);
-                this.identifier = null
+                this.__identifier = null
             }
-            this.meta = null
+            this.__meta = null
         } else {
             if (arguments.length === 2) {
                 Command.call(this, Command.META);
@@ -618,24 +612,24 @@
         }
     };
     MetaCommand.prototype.getIdentifier = function() {
-        if (!this.identifier) {
-            this.identifier = MetaCommand.getIdentifier(this.getMap())
+        if (!this.__identifier) {
+            this.__identifier = MetaCommand.getIdentifier(this.getMap())
         }
-        return this.identifier
+        return this.__identifier
     };
     MetaCommand.prototype.setIdentifier = function(identifier) {
         MetaCommand.setIdentifier(identifier, this.getMap());
-        this.identifier = identifier
+        this.__identifier = identifier
     };
     MetaCommand.prototype.getMeta = function() {
-        if (!this.meta) {
-            this.meta = MetaCommand.getMeta(this.getMap())
+        if (!this.__meta) {
+            this.__meta = MetaCommand.getMeta(this.getMap())
         }
-        return this.meta
+        return this.__meta
     };
     MetaCommand.prototype.setMeta = function(meta) {
         MetaCommand.setMeta(meta, this.getMap());
-        this.meta = meta
+        this.__meta = meta
     };
     MetaCommand.query = function(identifier) {
         return new MetaCommand(identifier)
@@ -659,7 +653,7 @@
             } else {
                 MetaCommand.call(this, arguments[0])
             }
-            this.document = null
+            this.__document = null
         } else {
             if (arguments.length === 2) {
                 if (ns.Interface.conforms(arguments[1], Meta)) {
@@ -672,7 +666,7 @@
                         throw new SyntaxError("document command arguments error: " + arguments)
                     }
                 }
-                this.document = null
+                this.__document = null
             } else {
                 if (arguments.length === 3) {
                     MetaCommand.call(this, Command.PROFILE, arguments[0], arguments[1]);
@@ -717,14 +711,14 @@
         cmd["signature"] = base64
     };
     DocumentCommand.prototype.getDocument = function() {
-        if (!this.document) {
-            this.document = DocumentCommand.getDocument(this.getMap())
+        if (!this.__document) {
+            this.__document = DocumentCommand.getDocument(this.getMap())
         }
-        return this.document
+        return this.__document
     };
     DocumentCommand.prototype.setDocument = function(doc) {
         DocumentCommand.setDocument(doc, this.getMap());
-        this.document = doc
+        this.__document = doc
     };
     DocumentCommand.prototype.getSignature = function() {
         return DocumentCommand.getSignature(this.getMap())
@@ -768,25 +762,25 @@
     var GroupCommand = function() {
         if (arguments.length === 1) {
             HistoryCommand.call(this, arguments[0]);
-            this.member = null;
-            this.members = null
+            this.__member = null;
+            this.__members = null
         } else {
             if (arguments.length === 2) {
                 HistoryCommand.call(this, arguments[0]);
                 this.setGroup(arguments[1]);
-                this.member = null;
-                this.members = null
+                this.__member = null;
+                this.__members = null
             } else {
                 if (arguments[2] instanceof Array) {
                     HistoryCommand.call(this, arguments[0]);
                     this.setGroup(arguments[1]);
-                    this.member = null;
+                    this.__member = null;
                     this.setMembers(arguments[2])
                 } else {
                     HistoryCommand.call(this, arguments[0]);
                     this.setGroup(arguments[1]);
                     this.setMember(arguments[2]);
-                    this.members = null
+                    this.__members = null
                 }
             }
         }
@@ -818,26 +812,26 @@
         }
     };
     GroupCommand.prototype.getMember = function() {
-        if (!this.member) {
-            this.member = GroupCommand.getMember(this.getMap())
+        if (!this.__member) {
+            this.__member = GroupCommand.getMember(this.getMap())
         }
-        return this.member
+        return this.__member
     };
     GroupCommand.prototype.setMember = function(identifier) {
         GroupCommand.setMembers(null, this.getMap());
         GroupCommand.setMember(identifier, this.getMap());
-        this.member = identifier
+        this.__member = identifier
     };
     GroupCommand.prototype.getMembers = function() {
-        if (!this.members) {
-            this.members = GroupCommand.getMembers(this.getMap())
+        if (!this.__members) {
+            this.__members = GroupCommand.getMembers(this.getMap())
         }
-        return this.members
+        return this.__members
     };
     GroupCommand.prototype.setMembers = function(members) {
         GroupCommand.setMember(null, this.getMap());
         GroupCommand.setMembers(members, this.getMap());
-        this.members = members
+        this.__members = members
     };
     GroupCommand.register = HistoryCommand.register;
     GroupCommand.FOUND = "found";
@@ -946,7 +940,7 @@
     var ID = ns.protocol.ID;
     var Entity = function(identifier) {
         this.identifier = identifier;
-        this.datasource = null
+        this.__datasource = null
     };
     ns.Class(Entity, ns.type.Object, null);
     Entity.prototype.equals = function(other) {
@@ -980,10 +974,10 @@
         return this.identifier.getType()
     };
     Entity.prototype.getDataSource = function() {
-        return this.datasource
+        return this.__datasource
     };
     Entity.prototype.setDataSource = function(delegate) {
-        this.datasource = delegate
+        this.__datasource = delegate
     };
     Entity.prototype.getMeta = function() {
         return this.getDataSource().getMeta(this.identifier)
@@ -1148,7 +1142,7 @@
     var Entity = ns.Entity;
     var Group = function(identifier) {
         Entity.call(this, identifier);
-        this.founder = null
+        this.__founder = null
     };
     ns.Class(Group, Entity, null);
     Group.prototype.getBulletin = function() {
@@ -1160,10 +1154,10 @@
         }
     };
     Group.prototype.getFounder = function() {
-        if (!this.founder) {
-            this.founder = this.getDataSource().getFounder(this.identifier)
+        if (!this.__founder) {
+            this.__founder = this.getDataSource().getFounder(this.identifier)
         }
-        return this.founder
+        return this.__founder
     };
     Group.prototype.getOwner = function() {
         return this.getDataSource().getOwner(this.identifier)
@@ -1288,8 +1282,8 @@
     var User = ns.User;
     var Group = ns.Group;
     var Barrack = function() {
-        this.userMap = {};
-        this.groupMap = {}
+        this.__users = {};
+        this.__groups = {}
     };
     ns.Class(Barrack, ns.type.Object, [Entity.Delegate, User.DataSource, Group.DataSource]);
     var thanos = function(map, finger) {
@@ -1307,22 +1301,22 @@
     };
     Barrack.prototype.reduceMemory = function() {
         var finger = 0;
-        finger = thanos(this.userMap, finger);
-        finger = thanos(this.groupMap, finger);
+        finger = thanos(this.__users, finger);
+        finger = thanos(this.__groups, finger);
         return finger >> 1
     };
     var cacheUser = function(user) {
         if (!user.getDataSource()) {
             user.setDataSource(this)
         }
-        this.userMap[user.identifier.toString()] = user;
+        this.__users[user.identifier.toString()] = user;
         return true
     };
     var cacheGroup = function(group) {
         if (!group.getDataSource()) {
             group.setDataSource(this)
         }
-        this.groupMap[group.identifier.toString()] = group;
+        this.__groups[group.identifier.toString()] = group;
         return true
     };
     Barrack.prototype.createUser = function(identifier) {
@@ -1373,7 +1367,7 @@
         return null
     };
     Barrack.prototype.getUser = function(identifier) {
-        var user = this.userMap[identifier.toString()];
+        var user = this.__users[identifier.toString()];
         if (!user) {
             user = this.createUser(identifier);
             if (user) {
@@ -1383,7 +1377,7 @@
         return user
     };
     Barrack.prototype.getGroup = function(identifier) {
-        var group = this.groupMap[identifier.toString()];
+        var group = this.__groups[identifier.toString()];
         if (!group) {
             group = this.createGroup(identifier);
             if (group) {
@@ -1520,11 +1514,11 @@
     var ReliableMessage = ns.protocol.ReliableMessage;
     var Transceiver = ns.Transceiver;
     var CorePacker = function(transceiver) {
-        this.transceiver = transceiver
+        this.__transceiver = transceiver
     };
     ns.Class(CorePacker, ns.type.Object, [Transceiver.Packer]);
     CorePacker.prototype.getTransceiver = function() {
-        return this.transceiver
+        return this.__transceiver
     };
     CorePacker.prototype.getOvertGroup = function(content) {
         var group = content.getGroup();
@@ -1609,11 +1603,11 @@
     var InstantMessage = ns.protocol.InstantMessage;
     var Transceiver = ns.Transceiver;
     var CoreProcessor = function(transceiver) {
-        this.transceiver = transceiver
+        this.__transceiver = transceiver
     };
     ns.Class(CoreProcessor, ns.type.Object, [Transceiver.Processor]);
     CoreProcessor.prototype.getTransceiver = function() {
-        return this.transceiver
+        return this.__transceiver
     };
     CoreProcessor.prototype.processData = function(data) {
         var transceiver = this.getTransceiver();
@@ -1673,17 +1667,17 @@
     var ReliableMessage = ns.protocol.ReliableMessage;
     var Transceiver = ns.Transceiver;
     var CoreTransceiver = function() {
-        this.entityDelegate = null;
-        this.cipherKeyDelegate = null;
-        this.parker = null;
-        this.processor = null
+        this.__barrack = null;
+        this.__keycache = null;
+        this.__packer = null;
+        this.__processor = null
     };
     ns.Class(CoreTransceiver, ns.type.Object, [Transceiver, InstantMessage.Delegate, ReliableMessage.Delegate]);
     CoreTransceiver.prototype.setEntityDelegate = function(barrack) {
-        this.entityDelegate = barrack
+        this.__barrack = barrack
     };
     CoreTransceiver.prototype.getEntityDelegate = function() {
-        return this.entityDelegate
+        return this.__barrack
     };
     CoreTransceiver.prototype.selectLocalUser = function(receiver) {
         return this.getEntityDelegate().selectLocalUser(receiver)
@@ -1695,10 +1689,10 @@
         return this.getEntityDelegate().getGroup(identifier)
     };
     CoreTransceiver.prototype.setCipherKeyDelegate = function(keyCache) {
-        this.cipherKeyDelegate = keyCache
+        this.__keycache = keyCache
     };
     CoreTransceiver.prototype.getCipherKeyDelegate = function() {
-        return this.cipherKeyDelegate
+        return this.__keycache
     };
     CoreTransceiver.prototype.getCipherKey = function(from, to, generate) {
         return this.getCipherKeyDelegate().getCipherKey(from, to, generate)
@@ -1707,10 +1701,10 @@
         return this.getCipherKeyDelegate().cacheCipherKey(from, to, key)
     };
     CoreTransceiver.prototype.setPacker = function(packer) {
-        this.parker = packer
+        this.__packer = packer
     };
     CoreTransceiver.prototype.getPacker = function() {
-        return this.parker
+        return this.__packer
     };
     CoreTransceiver.prototype.getOvertGroup = function(content) {
         return this.getPacker().getOvertGroup(content)
@@ -1734,10 +1728,10 @@
         return this.getPacker().decryptMessage(sMsg)
     };
     CoreTransceiver.prototype.setProcessor = function(processor) {
-        this.processor = processor
+        this.__processor = processor
     };
     CoreTransceiver.prototype.getProcessor = function() {
-        return this.processor
+        return this.__processor
     };
     CoreTransceiver.prototype.processData = function(data) {
         return this.getProcessor().processData(data)
@@ -1849,19 +1843,19 @@
     var Command = ns.protocol.Command;
     var HistoryCommand = ns.protocol.HistoryCommand;
     var GroupCommand = ns.protocol.GroupCommand;
-    var ContentFactory = function(className) {
-        this.className = className
+    var ContentFactory = function(clazz) {
+        this.__class = clazz
     };
     ns.Class(ContentFactory, null, [Content.Factory]);
     ContentFactory.prototype.parseContent = function(content) {
-        return new this.className(content)
+        return new this.__class(content)
     };
-    var CommandFactory = function(className) {
-        this.className = className
+    var CommandFactory = function(clazz) {
+        this.__class = clazz
     };
     ns.Class(CommandFactory, null, [Command.Factory]);
     CommandFactory.prototype.parseCommand = function(content) {
-        return new this.className(content)
+        return new this.__class(content)
     };
     var GeneralCommandFactory = function() {};
     ns.Class(GeneralCommandFactory, null, [Content.Factory, Command.Factory]);

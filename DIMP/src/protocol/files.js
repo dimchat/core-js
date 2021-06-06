@@ -70,7 +70,7 @@
         } else {
             throw new SyntaxError('image content arguments error: ' + arguments);
         }
-        this.thumbnail = null;
+        this.__thumbnail = null;
     };
     ns.Class(ImageContent, FileContent, null);
 
@@ -98,10 +98,10 @@
      * @returns {Uint8Array}
      */
     ImageContent.prototype.getThumbnail = function () {
-        if (!this.thumbnail) {
-            this.thumbnail = ImageContent.getThumbnail(this.getMap());
+        if (!this.__thumbnail) {
+            this.__thumbnail = ImageContent.getThumbnail(this.getMap());
         }
-        return this.thumbnail;
+        return this.__thumbnail;
     };
     /**
      *  Set small image data
@@ -110,7 +110,7 @@
      */
     ImageContent.prototype.setThumbnail = function (image) {
         ImageContent.setThumbnail(image, this.getMap());
-        this.thumbnail = image;
+        this.__thumbnail = image;
     };
 
     //-------- namespace --------
@@ -158,7 +158,7 @@
         } else {
             throw new SyntaxError('video content arguments error: ' + arguments);
         }
-        this.snapshot = null;
+        this.__snapshot = null;
     };
     ns.Class(VideoContent, FileContent, null);
 
@@ -186,10 +186,10 @@
      * @returns {Uint8Array}
      */
     VideoContent.prototype.getSnapshot = function () {
-        if (!this.snapshot) {
-            this.snapshot = VideoContent.getSnapshot(this.getMap());
+        if (!this.__snapshot) {
+            this.__snapshot = VideoContent.getSnapshot(this.getMap());
         }
-        return this.snapshot;
+        return this.__snapshot;
     };
     /**
      *  Set small image data
@@ -198,7 +198,7 @@
      */
     VideoContent.prototype.setSnapshot = function (image) {
         VideoContent.setSnapshot(image, this.getMap());
-        this.snapshot = image;
+        this.__snapshot = image;
     };
 
     //-------- namespace --------

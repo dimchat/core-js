@@ -49,10 +49,10 @@
     var Transceiver = ns.Transceiver;
 
     var CoreTransceiver = function () {
-        this.entityDelegate = null;
-        this.cipherKeyDelegate = null;
-        this.parker = null;
-        this.processor = null;
+        this.__barrack = null;
+        this.__keycache = null;
+        this.__packer = null;
+        this.__processor = null;
     };
     ns.Class(CoreTransceiver, ns.type.Object, [Transceiver, InstantMessage.Delegate, ReliableMessage.Delegate]);
 
@@ -60,10 +60,10 @@
     //  Interfaces for User/Group
     //
     CoreTransceiver.prototype.setEntityDelegate = function (barrack) {
-        this.entityDelegate = barrack;
+        this.__barrack = barrack;
     };
     CoreTransceiver.prototype.getEntityDelegate = function () {
-        return this.entityDelegate;
+        return this.__barrack;
     };
 
     CoreTransceiver.prototype.selectLocalUser = function (receiver) {
@@ -82,10 +82,10 @@
     //  Interfaces for Cipher Key
     //
     CoreTransceiver.prototype.setCipherKeyDelegate = function (keyCache) {
-        this.cipherKeyDelegate = keyCache;
+        this.__keycache = keyCache;
     };
     CoreTransceiver.prototype.getCipherKeyDelegate = function () {
-        return this.cipherKeyDelegate;
+        return this.__keycache;
     };
 
     CoreTransceiver.prototype.getCipherKey = function (from, to, generate) {
@@ -100,10 +100,10 @@
     //  Interfaces for Packing Message
     //
     CoreTransceiver.prototype.setPacker = function (packer) {
-        this.parker = packer;
+        this.__packer = packer;
     };
     CoreTransceiver.prototype.getPacker = function () {
-        return this.parker;
+        return this.__packer;
     };
 
     CoreTransceiver.prototype.getOvertGroup = function (content) {
@@ -138,10 +138,10 @@
     //  Interfaces for Processing Message
     //
     CoreTransceiver.prototype.setProcessor = function (processor) {
-        this.processor = processor;
+        this.__processor = processor;
     };
     CoreTransceiver.prototype.getProcessor = function () {
-        return this.processor;
+        return this.__processor;
     };
 
     CoreTransceiver.prototype.processData = function (data) {

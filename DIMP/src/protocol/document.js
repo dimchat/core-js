@@ -74,7 +74,7 @@
                 // new DocumentCommand(map);
                 MetaCommand.call(this, arguments[0]);
             }
-            this.document = null;
+            this.__document = null;
         } else if (arguments.length === 2) {
             if (ns.Interface.conforms(arguments[1], Meta)) {
                 // new DocumentCommand(identifier, meta);
@@ -86,7 +86,7 @@
             } else {
                 throw new SyntaxError('document command arguments error: ' + arguments);
             }
-            this.document = null;
+            this.__document = null;
         } else if (arguments.length === 3) {
             // new DocumentCommand(identifier, meta, document);
             MetaCommand.call(this, Command.PROFILE, arguments[0], arguments[1]);
@@ -148,10 +148,10 @@
      * @returns {Document}
      */
     DocumentCommand.prototype.getDocument = function () {
-        if (!this.document) {
-            this.document = DocumentCommand.getDocument(this.getMap());
+        if (!this.__document) {
+            this.__document = DocumentCommand.getDocument(this.getMap());
         }
-        return this.document;
+        return this.__document;
     };
     /**
      *  Set Profile
@@ -160,7 +160,7 @@
      */
     DocumentCommand.prototype.setDocument = function (doc) {
         DocumentCommand.setDocument(doc, this.getMap());
-        this.document = doc;
+        this.__document = doc;
     };
 
     /**

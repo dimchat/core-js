@@ -69,9 +69,9 @@
             } else {
                 // new MetaCommand(map);
                 Command.call(this, arguments[0]);
-                this.identifier = null;
+                this.__identifier = null;
             }
-            this.meta = null;
+            this.__meta = null;
         } else if (arguments.length === 2) {
             // new MetaCommand(identifier, meta);
             Command.call(this, Command.META);
@@ -118,10 +118,10 @@
      * @returns {ID}
      */
     MetaCommand.prototype.getIdentifier = function () {
-        if (!this.identifier) {
-            this.identifier = MetaCommand.getIdentifier(this.getMap());
+        if (!this.__identifier) {
+            this.__identifier = MetaCommand.getIdentifier(this.getMap());
         }
-        return this.identifier;
+        return this.__identifier;
     };
     /**
      *  Set entity ID for meta
@@ -130,7 +130,7 @@
      */
     MetaCommand.prototype.setIdentifier = function (identifier) {
         MetaCommand.setIdentifier(identifier, this.getMap());
-        this.identifier = identifier;
+        this.__identifier = identifier;
     };
 
     /**
@@ -139,10 +139,10 @@
      * @returns {Meta}
      */
     MetaCommand.prototype.getMeta = function () {
-        if (!this.meta) {
-            this.meta = MetaCommand.getMeta(this.getMap());
+        if (!this.__meta) {
+            this.__meta = MetaCommand.getMeta(this.getMap());
         }
-        return this.meta;
+        return this.__meta;
     };
     /**
      *  Set meta
@@ -151,7 +151,7 @@
      */
     MetaCommand.prototype.setMeta = function (meta) {
         MetaCommand.setMeta(meta, this.getMap());
-        this.meta = meta;
+        this.__meta = meta;
     };
 
     //-------- factories --------

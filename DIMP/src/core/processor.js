@@ -45,12 +45,12 @@
     var Transceiver = ns.Transceiver;
 
     var CoreProcessor = function (transceiver) {
-        this.transceiver = transceiver;
+        this.__transceiver = transceiver;
     };
     ns.Class(CoreProcessor, ns.type.Object, [Transceiver.Processor]);
 
     CoreProcessor.prototype.getTransceiver = function () {
-        return this.transceiver;
+        return this.__transceiver;
     };
 
     CoreProcessor.prototype.processData = function (data) {

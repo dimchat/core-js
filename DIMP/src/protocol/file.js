@@ -66,14 +66,12 @@
         if (arguments.length === 0) {
             // new FileContent();
             BaseContent.call(this, ContentType.FILE);
-            this.filename = null;
-            this.attachment = null;
+            this.__data = null;
         } else if (arguments.length === 1) {
             // new FileContent(map);
             // new FileContent(type);
             BaseContent.call(this, arguments[0]);
-            this.filename = null;
-            this.attachment = null;
+            this.__data = null;
         } else if (arguments.length === 2) {
             // new FileContent(filename, data);
             BaseContent.call(this, ContentType.FILE);
@@ -87,7 +85,7 @@
         } else {
             throw new SyntaxError('file content arguments error: ' + arguments);
         }
-        this.password = null;  // symmetric key for decrypting file data
+        this.__password = null;  // symmetric key for decrypting file data
     };
     ns.Class(FileContent, BaseContent, null);
 
@@ -155,14 +153,10 @@
     };
 
     FileContent.prototype.getFilename = function () {
-        if (!this.filename) {
-            this.filename = FileContent.getFilename(this.getMap());
-        }
-        return this.filename;
+        return FileContent.getFilename(this.getMap());
     };
     FileContent.prototype.setFilename = function (filename) {
         FileContent.setFilename(filename, this.getMap())
-        this.filename = filename;
     };
 
     /*
@@ -170,10 +164,10 @@
      *  The sender should upload it to CDN before sending message out.
      */
     FileContent.prototype.getData = function () {
-        if (!this.attachment) {
-            this.attachment = FileContent.getData(this.getMap());
+        if (!this.__data) {
+            this.__data = FileContent.getData(this.getMap());
         }
-        return this.attachment;
+        return this.__data;
     };
     /**
      *  Set file data
@@ -182,7 +176,7 @@
      */
     FileContent.prototype.setData = function (data) {
         FileContent.setData(data, this.getMap());
-        this.attachment = data;
+        this.__data = data;
     };
 
     /**
@@ -191,10 +185,10 @@
      * @returns {DecryptKey}
      */
     FileContent.prototype.getPassword = function () {
-        if (!this.password) {
-            this.password = FileContent.getPassword(console);
+        if (!this.__password) {
+            this.__password = FileContent.getPassword(console);
         }
-        return this.password;
+        return this.__password;
     };
     /**
      *  Set password for decryption
@@ -203,7 +197,7 @@
      */
     FileContent.prototype.setPassword = function (key) {
         FileContent.setPassword(key, this.getMap());
-        this.password = key;
+        this.__password = key;
     };
 
     //-------- namespace --------

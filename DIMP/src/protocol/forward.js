@@ -60,7 +60,7 @@
         if (arguments.length === 0) {
             // new ForwardContent();
             BaseContent.call(this, ContentType.FORWARD);
-            this.forward = null;
+            this.__forward = null;
         } else if (ns.Interface.conforms(arguments[0], ReliableMessage)) {
             // new ForwardContent(msg);
             BaseContent.call(this, ContentType.FORWARD);
@@ -68,7 +68,7 @@
         } else {
             // new ForwardContent(map);
             BaseContent.call(this, arguments[0]);
-            this.forward = null;
+            this.__forward = null;
         }
     };
     ns.Class(ForwardContent, BaseContent, null);
@@ -95,10 +95,10 @@
      * @returns {ReliableMessage}
      */
     ForwardContent.prototype.getMessage = function () {
-        if (!this.forward) {
-            this.forward = ForwardContent.getMessage(this.getMap());
+        if (!this.__forward) {
+            this.__forward = ForwardContent.getMessage(this.getMap());
         }
-        return this.forward;
+        return this.__forward;
     };
     /**
      *  Set secret message
@@ -107,7 +107,7 @@
      */
     ForwardContent.prototype.setMessage = function (secret) {
         ForwardContent.setMessage(secret, this.getMap());
-        this.forward = secret;
+        this.__forward = secret;
     };
 
     //-------- namespace --------

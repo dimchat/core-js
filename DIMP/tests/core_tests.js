@@ -26,21 +26,21 @@ core_tests = [];
     var test_image_content = function () {
         var content = new ImageContent();
         log('content: ', content);
-        assert(ContentType.IMAGE.equals(content.type) === true, 'image content error');
+        assert(ContentType.IMAGE.equals(content.getType()) === true, 'image content error');
     };
     core_tests.push(test_image_content);
 
     var test_audio_content = function () {
         var content = new AudioContent();
         log('content: ', content);
-        assert(ContentType.AUDIO.equals(content.type) === true, 'audio content error');
+        assert(ContentType.AUDIO.equals(content.getType()) === true, 'audio content error');
     };
     core_tests.push(test_audio_content);
 
     var test_video_content = function () {
         var content = new VideoContent();
         log('content: ', content);
-        assert(ContentType.VIDEO.equals(content.type) === true, 'video content error');
+        assert(ContentType.VIDEO.equals(content.getType()) === true, 'video content error');
     };
     core_tests.push(test_video_content);
 

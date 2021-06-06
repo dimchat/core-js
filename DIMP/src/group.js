@@ -42,7 +42,7 @@
 
     var Group = function (identifier) {
         Entity.call(this, identifier);
-        this.founder = null;
+        this.__founder = null;
     };
     ns.Class(Group, Entity, null);
 
@@ -56,10 +56,10 @@
     };
 
     Group.prototype.getFounder = function () {
-        if (!this.founder) {
-            this.founder = this.getDataSource().getFounder(this.identifier);
+        if (!this.__founder) {
+            this.__founder = this.getDataSource().getFounder(this.identifier);
         }
-        return this.founder;
+        return this.__founder;
     };
 
     Group.prototype.getOwner = function () {

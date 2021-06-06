@@ -64,26 +64,26 @@
         if (arguments.length === 1) {
             // new GroupCommand(map);
             HistoryCommand.call(this, arguments[0]);
-            this.member = null;
-            this.members = null;
+            this.__member = null;
+            this.__members = null;
         } else if (arguments.length === 2) {
             // new GroupCommand(cmd, group);
             HistoryCommand.call(this, arguments[0]);
             this.setGroup(arguments[1]);
-            this.member = null;
-            this.members = null;
+            this.__member = null;
+            this.__members = null;
         } else if (arguments[2] instanceof Array) {
             // new GroupCommand(cmd, group, members);
             HistoryCommand.call(this, arguments[0]);
             this.setGroup(arguments[1]);
-            this.member = null;
+            this.__member = null;
             this.setMembers(arguments[2]);
         } else {
             // new GroupCommand(cmd, group, member);
             HistoryCommand.call(this, arguments[0]);
             this.setGroup(arguments[1]);
             this.setMember(arguments[2]);
-            this.members = null;
+            this.__members = null;
         }
     };
     ns.Class(GroupCommand, HistoryCommand, null);
@@ -123,10 +123,10 @@
      * @returns {ID|String}
      */
     GroupCommand.prototype.getMember = function () {
-        if (!this.member) {
-            this.member = GroupCommand.getMember(this.getMap());
+        if (!this.__member) {
+            this.__member = GroupCommand.getMember(this.getMap());
         }
-        return this.member;
+        return this.__member;
     };
     /**
      *  Set member ID
@@ -136,7 +136,7 @@
     GroupCommand.prototype.setMember = function (identifier) {
         GroupCommand.setMembers(null, this.getMap());
         GroupCommand.setMember(identifier, this.getMap());
-        this.member = identifier;
+        this.__member = identifier;
     };
 
     /**
@@ -145,11 +145,11 @@
      * @returns {String[]}
      */
     GroupCommand.prototype.getMembers = function () {
-        if (!this.members) {
-            this.members = GroupCommand.getMembers(this.getMap());
+        if (!this.__members) {
+            this.__members = GroupCommand.getMembers(this.getMap());
             // TODO: get from 'member'?
         }
-        return this.members;
+        return this.__members;
     };
     /**
      *  Set member ID list
@@ -159,7 +159,7 @@
     GroupCommand.prototype.setMembers = function (members) {
         GroupCommand.setMember(null, this.getMap());
         GroupCommand.setMembers(members, this.getMap());
-        this.members = members;
+        this.__members = members;
     };
 
     GroupCommand.register = HistoryCommand.register;

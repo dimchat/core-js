@@ -46,26 +46,26 @@
      *  Content Factory
      *  ~~~~~~~~~~~~~~~
      */
-    var ContentFactory = function (className) {
-        this.className = className;
+    var ContentFactory = function (clazz) {
+        this.__class = clazz;
     };
     ns.Class(ContentFactory, null, [Content.Factory]);
 
     ContentFactory.prototype.parseContent = function (content) {
-        return new this.className(content);
+        return new this.__class(content);
     };
 
     /**
      *  Command Factory
      *  ~~~~~~~~~~~~~~~
      */
-    var CommandFactory = function (className) {
-        this.className = className;
+    var CommandFactory = function (clazz) {
+        this.__class = clazz;
     };
     ns.Class(CommandFactory, null, [Command.Factory]);
 
     CommandFactory.prototype.parseCommand = function (content) {
-        return new this.className(content);
+        return new this.__class(content);
     };
 
     /**

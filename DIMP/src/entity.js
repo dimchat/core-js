@@ -52,7 +52,7 @@
 
     var Entity = function (identifier) {
         this.identifier = identifier;
-        this.datasource = null;
+        this.__datasource = null;
     };
     ns.Class(Entity, ns.type.Object, null);
 
@@ -110,10 +110,10 @@
      * @return {*}
      */
     Entity.prototype.getDataSource = function () {
-        return this.datasource;
+        return this.__datasource;
     };
     Entity.prototype.setDataSource = function (delegate) {
-        this.datasource = delegate;
+        this.__datasource = delegate;
     };
 
     /**

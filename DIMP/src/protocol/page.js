@@ -61,7 +61,7 @@
         if (arguments.length === 1) {
             // new PageContent(map);
             BaseContent.call(this, arguments[0]);
-            this.icon = null;
+            this.__icon = null;
         } else if (arguments.length === 4) {
             // new PageContent(url, title, desc, icon);
             BaseContent.call(this, ContentType.PAGE);
@@ -153,10 +153,10 @@
      * @returns {Uint8Array}
      */
     PageContent.prototype.getIcon = function () {
-        if (!this.icon) {
-            this.icon = PageContent.getIcon(this.getMap());
+        if (!this.__icon) {
+            this.__icon = PageContent.getIcon(this.getMap());
         }
-        return this.icon;
+        return this.__icon;
     };
     /**
      *  Set small image data
@@ -165,7 +165,7 @@
      */
     PageContent.prototype.setIcon = function (image) {
         PageContent.setIcon(image, this.getMap());
-        this.icon = image;
+        this.__icon = image;
     };
 
     //-------- namespace --------

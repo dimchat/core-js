@@ -45,12 +45,12 @@
     var Transceiver = ns.Transceiver;
 
     var CorePacker = function (transceiver) {
-        this.transceiver = transceiver;
+        this.__transceiver = transceiver;
     };
     ns.Class(CorePacker, ns.type.Object, [Transceiver.Packer]);
 
     CorePacker.prototype.getTransceiver = function () {
-        return this.transceiver;
+        return this.__transceiver;
     };
 
     //

@@ -57,8 +57,8 @@
 
     var Barrack = function () {
         // memory caches
-        this.userMap  = {};  // String -> User
-        this.groupMap = {};  // String -> Group
+        this.__users  = {};  // String -> User
+        this.__groups = {};  // String -> Group
     };
     ns.Class(Barrack, ns.type.Object, [Entity.Delegate, User.DataSource, Group.DataSource]);
 
@@ -92,8 +92,8 @@
      */
     Barrack.prototype.reduceMemory = function () {
         var finger = 0;
-        finger = thanos(this.userMap, finger);
-        finger = thanos(this.groupMap, finger);
+        finger = thanos(this.__users, finger);
+        finger = thanos(this.__groups, finger);
         return finger >> 1;
     };
 
@@ -105,7 +105,7 @@
         if (!user.getDataSource()) {
             user.setDataSource(this);
         }
-        this.userMap[user.identifier.toString()] = user;
+        this.__users[user.identifier.toString()] = user;
         return true;
     };
 
@@ -113,7 +113,7 @@
         if (!group.getDataSource()) {
             group.setDataSource(this);
         }
-        this.groupMap[group.identifier.toString()] = group;
+        this.__groups[group.identifier.toString()] = group;
         return true;
     };
 
@@ -186,7 +186,7 @@
     // @override
     Barrack.prototype.getUser = function (identifier) {
         // 1. get from user cache
-        var user = this.userMap[identifier.toString()];
+        var user = this.__users[identifier.toString()];
         if (!user) {
             // 2. create user and cache it
             user = this.createUser(identifier);
@@ -200,7 +200,7 @@
     // @override
     Barrack.prototype.getGroup = function (identifier) {
         // 1. get from group cache
-        var group = this.groupMap[identifier.toString()];
+        var group = this.__groups[identifier.toString()];
         if (!group) {
             // 2. create group and cache it
             group = this.createGroup(identifier);
