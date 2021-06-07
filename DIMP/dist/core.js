@@ -6,6 +6,9 @@
  * @copyright (c) 2021 Albert Moky
  * @license   {@link https://mit-license.org | MIT License}
  */;
+if (typeof DIMP !== "object") {
+    DIMP = {}
+}
 (function(ns, base) {
     base.exports(ns);
     if (typeof ns.core !== "object") {

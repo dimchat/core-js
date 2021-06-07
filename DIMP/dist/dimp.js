@@ -6,8 +6,8 @@
  * @copyright (c) 2021 Albert Moky
  * @license   {@link https://mit-license.org | MIT License}
  */;
-if (typeof DIMP !== "object") {
-    DIMP = {}
+if (typeof MONKEY !== "object") {
+    MONKEY = {}
 }
 (function(ns) {
     var namespacefy = function(space) {
@@ -72,10 +72,13 @@ if (typeof DIMP !== "object") {
     ns.Namespace = namespacefy;
     namespacefy(ns);
     ns.register("Namespace")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     if (typeof ns.type !== "object") {
         ns.type = {}
+    }
+    if (typeof ns.threading !== "object") {
+        ns.threading = {}
     }
     if (typeof ns.format !== "object") {
         ns.format = {}
@@ -87,14 +90,16 @@ if (typeof DIMP !== "object") {
         ns.crypto = {}
     }
     ns.Namespace(ns.type);
+    ns.Namespace(ns.threading);
     ns.Namespace(ns.format);
     ns.Namespace(ns.digest);
     ns.Namespace(ns.crypto);
     ns.register("type");
+    ns.register("threading");
     ns.register("format");
     ns.register("digest");
     ns.register("crypto")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var conforms = function(object, protocol) {
         if (!object) {
@@ -182,7 +187,7 @@ if (typeof DIMP !== "object") {
     ns.Class = classify;
     ns.register("Interface");
     ns.register("Class")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var is_null = function(object) {
         if (typeof object === "undefined") {
@@ -222,7 +227,7 @@ if (typeof DIMP !== "object") {
     };
     ns.type.Object = obj;
     ns.type.register("Object")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var is_array = function(obj) {
         if (obj instanceof Array) {
@@ -395,7 +400,7 @@ if (typeof DIMP !== "object") {
         copy: copy_items
     };
     ns.type.register("Arrays")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var get_alias = function(value) {
         var enumeration = this.constructor;
@@ -475,7 +480,7 @@ if (typeof DIMP !== "object") {
     ns.type.Enum = enumify;
     ns.type.register("BaseEnum");
     ns.type.register("Enum")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var Arrays = ns.type.Arrays;
     var bytes = function() {
@@ -761,7 +766,7 @@ if (typeof DIMP !== "object") {
     };
     ns.type.Data = bytes;
     ns.type.register("Data")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var Arrays = ns.type.Arrays;
     var bytes = ns.type.Data;
@@ -854,8 +859,7 @@ if (typeof DIMP !== "object") {
     };
     bytes.prototype.append = function(source) {
         if (arguments.length > 1 && typeof arguments[1] !== "number") {
-            for (var i = 0;
-                 i < arguments.length; ++i) {
+            for (var i = 0; i < arguments.length; ++i) {
                 this.append(arguments[i])
             }
             return
@@ -977,7 +981,7 @@ if (typeof DIMP !== "object") {
     };
     ns.type.MutableData = bytes;
     ns.type.register("MutableData")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var str = function(value) {
         if (!value) {
@@ -1032,7 +1036,7 @@ if (typeof DIMP !== "object") {
     };
     ns.type.String = str;
     ns.type.register("String")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var map = function() {};
     ns.Interface(map, null);
@@ -1068,7 +1072,7 @@ if (typeof DIMP !== "object") {
     };
     ns.type.Map = map;
     ns.type.register("Map")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var Arrays = ns.type.Arrays;
     var map = ns.type.Map;
@@ -1121,7 +1125,7 @@ if (typeof DIMP !== "object") {
     };
     ns.type.Dictionary = dict;
     ns.type.register("Dictionary")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var obj = ns.type.Object;
     var str = ns.type.String;
@@ -1196,7 +1200,186 @@ if (typeof DIMP !== "object") {
     wrapper.unwrap = unwrap;
     ns.type.Wrapper = wrapper;
     ns.type.register("Wrapper")
-})(DIMP);
+})(MONKEY);
+(function(ns) {
+    var Runnable = function() {};
+    ns.Interface(Runnable, null);
+    Runnable.prototype.run = function() {
+        console.assert(false, "implement me!");
+        return false
+    };
+    ns.threading.Runnable = Runnable;
+    ns.threading.register("Runnable")
+})(MONKEY);
+(function(ns) {
+    var obj = ns.type.Object;
+    var Runnable = ns.threading.Runnable;
+    var Thread = function() {
+        obj.call(this);
+        if (arguments.length === 0) {
+            this.__target = null;
+            this.__interval = 128
+        } else {
+            if (arguments.length === 2) {
+                this.__target = arguments[0];
+                this.__interval = arguments[1]
+            } else {
+                if (typeof arguments[0] === "number") {
+                    this.__target = null;
+                    this.__interval = arguments[0]
+                } else {
+                    this.__target = arguments[0];
+                    this.__interval = 128
+                }
+            }
+        }
+        this.__running = false;
+        this.__thread_id = 0
+    };
+    ns.Class(Thread, obj, [Runnable]);
+    Thread.prototype.start = function() {
+        this.__running = true;
+        run(this)
+    };
+    Thread.prototype.stop = function() {
+        this.__running = false;
+        var tid = this.__thread_id;
+        if (tid > 0) {
+            this.__thread_id = 0;
+            clearTimeout(tid)
+        }
+    };
+    var run = function(thread) {
+        if (thread.isRunning() && thread.run()) {
+            thread.__thread_id = setTimeout(function() {
+                thread.__thread_id = 0;
+                run(thread)
+            }, thread.getInterval())
+        }
+    };
+    Thread.prototype.isRunning = function() {
+        return this.__running
+    };
+    Thread.prototype.getInterval = function() {
+        return this.__interval
+    };
+    Thread.prototype.run = function() {
+        var target = this.__target;
+        if (!target || target === this) {
+            throw SyntaxError("Thread::run() > override me!")
+        } else {
+            return target.run()
+        }
+    };
+    ns.threading.Thread = Thread;
+    ns.threading.register("Thread")
+})(MONKEY);
+(function(ns) {
+    var Handler = function() {};
+    ns.Interface(Handler, null);
+    Handler.prototype.setup = function() {
+        console.assert(false, "implement me!");
+        return false
+    };
+    Handler.prototype.handle = function() {
+        console.assert(false, "implement me!");
+        return false
+    };
+    Handler.prototype.finish = function() {
+        console.assert(false, "implement me!");
+        return false
+    };
+    ns.threading.Handler = Handler;
+    ns.threading.register("Handler")
+})(MONKEY);
+(function(ns) {
+    var Processor = function() {};
+    ns.Interface(Processor, null);
+    Processor.prototype.process = function() {
+        console.assert(false, "implement me!");
+        return false
+    };
+    ns.threading.Processor = Processor;
+    ns.threading.register("Processor")
+})(MONKEY);
+(function(ns) {
+    var Thread = ns.threading.Thread;
+    var Handler = ns.threading.Handler;
+    var Processor = ns.threading.Processor;
+    var STAGE_INIT = 0;
+    var STAGE_HANDLING = 1;
+    var STAGE_CLEANING = 2;
+    var STAGE_STOPPED = 3;
+    var Runner = function() {
+        if (arguments.length === 0) {
+            Thread.call(this);
+            this.__processor = null
+        } else {
+            if (arguments.length === 2) {
+                Thread.call(this, arguments[1]);
+                this.__processor = arguments[0]
+            } else {
+                if (typeof arguments[0] === "number") {
+                    Thread.call(this, arguments[0]);
+                    this.__processor = null
+                } else {
+                    Thread.call(this);
+                    this.__processor = arguments[0]
+                }
+            }
+        }
+        this.__stage = STAGE_INIT
+    };
+    ns.Class(Runner, Thread, [Handler, Processor]);
+    Runner.prototype.run = function() {
+        if (this.__stage === STAGE_INIT) {
+            if (this.setup()) {
+                return true
+            }
+            this.__stage = STAGE_HANDLING
+        }
+        if (this.__stage === STAGE_HANDLING) {
+            try {
+                if (this.handle()) {
+                    return true
+                }
+            } catch (e) {}
+            this.__stage = STAGE_CLEANING
+        }
+        if (this.__stage === STAGE_CLEANING) {
+            if (this.finish()) {
+                return true
+            }
+            this.__stage = STAGE_STOPPED
+        }
+        return false
+    };
+    Runner.prototype.setup = function() {
+        return false
+    };
+    Runner.prototype.handle = function() {
+        while (this.process()) {
+            if (this.isRunning()) {
+                continue
+            }
+            return false
+        }
+        return this.isRunning()
+    };
+    Runner.prototype.finish = function() {
+        return false
+    };
+    Runner.prototype.process = function() {
+        var processor = this.__processor;
+        if (!processor || processor === this) {
+            throw SyntaxError("Runner::process() > override me!")
+        } else {
+            return processor.process()
+        }
+    };
+    ns.threading.Runner = Runner;
+    ns.threading.register("Runner")
+})(MONKEY);
 (function(ns) {
     var hash = function() {};
     ns.Interface(hash, null);
@@ -1215,7 +1398,7 @@ if (typeof DIMP !== "object") {
     ns.digest.HashLib = lib;
     ns.digest.register("Hash");
     ns.digest.register("HashLib")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var Hash = ns.digest.Hash;
     var Lib = ns.digest.HashLib;
@@ -1227,7 +1410,7 @@ if (typeof DIMP !== "object") {
     };
     ns.digest.MD5 = new Lib(new md5());
     ns.digest.register("MD5")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var Hash = ns.digest.Hash;
     var Lib = ns.digest.HashLib;
@@ -1239,7 +1422,7 @@ if (typeof DIMP !== "object") {
     };
     ns.digest.SHA1 = new Lib(new sha1());
     ns.digest.register("SHA1")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var Hash = ns.digest.Hash;
     var Lib = ns.digest.HashLib;
@@ -1251,7 +1434,7 @@ if (typeof DIMP !== "object") {
     };
     ns.digest.SHA256 = new Lib(new sha256());
     ns.digest.register("SHA256")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var Hash = ns.digest.Hash;
     var Lib = ns.digest.HashLib;
@@ -1263,7 +1446,7 @@ if (typeof DIMP !== "object") {
     };
     ns.digest.RIPEMD160 = new Lib(new ripemd160());
     ns.digest.register("RIPEMD160")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var Hash = ns.digest.Hash;
     var Lib = ns.digest.HashLib;
@@ -1275,7 +1458,7 @@ if (typeof DIMP !== "object") {
     };
     ns.digest.KECCAK256 = new Lib(new keccak256());
     ns.digest.register("KECCAK256")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var coder = function() {};
     ns.Interface(coder, null);
@@ -1301,7 +1484,7 @@ if (typeof DIMP !== "object") {
     ns.format.CoderLib = lib;
     ns.format.register("BaseCoder");
     ns.format.register("CoderLib")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var Data = ns.type.Data;
     var Coder = ns.format.BaseCoder;
@@ -1361,7 +1544,7 @@ if (typeof DIMP !== "object") {
     };
     ns.format.Hex = new Lib(new hex());
     ns.format.register("Hex")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var Coder = ns.format.BaseCoder;
     var Lib = ns.format.CoderLib;
@@ -1377,7 +1560,7 @@ if (typeof DIMP !== "object") {
     };
     ns.format.Base58 = new Lib(new base58());
     ns.format.register("Base58")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var Data = ns.type.Data;
     var Coder = ns.format.BaseCoder;
@@ -1462,7 +1645,7 @@ if (typeof DIMP !== "object") {
     };
     ns.format.Base64 = new Lib(new base64());
     ns.format.register("Base64")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var parser = function() {};
     ns.Interface(parser, null);
@@ -1488,7 +1671,7 @@ if (typeof DIMP !== "object") {
     ns.format.ParserLib = lib;
     ns.format.register("DataParser");
     ns.format.register("ParserLib")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var Data = ns.type.Data;
     var Parser = ns.format.DataParser;
@@ -1569,7 +1752,7 @@ if (typeof DIMP !== "object") {
     utf8.prototype.decode = utf8_decode;
     ns.format.UTF8 = new Lib(new utf8());
     ns.format.register("UTF8")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var Parser = ns.format.DataParser;
     var Lib = ns.format.ParserLib;
@@ -1596,7 +1779,7 @@ if (typeof DIMP !== "object") {
     };
     ns.format.JSON = new Lib(new json());
     ns.format.register("JSON")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var map = ns.type.Map;
     var CryptographyKey = function() {};
@@ -1629,7 +1812,7 @@ if (typeof DIMP !== "object") {
     };
     ns.crypto.CryptographyKey = CryptographyKey;
     ns.crypto.register("CryptographyKey")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var CryptographyKey = ns.crypto.CryptographyKey;
     var EncryptKey = function() {};
@@ -1652,7 +1835,7 @@ if (typeof DIMP !== "object") {
     ns.crypto.DecryptKey = DecryptKey;
     ns.crypto.register("EncryptKey");
     ns.crypto.register("DecryptKey")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var EncryptKey = ns.crypto.EncryptKey;
     var DecryptKey = ns.crypto.DecryptKey;
@@ -1662,7 +1845,7 @@ if (typeof DIMP !== "object") {
     SymmetricKey.DES = "DES";
     ns.crypto.SymmetricKey = SymmetricKey;
     ns.crypto.register("SymmetricKey")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var map = ns.type.Map;
     var CryptographyKey = ns.crypto.CryptographyKey;
@@ -1711,7 +1894,7 @@ if (typeof DIMP !== "object") {
         }
         return factory.parseSymmetricKey(key)
     }
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var CryptographyKey = ns.crypto.CryptographyKey;
     var AsymmetricKey = function(key) {};
@@ -1745,7 +1928,7 @@ if (typeof DIMP !== "object") {
     ns.crypto.register("AsymmetricKey");
     ns.crypto.register("SignKey");
     ns.crypto.register("VerifyKey")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var AsymmetricKey = ns.crypto.AsymmetricKey;
     var VerifyKey = ns.crypto.VerifyKey;
@@ -1755,7 +1938,7 @@ if (typeof DIMP !== "object") {
     PublicKey.ECC = AsymmetricKey.ECC;
     ns.crypto.PublicKey = PublicKey;
     ns.crypto.register("PublicKey")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var map = ns.type.Map;
     var CryptographyKey = ns.crypto.CryptographyKey;
@@ -1793,7 +1976,7 @@ if (typeof DIMP !== "object") {
         }
         return factory.parsePublicKey(key)
     }
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var AsymmetricKey = ns.crypto.AsymmetricKey;
     var SignKey = ns.crypto.SignKey;
@@ -1807,7 +1990,7 @@ if (typeof DIMP !== "object") {
     };
     ns.crypto.PrivateKey = PrivateKey;
     ns.crypto.register("PrivateKey")
-})(DIMP);
+})(MONKEY);
 (function(ns) {
     var map = ns.type.Map;
     var CryptographyKey = ns.crypto.CryptographyKey;
@@ -1856,7 +2039,7 @@ if (typeof DIMP !== "object") {
         }
         return factory.parsePrivateKey(key)
     }
-})(DIMP);
+})(MONKEY);
 if (typeof MingKeMing !== "object") {
     MingKeMing = {}
 }
@@ -1867,7 +2050,7 @@ if (typeof MingKeMing !== "object") {
     }
     base.Namespace(ns.protocol);
     ns.register("protocol")
-})(MingKeMing, DIMP);
+})(MingKeMing, MONKEY);
 (function(ns) {
     var NetworkType = ns.type.Enum(null, {
         BTC_MAIN: (0),
@@ -4035,6 +4218,9 @@ if (typeof DaoKeDao !== "object") {
     ns.ReliableMessageFactory = ReliableMessageFactory;
     ns.register("ReliableMessageFactory")
 })(DaoKeDao);
+if (typeof DIMP !== "object") {
+    DIMP = {}
+}
 (function(ns, base) {
     base.exports(ns);
     if (typeof ns.core !== "object") {

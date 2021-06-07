@@ -31,8 +31,12 @@
 //
 
 //! require <crypto.js>
-//! require <dkd.js>
 //! require <mkm.js>
+//! require <dkd.js>
+
+if (typeof DIMP !== "object") {
+    DIMP = {}
+}
 
 (function (ns, base) {
     'use strict';
