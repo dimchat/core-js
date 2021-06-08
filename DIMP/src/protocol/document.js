@@ -69,7 +69,7 @@
         if (arguments.length === 1) {
             if (ns.Interface.conforms(arguments[0], ID)) {
                 // new DocumentCommand(identifier);
-                MetaCommand.call(this, Command.PROFILE, arguments[0]);
+                MetaCommand.call(this, Command.DOCUMENT, arguments[0]);
             } else {
                 // new DocumentCommand(map);
                 MetaCommand.call(this, arguments[0]);
@@ -78,10 +78,10 @@
         } else if (arguments.length === 2) {
             if (ns.Interface.conforms(arguments[1], Meta)) {
                 // new DocumentCommand(identifier, meta);
-                MetaCommand.call(this, Command.PROFILE, arguments[0], arguments[1]);
+                MetaCommand.call(this, Command.DOCUMENT, arguments[0], arguments[1]);
             } else if (typeof arguments[1] === 'string') {
                 // new DocumentCommand(identifier, signature);
-                MetaCommand.call(this, Command.PROFILE, arguments[0], null);
+                MetaCommand.call(this, Command.DOCUMENT, arguments[0], null);
                 this.setSignature(arguments[1]);
             } else {
                 throw new SyntaxError('document command arguments error: ' + arguments);
@@ -89,7 +89,7 @@
             this.__document = null;
         } else if (arguments.length === 3) {
             // new DocumentCommand(identifier, meta, document);
-            MetaCommand.call(this, Command.PROFILE, arguments[0], arguments[1]);
+            MetaCommand.call(this, Command.DOCUMENT, arguments[0], arguments[1]);
             this.setDocument(arguments[2]);
         } else {
             throw new SyntaxError('document command arguments error: ' + arguments);

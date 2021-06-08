@@ -1266,7 +1266,7 @@ if (typeof MONKEY !== "object") {
     Thread.prototype.run = function() {
         var target = this.__target;
         if (!target || target === this) {
-            throw SyntaxError("Thread::run() > override me!")
+            throw new SyntaxError("Thread::run() > override me!")
         } else {
             return target.run()
         }
@@ -1372,7 +1372,7 @@ if (typeof MONKEY !== "object") {
     Runner.prototype.process = function() {
         var processor = this.__processor;
         if (!processor || processor === this) {
-            throw SyntaxError("Runner::process() > override me!")
+            throw new SyntaxError("Runner::process() > override me!")
         } else {
             return processor.process()
         }
@@ -4750,7 +4750,6 @@ if (typeof DIMP !== "object") {
         Command.setCommand(name, this.getMap())
     };
     Command.META = "meta";
-    Command.PROFILE = "profile";
     Command.DOCUMENT = "document";
     Command.RECEIPT = "receipt";
     Command.HANDSHAKE = "handshake";
@@ -4864,7 +4863,7 @@ if (typeof DIMP !== "object") {
     var DocumentCommand = function() {
         if (arguments.length === 1) {
             if (ns.Interface.conforms(arguments[0], ID)) {
-                MetaCommand.call(this, Command.PROFILE, arguments[0])
+                MetaCommand.call(this, Command.DOCUMENT, arguments[0])
             } else {
                 MetaCommand.call(this, arguments[0])
             }
@@ -4872,10 +4871,10 @@ if (typeof DIMP !== "object") {
         } else {
             if (arguments.length === 2) {
                 if (ns.Interface.conforms(arguments[1], Meta)) {
-                    MetaCommand.call(this, Command.PROFILE, arguments[0], arguments[1])
+                    MetaCommand.call(this, Command.DOCUMENT, arguments[0], arguments[1])
                 } else {
                     if (typeof arguments[1] === "string") {
-                        MetaCommand.call(this, Command.PROFILE, arguments[0], null);
+                        MetaCommand.call(this, Command.DOCUMENT, arguments[0], null);
                         this.setSignature(arguments[1])
                     } else {
                         throw new SyntaxError("document command arguments error: " + arguments)
@@ -4884,7 +4883,7 @@ if (typeof DIMP !== "object") {
                 this.__document = null
             } else {
                 if (arguments.length === 3) {
-                    MetaCommand.call(this, Command.PROFILE, arguments[0], arguments[1]);
+                    MetaCommand.call(this, Command.DOCUMENT, arguments[0], arguments[1]);
                     this.setDocument(arguments[2])
                 } else {
                     throw new SyntaxError("document command arguments error: " + arguments)
@@ -6126,7 +6125,9 @@ if (typeof DIMP !== "object") {
         Command.register(Command.META, new CommandFactory(ns.protocol.MetaCommand));
         var dpu = new CommandFactory(ns.protocol.DocumentCommand);
         Command.register(Command.DOCUMENT, dpu);
-        Command.register(Command.PROFILE, dpu);
+        Command.register("profile", dpu);
+        Command.register("visa", dpu);
+        Command.register("bulletin", dpu);
         Command.register("group", new GroupCommandFactory());
         Command.register(GroupCommand.INVITE, new CommandFactory(ns.protocol.group.InviteCommand));
         Command.register(GroupCommand.EXPEL, new CommandFactory(ns.protocol.group.ExpelCommand));
@@ -6135,16 +6136,20 @@ if (typeof DIMP !== "object") {
         Command.register(GroupCommand.QUERY, new CommandFactory(ns.protocol.group.QueryCommand));
         Command.register(GroupCommand.RESET, new CommandFactory(ns.protocol.group.ResetCommand))
     };
-    registerContentFactories();
-    registerCommandFactories();
+    var registerCoreFactories = function() {
+        registerContentFactories();
+        registerCommandFactories()
+    };
     ns.core.ContentFactory = ContentFactory;
     ns.core.CommandFactory = CommandFactory;
     ns.core.GeneralCommandFactory = GeneralCommandFactory;
     ns.core.HistoryCommandFactory = HistoryCommandFactory;
     ns.core.GroupCommandFactory = GroupCommandFactory;
+    ns.core.registerAllFactories = registerCoreFactories;
     ns.core.register("ContentFactory");
     ns.core.register("CommandFactory");
     ns.core.register("GeneralCommandFactory");
     ns.core.register("HistoryCommandFactory");
-    ns.core.register("GroupCommandFactory")
+    ns.core.register("GroupCommandFactory");
+    ns.core.register("registerAllFactories")
 })(DIMP);

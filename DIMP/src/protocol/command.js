@@ -99,7 +99,6 @@
 
     //-------- command names --------
     Command.META      = 'meta';
-    Command.PROFILE   = 'profile';
     Command.DOCUMENT  = 'document';
     Command.RECEIPT   = 'receipt';
     Command.HANDSHAKE = 'handshake';

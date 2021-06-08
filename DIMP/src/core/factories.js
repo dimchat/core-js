@@ -30,8 +30,13 @@
 // =============================================================================
 //
 
-//!require 'protocol/command.js'
-//!require 'protocol/group.js'
+//!require 'protocol/forward.js'
+//!require 'protocol/text.js'
+//!require 'protocol/page.js'
+//!require 'protocol/money.js'
+//!require 'protocol/files.js'
+//!require 'protocol/groups.js'
+//!require 'protocol/documents.js'
 
 (function (ns) {
     'use strict';
@@ -178,7 +183,9 @@
         // Document Command
         var dpu = new CommandFactory(ns.protocol.DocumentCommand);
         Command.register(Command.DOCUMENT, dpu);
-        Command.register(Command.PROFILE, dpu);
+        Command.register('profile', dpu);
+        Command.register('visa', dpu);
+        Command.register('bulletin', dpu);
 
         // Group Commands
         Command.register('group', new GroupCommandFactory());
@@ -190,8 +197,10 @@
         Command.register(GroupCommand.RESET, new CommandFactory(ns.protocol.group.ResetCommand));
     };
 
-    registerContentFactories();
-    registerCommandFactories();
+    var registerCoreFactories = function () {
+        registerContentFactories();
+        registerCommandFactories();
+    };
 
     //-------- namespace --------
     ns.core.ContentFactory = ContentFactory;
@@ -199,11 +208,13 @@
     ns.core.GeneralCommandFactory = GeneralCommandFactory;
     ns.core.HistoryCommandFactory = HistoryCommandFactory;
     ns.core.GroupCommandFactory = GroupCommandFactory;
+    ns.core.registerAllFactories = registerCoreFactories;
 
     ns.core.register('ContentFactory');
     ns.core.register('CommandFactory');
     ns.core.register('GeneralCommandFactory');
     ns.core.register('HistoryCommandFactory');
     ns.core.register('GroupCommandFactory');
+    ns.core.register('registerAllFactories');
 
 })(DIMP);
