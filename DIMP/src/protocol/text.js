@@ -45,7 +45,7 @@
     'use strict';
 
     var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.BaseContent;
+    var BaseContent = ns.dkd.BaseContent;
 
     /**
      *  Create text message content
@@ -83,6 +83,6 @@
     //-------- namespace --------
     ns.protocol.TextContent = TextContent;
 
-    ns.protocol.register('TextContent');
+    ns.protocol.registers('TextContent');
 
 })(DIMP);

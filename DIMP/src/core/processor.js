@@ -40,14 +40,17 @@
 (function (ns) {
     'use strict';
 
+    var obj = ns.type.Object;
+
     var Envelope = ns.protocol.Envelope;
     var InstantMessage = ns.protocol.InstantMessage;
     var Transceiver = ns.Transceiver;
 
     var CoreProcessor = function (transceiver) {
+        obj.call(this);
         this.__transceiver = transceiver;
     };
-    ns.Class(CoreProcessor, ns.type.Object, [Transceiver.Processor]);
+    ns.Class(CoreProcessor, obj, [Transceiver.Processor]);
 
     CoreProcessor.prototype.getTransceiver = function () {
         return this.__transceiver;
@@ -137,6 +140,6 @@
     //-------- namespace --------
     ns.core.Processor = CoreProcessor;
 
-    ns.core.register('Processor');
+    ns.core.registers('Processor');
 
 })(DIMP);

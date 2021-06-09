@@ -202,7 +202,7 @@
     //-------- namespace --------
     ns.User = User;
 
-    ns.register('User');
+    ns.registers('User');
 
 })(DIMP);
 

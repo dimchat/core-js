@@ -72,7 +72,7 @@
     //-------- namespace --------
     ns.CipherKeyDelegate = CipherKeyDelegate;
 
-    ns.register('CipherKeyDelegate');
+    ns.registers('CipherKeyDelegate');
 
 })(DIMP);
 
@@ -182,7 +182,7 @@
 //     //-------- namespace --------
 //     ns.Packer = Packer;
 //
-//     ns.register('Packer');
+//     ns.registers('Packer');
 //
 // })(DIMP);
 //
@@ -263,7 +263,7 @@
 //     //-------- namespace --------
 //     ns.Processor = Processor;
 //
-//     ns.register('Processor');
+//     ns.registers('Processor');
 //
 // })(DIMP);
 //
@@ -292,6 +292,6 @@
     //-------- namespace --------
     ns.Transceiver = Transceiver;
 
-    ns.register('Transceiver');
+    ns.registers('Transceiver');
 
 })(DIMP);

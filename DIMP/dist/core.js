@@ -7,30 +7,27 @@
  * @license   {@link https://mit-license.org | MIT License}
  */;
 if (typeof DIMP !== "object") {
-    DIMP = {}
+    DIMP = new MingKeMing.Namespace()
 }
 (function(ns, base) {
     base.exports(ns);
     if (typeof ns.core !== "object") {
-        ns.core = {}
+        ns.core = new ns.Namespace()
     }
     if (typeof ns.protocol !== "object") {
-        ns.protocol = {}
+        ns.protocol = new ns.Namespace()
     }
     if (typeof ns.protocol.group !== "object") {
-        ns.protocol.group = {}
+        ns.protocol.group = new ns.Namespace()
     }
-    ns.Namespace(ns.core);
-    ns.Namespace(ns.protocol);
-    ns.Namespace(ns.protocol.group);
-    ns.register("core");
-    ns.register("protocol");
-    ns.protocol.register("group")
+    ns.registers("core");
+    ns.registers("protocol");
+    ns.protocol.registers("group")
 })(DIMP, DaoKeDao);
 (function(ns) {
     var ReliableMessage = ns.protocol.ReliableMessage;
     var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.BaseContent;
+    var BaseContent = ns.dkd.BaseContent;
     var ForwardContent = function() {
         if (arguments.length === 0) {
             BaseContent.call(this, ContentType.FORWARD);
@@ -72,12 +69,12 @@ if (typeof DIMP !== "object") {
         this.__forward = secret
     };
     ns.protocol.ForwardContent = ForwardContent;
-    ns.protocol.register("ForwardContent")
+    ns.protocol.registers("ForwardContent")
 })(DaoKeDao);
 (function(ns) {
     var SymmetricKey = ns.crypto.SymmetricKey;
     var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.BaseContent;
+    var BaseContent = ns.dkd.BaseContent;
     var FileContent = function() {
         if (arguments.length === 0) {
             BaseContent.call(this, ContentType.FILE);
@@ -188,7 +185,7 @@ if (typeof DIMP !== "object") {
         this.__password = key
     };
     ns.protocol.FileContent = FileContent;
-    ns.protocol.register("FileContent")
+    ns.protocol.registers("FileContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
@@ -236,7 +233,7 @@ if (typeof DIMP !== "object") {
         this.__thumbnail = image
     };
     ns.protocol.ImageContent = ImageContent;
-    ns.protocol.register("ImageContent")
+    ns.protocol.registers("ImageContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
@@ -284,7 +281,7 @@ if (typeof DIMP !== "object") {
         this.__snapshot = image
     };
     ns.protocol.VideoContent = VideoContent;
-    ns.protocol.register("VideoContent")
+    ns.protocol.registers("VideoContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
@@ -312,11 +309,11 @@ if (typeof DIMP !== "object") {
         this.setValue("text", asr)
     };
     ns.protocol.AudioContent = AudioContent;
-    ns.protocol.register("AudioContent")
+    ns.protocol.registers("AudioContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.BaseContent;
+    var BaseContent = ns.dkd.BaseContent;
     var TextContent = function() {
         if (arguments.length === 0) {
             BaseContent.call(this, ContentType.TEXT)
@@ -337,11 +334,11 @@ if (typeof DIMP !== "object") {
         this.setValue("text", text)
     };
     ns.protocol.TextContent = TextContent;
-    ns.protocol.register("TextContent")
+    ns.protocol.registers("TextContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.BaseContent;
+    var BaseContent = ns.dkd.BaseContent;
     var PageContent = function() {
         if (arguments.length === 1) {
             BaseContent.call(this, arguments[0]);
@@ -433,11 +430,11 @@ if (typeof DIMP !== "object") {
         this.__icon = image
     };
     ns.protocol.PageContent = PageContent;
-    ns.protocol.register("PageContent")
+    ns.protocol.registers("PageContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.BaseContent;
+    var BaseContent = ns.dkd.BaseContent;
     var MoneyContent = function() {
         if (arguments.length === 3) {
             BaseContent.call(arguments[0]);
@@ -484,7 +481,7 @@ if (typeof DIMP !== "object") {
         MoneyContent.setAmount(amount, this.getMap())
     };
     ns.protocol.MoneyContent = MoneyContent;
-    ns.protocol.register("MoneyContent")
+    ns.protocol.registers("MoneyContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
@@ -502,11 +499,11 @@ if (typeof DIMP !== "object") {
     };
     ns.Class(TransferContent, MoneyContent, null);
     ns.protocol.TransferContent = TransferContent;
-    ns.protocol.register("TransferContent")
+    ns.protocol.registers("TransferContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.BaseContent;
+    var BaseContent = ns.dkd.BaseContent;
     var Command = function() {
         if (arguments.length === 2) {
             BaseContent.call(this, arguments[0]);
@@ -543,7 +540,7 @@ if (typeof DIMP !== "object") {
     Command.HANDSHAKE = "handshake";
     Command.LOGIN = "login";
     ns.protocol.Command = Command;
-    ns.protocol.register("Command")
+    ns.protocol.registers("Command")
 })(DIMP);
 (function(ns) {
     var Command = ns.protocol.Command;
@@ -640,7 +637,7 @@ if (typeof DIMP !== "object") {
         return new MetaCommand(identifier, meta)
     };
     ns.protocol.MetaCommand = MetaCommand;
-    ns.protocol.register("MetaCommand")
+    ns.protocol.registers("MetaCommand")
 })(DIMP);
 (function(ns) {
     var ID = ns.protocol.ID;
@@ -735,7 +732,7 @@ if (typeof DIMP !== "object") {
         return new DocumentCommand(identifier, meta, doc)
     };
     ns.protocol.DocumentCommand = DocumentCommand;
-    ns.protocol.register("DocumentCommand")
+    ns.protocol.registers("DocumentCommand")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
@@ -756,7 +753,7 @@ if (typeof DIMP !== "object") {
     HistoryCommand.REGISTER = "register";
     HistoryCommand.SUICIDE = "suicide";
     ns.protocol.HistoryCommand = HistoryCommand;
-    ns.protocol.register("HistoryCommand")
+    ns.protocol.registers("HistoryCommand")
 })(DIMP);
 (function(ns) {
     var ID = ns.protocol.ID;
@@ -848,7 +845,7 @@ if (typeof DIMP !== "object") {
     GroupCommand.FIRE = "fire";
     GroupCommand.RESIGN = "resign";
     ns.protocol.GroupCommand = GroupCommand;
-    ns.protocol.register("GroupCommand")
+    ns.protocol.registers("GroupCommand")
 })(DIMP);
 (function(ns) {
     var ID = ns.protocol.ID;
@@ -931,20 +928,22 @@ if (typeof DIMP !== "object") {
     ns.protocol.group.QuitCommand = QuitCommand;
     ns.protocol.group.ResetCommand = ResetCommand;
     ns.protocol.group.QueryCommand = QueryCommand;
-    ns.protocol.group.register("InviteCommand");
-    ns.protocol.group.register("ExpelCommand");
-    ns.protocol.group.register("JoinCommand");
-    ns.protocol.group.register("QuitCommand");
-    ns.protocol.group.register("ResetCommand");
-    ns.protocol.group.register("QueryCommand")
+    ns.protocol.group.registers("InviteCommand");
+    ns.protocol.group.registers("ExpelCommand");
+    ns.protocol.group.registers("JoinCommand");
+    ns.protocol.group.registers("QuitCommand");
+    ns.protocol.group.registers("ResetCommand");
+    ns.protocol.group.registers("QueryCommand")
 })(DIMP);
 (function(ns) {
+    var obj = ns.type.Object;
     var ID = ns.protocol.ID;
     var Entity = function(identifier) {
+        obj.call(this);
         this.identifier = identifier;
         this.__datasource = null
     };
-    ns.Class(Entity, ns.type.Object, null);
+    ns.Class(Entity, obj, null);
     Entity.prototype.equals = function(other) {
         if (this === other) {
             return true
@@ -988,7 +987,7 @@ if (typeof DIMP !== "object") {
         return this.getDataSource().getDocument(this.identifier, type)
     };
     ns.Entity = Entity;
-    ns.register("Entity")
+    ns.registers("Entity")
 })(DIMP);
 (function(ns) {
     var Entity = ns.Entity;
@@ -1107,7 +1106,7 @@ if (typeof DIMP !== "object") {
         return visa.verify(key)
     };
     ns.User = User;
-    ns.register("User")
+    ns.registers("User")
 })(DIMP);
 (function(ns) {
     var Entity = ns.Entity;
@@ -1171,7 +1170,7 @@ if (typeof DIMP !== "object") {
         return this.getDataSource().getAssistants(this.identifier)
     };
     ns.Group = Group;
-    ns.register("Group")
+    ns.registers("Group")
 })(DIMP);
 (function(ns) {
     var Entity = ns.Entity;
@@ -1207,7 +1206,7 @@ if (typeof DIMP !== "object") {
         console.assert(false, "implement me!")
     };
     ns.CipherKeyDelegate = CipherKeyDelegate;
-    ns.register("CipherKeyDelegate")
+    ns.registers("CipherKeyDelegate")
 })(DIMP);
 (function(ns) {
     var Packer = function() {};
@@ -1270,9 +1269,10 @@ if (typeof DIMP !== "object") {
     Transceiver.Packer = Packer;
     Transceiver.Processor = Processor;
     ns.Transceiver = Transceiver;
-    ns.register("Transceiver")
+    ns.registers("Transceiver")
 })(DIMP);
 (function(ns) {
+    var obj = ns.type.Object;
     var EncryptKey = ns.crypto.EncryptKey;
     var VerifyKey = ns.crypto.VerifyKey;
     var ID = ns.protocol.ID;
@@ -1284,10 +1284,11 @@ if (typeof DIMP !== "object") {
     var User = ns.User;
     var Group = ns.Group;
     var Barrack = function() {
+        obj.call(this);
         this.__users = {};
         this.__groups = {}
     };
-    ns.Class(Barrack, ns.type.Object, [Entity.Delegate, User.DataSource, Group.DataSource]);
+    ns.Class(Barrack, obj, [Entity.Delegate, User.DataSource, Group.DataSource]);
     var thanos = function(map, finger) {
         var keys = Object.keys(map);
         for (var i = 0; i < keys.length; ++i) {
@@ -1509,16 +1510,18 @@ if (typeof DIMP !== "object") {
         return null
     };
     ns.core.Barrack = Barrack;
-    ns.core.register("Barrack")
+    ns.core.registers("Barrack")
 })(DIMP);
 (function(ns) {
+    var obj = ns.type.Object;
     var Command = ns.protocol.Command;
     var ReliableMessage = ns.protocol.ReliableMessage;
     var Transceiver = ns.Transceiver;
     var CorePacker = function(transceiver) {
+        obj.call(this);
         this.__transceiver = transceiver
     };
-    ns.Class(CorePacker, ns.type.Object, [Transceiver.Packer]);
+    ns.Class(CorePacker, obj, [Transceiver.Packer]);
     CorePacker.prototype.getTransceiver = function() {
         return this.__transceiver
     };
@@ -1598,16 +1601,18 @@ if (typeof DIMP !== "object") {
         return sMsg.decrypt()
     };
     ns.core.Packer = CorePacker;
-    ns.core.register("Packer")
+    ns.core.registers("Packer")
 })(DIMP);
 (function(ns) {
+    var obj = ns.type.Object;
     var Envelope = ns.protocol.Envelope;
     var InstantMessage = ns.protocol.InstantMessage;
     var Transceiver = ns.Transceiver;
     var CoreProcessor = function(transceiver) {
+        obj.call(this);
         this.__transceiver = transceiver
     };
-    ns.Class(CoreProcessor, ns.type.Object, [Transceiver.Processor]);
+    ns.Class(CoreProcessor, obj, [Transceiver.Processor]);
     CoreProcessor.prototype.getTransceiver = function() {
         return this.__transceiver
     };
@@ -1660,21 +1665,23 @@ if (typeof DIMP !== "object") {
         return InstantMessage.create(env, response)
     };
     ns.core.Processor = CoreProcessor;
-    ns.core.register("Processor")
+    ns.core.registers("Processor")
 })(DIMP);
 (function(ns) {
+    var obj = ns.type.Object;
     var SymmetricKey = ns.crypto.SymmetricKey;
     var Content = ns.protocol.Content;
     var InstantMessage = ns.protocol.InstantMessage;
     var ReliableMessage = ns.protocol.ReliableMessage;
     var Transceiver = ns.Transceiver;
     var CoreTransceiver = function() {
+        obj.call(this);
         this.__barrack = null;
         this.__keycache = null;
         this.__packer = null;
         this.__processor = null
     };
-    ns.Class(CoreTransceiver, ns.type.Object, [Transceiver, InstantMessage.Delegate, ReliableMessage.Delegate]);
+    ns.Class(CoreTransceiver, obj, [Transceiver, InstantMessage.Delegate, ReliableMessage.Delegate]);
     CoreTransceiver.prototype.setEntityDelegate = function(barrack) {
         this.__barrack = barrack
     };
@@ -1837,30 +1844,36 @@ if (typeof DIMP !== "object") {
         return contact.verify(data, signature)
     };
     ns.core.Transceiver = CoreTransceiver;
-    ns.core.register("Transceiver")
+    ns.core.registers("Transceiver")
 })(DIMP);
 (function(ns) {
+    var obj = ns.type.Object;
     var ContentType = ns.protocol.ContentType;
     var Content = ns.protocol.Content;
     var Command = ns.protocol.Command;
     var HistoryCommand = ns.protocol.HistoryCommand;
     var GroupCommand = ns.protocol.GroupCommand;
+    var BaseContent = ns.dkd.BaseContent;
     var ContentFactory = function(clazz) {
+        obj.call(this);
         this.__class = clazz
     };
-    ns.Class(ContentFactory, null, [Content.Factory]);
+    ns.Class(ContentFactory, obj, [Content.Factory]);
     ContentFactory.prototype.parseContent = function(content) {
         return new this.__class(content)
     };
     var CommandFactory = function(clazz) {
+        obj.call(this);
         this.__class = clazz
     };
-    ns.Class(CommandFactory, null, [Command.Factory]);
+    ns.Class(CommandFactory, obj, [Command.Factory]);
     CommandFactory.prototype.parseCommand = function(content) {
         return new this.__class(content)
     };
-    var GeneralCommandFactory = function() {};
-    ns.Class(GeneralCommandFactory, null, [Content.Factory, Command.Factory]);
+    var GeneralCommandFactory = function() {
+        obj.call(this)
+    };
+    ns.Class(GeneralCommandFactory, obj, [Content.Factory, Command.Factory]);
     GeneralCommandFactory.prototype.parseContent = function(content) {
         var command = Command.getCommand(content);
         var factory = Command.getFactory(command);
@@ -1877,12 +1890,16 @@ if (typeof DIMP !== "object") {
     GeneralCommandFactory.prototype.parseCommand = function(cmd) {
         return new Command(cmd)
     };
-    var HistoryCommandFactory = function() {};
+    var HistoryCommandFactory = function() {
+        GeneralCommandFactory.call(this)
+    };
     ns.Class(HistoryCommandFactory, GeneralCommandFactory, null);
     HistoryCommandFactory.prototype.parseCommand = function(cmd) {
         return new HistoryCommand(cmd)
     };
-    var GroupCommandFactory = function() {};
+    var GroupCommandFactory = function() {
+        HistoryCommandFactory.call(this)
+    };
     ns.Class(GroupCommandFactory, HistoryCommandFactory, null);
     GroupCommandFactory.prototype.parseContent = function(content) {
         var command = Command.getCommand(content);
@@ -1907,7 +1924,7 @@ if (typeof DIMP !== "object") {
         Content.register(ContentType.TRANSFER, new ContentFactory(ns.protocol.TransferContent));
         Content.register(ContentType.COMMAND, new GeneralCommandFactory());
         Content.register(ContentType.HISTORY, new HistoryCommandFactory());
-        Content.register(0, new ContentFactory(ns.BaseContent))
+        Content.register(0, new ContentFactory(BaseContent))
     };
     var registerCommandFactories = function() {
         Command.register(Command.META, new CommandFactory(ns.protocol.MetaCommand));
@@ -1934,10 +1951,10 @@ if (typeof DIMP !== "object") {
     ns.core.HistoryCommandFactory = HistoryCommandFactory;
     ns.core.GroupCommandFactory = GroupCommandFactory;
     ns.core.registerAllFactories = registerCoreFactories;
-    ns.core.register("ContentFactory");
-    ns.core.register("CommandFactory");
-    ns.core.register("GeneralCommandFactory");
-    ns.core.register("HistoryCommandFactory");
-    ns.core.register("GroupCommandFactory");
-    ns.core.register("registerAllFactories")
+    ns.core.registers("ContentFactory");
+    ns.core.registers("CommandFactory");
+    ns.core.registers("GeneralCommandFactory");
+    ns.core.registers("HistoryCommandFactory");
+    ns.core.registers("GroupCommandFactory");
+    ns.core.registers("registerAllFactories")
 })(DIMP);

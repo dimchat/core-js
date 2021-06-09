@@ -35,7 +35,7 @@
 //! require <dkd.js>
 
 if (typeof DIMP !== "object") {
-    DIMP = {}
+    DIMP = new MingKeMing.Namespace();
 }
 
 (function (ns, base) {
@@ -46,21 +46,17 @@ if (typeof DIMP !== "object") {
 
     //-------- namespace --------
     if (typeof ns.core !== 'object') {
-        ns.core = {};
+        ns.core = new ns.Namespace();
     }
     if (typeof ns.protocol !== 'object') {
-        ns.protocol = {};
+        ns.protocol = new ns.Namespace();
     }
     if (typeof ns.protocol.group !== 'object') {
-        ns.protocol.group = {};
+        ns.protocol.group = new ns.Namespace();
     }
 
-    ns.Namespace(ns.core);
-    ns.Namespace(ns.protocol);
-    ns.Namespace(ns.protocol.group);
-
-    ns.register('core');
-    ns.register('protocol');
-    ns.protocol.register('group');
+    ns.registers('core');
+    ns.registers('protocol');
+    ns.protocol.registers('group');
 
 })(DIMP, DaoKeDao);

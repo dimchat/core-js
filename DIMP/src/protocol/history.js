@@ -81,6 +81,6 @@
     //-------- namespace --------
     ns.protocol.HistoryCommand = HistoryCommand;
 
-    ns.protocol.register('HistoryCommand');
+    ns.protocol.registers('HistoryCommand');
 
 })(DIMP);

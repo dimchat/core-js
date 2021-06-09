@@ -42,6 +42,8 @@
 (function (ns) {
     'use strict';
 
+    var obj = ns.type.Object;
+
     var EncryptKey = ns.crypto.EncryptKey;
     var VerifyKey = ns.crypto.VerifyKey;
 
@@ -56,11 +58,12 @@
     var Group = ns.Group;
 
     var Barrack = function () {
+        obj.call(this);
         // memory caches
         this.__users  = {};  // String -> User
         this.__groups = {};  // String -> Group
     };
-    ns.Class(Barrack, ns.type.Object, [Entity.Delegate, User.DataSource, Group.DataSource]);
+    ns.Class(Barrack, obj, [Entity.Delegate, User.DataSource, Group.DataSource]);
 
     /**
      *  Remove 1/2 objects from the dictionary
@@ -391,6 +394,6 @@
     //-------- namespace --------
     ns.core.Barrack = Barrack;
 
-    ns.core.register('Barrack');
+    ns.core.registers('Barrack');
 
 })(DIMP);

@@ -50,7 +50,7 @@
     var SymmetricKey = ns.crypto.SymmetricKey;
 
     var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.BaseContent;
+    var BaseContent = ns.dkd.BaseContent;
 
     /**
      *  Create file content
@@ -203,6 +203,6 @@
     //-------- namespace --------
     ns.protocol.FileContent = FileContent;
 
-    ns.protocol.register('FileContent');
+    ns.protocol.registers('FileContent');
 
 })(DIMP);

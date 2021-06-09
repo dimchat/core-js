@@ -46,7 +46,7 @@
 
     var ReliableMessage = ns.protocol.ReliableMessage;
     var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.BaseContent;
+    var BaseContent = ns.dkd.BaseContent;
 
     /**
      *  Create top-secret message content
@@ -113,6 +113,6 @@
     //-------- namespace --------
     ns.protocol.ForwardContent = ForwardContent;
 
-    ns.protocol.register('ForwardContent');
+    ns.protocol.registers('ForwardContent');
 
 })(DaoKeDao);

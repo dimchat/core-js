@@ -79,7 +79,7 @@
     //-------- namespace --------
     ns.Group = Group;
 
-    ns.register('Group');
+    ns.registers('Group');
 
 })(DIMP);
 

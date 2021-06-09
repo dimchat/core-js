@@ -116,7 +116,7 @@
     //-------- namespace --------
     ns.protocol.ImageContent = ImageContent;
 
-    ns.protocol.register('ImageContent');
+    ns.protocol.registers('ImageContent');
 
 })(DIMP);
 
@@ -204,7 +204,7 @@
     //-------- namespace --------
     ns.protocol.VideoContent = VideoContent;
 
-    ns.protocol.register('VideoContent');
+    ns.protocol.registers('VideoContent');
 
 })(DIMP);
 
@@ -272,6 +272,6 @@
     //-------- namespace --------
     ns.protocol.AudioContent = AudioContent;
 
-    ns.protocol.register('AudioContent');
+    ns.protocol.registers('AudioContent');
 
 })(DIMP);

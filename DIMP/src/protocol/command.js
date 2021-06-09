@@ -46,7 +46,7 @@
     'use strict';
 
     var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.BaseContent;
+    var BaseContent = ns.dkd.BaseContent;
 
     /**
      *  Create command
@@ -107,7 +107,7 @@
     //-------- namespace --------
     ns.protocol.Command = Command;
 
-    ns.protocol.register('Command');
+    ns.protocol.registers('Command');
 
 })(DIMP);
 

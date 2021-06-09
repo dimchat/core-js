@@ -181,12 +181,12 @@
     ns.protocol.group.ResetCommand = ResetCommand;
     ns.protocol.group.QueryCommand = QueryCommand;
 
-    ns.protocol.group.register('InviteCommand');
-    ns.protocol.group.register('ExpelCommand');
-    ns.protocol.group.register('JoinCommand');
-    ns.protocol.group.register('QuitCommand');
+    ns.protocol.group.registers('InviteCommand');
+    ns.protocol.group.registers('ExpelCommand');
+    ns.protocol.group.registers('JoinCommand');
+    ns.protocol.group.registers('QuitCommand');
 
-    ns.protocol.group.register('ResetCommand');
-    ns.protocol.group.register('QueryCommand');
+    ns.protocol.group.registers('ResetCommand');
+    ns.protocol.group.registers('QueryCommand');
 
 })(DIMP);

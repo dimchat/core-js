@@ -48,13 +48,15 @@
 (function (ns) {
     'use strict';
 
+    var obj = ns.type.Object;
     var ID = ns.protocol.ID;
 
     var Entity = function (identifier) {
+        obj.call(this);
         this.identifier = identifier;
         this.__datasource = null;
     };
-    ns.Class(Entity, ns.type.Object, null);
+    ns.Class(Entity, obj, null);
 
     /**
      *  Check whether the same user/group
@@ -138,7 +140,7 @@
     //-------- namespace --------
     ns.Entity = Entity;
 
-    ns.register('Entity');
+    ns.registers('Entity');
 
 })(DIMP);
 

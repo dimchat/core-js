@@ -183,6 +183,6 @@
     //-------- namespace --------
     ns.protocol.GroupCommand = GroupCommand;
 
-    ns.protocol.register('GroupCommand');
+    ns.protocol.registers('GroupCommand');
 
 })(DIMP);

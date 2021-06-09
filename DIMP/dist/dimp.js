@@ -11,15 +11,9 @@ if (typeof MONKEY !== "object") {
 }
 (function(ns) {
     var namespacefy = function(space) {
-        if (!space) {
-            space = new namespace()
-        } else {
-            if (!is_space(space)) {
-                space.__all__ = [];
-                space.register = namespace.prototype.register;
-                space.exports = namespace.prototype.exports
-            }
-        }
+        space.__all__ = [];
+        space.registers = namespace.prototype.registers;
+        space.exports = namespace.prototype.exports;
         return space
     };
     var is_space = function(space) {
@@ -29,7 +23,7 @@ if (typeof MONKEY !== "object") {
         if (typeof space.exports !== "function") {
             return false
         }
-        if (typeof space.register !== "function") {
+        if (typeof space.registers !== "function") {
             return false
         }
         return space.__all__ instanceof Array
@@ -37,68 +31,68 @@ if (typeof MONKEY !== "object") {
     var namespace = function() {
         this.__all__ = []
     };
-    namespace.prototype.register = function(name) {
+    namespace.prototype.registers = function(name) {
         if (this.__all__.indexOf(name) < 0) {
-            this.__all__.push(name);
-            return true
+            this.__all__.push(name)
+        }
+    };
+    namespace.prototype.exports = function(to) {
+        var names = this.__all__;
+        var name;
+        for (var i = 0; i < names.length; ++i) {
+            name = names[i];
+            export_one(this, to, name);
+            to.registers(name)
+        }
+        return to
+    };
+    var export_one = function(from, to, name) {
+        var source = from[name];
+        var target = to[name];
+        if (typeof target === "undefined") {
+            to[name] = source
         } else {
-            return false
-        }
-    };
-    namespace.prototype.exports = function(outerSpace) {
-        namespacefy(outerSpace);
-        var all = this.__all__;
-        var name, inner;
-        for (var i = 0; i < all.length; ++i) {
-            name = all[i];
-            inner = this[name];
-            if (!inner) {
-                throw new Error("empty object: " + name)
-            }
-            if (is_space(inner)) {
-                if (typeof outerSpace[name] !== "object") {
-                    outerSpace[name] = new namespace()
+            if (is_space(source)) {
+                if (!is_space(target)) {
+                    namespacefy(target)
                 }
-                inner.exports(outerSpace[name])
+                source.exports(target)
             } else {
-                if (outerSpace.hasOwnProperty(name)) {} else {
-                    outerSpace[name] = inner
-                }
+                export_all(source, target)
             }
-            outerSpace.register(name)
         }
-        return outerSpace
     };
-    ns.Namespace = namespacefy;
+    var export_all = function(from, to) {
+        var names = Object.getOwnPropertyNames(from);
+        for (var i = 0; i < names.length; ++i) {
+            export_one(from, to, names[i])
+        }
+    };
+    ns.Namespace = namespace;
     namespacefy(ns);
-    ns.register("Namespace")
+    ns.registers("Namespace")
 })(MONKEY);
 (function(ns) {
     if (typeof ns.type !== "object") {
-        ns.type = {}
+        ns.type = new ns.Namespace()
     }
     if (typeof ns.threading !== "object") {
-        ns.threading = {}
+        ns.threading = new ns.Namespace()
     }
     if (typeof ns.format !== "object") {
-        ns.format = {}
+        ns.format = new ns.Namespace()
     }
     if (typeof ns.digest !== "object") {
-        ns.digest = {}
+        ns.digest = new ns.Namespace()
     }
     if (typeof ns.crypto !== "object") {
-        ns.crypto = {}
+        ns.crypto = new ns.Namespace()
     }
-    ns.Namespace(ns.type);
-    ns.Namespace(ns.threading);
-    ns.Namespace(ns.format);
-    ns.Namespace(ns.digest);
-    ns.Namespace(ns.crypto);
-    ns.register("type");
-    ns.register("threading");
-    ns.register("format");
-    ns.register("digest");
-    ns.register("crypto")
+    ns.registers("type");
+    ns.registers("threading");
+    ns.registers("format");
+    ns.registers("digest");
+    ns.registers("crypto")
 })(MONKEY);
 (function(ns) {
     var conforms = function(object, protocol) {
@@ -185,8 +179,8 @@ if (typeof MONKEY !== "object") {
     };
     ns.Interface = interfacefy;
     ns.Class = classify;
-    ns.register("Interface");
-    ns.register("Class")
+    ns.registers("Interface");
+    ns.registers("Class")
 })(MONKEY);
 (function(ns) {
     var is_null = function(object) {
@@ -218,7 +212,9 @@ if (typeof MONKEY !== "object") {
         }
         return object instanceof Error
     };
-    var obj = function() {};
+    var obj = function() {
+        Object.call(this)
+    };
     ns.Class(obj, Object, null);
     obj.isNull = is_null;
     obj.isBaseType = is_base_type;
@@ -226,7 +222,7 @@ if (typeof MONKEY !== "object") {
         return this === other
     };
     ns.type.Object = obj;
-    ns.type.register("Object")
+    ns.type.registers("Object")
 })(MONKEY);
 (function(ns) {
     var is_array = function(obj) {
@@ -399,9 +395,10 @@ if (typeof MONKEY !== "object") {
         isArray: is_array,
         copy: copy_items
     };
-    ns.type.register("Arrays")
+    ns.type.registers("Arrays")
 })(MONKEY);
 (function(ns) {
+    var obj = ns.type.Object;
     var get_alias = function(value) {
         var enumeration = this.constructor;
         var e;
@@ -419,7 +416,7 @@ if (typeof MONKEY !== "object") {
         return null
     };
     var base_enum = function(value, alias) {
-        ns.type.Object.call(this);
+        obj.call(this);
         if (!alias) {
             if (value instanceof base_enum) {
                 alias = value.__alias
@@ -433,7 +430,7 @@ if (typeof MONKEY !== "object") {
         this.__value = value;
         this.__alias = alias
     };
-    ns.Class(base_enum, ns.type.Object, null);
+    ns.Class(base_enum, obj, null);
     base_enum.prototype.equals = function(other) {
         if (!other) {
             return !this.__value
@@ -476,15 +473,14 @@ if (typeof MONKEY !== "object") {
         }
         return enumeration
     };
-    ns.type.BaseEnum = base_enum;
     ns.type.Enum = enumify;
-    ns.type.register("BaseEnum");
-    ns.type.register("Enum")
+    ns.type.registers("Enum")
 })(MONKEY);
 (function(ns) {
+    var obj = ns.type.Object;
     var Arrays = ns.type.Arrays;
     var bytes = function() {
-        ns.type.Object.call(this);
+        obj.call(this);
         this._buffer = null;
         this._offset = 0;
         this._length = 0;
@@ -520,7 +516,7 @@ if (typeof MONKEY !== "object") {
             }
         }
     };
-    ns.Class(bytes, ns.type.Object, null);
+    ns.Class(bytes, obj, null);
     bytes.ZERO = new bytes(new Uint8Array(0), 0, 0);
     bytes.prototype.getBuffer = function() {
         return this._buffer
@@ -765,7 +761,7 @@ if (typeof MONKEY !== "object") {
         }
     };
     ns.type.Data = bytes;
-    ns.type.register("Data")
+    ns.type.registers("Data")
 })(MONKEY);
 (function(ns) {
     var Arrays = ns.type.Arrays;
@@ -980,10 +976,12 @@ if (typeof MONKEY !== "object") {
         this.setByte(this._length, element)
     };
     ns.type.MutableData = bytes;
-    ns.type.register("MutableData")
+    ns.type.registers("MutableData")
 })(MONKEY);
 (function(ns) {
+    var obj = ns.type.Object;
     var str = function(value) {
+        obj.call(this);
         if (!value) {
             value = ""
         } else {
@@ -991,10 +989,9 @@ if (typeof MONKEY !== "object") {
                 value = value.toString()
             }
         }
-        ns.type.Object.call(this);
         this.__string = value
     };
-    ns.Class(str, ns.type.Object, null);
+    ns.Class(str, obj, null);
     str.prototype.equals = function(other) {
         if (!other) {
             return !this.__string
@@ -1035,7 +1032,7 @@ if (typeof MONKEY !== "object") {
         return this.__string.length
     };
     ns.type.String = str;
-    ns.type.register("String")
+    ns.type.registers("String")
 })(MONKEY);
 (function(ns) {
     var map = function() {};
@@ -1071,12 +1068,14 @@ if (typeof MONKEY !== "object") {
         console.assert(false, "implement me!")
     };
     ns.type.Map = map;
-    ns.type.register("Map")
+    ns.type.registers("Map")
 })(MONKEY);
 (function(ns) {
-    var Arrays = ns.type.Arrays;
+    var obj = ns.type.Object;
     var map = ns.type.Map;
+    var Arrays = ns.type.Arrays;
     var dict = function(dictionary) {
+        obj.call(this);
         if (!dictionary) {
             dictionary = {}
         } else {
@@ -1084,10 +1083,9 @@ if (typeof MONKEY !== "object") {
                 dictionary = dictionary.getMap()
             }
         }
-        ns.type.Object.call(this);
         this.__dictionary = dictionary
     };
-    ns.Class(dict, ns.type.Object, [map]);
+    ns.Class(dict, obj, [map]);
     dict.prototype.getMap = function() {
         return this.__dictionary
     };
@@ -1124,7 +1122,7 @@ if (typeof MONKEY !== "object") {
         }
     };
     ns.type.Dictionary = dict;
-    ns.type.register("Dictionary")
+    ns.type.registers("Dictionary")
 })(MONKEY);
 (function(ns) {
     var obj = ns.type.Object;
@@ -1199,7 +1197,7 @@ if (typeof MONKEY !== "object") {
     ns.Interface(wrapper, null);
     wrapper.unwrap = unwrap;
     ns.type.Wrapper = wrapper;
-    ns.type.register("Wrapper")
+    ns.type.registers("Wrapper")
 })(MONKEY);
 (function(ns) {
     var Runnable = function() {};
@@ -1209,7 +1207,7 @@ if (typeof MONKEY !== "object") {
         return false
     };
     ns.threading.Runnable = Runnable;
-    ns.threading.register("Runnable")
+    ns.threading.registers("Runnable")
 })(MONKEY);
 (function(ns) {
     var obj = ns.type.Object;
@@ -1272,7 +1270,7 @@ if (typeof MONKEY !== "object") {
         }
     };
     ns.threading.Thread = Thread;
-    ns.threading.register("Thread")
+    ns.threading.registers("Thread")
 })(MONKEY);
 (function(ns) {
     var Handler = function() {};
@@ -1290,7 +1288,7 @@ if (typeof MONKEY !== "object") {
         return false
     };
     ns.threading.Handler = Handler;
-    ns.threading.register("Handler")
+    ns.threading.registers("Handler")
 })(MONKEY);
 (function(ns) {
     var Processor = function() {};
@@ -1300,7 +1298,7 @@ if (typeof MONKEY !== "object") {
         return false
     };
     ns.threading.Processor = Processor;
-    ns.threading.register("Processor")
+    ns.threading.registers("Processor")
 })(MONKEY);
 (function(ns) {
     var Thread = ns.threading.Thread;
@@ -1378,9 +1376,10 @@ if (typeof MONKEY !== "object") {
         }
     };
     ns.threading.Runner = Runner;
-    ns.threading.register("Runner")
+    ns.threading.registers("Runner")
 })(MONKEY);
 (function(ns) {
+    var obj = ns.type.Object;
     var hash = function() {};
     ns.Interface(hash, null);
     hash.prototype.digest = function(data) {
@@ -1388,78 +1387,95 @@ if (typeof MONKEY !== "object") {
         return null
     };
     var lib = function(hash) {
+        obj.call(this);
         this.hash = hash
     };
-    ns.Class(lib, ns.type.Object, [hash]);
+    ns.Class(lib, obj, [hash]);
     lib.prototype.digest = function(data) {
         return this.hash.digest(data)
     };
     ns.digest.Hash = hash;
     ns.digest.HashLib = lib;
-    ns.digest.register("Hash");
-    ns.digest.register("HashLib")
+    ns.digest.registers("Hash");
+    ns.digest.registers("HashLib")
 })(MONKEY);
 (function(ns) {
+    var obj = ns.type.Object;
     var Hash = ns.digest.Hash;
     var Lib = ns.digest.HashLib;
-    var md5 = function() {};
-    ns.Class(md5, ns.type.Object, [Hash]);
+    var md5 = function() {
+        obj.call(this)
+    };
+    ns.Class(md5, obj, [Hash]);
     md5.prototype.digest = function(data) {
         console.assert(false, "MD5 not implemented");
         return null
     };
     ns.digest.MD5 = new Lib(new md5());
-    ns.digest.register("MD5")
+    ns.digest.registers("MD5")
 })(MONKEY);
 (function(ns) {
+    var obj = ns.type.Object;
     var Hash = ns.digest.Hash;
     var Lib = ns.digest.HashLib;
-    var sha1 = function() {};
-    ns.Class(sha1, ns.type.Object, [Hash]);
+    var sha1 = function() {
+        obj.call(this)
+    };
+    ns.Class(sha1, obj, [Hash]);
     sha1.prototype.digest = function(data) {
         console.assert(false, "SHA1 not implemented");
         return null
     };
     ns.digest.SHA1 = new Lib(new sha1());
-    ns.digest.register("SHA1")
+    ns.digest.registers("SHA1")
 })(MONKEY);
 (function(ns) {
+    var obj = ns.type.Object;
     var Hash = ns.digest.Hash;
     var Lib = ns.digest.HashLib;
-    var sha256 = function() {};
-    ns.Class(sha256, ns.type.Object, [Hash]);
+    var sha256 = function() {
+        obj.call(this)
+    };
+    ns.Class(sha256, obj, [Hash]);
     sha256.prototype.digest = function(data) {
         console.assert(false, "SHA256 not implemented");
         return null
     };
     ns.digest.SHA256 = new Lib(new sha256());
-    ns.digest.register("SHA256")
+    ns.digest.registers("SHA256")
 })(MONKEY);
 (function(ns) {
+    var obj = ns.type.Object;
     var Hash = ns.digest.Hash;
     var Lib = ns.digest.HashLib;
-    var ripemd160 = function() {};
-    ns.Class(ripemd160, ns.type.Object, [Hash]);
+    var ripemd160 = function() {
+        obj.call(this)
+    };
+    ns.Class(ripemd160, obj, [Hash]);
     ripemd160.prototype.digest = function(data) {
         console.assert(false, "RIPEMD160 not implemented");
         return null
     };
     ns.digest.RIPEMD160 = new Lib(new ripemd160());
-    ns.digest.register("RIPEMD160")
+    ns.digest.registers("RIPEMD160")
 })(MONKEY);
 (function(ns) {
+    var obj = ns.type.Object;
     var Hash = ns.digest.Hash;
     var Lib = ns.digest.HashLib;
-    var keccak256 = function() {};
-    ns.Class(keccak256, ns.type.Object, [Hash]);
+    var keccak256 = function() {
+        obj.call(this)
+    };
+    ns.Class(keccak256, obj, [Hash]);
     keccak256.prototype.digest = function(data) {
         console.assert(false, "KECCAK256 not implemented");
         return null
     };
     ns.digest.KECCAK256 = new Lib(new keccak256());
-    ns.digest.register("KECCAK256")
+    ns.digest.registers("KECCAK256")
 })(MONKEY);
 (function(ns) {
+    var obj = ns.type.Object;
     var coder = function() {};
     ns.Interface(coder, null);
     coder.prototype.encode = function(data) {
@@ -1471,9 +1487,10 @@ if (typeof MONKEY !== "object") {
         return null
     };
     var lib = function(coder) {
+        obj.call(this);
         this.coder = coder
     };
-    ns.Class(lib, ns.type.Object, [coder]);
+    ns.Class(lib, obj, [coder]);
     lib.prototype.encode = function(data) {
         return this.coder.encode(data)
     };
@@ -1482,10 +1499,11 @@ if (typeof MONKEY !== "object") {
     };
     ns.format.BaseCoder = coder;
     ns.format.CoderLib = lib;
-    ns.format.register("BaseCoder");
-    ns.format.register("CoderLib")
+    ns.format.registers("BaseCoder");
+    ns.format.registers("CoderLib")
 })(MONKEY);
 (function(ns) {
+    var obj = ns.type.Object;
     var Data = ns.type.Data;
     var Coder = ns.format.BaseCoder;
     var Lib = ns.format.CoderLib;
@@ -1534,8 +1552,10 @@ if (typeof MONKEY !== "object") {
         }
         return data.getBytes()
     };
-    var hex = function() {};
-    ns.Class(hex, ns.type.Object, [Coder]);
+    var hex = function() {
+        obj.call(this)
+    };
+    ns.Class(hex, obj, [Coder]);
     hex.prototype.encode = function(data) {
         return hex_encode(data)
     };
@@ -1543,13 +1563,16 @@ if (typeof MONKEY !== "object") {
         return hex_decode(str)
     };
     ns.format.Hex = new Lib(new hex());
-    ns.format.register("Hex")
+    ns.format.registers("Hex")
 })(MONKEY);
 (function(ns) {
+    var obj = ns.type.Object;
     var Coder = ns.format.BaseCoder;
     var Lib = ns.format.CoderLib;
-    var base58 = function() {};
-    ns.Class(base58, ns.type.Object, [Coder]);
+    var base58 = function() {
+        obj.call(this)
+    };
+    ns.Class(base58, obj, [Coder]);
     base58.prototype.encode = function(data) {
         console.assert(false, "Base58 encode not implemented");
         return null
@@ -1559,9 +1582,10 @@ if (typeof MONKEY !== "object") {
         return null
     };
     ns.format.Base58 = new Lib(new base58());
-    ns.format.register("Base58")
+    ns.format.registers("Base58")
 })(MONKEY);
 (function(ns) {
+    var obj = ns.type.Object;
     var Data = ns.type.Data;
     var Coder = ns.format.BaseCoder;
     var Lib = ns.format.CoderLib;
@@ -1635,8 +1659,10 @@ if (typeof MONKEY !== "object") {
         }
         return array.getBytes()
     };
-    var base64 = function() {};
-    ns.Class(base64, ns.type.Object, [Coder]);
+    var base64 = function() {
+        obj.call(this)
+    };
+    ns.Class(base64, obj, [Coder]);
     base64.prototype.encode = function(data) {
         return base64_encode(data)
     };
@@ -1644,9 +1670,10 @@ if (typeof MONKEY !== "object") {
         return base64_decode(string)
     };
     ns.format.Base64 = new Lib(new base64());
-    ns.format.register("Base64")
+    ns.format.registers("Base64")
 })(MONKEY);
 (function(ns) {
+    var obj = ns.type.Object;
     var parser = function() {};
     ns.Interface(parser, null);
     parser.prototype.encode = function(object) {
@@ -1658,9 +1685,10 @@ if (typeof MONKEY !== "object") {
         return null
     };
     var lib = function(parser) {
+        obj.call(this);
         this.parser = parser
     };
-    ns.Class(lib, ns.type.Object, [parser]);
+    ns.Class(lib, obj, [parser]);
     lib.prototype.encode = function(object) {
         return this.parser.encode(object)
     };
@@ -1669,10 +1697,11 @@ if (typeof MONKEY !== "object") {
     };
     ns.format.DataParser = parser;
     ns.format.ParserLib = lib;
-    ns.format.register("DataParser");
-    ns.format.register("ParserLib")
+    ns.format.registers("DataParser");
+    ns.format.registers("ParserLib")
 })(MONKEY);
 (function(ns) {
+    var obj = ns.type.Object;
     var Data = ns.type.Data;
     var Parser = ns.format.DataParser;
     var Lib = ns.format.ParserLib;
@@ -1746,18 +1775,23 @@ if (typeof MONKEY !== "object") {
         }
         return string
     };
-    var utf8 = function() {};
-    ns.Class(utf8, ns.type.Object, [Parser]);
+    var utf8 = function() {
+        obj.call(this)
+    };
+    ns.Class(utf8, obj, [Parser]);
     utf8.prototype.encode = utf8_encode;
     utf8.prototype.decode = utf8_decode;
     ns.format.UTF8 = new Lib(new utf8());
-    ns.format.register("UTF8")
+    ns.format.registers("UTF8")
 })(MONKEY);
 (function(ns) {
+    var obj = ns.type.Object;
     var Parser = ns.format.DataParser;
     var Lib = ns.format.ParserLib;
-    var json = function() {};
-    ns.Class(json, ns.type.Object, [Parser]);
+    var json = function() {
+        obj.call(this)
+    };
+    ns.Class(json, obj, [Parser]);
     json.prototype.encode = function(container) {
         var string = JSON.stringify(container);
         if (!string) {
@@ -1778,7 +1812,7 @@ if (typeof MONKEY !== "object") {
         return JSON.parse(string)
     };
     ns.format.JSON = new Lib(new json());
-    ns.format.register("JSON")
+    ns.format.registers("JSON")
 })(MONKEY);
 (function(ns) {
     var map = ns.type.Map;
@@ -1811,7 +1845,7 @@ if (typeof MONKEY !== "object") {
         return true
     };
     ns.crypto.CryptographyKey = CryptographyKey;
-    ns.crypto.register("CryptographyKey")
+    ns.crypto.registers("CryptographyKey")
 })(MONKEY);
 (function(ns) {
     var CryptographyKey = ns.crypto.CryptographyKey;
@@ -1833,8 +1867,8 @@ if (typeof MONKEY !== "object") {
     };
     ns.crypto.EncryptKey = EncryptKey;
     ns.crypto.DecryptKey = DecryptKey;
-    ns.crypto.register("EncryptKey");
-    ns.crypto.register("DecryptKey")
+    ns.crypto.registers("EncryptKey");
+    ns.crypto.registers("DecryptKey")
 })(MONKEY);
 (function(ns) {
     var EncryptKey = ns.crypto.EncryptKey;
@@ -1844,7 +1878,7 @@ if (typeof MONKEY !== "object") {
     SymmetricKey.AES = "AES";
     SymmetricKey.DES = "DES";
     ns.crypto.SymmetricKey = SymmetricKey;
-    ns.crypto.register("SymmetricKey")
+    ns.crypto.registers("SymmetricKey")
 })(MONKEY);
 (function(ns) {
     var map = ns.type.Map;
@@ -1925,9 +1959,9 @@ if (typeof MONKEY !== "object") {
     ns.crypto.AsymmetricKey = AsymmetricKey;
     ns.crypto.SignKey = SignKey;
     ns.crypto.VerifyKey = VerifyKey;
-    ns.crypto.register("AsymmetricKey");
-    ns.crypto.register("SignKey");
-    ns.crypto.register("VerifyKey")
+    ns.crypto.registers("AsymmetricKey");
+    ns.crypto.registers("SignKey");
+    ns.crypto.registers("VerifyKey")
 })(MONKEY);
 (function(ns) {
     var AsymmetricKey = ns.crypto.AsymmetricKey;
@@ -1937,7 +1971,7 @@ if (typeof MONKEY !== "object") {
     PublicKey.RSA = AsymmetricKey.RSA;
     PublicKey.ECC = AsymmetricKey.ECC;
     ns.crypto.PublicKey = PublicKey;
-    ns.crypto.register("PublicKey")
+    ns.crypto.registers("PublicKey")
 })(MONKEY);
 (function(ns) {
     var map = ns.type.Map;
@@ -1989,7 +2023,7 @@ if (typeof MONKEY !== "object") {
         return null
     };
     ns.crypto.PrivateKey = PrivateKey;
-    ns.crypto.register("PrivateKey")
+    ns.crypto.registers("PrivateKey")
 })(MONKEY);
 (function(ns) {
     var map = ns.type.Map;
@@ -2041,15 +2075,18 @@ if (typeof MONKEY !== "object") {
     }
 })(MONKEY);
 if (typeof MingKeMing !== "object") {
-    MingKeMing = {}
+    MingKeMing = new MONKEY.Namespace()
 }
 (function(ns, base) {
     base.exports(ns);
     if (typeof ns.protocol !== "object") {
-        ns.protocol = {}
+        ns.protocol = new ns.Namespace()
     }
-    base.Namespace(ns.protocol);
-    ns.register("protocol")
+    if (typeof ns.mkm !== "object") {
+        ns.mkm = new ns.Namespace()
+    }
+    ns.registers("protocol");
+    ns.registers("mkm")
 })(MingKeMing, MONKEY);
 (function(ns) {
     var NetworkType = ns.type.Enum(null, {
@@ -2073,7 +2110,7 @@ if (typeof MingKeMing !== "object") {
         return (network & group) === group
     };
     ns.protocol.NetworkType = NetworkType;
-    ns.protocol.register("NetworkType")
+    ns.protocol.registers("NetworkType")
 })(MingKeMing);
 (function(ns) {
     var MetaType = ns.type.Enum(null, {
@@ -2089,7 +2126,7 @@ if (typeof MingKeMing !== "object") {
         return (version & mkm) === mkm
     };
     ns.protocol.MetaType = MetaType;
-    ns.protocol.register("MetaType")
+    ns.protocol.registers("MetaType")
 })(MingKeMing);
 (function(ns) {
     var Address = function() {};
@@ -2113,7 +2150,7 @@ if (typeof MingKeMing !== "object") {
     Address.ANYWHERE = null;
     Address.EVERYWHERE = null;
     ns.protocol.Address = Address;
-    ns.protocol.register("Address")
+    ns.protocol.registers("Address")
 })(MingKeMing);
 (function(ns) {
     var str = ns.type.String;
@@ -2207,7 +2244,7 @@ if (typeof MingKeMing !== "object") {
         return array
     };
     ns.protocol.ID = ID;
-    ns.protocol.register("ID")
+    ns.protocol.registers("ID")
 })(MingKeMing);
 (function(ns) {
     var str = ns.type.String;
@@ -2307,7 +2344,7 @@ if (typeof MingKeMing !== "object") {
         return false
     };
     ns.protocol.Meta = Meta;
-    ns.protocol.register("Meta")
+    ns.protocol.registers("Meta")
 })(MingKeMing);
 (function(ns) {
     var map = ns.type.Map;
@@ -2402,7 +2439,7 @@ if (typeof MingKeMing !== "object") {
         console.assert(false, "implement me!")
     };
     ns.protocol.TAI = TAI;
-    ns.protocol.register("TAI")
+    ns.protocol.registers("TAI")
 })(MingKeMing);
 (function(ns) {
     var map = ns.type.Map;
@@ -2455,7 +2492,7 @@ if (typeof MingKeMing !== "object") {
         console.assert(false, "implement me!")
     };
     ns.protocol.Document = Document;
-    ns.protocol.register("Document")
+    ns.protocol.registers("Document")
 })(MingKeMing);
 (function(ns) {
     var map = ns.type.Map;
@@ -2524,7 +2561,7 @@ if (typeof MingKeMing !== "object") {
         console.assert(false, "implement me!")
     };
     ns.protocol.Visa = Visa;
-    ns.protocol.register("Visa")
+    ns.protocol.registers("Visa")
 })(MingKeMing);
 (function(ns) {
     var Document = ns.protocol.Document;
@@ -2538,7 +2575,7 @@ if (typeof MingKeMing !== "object") {
         console.assert(false, "implement me!")
     };
     ns.protocol.Bulletin = Bulletin;
-    ns.protocol.register("Bulletin")
+    ns.protocol.registers("Bulletin")
 })(MingKeMing);
 (function(ns) {
     var str = ns.type.String;
@@ -2571,13 +2608,14 @@ if (typeof MingKeMing !== "object") {
     Identifier.prototype.isGroup = function() {
         return this.getAddress().isGroup()
     };
-    ns.Identifier = Identifier;
-    ns.register("Identifier")
+    ns.mkm.Identifier = Identifier;
+    ns.mkm.registers("Identifier")
 })(MingKeMing);
 (function(ns) {
+    var obj = ns.type.Object;
     var Address = ns.protocol.Address;
     var ID = ns.protocol.ID;
-    var Identifier = ns.Identifier;
+    var Identifier = ns.mkm.Identifier;
     var concat = function(name, address, terminal) {
         var string = address.toString();
         if (name && name.length > 0) {
@@ -2607,9 +2645,10 @@ if (typeof MingKeMing !== "object") {
         return new Identifier(string, name, address, terminal)
     };
     var IDFactory = function() {
+        obj.call(this);
         this.__identifiers = {}
     };
-    ns.Class(IDFactory, null, [ID.Factory]);
+    ns.Class(IDFactory, obj, [ID.Factory]);
     IDFactory.prototype.createID = function(name, address, terminal) {
         var string = concat(name, address, terminal);
         var id = this.__identifiers[string];
@@ -2629,8 +2668,8 @@ if (typeof MingKeMing !== "object") {
         }
         return id
     };
-    ns.IDFactory = IDFactory;
-    ns.register("IDFactory")
+    ns.mkm.IDFactory = IDFactory;
+    ns.mkm.registers("IDFactory")
 })(MingKeMing);
 (function(ns) {
     var str = ns.type.String;
@@ -2658,17 +2697,19 @@ if (typeof MingKeMing !== "object") {
     };
     Address.ANYWHERE = new BroadcastAddress("anywhere", NetworkType.MAIN);
     Address.EVERYWHERE = new BroadcastAddress("everywhere", NetworkType.GROUP);
-    ns.BroadcastAddress = BroadcastAddress;
-    ns.register("BroadcastAddress")
+    ns.mkm.BroadcastAddress = BroadcastAddress;
+    ns.mkm.registers("BroadcastAddress")
 })(MingKeMing);
 (function(ns) {
+    var obj = ns.type.Object;
     var Address = ns.protocol.Address;
     var AddressFactory = function() {
+        obj.call(this);
         this.__addresses = {};
         this.__addresses[Address.ANYWHERE.toString()] = Address.ANYWHERE;
         this.__addresses[Address.EVERYWHERE.toString()] = Address.EVERYWHERE
     };
-    ns.Class(AddressFactory, null, [Address.Factory]);
+    ns.Class(AddressFactory, obj, [Address.Factory]);
     AddressFactory.prototype.parseAddress = function(string) {
         var address = this.__addresses[string];
         if (!address) {
@@ -2683,13 +2724,13 @@ if (typeof MingKeMing !== "object") {
         console.assert(false, "implement me!");
         return null
     };
-    ns.AddressFactory = AddressFactory;
-    ns.register("AddressFactory")
+    ns.mkm.AddressFactory = AddressFactory;
+    ns.mkm.registers("AddressFactory")
 })(MingKeMing);
 (function(ns) {
     var ID = ns.protocol.ID;
     var Address = ns.protocol.Address;
-    var IDFactory = ns.IDFactory;
+    var IDFactory = ns.mkm.IDFactory;
     var factory = new IDFactory();
     ID.setFactory(factory);
     ID.ANYONE = factory.createID("anyone", Address.ANYWHERE, null);
@@ -2834,8 +2875,8 @@ if (typeof MingKeMing !== "object") {
             return false
         }
     };
-    ns.BaseMeta = BaseMeta;
-    ns.register("BaseMeta")
+    ns.mkm.BaseMeta = BaseMeta;
+    ns.mkm.registers("BaseMeta")
 })(MingKeMing);
 (function(ns) {
     var Dictionary = ns.type.Dictionary;
@@ -2993,8 +3034,8 @@ if (typeof MingKeMing !== "object") {
     BaseDocument.prototype.setName = function(name) {
         this.setProperty("name", name)
     };
-    ns.BaseDocument = BaseDocument;
-    ns.register("BaseDocument")
+    ns.mkm.BaseDocument = BaseDocument;
+    ns.mkm.registers("BaseDocument")
 })(MingKeMing);
 (function(ns) {
     var EncryptKey = ns.crypto.EncryptKey;
@@ -3040,14 +3081,14 @@ if (typeof MingKeMing !== "object") {
     BaseVisa.prototype.setAvatar = function(url) {
         this.setProperty("avatar", url)
     };
-    ns.BaseVisa = BaseVisa;
-    ns.register("BaseVisa")
+    ns.mkm.BaseVisa = BaseVisa;
+    ns.mkm.registers("BaseVisa")
 })(MingKeMing);
 (function(ns) {
     var ID = ns.protocol.ID;
     var Document = ns.protocol.Document;
     var Bulletin = ns.protocol.Bulletin;
-    var BaseDocument = ns.BaseDocument;
+    var BaseDocument = ns.mkm.BaseDocument;
     var BaseBulletin = function() {
         if (arguments.length === 3) {
             BaseDocument.call(this, arguments[0], arguments[1], arguments[2])
@@ -3079,19 +3120,22 @@ if (typeof MingKeMing !== "object") {
             this.setProperty("assistants", null)
         }
     };
-    ns.BaseBulletin = BaseBulletin;
-    ns.register("BaseBulletin")
+    ns.mkm.BaseBulletin = BaseBulletin;
+    ns.mkm.registers("BaseBulletin")
 })(MingKeMing);
 if (typeof DaoKeDao !== "object") {
-    DaoKeDao = {}
+    DaoKeDao = new MONKEY.Namespace()
 }
 (function(ns, base) {
     base.exports(ns);
     if (typeof ns.protocol !== "object") {
-        ns.protocol = {}
+        ns.protocol = new MONKEY.Namespace()
     }
-    base.Namespace(ns.protocol);
-    ns.register("protocol")
+    if (typeof ns.dkd !== "object") {
+        ns.dkd = new MONKEY.Namespace()
+    }
+    ns.registers("protocol");
+    ns.registers("dkd")
 })(DaoKeDao, MingKeMing);
 (function(ns) {
     var ContentType = ns.type.Enum(null, {
@@ -3112,7 +3156,7 @@ if (typeof DaoKeDao !== "object") {
         FORWARD: (255)
     });
     ns.protocol.ContentType = ContentType;
-    ns.protocol.register("ContentType")
+    ns.protocol.registers("ContentType")
 })(DaoKeDao);
 (function(ns) {
     var map = ns.type.Map;
@@ -3163,7 +3207,7 @@ if (typeof DaoKeDao !== "object") {
         }
     };
     ns.protocol.Content = Content;
-    ns.protocol.register("Content")
+    ns.protocol.registers("Content")
 })(DaoKeDao);
 (function(ns) {
     var map = ns.type.Map;
@@ -3284,7 +3328,7 @@ if (typeof DaoKeDao !== "object") {
         }
     };
     ns.protocol.Envelope = Envelope;
-    ns.protocol.register("Envelope")
+    ns.protocol.registers("Envelope")
 })(DaoKeDao);
 (function(ns) {
     var map = ns.type.Map;
@@ -3365,7 +3409,7 @@ if (typeof DaoKeDao !== "object") {
         return null
     };
     ns.protocol.Message = Message;
-    ns.protocol.register("Message")
+    ns.protocol.registers("Message")
 })(DaoKeDao);
 (function(ns) {
     var Message = ns.protocol.Message;
@@ -3390,7 +3434,7 @@ if (typeof DaoKeDao !== "object") {
         return null
     };
     ns.protocol.InstantMessage = InstantMessage;
-    ns.protocol.register("InstantMessage")
+    ns.protocol.registers("InstantMessage")
 })(DaoKeDao);
 (function(ns) {
     var Message = ns.protocol.Message;
@@ -3495,7 +3539,7 @@ if (typeof DaoKeDao !== "object") {
         return null
     };
     ns.protocol.SecureMessage = SecureMessage;
-    ns.protocol.register("SecureMessage")
+    ns.protocol.registers("SecureMessage")
 })(DaoKeDao);
 (function(ns) {
     var Message = ns.protocol.Message;
@@ -3625,7 +3669,7 @@ if (typeof DaoKeDao !== "object") {
         return null
     };
     ns.protocol.ReliableMessage = ReliableMessage;
-    ns.protocol.register("ReliableMessage")
+    ns.protocol.registers("ReliableMessage")
 })(DaoKeDao);
 (function(ns) {
     var SecureMessage = ns.protocol.SecureMessage;
@@ -3743,8 +3787,8 @@ if (typeof DaoKeDao !== "object") {
     BaseContent.prototype.setGroup = function(identifier) {
         Content.setGroup(identifier, this.getMap())
     };
-    ns.BaseContent = BaseContent;
-    ns.register("BaseContent")
+    ns.dkd.BaseContent = BaseContent;
+    ns.dkd.registers("BaseContent")
 })(DaoKeDao);
 (function(ns) {
     var Dictionary = ns.type.Dictionary;
@@ -3813,8 +3857,8 @@ if (typeof DaoKeDao !== "object") {
     MessageEnvelope.prototype.setType = function(type) {
         Envelope.setType(type, this.getMap())
     };
-    ns.MessageEnvelope = MessageEnvelope;
-    ns.register("MessageEnvelope")
+    ns.dkd.MessageEnvelope = MessageEnvelope;
+    ns.dkd.registers("MessageEnvelope")
 })(DaoKeDao);
 (function(ns) {
     var Dictionary = ns.type.Dictionary;
@@ -3857,14 +3901,14 @@ if (typeof DaoKeDao !== "object") {
     BaseMessage.prototype.getType = function() {
         return this.getEnvelope().getTime()
     };
-    ns.BaseMessage = BaseMessage;
-    ns.register("BaseMessage")
+    ns.dkd.BaseMessage = BaseMessage;
+    ns.dkd.registers("BaseMessage")
 })(DaoKeDao);
 (function(ns) {
     var Message = ns.protocol.Message;
     var InstantMessage = ns.protocol.InstantMessage;
     var SecureMessage = ns.protocol.SecureMessage;
-    var BaseMessage = ns.BaseMessage;
+    var BaseMessage = ns.dkd.BaseMessage;
     var PlainMessage = function() {
         var msg, head, body;
         if (arguments.length === 1) {
@@ -3958,15 +4002,15 @@ if (typeof DaoKeDao !== "object") {
         msg["data"] = base64;
         return msg
     };
-    ns.PlainMessage = PlainMessage;
-    ns.register("PlainMessage")
+    ns.dkd.PlainMessage = PlainMessage;
+    ns.dkd.registers("PlainMessage")
 })(DaoKeDao);
 (function(ns) {
     var map = ns.type.Map;
     var InstantMessage = ns.protocol.InstantMessage;
     var SecureMessage = ns.protocol.SecureMessage;
     var ReliableMessage = ns.protocol.ReliableMessage;
-    var BaseMessage = ns.BaseMessage;
+    var BaseMessage = ns.dkd.BaseMessage;
     var EncryptedMessage = function(msg) {
         BaseMessage.call(this, msg);
         this.__data = null;
@@ -4097,13 +4141,13 @@ if (typeof DaoKeDao !== "object") {
         msg["receiver"] = member.toString();
         return SecureMessage.parse(msg)
     };
-    ns.EncryptedMessage = EncryptedMessage;
-    ns.register("EncryptedMessage")
+    ns.dkd.EncryptedMessage = EncryptedMessage;
+    ns.dkd.registers("EncryptedMessage")
 })(DaoKeDao);
 (function(ns) {
     var SecureMessage = ns.protocol.SecureMessage;
     var ReliableMessage = ns.protocol.ReliableMessage;
-    var EncryptedMessage = ns.EncryptedMessage;
+    var EncryptedMessage = ns.dkd.EncryptedMessage;
     var NetworkMessage = function(msg) {
         EncryptedMessage.call(this, msg);
         this.__signature = null;
@@ -4155,14 +4199,17 @@ if (typeof DaoKeDao !== "object") {
             return null
         }
     };
-    ns.NetworkMessage = NetworkMessage;
-    ns.register("NetworkMessage")
+    ns.dkd.NetworkMessage = NetworkMessage;
+    ns.dkd.registers("NetworkMessage")
 })(DaoKeDao);
 (function(ns) {
+    var obj = ns.type.Object;
     var Envelope = ns.protocol.Envelope;
-    var MessageEnvelope = ns.MessageEnvelope;
-    var EnvelopeFactory = function() {};
-    ns.Class(EnvelopeFactory, null, [Envelope.Factory]);
+    var MessageEnvelope = ns.dkd.MessageEnvelope;
+    var EnvelopeFactory = function() {
+        obj.call(this)
+    };
+    ns.Class(EnvelopeFactory, obj, [Envelope.Factory]);
     EnvelopeFactory.prototype.createEnvelope = function(from, to, when) {
         if (!when) {
             when = new Date()
@@ -4176,14 +4223,17 @@ if (typeof DaoKeDao !== "object") {
         return new MessageEnvelope(env)
     };
     Envelope.setFactory(new EnvelopeFactory());
-    ns.EnvelopeFactory = EnvelopeFactory;
-    ns.register("EnvelopeFactory")
+    ns.dkd.EnvelopeFactory = EnvelopeFactory;
+    ns.dkd.registers("EnvelopeFactory")
 })(DaoKeDao);
 (function(ns) {
+    var obj = ns.type.Object;
     var InstantMessage = ns.protocol.InstantMessage;
-    var PlainMessage = ns.PlainMessage;
-    var InstantMessageFactory = function() {};
-    ns.Class(InstantMessageFactory, null, [InstantMessage.Factory]);
+    var PlainMessage = ns.dkd.PlainMessage;
+    var InstantMessageFactory = function() {
+        obj.call(this)
+    };
+    ns.Class(InstantMessageFactory, obj, [InstantMessage.Factory]);
     InstantMessageFactory.prototype.createInstantMessage = function(head, body) {
         return new PlainMessage(head, body)
     };
@@ -4191,58 +4241,61 @@ if (typeof DaoKeDao !== "object") {
         return new PlainMessage(msg)
     };
     InstantMessage.setFactory(new InstantMessageFactory());
-    ns.InstantMessageFactory = InstantMessageFactory;
-    ns.register("InstantMessageFactory")
+    ns.dkd.InstantMessageFactory = InstantMessageFactory;
+    ns.dkd.registers("InstantMessageFactory")
 })(DaoKeDao);
 (function(ns) {
+    var obj = ns.type.Object;
     var SecureMessage = ns.protocol.SecureMessage;
-    var EncryptedMessage = ns.EncryptedMessage;
-    var SecureMessageFactory = function() {};
-    ns.Class(SecureMessageFactory, null, [SecureMessage.Factory]);
+    var EncryptedMessage = ns.dkd.EncryptedMessage;
+    var SecureMessageFactory = function() {
+        obj.call(this)
+    };
+    ns.Class(SecureMessageFactory, obj, [SecureMessage.Factory]);
     SecureMessageFactory.prototype.parseSecureMessage = function(msg) {
         return new EncryptedMessage(msg)
     };
     SecureMessage.setFactory(new SecureMessageFactory());
-    ns.SecureMessageFactory = SecureMessageFactory;
-    ns.register("SecureMessageFactory")
+    ns.dkd.SecureMessageFactory = SecureMessageFactory;
+    ns.dkd.registers("SecureMessageFactory")
 })(DaoKeDao);
 (function(ns) {
+    var obj = ns.type.Object;
     var ReliableMessage = ns.protocol.ReliableMessage;
-    var NetworkMessage = ns.NetworkMessage;
-    var ReliableMessageFactory = function() {};
-    ns.Class(ReliableMessageFactory, null, [ReliableMessage.Factory]);
+    var NetworkMessage = ns.dkd.NetworkMessage;
+    var ReliableMessageFactory = function() {
+        obj.call(this)
+    };
+    ns.Class(ReliableMessageFactory, obj, [ReliableMessage.Factory]);
     ReliableMessageFactory.prototype.parseReliableMessage = function(msg) {
         return new NetworkMessage(msg)
     };
     ReliableMessage.setFactory(new ReliableMessageFactory());
-    ns.ReliableMessageFactory = ReliableMessageFactory;
-    ns.register("ReliableMessageFactory")
+    ns.dkd.ReliableMessageFactory = ReliableMessageFactory;
+    ns.dkd.registers("ReliableMessageFactory")
 })(DaoKeDao);
 if (typeof DIMP !== "object") {
-    DIMP = {}
+    DIMP = new MingKeMing.Namespace()
 }
 (function(ns, base) {
     base.exports(ns);
     if (typeof ns.core !== "object") {
-        ns.core = {}
+        ns.core = new ns.Namespace()
     }
     if (typeof ns.protocol !== "object") {
-        ns.protocol = {}
+        ns.protocol = new ns.Namespace()
     }
     if (typeof ns.protocol.group !== "object") {
-        ns.protocol.group = {}
+        ns.protocol.group = new ns.Namespace()
     }
-    ns.Namespace(ns.core);
-    ns.Namespace(ns.protocol);
-    ns.Namespace(ns.protocol.group);
-    ns.register("core");
-    ns.register("protocol");
-    ns.protocol.register("group")
+    ns.registers("core");
+    ns.registers("protocol");
+    ns.protocol.registers("group")
 })(DIMP, DaoKeDao);
 (function(ns) {
     var ReliableMessage = ns.protocol.ReliableMessage;
     var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.BaseContent;
+    var BaseContent = ns.dkd.BaseContent;
     var ForwardContent = function() {
         if (arguments.length === 0) {
             BaseContent.call(this, ContentType.FORWARD);
@@ -4284,12 +4337,12 @@ if (typeof DIMP !== "object") {
         this.__forward = secret
     };
     ns.protocol.ForwardContent = ForwardContent;
-    ns.protocol.register("ForwardContent")
+    ns.protocol.registers("ForwardContent")
 })(DaoKeDao);
 (function(ns) {
     var SymmetricKey = ns.crypto.SymmetricKey;
     var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.BaseContent;
+    var BaseContent = ns.dkd.BaseContent;
     var FileContent = function() {
         if (arguments.length === 0) {
             BaseContent.call(this, ContentType.FILE);
@@ -4400,7 +4453,7 @@ if (typeof DIMP !== "object") {
         this.__password = key
     };
     ns.protocol.FileContent = FileContent;
-    ns.protocol.register("FileContent")
+    ns.protocol.registers("FileContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
@@ -4448,7 +4501,7 @@ if (typeof DIMP !== "object") {
         this.__thumbnail = image
     };
     ns.protocol.ImageContent = ImageContent;
-    ns.protocol.register("ImageContent")
+    ns.protocol.registers("ImageContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
@@ -4496,7 +4549,7 @@ if (typeof DIMP !== "object") {
         this.__snapshot = image
     };
     ns.protocol.VideoContent = VideoContent;
-    ns.protocol.register("VideoContent")
+    ns.protocol.registers("VideoContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
@@ -4524,11 +4577,11 @@ if (typeof DIMP !== "object") {
         this.setValue("text", asr)
     };
     ns.protocol.AudioContent = AudioContent;
-    ns.protocol.register("AudioContent")
+    ns.protocol.registers("AudioContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.BaseContent;
+    var BaseContent = ns.dkd.BaseContent;
     var TextContent = function() {
         if (arguments.length === 0) {
             BaseContent.call(this, ContentType.TEXT)
@@ -4549,11 +4602,11 @@ if (typeof DIMP !== "object") {
         this.setValue("text", text)
     };
     ns.protocol.TextContent = TextContent;
-    ns.protocol.register("TextContent")
+    ns.protocol.registers("TextContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.BaseContent;
+    var BaseContent = ns.dkd.BaseContent;
     var PageContent = function() {
         if (arguments.length === 1) {
             BaseContent.call(this, arguments[0]);
@@ -4645,11 +4698,11 @@ if (typeof DIMP !== "object") {
         this.__icon = image
     };
     ns.protocol.PageContent = PageContent;
-    ns.protocol.register("PageContent")
+    ns.protocol.registers("PageContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.BaseContent;
+    var BaseContent = ns.dkd.BaseContent;
     var MoneyContent = function() {
         if (arguments.length === 3) {
             BaseContent.call(arguments[0]);
@@ -4696,7 +4749,7 @@ if (typeof DIMP !== "object") {
         MoneyContent.setAmount(amount, this.getMap())
     };
     ns.protocol.MoneyContent = MoneyContent;
-    ns.protocol.register("MoneyContent")
+    ns.protocol.registers("MoneyContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
@@ -4714,11 +4767,11 @@ if (typeof DIMP !== "object") {
     };
     ns.Class(TransferContent, MoneyContent, null);
     ns.protocol.TransferContent = TransferContent;
-    ns.protocol.register("TransferContent")
+    ns.protocol.registers("TransferContent")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.BaseContent;
+    var BaseContent = ns.dkd.BaseContent;
     var Command = function() {
         if (arguments.length === 2) {
             BaseContent.call(this, arguments[0]);
@@ -4755,7 +4808,7 @@ if (typeof DIMP !== "object") {
     Command.HANDSHAKE = "handshake";
     Command.LOGIN = "login";
     ns.protocol.Command = Command;
-    ns.protocol.register("Command")
+    ns.protocol.registers("Command")
 })(DIMP);
 (function(ns) {
     var Command = ns.protocol.Command;
@@ -4852,7 +4905,7 @@ if (typeof DIMP !== "object") {
         return new MetaCommand(identifier, meta)
     };
     ns.protocol.MetaCommand = MetaCommand;
-    ns.protocol.register("MetaCommand")
+    ns.protocol.registers("MetaCommand")
 })(DIMP);
 (function(ns) {
     var ID = ns.protocol.ID;
@@ -4947,7 +5000,7 @@ if (typeof DIMP !== "object") {
         return new DocumentCommand(identifier, meta, doc)
     };
     ns.protocol.DocumentCommand = DocumentCommand;
-    ns.protocol.register("DocumentCommand")
+    ns.protocol.registers("DocumentCommand")
 })(DIMP);
 (function(ns) {
     var ContentType = ns.protocol.ContentType;
@@ -4968,7 +5021,7 @@ if (typeof DIMP !== "object") {
     HistoryCommand.REGISTER = "register";
     HistoryCommand.SUICIDE = "suicide";
     ns.protocol.HistoryCommand = HistoryCommand;
-    ns.protocol.register("HistoryCommand")
+    ns.protocol.registers("HistoryCommand")
 })(DIMP);
 (function(ns) {
     var ID = ns.protocol.ID;
@@ -5060,7 +5113,7 @@ if (typeof DIMP !== "object") {
     GroupCommand.FIRE = "fire";
     GroupCommand.RESIGN = "resign";
     ns.protocol.GroupCommand = GroupCommand;
-    ns.protocol.register("GroupCommand")
+    ns.protocol.registers("GroupCommand")
 })(DIMP);
 (function(ns) {
     var ID = ns.protocol.ID;
@@ -5143,20 +5196,22 @@ if (typeof DIMP !== "object") {
     ns.protocol.group.QuitCommand = QuitCommand;
     ns.protocol.group.ResetCommand = ResetCommand;
     ns.protocol.group.QueryCommand = QueryCommand;
-    ns.protocol.group.register("InviteCommand");
-    ns.protocol.group.register("ExpelCommand");
-    ns.protocol.group.register("JoinCommand");
-    ns.protocol.group.register("QuitCommand");
-    ns.protocol.group.register("ResetCommand");
-    ns.protocol.group.register("QueryCommand")
+    ns.protocol.group.registers("InviteCommand");
+    ns.protocol.group.registers("ExpelCommand");
+    ns.protocol.group.registers("JoinCommand");
+    ns.protocol.group.registers("QuitCommand");
+    ns.protocol.group.registers("ResetCommand");
+    ns.protocol.group.registers("QueryCommand")
 })(DIMP);
 (function(ns) {
+    var obj = ns.type.Object;
     var ID = ns.protocol.ID;
     var Entity = function(identifier) {
+        obj.call(this);
         this.identifier = identifier;
         this.__datasource = null
     };
-    ns.Class(Entity, ns.type.Object, null);
+    ns.Class(Entity, obj, null);
     Entity.prototype.equals = function(other) {
         if (this === other) {
             return true
@@ -5200,7 +5255,7 @@ if (typeof DIMP !== "object") {
         return this.getDataSource().getDocument(this.identifier, type)
     };
     ns.Entity = Entity;
-    ns.register("Entity")
+    ns.registers("Entity")
 })(DIMP);
 (function(ns) {
     var Entity = ns.Entity;
@@ -5319,7 +5374,7 @@ if (typeof DIMP !== "object") {
         return visa.verify(key)
     };
     ns.User = User;
-    ns.register("User")
+    ns.registers("User")
 })(DIMP);
 (function(ns) {
     var Entity = ns.Entity;
@@ -5383,7 +5438,7 @@ if (typeof DIMP !== "object") {
         return this.getDataSource().getAssistants(this.identifier)
     };
     ns.Group = Group;
-    ns.register("Group")
+    ns.registers("Group")
 })(DIMP);
 (function(ns) {
     var Entity = ns.Entity;
@@ -5419,7 +5474,7 @@ if (typeof DIMP !== "object") {
         console.assert(false, "implement me!")
     };
     ns.CipherKeyDelegate = CipherKeyDelegate;
-    ns.register("CipherKeyDelegate")
+    ns.registers("CipherKeyDelegate")
 })(DIMP);
 (function(ns) {
     var Packer = function() {};
@@ -5482,9 +5537,10 @@ if (typeof DIMP !== "object") {
     Transceiver.Packer = Packer;
     Transceiver.Processor = Processor;
     ns.Transceiver = Transceiver;
-    ns.register("Transceiver")
+    ns.registers("Transceiver")
 })(DIMP);
 (function(ns) {
+    var obj = ns.type.Object;
     var EncryptKey = ns.crypto.EncryptKey;
     var VerifyKey = ns.crypto.VerifyKey;
     var ID = ns.protocol.ID;
@@ -5496,10 +5552,11 @@ if (typeof DIMP !== "object") {
     var User = ns.User;
     var Group = ns.Group;
     var Barrack = function() {
+        obj.call(this);
         this.__users = {};
         this.__groups = {}
     };
-    ns.Class(Barrack, ns.type.Object, [Entity.Delegate, User.DataSource, Group.DataSource]);
+    ns.Class(Barrack, obj, [Entity.Delegate, User.DataSource, Group.DataSource]);
     var thanos = function(map, finger) {
         var keys = Object.keys(map);
         for (var i = 0; i < keys.length; ++i) {
@@ -5721,16 +5778,18 @@ if (typeof DIMP !== "object") {
         return null
     };
     ns.core.Barrack = Barrack;
-    ns.core.register("Barrack")
+    ns.core.registers("Barrack")
 })(DIMP);
 (function(ns) {
+    var obj = ns.type.Object;
     var Command = ns.protocol.Command;
     var ReliableMessage = ns.protocol.ReliableMessage;
     var Transceiver = ns.Transceiver;
     var CorePacker = function(transceiver) {
+        obj.call(this);
         this.__transceiver = transceiver
     };
-    ns.Class(CorePacker, ns.type.Object, [Transceiver.Packer]);
+    ns.Class(CorePacker, obj, [Transceiver.Packer]);
     CorePacker.prototype.getTransceiver = function() {
         return this.__transceiver
     };
@@ -5810,16 +5869,18 @@ if (typeof DIMP !== "object") {
         return sMsg.decrypt()
     };
     ns.core.Packer = CorePacker;
-    ns.core.register("Packer")
+    ns.core.registers("Packer")
 })(DIMP);
 (function(ns) {
+    var obj = ns.type.Object;
     var Envelope = ns.protocol.Envelope;
     var InstantMessage = ns.protocol.InstantMessage;
     var Transceiver = ns.Transceiver;
     var CoreProcessor = function(transceiver) {
+        obj.call(this);
         this.__transceiver = transceiver
     };
-    ns.Class(CoreProcessor, ns.type.Object, [Transceiver.Processor]);
+    ns.Class(CoreProcessor, obj, [Transceiver.Processor]);
     CoreProcessor.prototype.getTransceiver = function() {
         return this.__transceiver
     };
@@ -5872,21 +5933,23 @@ if (typeof DIMP !== "object") {
         return InstantMessage.create(env, response)
     };
     ns.core.Processor = CoreProcessor;
-    ns.core.register("Processor")
+    ns.core.registers("Processor")
 })(DIMP);
 (function(ns) {
+    var obj = ns.type.Object;
     var SymmetricKey = ns.crypto.SymmetricKey;
     var Content = ns.protocol.Content;
     var InstantMessage = ns.protocol.InstantMessage;
     var ReliableMessage = ns.protocol.ReliableMessage;
     var Transceiver = ns.Transceiver;
     var CoreTransceiver = function() {
+        obj.call(this);
         this.__barrack = null;
         this.__keycache = null;
         this.__packer = null;
         this.__processor = null
     };
-    ns.Class(CoreTransceiver, ns.type.Object, [Transceiver, InstantMessage.Delegate, ReliableMessage.Delegate]);
+    ns.Class(CoreTransceiver, obj, [Transceiver, InstantMessage.Delegate, ReliableMessage.Delegate]);
     CoreTransceiver.prototype.setEntityDelegate = function(barrack) {
         this.__barrack = barrack
     };
@@ -6049,30 +6112,36 @@ if (typeof DIMP !== "object") {
         return contact.verify(data, signature)
     };
     ns.core.Transceiver = CoreTransceiver;
-    ns.core.register("Transceiver")
+    ns.core.registers("Transceiver")
 })(DIMP);
 (function(ns) {
+    var obj = ns.type.Object;
     var ContentType = ns.protocol.ContentType;
     var Content = ns.protocol.Content;
     var Command = ns.protocol.Command;
     var HistoryCommand = ns.protocol.HistoryCommand;
     var GroupCommand = ns.protocol.GroupCommand;
+    var BaseContent = ns.dkd.BaseContent;
     var ContentFactory = function(clazz) {
+        obj.call(this);
         this.__class = clazz
     };
-    ns.Class(ContentFactory, null, [Content.Factory]);
+    ns.Class(ContentFactory, obj, [Content.Factory]);
     ContentFactory.prototype.parseContent = function(content) {
         return new this.__class(content)
     };
     var CommandFactory = function(clazz) {
+        obj.call(this);
         this.__class = clazz
     };
-    ns.Class(CommandFactory, null, [Command.Factory]);
+    ns.Class(CommandFactory, obj, [Command.Factory]);
     CommandFactory.prototype.parseCommand = function(content) {
         return new this.__class(content)
     };
-    var GeneralCommandFactory = function() {};
-    ns.Class(GeneralCommandFactory, null, [Content.Factory, Command.Factory]);
+    var GeneralCommandFactory = function() {
+        obj.call(this)
+    };
+    ns.Class(GeneralCommandFactory, obj, [Content.Factory, Command.Factory]);
     GeneralCommandFactory.prototype.parseContent = function(content) {
         var command = Command.getCommand(content);
         var factory = Command.getFactory(command);
@@ -6089,12 +6158,16 @@ if (typeof DIMP !== "object") {
     GeneralCommandFactory.prototype.parseCommand = function(cmd) {
         return new Command(cmd)
     };
-    var HistoryCommandFactory = function() {};
+    var HistoryCommandFactory = function() {
+        GeneralCommandFactory.call(this)
+    };
     ns.Class(HistoryCommandFactory, GeneralCommandFactory, null);
     HistoryCommandFactory.prototype.parseCommand = function(cmd) {
         return new HistoryCommand(cmd)
     };
-    var GroupCommandFactory = function() {};
+    var GroupCommandFactory = function() {
+        HistoryCommandFactory.call(this)
+    };
     ns.Class(GroupCommandFactory, HistoryCommandFactory, null);
     GroupCommandFactory.prototype.parseContent = function(content) {
         var command = Command.getCommand(content);
@@ -6119,7 +6192,7 @@ if (typeof DIMP !== "object") {
         Content.register(ContentType.TRANSFER, new ContentFactory(ns.protocol.TransferContent));
         Content.register(ContentType.COMMAND, new GeneralCommandFactory());
         Content.register(ContentType.HISTORY, new HistoryCommandFactory());
-        Content.register(0, new ContentFactory(ns.BaseContent))
+        Content.register(0, new ContentFactory(BaseContent))
     };
     var registerCommandFactories = function() {
         Command.register(Command.META, new CommandFactory(ns.protocol.MetaCommand));
@@ -6146,10 +6219,10 @@ if (typeof DIMP !== "object") {
     ns.core.HistoryCommandFactory = HistoryCommandFactory;
     ns.core.GroupCommandFactory = GroupCommandFactory;
     ns.core.registerAllFactories = registerCoreFactories;
-    ns.core.register("ContentFactory");
-    ns.core.register("CommandFactory");
-    ns.core.register("GeneralCommandFactory");
-    ns.core.register("HistoryCommandFactory");
-    ns.core.register("GroupCommandFactory");
-    ns.core.register("registerAllFactories")
+    ns.core.registers("ContentFactory");
+    ns.core.registers("CommandFactory");
+    ns.core.registers("GeneralCommandFactory");
+    ns.core.registers("HistoryCommandFactory");
+    ns.core.registers("GroupCommandFactory");
+    ns.core.registers("registerAllFactories")
 })(DIMP);

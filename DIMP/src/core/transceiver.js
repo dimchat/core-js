@@ -40,21 +40,22 @@
 (function (ns) {
     'use strict';
 
+    var obj = ns.type.Object;
     var SymmetricKey = ns.crypto.SymmetricKey;
 
     var Content = ns.protocol.Content;
-
     var InstantMessage = ns.protocol.InstantMessage;
     var ReliableMessage = ns.protocol.ReliableMessage;
     var Transceiver = ns.Transceiver;
 
     var CoreTransceiver = function () {
+        obj.call(this);
         this.__barrack = null;
         this.__keycache = null;
         this.__packer = null;
         this.__processor = null;
     };
-    ns.Class(CoreTransceiver, ns.type.Object, [Transceiver, InstantMessage.Delegate, ReliableMessage.Delegate]);
+    ns.Class(CoreTransceiver, obj, [Transceiver, InstantMessage.Delegate, ReliableMessage.Delegate]);
 
     //
     //  Interfaces for User/Group
@@ -317,6 +318,6 @@
     //-------- namespace --------
     ns.core.Transceiver = CoreTransceiver;
 
-    ns.core.register('Transceiver');
+    ns.core.registers('Transceiver');
 
 })(DIMP);

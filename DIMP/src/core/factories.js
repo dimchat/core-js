@@ -41,20 +41,24 @@
 (function (ns) {
     'use strict';
 
+    var obj = ns.type.Object;
+
     var ContentType = ns.protocol.ContentType;
     var Content = ns.protocol.Content;
     var Command = ns.protocol.Command;
     var HistoryCommand = ns.protocol.HistoryCommand;
     var GroupCommand = ns.protocol.GroupCommand;
+    var BaseContent = ns.dkd.BaseContent;
 
     /**
      *  Content Factory
      *  ~~~~~~~~~~~~~~~
      */
     var ContentFactory = function (clazz) {
+        obj.call(this);
         this.__class = clazz;
     };
-    ns.Class(ContentFactory, null, [Content.Factory]);
+    ns.Class(ContentFactory, obj, [Content.Factory]);
 
     ContentFactory.prototype.parseContent = function (content) {
         return new this.__class(content);
@@ -65,9 +69,10 @@
      *  ~~~~~~~~~~~~~~~
      */
     var CommandFactory = function (clazz) {
+        obj.call(this);
         this.__class = clazz;
     };
-    ns.Class(CommandFactory, null, [Command.Factory]);
+    ns.Class(CommandFactory, obj, [Command.Factory]);
 
     CommandFactory.prototype.parseCommand = function (content) {
         return new this.__class(content);
@@ -78,8 +83,9 @@
      *  ~~~~~~~~~~~~~~~~~~~~~~~
      */
     var GeneralCommandFactory = function () {
+        obj.call(this);
     };
-    ns.Class(GeneralCommandFactory, null, [Content.Factory, Command.Factory]);
+    ns.Class(GeneralCommandFactory, obj, [Content.Factory, Command.Factory]);
 
     GeneralCommandFactory.prototype.parseContent = function (content) {
         var command = Command.getCommand(content);
@@ -106,6 +112,7 @@
      *  ~~~~~~~~~~~~~~~~~~~~~~~
      */
     var HistoryCommandFactory = function () {
+        GeneralCommandFactory.call(this);
     };
     ns.Class(HistoryCommandFactory, GeneralCommandFactory, null);
 
@@ -118,6 +125,7 @@
      *  ~~~~~~~~~~~~~~~~~~~~~~~
      */
     var GroupCommandFactory = function () {
+        HistoryCommandFactory.call(this);
     };
     ns.Class(GroupCommandFactory, HistoryCommandFactory, null);
 
@@ -169,7 +177,7 @@
         Content.register(ContentType.HISTORY, new HistoryCommandFactory());
 
         // unknown content type
-        Content.register(0, new ContentFactory(ns.BaseContent));
+        Content.register(0, new ContentFactory(BaseContent));
     };
 
     /**
@@ -210,11 +218,11 @@
     ns.core.GroupCommandFactory = GroupCommandFactory;
     ns.core.registerAllFactories = registerCoreFactories;
 
-    ns.core.register('ContentFactory');
-    ns.core.register('CommandFactory');
-    ns.core.register('GeneralCommandFactory');
-    ns.core.register('HistoryCommandFactory');
-    ns.core.register('GroupCommandFactory');
-    ns.core.register('registerAllFactories');
+    ns.core.registers('ContentFactory');
+    ns.core.registers('CommandFactory');
+    ns.core.registers('GeneralCommandFactory');
+    ns.core.registers('HistoryCommandFactory');
+    ns.core.registers('GroupCommandFactory');
+    ns.core.registers('registerAllFactories');
 
 })(DIMP);

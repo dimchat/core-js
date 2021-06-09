@@ -40,14 +40,17 @@
 (function (ns) {
     'use strict';
 
+    var obj = ns.type.Object;
+
     var Command = ns.protocol.Command;
     var ReliableMessage = ns.protocol.ReliableMessage;
     var Transceiver = ns.Transceiver;
 
     var CorePacker = function (transceiver) {
+        obj.call(this);
         this.__transceiver = transceiver;
     };
-    ns.Class(CorePacker, ns.type.Object, [Transceiver.Packer]);
+    ns.Class(CorePacker, obj, [Transceiver.Packer]);
 
     CorePacker.prototype.getTransceiver = function () {
         return this.__transceiver;
@@ -227,6 +230,6 @@
     //-------- namespace --------
     ns.core.Packer = CorePacker;
 
-    ns.core.register('Packer');
+    ns.core.registers('Packer');
 
 })(DIMP);

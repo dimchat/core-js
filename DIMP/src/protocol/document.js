@@ -208,6 +208,6 @@
     //-------- namespace --------
     ns.protocol.DocumentCommand = DocumentCommand;
 
-    ns.protocol.register('DocumentCommand');
+    ns.protocol.registers('DocumentCommand');
 
 })(DIMP);
