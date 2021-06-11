@@ -1241,8 +1241,8 @@ if (typeof MONKEY !== "object") {
         this.__running = true;
         var thread = this;
         this.__thread_id = setInterval(function() {
-            var running = thread.isRunning() && thread.run();
-            if (!running) {
+            var ran = thread.isRunning() && thread.run();
+            if (!ran) {
                 stop(thread)
             }
         }, this.getInterval())
@@ -1359,13 +1359,12 @@ if (typeof MONKEY !== "object") {
         return false
     };
     Runner.prototype.handle = function() {
-        while (this.process()) {
-            if (this.isRunning()) {
-                continue
+        while (this.isRunning()) {
+            if (this.process()) {} else {
+                return true
             }
-            return false
         }
-        return this.isRunning()
+        return false
     };
     Runner.prototype.finish = function() {
         return false
