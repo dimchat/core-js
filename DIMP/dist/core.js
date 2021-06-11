@@ -575,9 +575,15 @@ if (typeof DIMP !== "object") {
             this.__meta = null
         } else {
             if (arguments.length === 2) {
-                Command.call(this, Command.META);
-                this.setIdentifier(arguments[0]);
-                this.setMeta(arguments[1])
+                if (ns.Interface.conforms(arguments[0], ID)) {
+                    Command.call(this, Command.META);
+                    this.setIdentifier(arguments[0]);
+                    this.setMeta(arguments[1])
+                } else {
+                    Command.call(this, arguments[0]);
+                    this.setIdentifier(arguments[1]);
+                    this.__meta = null
+                }
             } else {
                 if (arguments.length === 3) {
                     Command.call(this, arguments[0]);
@@ -1780,7 +1786,7 @@ if (typeof DIMP !== "object") {
         if (is_broadcast_msg(iMsg)) {
             return null
         }
-        return ns.format.JSON.encode(pwd)
+        return ns.format.JSON.encode(pwd.getMap())
     };
     CoreTransceiver.prototype.encryptKey = function(data, receiver, iMsg) {
         var contact = this.getUser(receiver);

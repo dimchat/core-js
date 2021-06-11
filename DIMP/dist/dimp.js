@@ -1239,23 +1239,24 @@ if (typeof MONKEY !== "object") {
     ns.Class(Thread, obj, [Runnable]);
     Thread.prototype.start = function() {
         this.__running = true;
-        run(this)
+        var thread = this;
+        this.__thread_id = setInterval(function() {
+            var running = thread.isRunning() && thread.run();
+            if (!running) {
+                stop(thread)
+            }
+        }, this.getInterval())
+    };
+    var stop = function(thread) {
+        var tid = thread.__thread_id;
+        if (tid > 0) {
+            thread.__thread_id = 0;
+            clearInterval(tid)
+        }
     };
     Thread.prototype.stop = function() {
-        this.__running = false;
-        var tid = this.__thread_id;
-        if (tid > 0) {
-            this.__thread_id = 0;
-            clearTimeout(tid)
-        }
-    };
-    var run = function(thread) {
-        if (thread.isRunning() && thread.run()) {
-            thread.__thread_id = setTimeout(function() {
-                thread.__thread_id = 0;
-                run(thread)
-            }, thread.getInterval())
-        }
+        stop(this);
+        this.__running = false
     };
     Thread.prototype.isRunning = function() {
         return this.__running
@@ -4845,9 +4846,15 @@ if (typeof DIMP !== "object") {
             this.__meta = null
         } else {
             if (arguments.length === 2) {
-                Command.call(this, Command.META);
-                this.setIdentifier(arguments[0]);
-                this.setMeta(arguments[1])
+                if (ns.Interface.conforms(arguments[0], ID)) {
+                    Command.call(this, Command.META);
+                    this.setIdentifier(arguments[0]);
+                    this.setMeta(arguments[1])
+                } else {
+                    Command.call(this, arguments[0]);
+                    this.setIdentifier(arguments[1]);
+                    this.__meta = null
+                }
             } else {
                 if (arguments.length === 3) {
                     Command.call(this, arguments[0]);
@@ -6050,7 +6057,7 @@ if (typeof DIMP !== "object") {
         if (is_broadcast_msg(iMsg)) {
             return null
         }
-        return ns.format.JSON.encode(pwd)
+        return ns.format.JSON.encode(pwd.getMap())
     };
     CoreTransceiver.prototype.encryptKey = function(data, receiver, iMsg) {
         var contact = this.getUser(receiver);

@@ -201,7 +201,7 @@
             // broadcast message has no key
             return null;
         }
-        return ns.format.JSON.encode(pwd);
+        return ns.format.JSON.encode(pwd.getMap());
     };
 
     // noinspection JSUnusedLocalSymbols

@@ -58,7 +58,8 @@
      *      1. new MetaCommand(map);
      *      2. new MetaCommand(identifier);
      *      3. new MetaCommand(identifier, meta);
-     *      4. new MetaCommand(command, identifier, meta);
+     *      4. new MetaCommand(command, identifier);
+     *      5. new MetaCommand(command, identifier, meta);
      */
     var MetaCommand = function () {
         if (arguments.length === 1) {
@@ -73,10 +74,17 @@
             }
             this.__meta = null;
         } else if (arguments.length === 2) {
-            // new MetaCommand(identifier, meta);
-            Command.call(this, Command.META);
-            this.setIdentifier(arguments[0]);
-            this.setMeta(arguments[1]);
+            if (ns.Interface.conforms(arguments[0], ID)) {
+                // new MetaCommand(identifier, meta);
+                Command.call(this, Command.META);
+                this.setIdentifier(arguments[0]);
+                this.setMeta(arguments[1]);
+            } else {
+                // new MetaCommand(command, identifier);
+                Command.call(this, arguments[0]);
+                this.setIdentifier(arguments[1]);
+                this.__meta = null;
+            }
         } else if (arguments.length === 3) {
             // new MetaCommand(command, identifier, meta);
             Command.call(this, arguments[0]);
