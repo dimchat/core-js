@@ -100,14 +100,27 @@ if (typeof MONKEY !== "object") {
     var conforms = function(object, protocol) {
         if (!object) {
             return false
-        }
-        if (object instanceof protocol) {
-            return true
+        } else {
+            if (object instanceof protocol) {
+                return true
+            } else {
+                if (ns.type.Object.isBaseType(object)) {
+                    return false
+                }
+            }
         }
         var child = Object.getPrototypeOf(object);
+        if (child === Object.getPrototypeOf({})) {
+            child = object
+        }
         var names = Object.getOwnPropertyNames(protocol.prototype);
+        var p;
         for (var i = 0; i < names.length; ++i) {
-            if (!child.hasOwnProperty(names[i])) {
+            p = names[i];
+            if (p === "constructor") {
+                continue
+            }
+            if (!child.hasOwnProperty(p)) {
                 return false
             }
         }
@@ -291,6 +304,9 @@ if (typeof MONKEY !== "object") {
         var k;
         for (var i = 0; i < len1; ++i) {
             k = keys1[i];
+            if (keys2.indexOf(k) < 0) {
+                return false
+            }
             if (!objects_equal(dict1[k], dict2[k])) {
                 return false
             }
@@ -307,32 +323,34 @@ if (typeof MONKEY !== "object") {
                 if (!obj2) {
                     return false
                 } else {
-                    if (typeof obj1 === "string" || typeof obj2 === "string") {
-                        return false
+                    if (typeof obj1["equals"] === "function") {
+                        return obj1.equals(obj2)
                     } else {
-                        if (typeof obj1["equals"] === "function") {
-                            return obj1.equals(obj2)
+                        if (typeof obj2["equals"] === "function") {
+                            return obj2.equals(obj1)
                         } else {
-                            if (typeof obj2["equals"] === "function") {
-                                return obj2.equals(obj1)
+                            if (ns.type.Object.isBaseType(obj1)) {
+                                return obj1 === obj2
+                            } else {
+                                if (ns.type.Object.isBaseType(obj2)) {
+                                    return false
+                                } else {
+                                    if (is_array(obj1)) {
+                                        return is_array(obj2) && arrays_equal(obj1, obj2)
+                                    } else {
+                                        if (is_array(obj2)) {
+                                            return false
+                                        } else {
+                                            return maps_equal(obj1, obj2)
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
         }
-        if (is_array(obj1)) {
-            if (is_array(obj2)) {
-                return arrays_equal(obj1, obj2)
-            } else {
-                return false
-            }
-        } else {
-            if (is_array(obj2)) {
-                return false
-            }
-        }
-        return maps_equal(obj1, obj2)
     };
     var copy_items = function(src, srcPos, dest, destPos, length) {
         if (srcPos !== 0 || length !== src.length) {
@@ -2643,6 +2661,9 @@ if (typeof MingKeMing !== "object") {
         } else {
             name = pair[0];
             address = Address.parse(pair[1])
+        }
+        if (!address) {
+            return null
         }
         return new Identifier(string, name, address, terminal)
     };
