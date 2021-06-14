@@ -1362,7 +1362,9 @@ if (typeof MONKEY !== "object") {
                 if (this.handle()) {
                     return true
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.error("Runner::handle() error", this, e)
+            }
             this.__stage = STAGE_CLEANING
         }
         if (this.__stage === STAGE_CLEANING) {
@@ -5377,7 +5379,9 @@ if (typeof DIMP !== "object") {
                 if (plaintext && plaintext.length > 0) {
                     return plaintext
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.log("User::decrypt() error", this, e, keys[i], ciphertext)
+            }
         }
         return null
     };

@@ -1086,7 +1086,9 @@ if (typeof DIMP !== "object") {
                 if (plaintext && plaintext.length > 0) {
                     return plaintext
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.log("User::decrypt() error", this, e, keys[i], ciphertext)
+            }
         }
         return null
     };

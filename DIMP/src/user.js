@@ -162,6 +162,7 @@
                 }
             } catch (e) {
                 // this key not match, try next one
+                console.log('User::decrypt() error', this, e, keys[i], ciphertext);
             }
         }
         // decryption failed
