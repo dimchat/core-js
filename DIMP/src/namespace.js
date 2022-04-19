@@ -48,6 +48,12 @@ if (typeof DIMP !== "object") {
     if (typeof ns.core !== 'object') {
         ns.core = new ns.Namespace();
     }
+    if (typeof ns.dkd !== 'object') {
+        ns.dkd = new ns.Namespace();
+    }
+    if (typeof ns.mkm !== 'object') {
+        ns.mkm = new ns.Namespace();
+    }
     if (typeof ns.protocol !== 'object') {
         ns.protocol = new ns.Namespace();
     }
@@ -56,6 +62,8 @@ if (typeof DIMP !== "object") {
     }
 
     ns.registers('core');
+    ns.registers('dkd');
+    ns.registers('mkm');
     ns.registers('protocol');
     ns.protocol.registers('group');
 

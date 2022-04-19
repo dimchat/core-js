@@ -30,84 +30,50 @@
 // =============================================================================
 //
 
-/**
- *  Top-Secret message: {
- *      type : 0xFF,
- *      sn   : 456,
- *
- *      forward : {...}  // reliable (secure + certified) message
- *  }
- */
-
 //! require 'namespace.js'
 
 (function (ns) {
     'use strict';
 
+    var Wrapper = ns.type.Wrapper;
     var ReliableMessage = ns.protocol.ReliableMessage;
-    var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.dkd.BaseContent;
+    var Content = ns.protocol.Content;
 
     /**
-     *  Create top-secret message content
+     *  Top-Secret message: {
+     *      type : 0xFF,
+     *      sn   : 456,
      *
-     *  Usages:
-     *      1. new ForwardContent();
-     *      2. new ForwardContent(msg);
-     *      3. new ForwardContent(map);
+     *      forward : {...}  // reliable (secure + certified) message
+     *  }
      */
-    var ForwardContent = function () {
-        if (arguments.length === 0) {
-            // new ForwardContent();
-            BaseContent.call(this, ContentType.FORWARD);
-            this.__forward = null;
-        } else if (ns.Interface.conforms(arguments[0], ReliableMessage)) {
-            // new ForwardContent(msg);
-            BaseContent.call(this, ContentType.FORWARD);
-            this.setMessage(arguments[0]);
-        } else {
-            // new ForwardContent(map);
-            BaseContent.call(this, arguments[0]);
-            this.__forward = null;
-        }
-    };
-    ns.Class(ForwardContent, BaseContent, null);
+    var ForwardContent = function () {};
+    ns.Interface(ForwardContent, [Content]);
 
-    ForwardContent.getMessage = function (content) {
-        var secret = content['forward'];
-        if (secret) {
-            return ReliableMessage.parse(secret);
-        } else {
-            return null;
-        }
-    };
-    ForwardContent.setMessage = function (secret, content) {
-        if (secret) {
-            content['forward'] = secret.getMap();
-        } else {
-            delete content['forward'];
-        }
-    };
-
-    /**
-     *  Get secret message
-     *
-     * @returns {ReliableMessage}
-     */
-    ForwardContent.prototype.getMessage = function () {
-        if (!this.__forward) {
-            this.__forward = ForwardContent.getMessage(this.getMap());
-        }
-        return this.__forward;
-    };
     /**
      *  Set secret message
      *
      * @param {ReliableMessage} secret - message to be forwarded
      */
     ForwardContent.prototype.setMessage = function (secret) {
-        ForwardContent.setMessage(secret, this.getMap());
-        this.__forward = secret;
+        console.assert(false, 'implement me!');
+    };
+    ForwardContent.prototype.getMessage = function () {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+    ForwardContent.getMessage = function (content) {
+        content = Wrapper.fetchMap(content);
+        var secret = content['forward'];
+        return ReliableMessage.parse(secret);
+    };
+    ForwardContent.setMessage = function (secret, content) {
+        content = Wrapper.fetchMap(content);
+        if (secret) {
+            content['forward'] = Wrapper.fetchMap(secret);
+        } else {
+            delete content['forward'];
+        }
     };
 
     //-------- namespace --------

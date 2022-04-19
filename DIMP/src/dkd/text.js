@@ -30,35 +30,51 @@
 // =============================================================================
 //
 
-//! require 'namespace.js'
+//! require 'protocol/text.js'
 
 (function (ns) {
     'use strict';
 
-    var Content = ns.protocol.Content;
+    var ContentType = ns.protocol.ContentType;
+    var TextContent = ns.protocol.TextContent;
+    var BaseContent = ns.dkd.BaseContent;
 
     /**
-     *  Text message: {
-     *      type : 0x01,
-     *      sn   : 123,
+     *  Create text message content
      *
-     *      text : "..."
-     *  }
+     *  Usages:
+     *      1. new BaseTextContent();
+     *      2. new BaseTextContent(text);
+     *      3. new BaseTextContent(map);
      */
-    var TextContent = function () {};
-    ns.Interface(TextContent, [Content]);
-
-    TextContent.prototype.setText = function (text) {
-        console.assert(false, 'implement me!');
+    var BaseTextContent = function () {
+        if (arguments.length === 0) {
+            // new BaseTextContent();
+            BaseContent.call(this, ContentType.TEXT);
+        } else if (typeof arguments[0] === 'string') {
+            // new BaseTextContent(text);
+            BaseContent.call(this, ContentType.TEXT);
+            this.setText(arguments[0]);
+        } else {
+            // new BaseTextContent(map);
+            BaseContent.call(this, arguments[0]);
+        }
     };
-    TextContent.prototype.getText = function () {
-        console.assert(false, 'implement me!');
-        return null;
+    ns.Class(BaseTextContent, BaseContent, [TextContent]);
+
+    // Override
+    BaseTextContent.prototype.getText = function () {
+        return this.getValue('text');
+    };
+
+    // Override
+    BaseTextContent.prototype.setText = function (text) {
+        this.setValue('text', text);
     };
 
     //-------- namespace --------
-    ns.protocol.TextContent = TextContent;
+    ns.dkd.BaseTextContent = BaseTextContent;
 
-    ns.protocol.registers('TextContent');
+    ns.dkd.registers('BaseTextContent');
 
 })(DIMP);

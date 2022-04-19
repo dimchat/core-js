@@ -30,35 +30,47 @@
 // =============================================================================
 //
 
-//! require 'namespace.js'
+//! require 'protocol/command.js'
 
 (function (ns) {
     'use strict';
 
-    var Content = ns.protocol.Content;
+    var ContentType = ns.protocol.ContentType;
+    var Command = ns.protocol.Command;
+    var BaseContent = ns.dkd.BaseContent;
 
     /**
-     *  Text message: {
-     *      type : 0x01,
-     *      sn   : 123,
+     *  Create command
      *
-     *      text : "..."
-     *  }
+     *  Usages:
+     *      1. new BaseCommand(map);
+     *      2. new BaseCommand(cmd);
+     *      3. new BaseCommand(type, cmd);
      */
-    var TextContent = function () {};
-    ns.Interface(TextContent, [Content]);
-
-    TextContent.prototype.setText = function (text) {
-        console.assert(false, 'implement me!');
+    var BaseCommand = function () {
+        if (arguments.length === 2) {
+            // new BaseCommand(type, cmd);
+            BaseContent.call(this, arguments[0]);
+            this.setValue('command', arguments[1]);
+        } else if (typeof arguments[0] === 'string') {
+            // new BaseCommand(cmd);
+            BaseContent.call(this, ContentType.COMMAND);
+            this.setValue('command', arguments[0]);
+        } else {
+            // new BaseCommand(map);
+            BaseContent.call(this, arguments[0]);
+        }
     };
-    TextContent.prototype.getText = function () {
-        console.assert(false, 'implement me!');
-        return null;
+    ns.Class(BaseCommand, BaseContent, [Command]);
+
+    // Override
+    BaseCommand.prototype.getCommand = function () {
+        return Command.getCommand(this);
     };
 
     //-------- namespace --------
-    ns.protocol.TextContent = TextContent;
+    ns.dkd.BaseCommand = BaseCommand;
 
-    ns.protocol.registers('TextContent');
+    ns.dkd.registers('BaseCommand');
 
 })(DIMP);

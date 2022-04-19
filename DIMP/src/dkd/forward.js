@@ -1,7 +1,7 @@
 ;
 // license: https://mit-license.org
 //
-//  DIMP : Decentralized Instant Messaging Protocol
+//  Dao-Ke-Dao: Universal Message Module
 //
 //                               Written in 2020 by Moky <albert.moky@gmail.com>
 //
@@ -30,35 +30,58 @@
 // =============================================================================
 //
 
-//! require 'namespace.js'
+//! require 'protocol/forward.js'
 
 (function (ns) {
     'use strict';
 
-    var Content = ns.protocol.Content;
+    var ReliableMessage = ns.protocol.ReliableMessage;
+    var ContentType = ns.protocol.ContentType;
+    var ForwardContent = ns.protocol.ForwardContent;
+    var BaseContent = ns.dkd.BaseContent;
 
     /**
-     *  Text message: {
-     *      type : 0x01,
-     *      sn   : 123,
+     *  Create top-secret message content
      *
-     *      text : "..."
-     *  }
+     *  Usages:
+     *      1. new SecretContent();
+     *      2. new SecretContent(msg);
+     *      3. new SecretContent(map);
      */
-    var TextContent = function () {};
-    ns.Interface(TextContent, [Content]);
-
-    TextContent.prototype.setText = function (text) {
-        console.assert(false, 'implement me!');
+    var SecretContent = function () {
+        if (arguments.length === 0) {
+            // new SecretContent();
+            BaseContent.call(this, ContentType.FORWARD);
+            this.__forward = null;
+        } else if (ns.Interface.conforms(arguments[0], ReliableMessage)) {
+            // new SecretContent(msg);
+            BaseContent.call(this, ContentType.FORWARD);
+            this.setMessage(arguments[0]);
+        } else {
+            // new SecretContent(map);
+            BaseContent.call(this, arguments[0]);
+            this.__forward = null;
+        }
     };
-    TextContent.prototype.getText = function () {
-        console.assert(false, 'implement me!');
-        return null;
+    ns.Class(SecretContent, BaseContent, [ForwardContent]);
+
+    // Override
+    SecretContent.prototype.getMessage = function () {
+        if (!this.__forward) {
+            this.__forward = ForwardContent.getMessage(this);
+        }
+        return this.__forward;
+    };
+
+    // Override
+    SecretContent.prototype.setMessage = function (secret) {
+        ForwardContent.setMessage(secret, this);
+        this.__forward = secret;
     };
 
     //-------- namespace --------
-    ns.protocol.TextContent = TextContent;
+    ns.dkd.SecretContent = SecretContent;
 
-    ns.protocol.registers('TextContent');
+    ns.dkd.registers('SecretContent');
 
-})(DIMP);
+})(DaoKeDao);

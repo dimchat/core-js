@@ -30,154 +30,77 @@
 // =============================================================================
 //
 
-/**
- *  Command message: {
- *      type : 0x88,
- *      sn   : 123,
- *
- *      command   : "document", // command name
- *      ID        : "{ID}",     // entity ID
- *      meta      : {...},      // only for handshaking with new friend
- *      profile   : {...},      // when profile is empty, means query for ID
- *      signature : "..."       // old profile's signature for querying
- *  }
- */
-
 //! require 'meta.js'
 
 (function (ns) {
     'use strict';
 
+    var Wrapper = ns.type.Wrapper;
     var ID = ns.protocol.ID;
     var Meta = ns.protocol.Meta;
     var Document = ns.protocol.Document;
-
-    var Command = ns.protocol.Command;
     var MetaCommand = ns.protocol.MetaCommand;
 
     /**
-     *  Create document command
+     *  Command message: {
+     *      type : 0x88,
+     *      sn   : 123,
      *
-     *  Usages:
-     *      1. new DocumentCommand(map);
-     *      2. new DocumentCommand(identifier);
-     *      3. new DocumentCommand(identifier, meta);
-     *      4. new DocumentCommand(identifier, meta, document);
-     *      5. new DocumentCommand(identifier, signature);
+     *      command   : "document", // command name
+     *      ID        : "{ID}",     // entity ID
+     *      meta      : {...},      // only for handshaking with new friend
+     *      profile   : {...},      // when profile is empty, means query for ID
+     *      signature : "..."       // old profile's signature for querying
+     *  }
      */
-    var DocumentCommand = function () {
-        if (arguments.length === 1) {
-            if (ns.Interface.conforms(arguments[0], ID)) {
-                // new DocumentCommand(identifier);
-                MetaCommand.call(this, Command.DOCUMENT, arguments[0]);
-            } else {
-                // new DocumentCommand(map);
-                MetaCommand.call(this, arguments[0]);
-            }
-            this.__document = null;
-        } else if (arguments.length === 2) {
-            if (ns.Interface.conforms(arguments[1], Meta)) {
-                // new DocumentCommand(identifier, meta);
-                MetaCommand.call(this, Command.DOCUMENT, arguments[0], arguments[1]);
-            } else if (typeof arguments[1] === 'string') {
-                // new DocumentCommand(identifier, signature);
-                MetaCommand.call(this, Command.DOCUMENT, arguments[0], null);
-                this.setSignature(arguments[1]);
-            } else {
-                throw new SyntaxError('document command arguments error: ' + arguments);
-            }
-            this.__document = null;
-        } else if (arguments.length === 3) {
-            // new DocumentCommand(identifier, meta, document);
-            MetaCommand.call(this, Command.DOCUMENT, arguments[0], arguments[1]);
-            this.setDocument(arguments[2]);
-        } else {
-            throw new SyntaxError('document command arguments error: ' + arguments);
-        }
-    };
+    var DocumentCommand = function () {};
     ns.Class(DocumentCommand, MetaCommand, null);
 
-    DocumentCommand.getDocument = function (cmd) {
-        var data = cmd['profile'];
-        if (!data) {
-            // (v1.1)
-            //    "ID"       : "{ID}",
-            //    "document" : {
-            //        "ID"        : "{ID}",
-            //        "data"      : "{JsON}",
-            //        "signature" : "{BASE64}"
-            //    }
-            data = cmd['document'];
-        } else if (typeof data === 'string') {
-            // compatible with v1.0
-            //    "ID"        : "{ID}",
-            //    "profile"   : "{JsON}",
-            //    "signature" : "{BASE64}"
-            data = {
-                'ID': cmd['ID'],
-                'data': data,
-                'signature': cmd['signature']
-            }
-        }
-        if (data) {
-            return Document.parse(data);
-        } else {
-            return null;
-        }
-    };
-    DocumentCommand.setDocument = function (doc, cmd) {
-        if (doc) {
-            cmd['document'] = doc.getMap();
-        } else {
-            delete cmd['command'];
-        }
-    };
-
-    DocumentCommand.getSignature = function (cmd) {
-        return cmd['signature'];
-    };
-    DocumentCommand.setSignature = function (base64, cmd) {
-        cmd['signature'] = base64;
-    };
-
-    //-------- setter/getter --------
-
     /**
-     *  Get profile
-     *
-     * @returns {Document}
-     */
-    DocumentCommand.prototype.getDocument = function () {
-        if (!this.__document) {
-            this.__document = DocumentCommand.getDocument(this.getMap());
-        }
-        return this.__document;
-    };
-    /**
-     *  Set Profile
+     *  Set document info
      *
      * @param {Document} doc
      */
     DocumentCommand.prototype.setDocument = function (doc) {
-        DocumentCommand.setDocument(doc, this.getMap());
-        this.__document = doc;
+        console.assert(false, 'implement me!');
+    };
+    DocumentCommand.prototype.getDocument = function () {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+    DocumentCommand.setDocument = function (doc, cmd) {
+        cmd = Wrapper.fetchMap(cmd);
+        if (doc) {
+            cmd['document'] = Wrapper.fetchMap(doc);
+        } else {
+            delete cmd['command'];
+        }
+    };
+    DocumentCommand.getDocument = function (cmd) {
+        cmd = Wrapper.fetchMap(cmd);
+        var doc = cmd['document'];
+        return Document.parse(doc);
     };
 
     /**
-     *  Get signature string for old profile
-     *
-     * @returns {String}
-     */
-    DocumentCommand.prototype.getSignature = function () {
-        return DocumentCommand.getSignature(this.getMap());
-    };
-    /**
-     *  Set signature string for old profile
+     *  Set signature string for old document
      *
      * @param {String} base64 - encoded signature
      */
     DocumentCommand.prototype.setSignature = function (base64) {
-        DocumentCommand.setSignature(base64, this.getMap());
+        console.assert(false, 'implement me!');
+    };
+    DocumentCommand.prototype.getSignature = function () {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+    DocumentCommand.setSignature = function (base64, cmd) {
+        cmd = Wrapper.fetchMap(cmd);
+        cmd['signature'] = base64;
+    };
+    DocumentCommand.getSignature = function (cmd) {
+        cmd = Wrapper.fetchMap(cmd);
+        return cmd['signature'];
     };
 
     //-------- factories --------

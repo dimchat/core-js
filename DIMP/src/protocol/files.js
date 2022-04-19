@@ -32,49 +32,47 @@
 
 //! require 'file.js'
 
-/**
- *  Image message: {
- *      type : 0x12,
- *      sn   : 123,
- *
- *      URL      : "http://",      // for encrypted file data from CDN
- *      filename : "photo.png",
- *      thumbnail : "...",         // base64_encode(smallImage)
- *  }
- */
-
 (function (ns) {
     'use strict';
 
-    var ContentType = ns.protocol.ContentType;
+    var Wrapper = ns.type.Wrapper;
     var FileContent = ns.protocol.FileContent;
 
     /**
-     *  Create image content
+     *  Image message: {
+     *      type : 0x12,
+     *      sn   : 123,
      *
-     *  Usages:
-     *      1. new ImageContent();
-     *      2. new ImageContent(map);
-     *      3. new ImageContent(filename, data);
+     *      URL      : "http://",      // for encrypted file data from CDN
+     *      filename : "photo.png",
+     *      thumbnail : "...",         // base64_encode(smallImage)
+     *  }
      */
-    var ImageContent = function () {
-        if (arguments.length === 0) {
-            // new ImageContent();
-            FileContent.call(this, ContentType.IMAGE);
-        } else if (arguments.length === 1) {
-            // new ImageContent(map);
-            FileContent.call(this, arguments[0]);
-        } else if (arguments.length === 2) {
-            // new ImageContent(filename, data);
-            FileContent.call(this, ContentType.IMAGE, arguments[0], arguments[1]);
-        } else {
-            throw new SyntaxError('image content arguments error: ' + arguments);
-        }
-        this.__thumbnail = null;
-    };
-    ns.Class(ImageContent, FileContent, null);
+    var ImageContent = function () {};
+    ns.Interface(ImageContent, [FileContent]);
 
+    /**
+     *  Set small image data
+     *
+     * @param {Uint8Array} image data
+     */
+    ImageContent.prototype.setThumbnail = function (image) {
+        console.assert(false, 'implement me!');
+    };
+    ImageContent.prototype.getThumbnail = function () {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+    ImageContent.setThumbnail = function (image, content) {
+        content = Wrapper.fetchMap(content);
+        if (image/* && image.length > 0*/) {
+            content['thumbnail'] = ns.format.Base64.encode(image);
+        } else {
+            delete content['thumbnail'];
+        }
+    }
     ImageContent.getThumbnail = function (content) {
+        content = Wrapper.fetchMap(content);
         var base64 = content['thumbnail'];
         if (base64) {
             return ns.format.Base64.decode(base64);
@@ -82,87 +80,42 @@
             return null;
         }
     };
-    ImageContent.setThumbnail = function (image, content) {
-        if (image && image.length > 0) {
-            content['thumbnail'] = ns.format.Base64.encode(image);
-        } else {
-            delete content['thumbnail'];
-        }
-    }
-
-    //-------- setter/getter --------
 
     /**
-     *  Get small image data
+     *  Video message: {
+     *      type : 0x16,
+     *      sn   : 123,
      *
-     * @returns {Uint8Array}
+     *      URL      : "http://",      // for encrypted file data from CDN
+     *      filename : "movie.mp4",
+     *      snapshot : "...",          // base64_encode(smallImage)
+     *  }
      */
-    ImageContent.prototype.getThumbnail = function () {
-        if (!this.__thumbnail) {
-            this.__thumbnail = ImageContent.getThumbnail(this.getMap());
-        }
-        return this.__thumbnail;
-    };
+    var VideoContent = function () {};
+    ns.Interface(VideoContent, [FileContent]);
+
     /**
      *  Set small image data
      *
-     * @param {Uint8Array} image
+     * @param {Uint8Array} image data
      */
-    ImageContent.prototype.setThumbnail = function (image) {
-        ImageContent.setThumbnail(image, this.getMap());
-        this.__thumbnail = image;
+    VideoContent.prototype.setSnapshot = function (image) {
+        console.assert(false, 'implement me!');
     };
-
-    //-------- namespace --------
-    ns.protocol.ImageContent = ImageContent;
-
-    ns.protocol.registers('ImageContent');
-
-})(DIMP);
-
-/**
- *  Video message: {
- *      type : 0x16,
- *      sn   : 123,
- *
- *      URL      : "http://",      // for encrypted file data from CDN
- *      filename : "movie.mp4",
- *      snapshot : "...",          // base64_encode(smallImage)
- *  }
- */
-
-(function (ns) {
-    'use strict';
-
-    var ContentType = ns.protocol.ContentType;
-    var FileContent = ns.protocol.FileContent;
-
-    /**
-     *  Create video message content
-     *
-     *  Usages:
-     *      1. new VideoContent();
-     *      2. new VideoContent(map);
-     *      3. new VideoContent(filename, data);
-     */
-    var VideoContent = function () {
-        if (arguments.length === 0) {
-            // new VideoContent();
-            FileContent.call(this, ContentType.VIDEO);
-        } else if (arguments.length === 1) {
-            // new VideoContent(map);
-            FileContent.call(this, arguments[0]);
-        } else if (arguments.length === 2) {
-            // new VideoContent(filename, data);
-            FileContent.call(this, ContentType.VIDEO, arguments[0], arguments[1]);
+    VideoContent.prototype.getSnapshot = function () {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+    VideoContent.setSnapshot = function (image, content) {
+        content = Wrapper.fetchMap(content);
+        if (image/* && image.length > 0*/) {
+            content['snapshot'] = ns.format.Base64.encode(image);
         } else {
-            throw new SyntaxError('video content arguments error: ' + arguments);
+            delete content['snapshot'];
         }
-        this.__snapshot = null;
-    };
-    ns.Class(VideoContent, FileContent, null);
-
+    }
     VideoContent.getSnapshot = function (content) {
+        content = Wrapper.fetchMap(content);
         var base64 = content['snapshot'];
         if (base64) {
             return ns.format.Base64.decode(base64);
@@ -170,108 +123,41 @@
             return null;
         }
     };
-    VideoContent.setSnapshot = function (image, content) {
-        if (image && image.length > 0) {
-            content['snapshot'] = ns.format.Base64.encode(image);
-        } else {
-            delete content['snapshot'];
-        }
-    }
-
-    //-------- setter/getter --------
 
     /**
-     *  Get small image data
+     *  Audio message: {
+     *      type : 0x14,
+     *      sn   : 123,
      *
-     * @returns {Uint8Array}
+     *      URL      : "http://",      // for encrypted file data from CDN
+     *      filename : "voice.mp3",
+     *      data     : "...",          // if (!URL) base64_encode(audio)
+     *      text     : "...",          // Automatic Speech Recognition
+     *  }
      */
-    VideoContent.prototype.getSnapshot = function () {
-        if (!this.__snapshot) {
-            this.__snapshot = VideoContent.getSnapshot(this.getMap());
-        }
-        return this.__snapshot;
-    };
-    /**
-     *  Set small image data
-     *
-     * @param {Uint8Array} image
-     */
-    VideoContent.prototype.setSnapshot = function (image) {
-        VideoContent.setSnapshot(image, this.getMap());
-        this.__snapshot = image;
-    };
+    var AudioContent = function () {};
+    ns.Interface(AudioContent, [FileContent]);
 
-    //-------- namespace --------
-    ns.protocol.VideoContent = VideoContent;
-
-    ns.protocol.registers('VideoContent');
-
-})(DIMP);
-
-/**
- *  Audio message: {
- *      type : 0x14,
- *      sn   : 123,
- *
- *      URL      : "http://",      // for encrypted file data from CDN
- *      filename : "voice.mp3",
- *      data     : "...",          // if (!URL) base64_encode(audio)
- *      text     : "...",          // Automatic Speech Recognition
- *  }
- */
-
-(function (ns) {
-    'use strict';
-
-    var ContentType = ns.protocol.ContentType;
-    var FileContent = ns.protocol.FileContent;
-
-    /**
-     *  Create audio message content
-     *
-     *  Usages:
-     *      1. new AudioContent();
-     *      2. new AudioContent(map);
-     *      3. new AudioContent(filename, data);
-     */
-    var AudioContent = function () {
-        if (arguments.length === 0) {
-            // new AudioContent();
-            FileContent.call(this, ContentType.AUDIO);
-        } else if (arguments.length === 1) {
-            // new AudioContent(map);
-            FileContent.call(this, arguments[0]);
-        } else if (arguments.length === 2) {
-            // new AudioContent(filename, data);
-            FileContent.call(this, ContentType.AUDIO, arguments[0], arguments[1]);
-        } else {
-            throw new SyntaxError('audio content arguments error: ' + arguments);
-        }
-    };
-    ns.Class(AudioContent, FileContent, null);
-
-    //-------- setter/getter --------
-
-    /**
-     *  Get ASR text
-     *
-     * @returns {String}
-     */
-    AudioContent.prototype.getText = function () {
-        return this.getValue('text');
-    };
     /**
      *  Set ASR text
      *
      * @param {String} asr
      */
     AudioContent.prototype.setText = function (asr) {
-        this.setValue('text', asr);
+        console.assert(false, 'implement me!');
+    };
+    AudioContent.prototype.getText = function () {
+        console.assert(false, 'implement me!');
+        return null;
     };
 
     //-------- namespace --------
+    ns.protocol.ImageContent = ImageContent;
+    ns.protocol.VideoContent = VideoContent;
     ns.protocol.AudioContent = AudioContent;
 
+    ns.protocol.registers('ImageContent');
+    ns.protocol.registers('VideoContent');
     ns.protocol.registers('AudioContent');
 
 })(DIMP);

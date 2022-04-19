@@ -30,135 +30,93 @@
 // =============================================================================
 //
 
-/**
- *  Money message: {
- *      type : 0x40,
- *      sn   : 123,
- *
- *      currency : "RMB", // USD, USDT, ...
- *      amount   : 100.00
- *  }
- */
-
 //! require 'namespace.js'
 
 (function (ns) {
     'use strict';
 
-    var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.dkd.BaseContent;
+    var Wrapper = ns.type.Wrapper;
+    var Content = ns.protocol.Content;
 
     /**
-     *  Create text message content
+     *  Money message: {
+     *      type : 0x40,
+     *      sn   : 123,
      *
-     *  Usages:
-     *      1. new MoneyContent(map);
-     *      2. new MoneyContent(currency);
-     *      3. new MoneyContent(currency, amount);
-     *      4. new MoneyContent(type, currency, amount);
+     *      currency : "RMB", // USD, USDT, ...
+     *      amount   : 100.00
+     *  }
      */
-    var MoneyContent = function () {
-        if (arguments.length === 3) {
-            // new MoneyContent(type, currency, amount);
-            BaseContent.call(arguments[0]);
-            this.setCurrency(arguments[1]);
-            this.setAmount(arguments[2]);
-        } else if (arguments.length === 2) {
-            // new MoneyContent(currency, amount);
-            BaseContent.call(ContentType.MONEY);
-            this.setCurrency(arguments[0]);
-            this.setAmount(arguments[1]);
-        } else if (typeof arguments[0] === 'string') {
-            // new MoneyContent(currency);
-            BaseContent.call(ContentType.MONEY);
-            this.setCurrency(arguments[0]);
-        } else {
-            // new MoneyContent(map);
-            BaseContent.call(arguments[0]);
-        }
-    };
-    ns.Class(MoneyContent, BaseContent, null);
+    var MoneyContent = function () {};
+    ns.Interface(MoneyContent, [Content]);
 
-    MoneyContent.getCurrency = function (content) {
-        return content['currency'];
+    /**
+     *  Set currency (BTC, ETH, USD, CNY, ...)
+     *
+     * @param {String} currency
+     */
+    MoneyContent.prototype.setCurrency = function (currency) {
+        console.assert(false, 'implement me!');
+    };
+    MoneyContent.prototype.getCurrency = function () {
+        console.assert(false, 'implement me!');
+        return null;
     };
     MoneyContent.setCurrency = function (currency, content) {
+        content = Wrapper.fetchMap(content);
         content['currency'] = currency;
     };
+    MoneyContent.getCurrency = function (content) {
+        content = Wrapper.fetchMap(content);
+        return content['currency'];
+    };
 
-    MoneyContent.getAmount = function (content) {
-        return content['amount'];
+    /**
+     *  Set amount
+     *
+     * @param {float} amount
+     */
+    MoneyContent.prototype.setAmount = function (amount) {
+        console.assert(false, 'implement me!');
+    };
+    MoneyContent.prototype.getAmount = function () {
+        console.assert(false, 'implement me!');
+        return null;
     };
     MoneyContent.setAmount = function (amount, content) {
+        content = Wrapper.fetchMap(content);
         content['amount'] = amount;
     };
-
-    //-------- setter/getter --------
-
-    MoneyContent.prototype.getCurrency = function () {
-        return MoneyContent.getCurrency(this.getMap());
+    MoneyContent.getAmount = function (content) {
+        content = Wrapper.fetchMap(content);
+        return content['amount'];
     };
 
-    MoneyContent.prototype.setCurrency = function (currency) {
-        MoneyContent.setCurrency(currency, this.getMap());
-    };
+    /**
+     *  Transfer money message: {
+     *      type : 0x41,
+     *      sn   : 123,
+     *
+     *      currency : "RMB", // USD, USDT, ...
+     *      amount   : 100.00
+     *  }
+     */
+    var TransferContent = function () {};
+    ns.Interface(TransferContent, [MoneyContent]);
 
-    MoneyContent.prototype.getAmount = function () {
-        return MoneyContent.getAmount(this.getMap());
+    TransferContent.prototype.setComment = function (text) {
+        console.assert(false, 'implement me!');
     };
-
-    MoneyContent.prototype.setAmount = function (amount) {
-        MoneyContent.setAmount(amount, this.getMap());
+    TransferContent.prototype.getComment = function () {
+        console.assert(false, 'implement me!');
+        return null;
     };
 
     //-------- namespace --------
     ns.protocol.MoneyContent = MoneyContent;
-
-    ns.protocol.registers('MoneyContent');
-
-})(DIMP);
-
-/**
- *  Transfer money message: {
- *      type : 0x41,
- *      sn   : 123,
- *
- *      currency : "RMB", // USD, USDT, ...
- *      amount   : 100.00
- *  }
- */
-
-(function (ns) {
-    'use strict';
-
-    var ContentType = ns.protocol.ContentType;
-    var MoneyContent = ns.MoneyContent;
-
-    /**
-     *  Create text message content
-     *
-     *  Usages:
-     *      1. new TransferContent(map);
-     *      2. new TransferContent(currency);
-     *      3. new TransferContent(currency, amount);
-     */
-    var TransferContent = function () {
-        if (arguments.length === 2) {
-            // new TransferContent(currency, amount);
-            MoneyContent.call(ContentType.TRANSFER, arguments[0], arguments[1]);
-        } else if (typeof arguments[0] === 'string') {
-            // new TransferContent(currency);
-            MoneyContent.call(ContentType.TRANSFER, arguments[0], 0);
-        } else {
-            // new TransferContent(map);
-            MoneyContent.call(arguments[0]);
-        }
-    };
-    ns.Class(TransferContent, MoneyContent, null);
-
-    //-------- namespace --------
     ns.protocol.TransferContent = TransferContent;
 
+    ns.protocol.registers('MoneyContent');
     ns.protocol.registers('TransferContent');
 
 })(DIMP);

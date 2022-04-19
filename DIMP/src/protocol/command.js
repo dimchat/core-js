@@ -30,72 +30,25 @@
 // =============================================================================
 //
 
-/**
- *  Command message: {
- *      type : 0x88,
- *      sn   : 123,
- *
- *      command : "...", // command name
- *      extra   : info   // command parameters
- *  }
- */
-
 //! require <dkd.js>
 
 (function (ns) {
     'use strict';
 
-    var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.dkd.BaseContent;
+    var Wrapper = ns.type.Wrapper;
+    var Content = ns.protocol.Content;
 
     /**
-     *  Create command
+     *  Command message: {
+     *      type : 0x88,
+     *      sn   : 123,
      *
-     *  Usages:
-     *      1. new Command(map);
-     *      2. new Command(cmd);
-     *      3. new Command(type, cmd);
+     *      command : "...", // command name
+     *      extra   : info   // command parameters
+     *  }
      */
-    var Command = function () {
-        if (arguments.length === 2) {
-            // new Command(type, cmd);
-            BaseContent.call(this, arguments[0]);
-            this.setCommand(arguments[1]);
-        } else if (typeof arguments[0] === 'string') {
-            // new Command(cmd);
-            BaseContent.call(this, ContentType.COMMAND);
-            this.setCommand(arguments[0]);
-        } else {
-            // new Command(map);
-            BaseContent.call(this, arguments[0]);
-        }
-    };
-    ns.Class(Command, BaseContent, null);
-
-    Command.getCommand = function (cmd) {
-        return cmd['command'];
-    };
-    Command.setCommand = function (name, cmd) {
-        if (name && name.length > 0) {
-            cmd['command'] = name;
-        } else {
-            delete cmd['command'];
-        }
-    };
-
-    //-------- setter/getter --------
-
-    /**
-     *  Command name
-     *
-     * @returns {String}
-     */
-    Command.prototype.getCommand = function () {
-        return Command.getCommand(this.getMap());
-    };
-    Command.prototype.setCommand = function (name) {
-        Command.setCommand(name, this.getMap());
-    };
+    var Command = function () {};
+    ns.Interface(Command, [Content]);
 
     //-------- command names --------
     Command.META      = 'meta';
@@ -104,24 +57,25 @@
     Command.HANDSHAKE = 'handshake';
     Command.LOGIN     = 'login';
 
-    //-------- namespace --------
-    ns.protocol.Command = Command;
-
-    ns.protocol.registers('Command');
-
-})(DIMP);
-
-(function (ns) {
-    'use strict';
-
-    var Command = ns.protocol.Command;
+    /**
+     *  Command name
+     *
+     * @returns {String}
+     */
+    Command.prototype.getCommand = function () {
+        console.assert(false, 'implement me!');
+        return '';
+    };
+    Command.getCommand = function (cmd) {
+        cmd = Wrapper.fetchMap(cmd);
+        return cmd['command'];
+    };
 
     /**
      *  Command Factory
      *  ~~~~~~~~~~~~~~~
      */
-    var CommandFactory = function () {
-    };
+    var CommandFactory = function () {};
     ns.Interface(CommandFactory, null);
 
     // noinspection JSUnusedLocalSymbols
@@ -132,7 +86,10 @@
 
     Command.Factory = CommandFactory;
 
-    var s_factories = {};  // String -> CommandFactory
+    //
+    //  Instances of CommandFactory
+    //
+    var s_command_factories = {};  // String -> CommandFactory
 
     /**
      *  Register command factory with name
@@ -140,11 +97,16 @@
      * @param {String} name
      * @param {CommandFactory} factory
      */
-    Command.register = function (name, factory) {
-        s_factories[name] = factory;
+    Command.setFactory = function (name, factory) {
+        s_command_factories[name] = factory;
     };
     Command.getFactory = function (name) {
-        return s_factories[name];
+        return s_command_factories[name];
     }
+
+    //-------- namespace --------
+    ns.protocol.Command = Command;
+
+    ns.protocol.registers('Command');
 
 })(DIMP);

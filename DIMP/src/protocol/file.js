@@ -30,174 +30,135 @@
 // =============================================================================
 //
 
-/**
- *  File message: {
- *      type : 0x10,
- *      sn   : 123,
- *
- *      URL      : "http://",      // for encrypted file data from CDN
- *      filename : "filename.ext",
- *      data     : "...",          // if (!URL) base64_encode(audio)
- *      password : {},             // message.key for decrypting file data
- *  }
- */
-
 //! require 'namespace.js'
 
 (function (ns) {
     'use strict';
 
+    var Wrapper = ns.type.Wrapper;
     var SymmetricKey = ns.crypto.SymmetricKey;
-
-    var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.dkd.BaseContent;
+    var Content = ns.protocol.Content;
 
     /**
-     *  Create file content
+     *  File message: {
+     *      type : 0x10,
+     *      sn   : 123,
      *
-     *  Usages:
-     *      1. new FileContent();
-     *      2. new FileContent(map);
-     *      3. new FileContent(type);
-     *      4. new FileContent(filename, data);
-     *      5. new FileContent(type, filename, data);
+     *      URL      : "http://",      // for encrypted file data from CDN
+     *      filename : "filename.ext",
+     *      data     : "...",          // if (!URL) base64_encode(audio)
+     *      password : {},             // message.key for decrypting file data
+     *  }
      */
-    var FileContent = function () {
-        if (arguments.length === 0) {
-            // new FileContent();
-            BaseContent.call(this, ContentType.FILE);
-            this.__data = null;
-        } else if (arguments.length === 1) {
-            // new FileContent(map);
-            // new FileContent(type);
-            BaseContent.call(this, arguments[0]);
-            this.__data = null;
-        } else if (arguments.length === 2) {
-            // new FileContent(filename, data);
-            BaseContent.call(this, ContentType.FILE);
-            this.setFilename(arguments[0]);
-            this.setData(arguments[1]);
-        } else if (arguments.length === 3) {
-            // new FileContent(type, filename, data);
-            BaseContent.call(this, arguments[0]);
-            this.setFilename(arguments[1]);
-            this.setData(arguments[2]);
-        } else {
-            throw new SyntaxError('file content arguments error: ' + arguments);
-        }
-        this.__password = null;  // symmetric key for decrypting file data
-    };
-    ns.Class(FileContent, BaseContent, null);
+    var FileContent = function () {};
+    ns.Interface(FileContent, [Content]);
 
-    FileContent.getURL = function (content) {
-        return content['URL'];
+    /**
+     *  Set uploaded URL (CDN)
+     * @param {String} url
+     */
+    FileContent.prototype.setURL = function (url) {
+        console.assert(false, 'implement me!');
+    };
+    FileContent.prototype.getURL = function () {
+        console.assert(false, 'implement me!');
+        return null;
     };
     FileContent.setURL = function (url, content) {
-        if (url && url.indexOf('://') > 0) {
+        content = Wrapper.fetchMap(content);
+        if (url/* && url.indexOf('://') > 0*/) {
             content['URL'] = url;
         } else {
             delete content['URL'];
         }
     };
+    FileContent.getURL = function (content) {
+        content = Wrapper.fetchMap(content);
+        return content['URL'];
+    };
 
-    FileContent.getFilename = function (content) {
-        return content['filename'];
+    /**
+     *  Set filename
+     *
+     * @param {String} filename
+     */
+    FileContent.prototype.setFilename = function (filename) {
+        console.assert(false, 'implement me!');
+    };
+    FileContent.prototype.getFilename = function () {
+        console.assert(false, 'implement me!');
+        return null;
     };
     FileContent.setFilename = function (filename, content) {
-        if (filename && filename.length > 0) {
+        content = Wrapper.fetchMap(content);
+        if (filename/* && filename.length > 0*/) {
             content['filename'] = filename;
         } else {
             delete content['filename'];
         }
     };
+    FileContent.getFilename = function (content) {
+        content = Wrapper.fetchMap(content);
+        return content['filename'];
+    };
 
-    FileContent.getData = function (content) {
-        var base64 = content['data'];
-        if (base64 && base64.length > 0) {
-            return ns.format.Base64.decode(base64);
-        } else {
-            return null;
-        }
+    /**
+     *  Set file data
+     *  ~~~~~~~~~~~~~
+     *  File data will not include in the message content.
+     *  The sender should upload it to CDN before sending message out.
+     *
+     * @param {Uint8Array} data
+     */
+    FileContent.prototype.setData = function (data) {
+        console.assert(false, 'implement me!');
+    };
+    FileContent.prototype.getData = function () {
+        console.assert(false, 'implement me!');
+        return null;
     };
     FileContent.setData = function (data, content) {
-        if (data && data.length > 0) {
+        content = Wrapper.fetchMap(content);
+        if (data/* && data.length > 0*/) {
             content['data'] = ns.format.Base64.encode(data);
         } else {
             delete content['data'];
         }
     };
-
-    FileContent.getPassword = function (content) {
-        var key = content['password'];
-        if (key) {
-            return SymmetricKey.parse(key);
+    FileContent.getData = function (content) {
+        content = Wrapper.fetchMap(content);
+        var base64 = content['data'];
+        if (base64/* && base64.length > 0*/) {
+            return ns.format.Base64.decode(base64);
         } else {
             return null;
         }
     };
-    FileContent.setPassword = function (key, content) {
-        if (key) {
-            content['password'] = key.getMap();
-        } else {
-            delete content['password'];
-        }
-    };
-
-    //-------- setter/getter --------
-
-    FileContent.prototype.getURL = function () {
-        return FileContent.getURL(this.getMap());
-    };
-    FileContent.prototype.setURL = function (url) {
-        FileContent.setURL(url, this.getMap());
-    };
-
-    FileContent.prototype.getFilename = function () {
-        return FileContent.getFilename(this.getMap());
-    };
-    FileContent.prototype.setFilename = function (filename) {
-        FileContent.setFilename(filename, this.getMap())
-    };
-
-    /*
-     *  File data will not include in the message content.
-     *  The sender should upload it to CDN before sending message out.
-     */
-    FileContent.prototype.getData = function () {
-        if (!this.__data) {
-            this.__data = FileContent.getData(this.getMap());
-        }
-        return this.__data;
-    };
-    /**
-     *  Set file data
-     *
-     * @param {Uint8Array} data
-     */
-    FileContent.prototype.setData = function (data) {
-        FileContent.setData(data, this.getMap());
-        this.__data = data;
-    };
 
     /**
-     *  Get password for decrypt file data download from CDN
-     *
-     * @returns {DecryptKey}
-     */
-    FileContent.prototype.getPassword = function () {
-        if (!this.__password) {
-            this.__password = FileContent.getPassword(console);
-        }
-        return this.__password;
-    };
-    /**
-     *  Set password for decryption
+     *  Set password for decrypt file data uploaded onto CDN
      *
      * @param {DecryptKey} key - symmetric key to decrypt file data
      */
     FileContent.prototype.setPassword = function (key) {
-        FileContent.setPassword(key, this.getMap());
-        this.__password = key;
+        console.assert(false, 'implement me!');
+    };
+    FileContent.prototype.getPassword = function () {
+        console.assert(false, 'implement me!');
+        return null;
+    };
+    FileContent.setPassword = function (key, content) {
+        content = Wrapper.fetchMap(content);
+        if (key) {
+            content['password'] = Wrapper.fetchMap(key);
+        } else {
+            delete content['password'];
+        }
+    };
+    FileContent.getPassword = function (content) {
+        content = Wrapper.fetchMap(content);
+        var key = content['password'];
+        return SymmetricKey.parse(key);
     };
 
     //-------- namespace --------
