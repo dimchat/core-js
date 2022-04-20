@@ -54,7 +54,7 @@
      *  }
      */
     var DocumentCommand = function () {};
-    ns.Class(DocumentCommand, MetaCommand, null);
+    ns.Interface(DocumentCommand, [MetaCommand]);
 
     /**
      *  Set document info

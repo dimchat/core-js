@@ -51,7 +51,7 @@
      *  }
      */
     var MetaCommand = function () {};
-    ns.Class(MetaCommand, [Command]);
+    ns.Interface(MetaCommand, [Command]);
 
     /**
      *  Set entity ID for meta

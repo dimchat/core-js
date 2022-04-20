@@ -47,130 +47,79 @@
 (function (ns) {
     'use strict';
 
-    var ID = ns.protocol.ID;
-
     var GroupCommand = ns.protocol.GroupCommand;
 
     //
     //  Invite group command
     //
-    var InviteCommand = function () {
-        if (arguments.length === 1) {
-            // new InviteCommand(map);
-            GroupCommand.call(this, arguments[0]);
-        } else {
-            // new InviteCommand(group, member);
-            // new InviteCommand(group, members);
-            GroupCommand.call(this, GroupCommand.INVITE, arguments[0], arguments[1]);
-        }
+    var InviteCommand = function () {};
+    ns.Interface(InviteCommand, [GroupCommand]);
+
+    // get members
+    InviteCommand.prototype.getInviteMembers = function () {
+        console.assert(false, 'implement me!');
+        return null;
     };
-    ns.Class(InviteCommand, GroupCommand, null);
 
     //
     //  Expel group command
     //
-    var ExpelCommand = function () {
-        if (arguments.length === 1) {
-            // new ExpelCommand(map);
-            GroupCommand.call(this, arguments[0]);
-        } else {
-            // new ExpelCommand(group, member);
-            // new ExpelCommand(group, members);
-            GroupCommand.call(this, GroupCommand.EXPEL, arguments[0], arguments[1]);
-        }
+    var ExpelCommand = function () {};
+    ns.Interface(ExpelCommand, GroupCommand, null);
+
+    // get members
+    ExpelCommand.prototype.getExpelMembers = function () {
+        console.assert(false, 'implement me!');
+        return null;
     };
-    ns.Class(ExpelCommand, GroupCommand, null);
 
     //
     //  Join group command
     //
-    var JoinCommand = function () {
-        if (ns.Interface.conforms(arguments[0], ID)) {
-            // new JoinCommand(group);
-            GroupCommand.call(this, GroupCommand.JOIN, arguments[0]);
-        } else {
-            // new JoinCommand(map);
-            GroupCommand.call(this, arguments[0]);
-        }
-    };
+    var JoinCommand = function () {};
     ns.Class(JoinCommand, GroupCommand, null);
+
+    // get text
+    JoinCommand.prototype.getAsk = function () {
+        console.assert(false, 'implement me!');
+        return null;
+    };
 
     //
     //  Quit group command
     //
-    var QuitCommand = function () {
-        if (ns.Interface.conforms(arguments[0], ID)) {
-            // new QuitCommand(group);
-            GroupCommand.call(this, GroupCommand.QUIT, arguments[0]);
-        } else {
-            // new QuitCommand(map);
-            GroupCommand.call(this, arguments[0]);
-        }
-    };
+    var QuitCommand = function () {};
     ns.Class(QuitCommand, GroupCommand, null);
+
+    // get text
+    QuitCommand.prototype.getBye = function () {
+        console.assert(false, 'implement me!');
+        return null;
+    };
 
     //
     //  Reset group command
     //
-    var ResetCommand = function () {
-        if (arguments.length === 1) {
-            // new ResetCommand(map);
-            GroupCommand.call(this, arguments[0]);
-        } else {
-            // new ResetCommand(group, members);
-            GroupCommand.call(this, GroupCommand.RESET, arguments[0], arguments[1]);
-        }
-    };
+    var ResetCommand = function () {};
     ns.Class(ResetCommand, GroupCommand, null);
+
+    // get members
+    ResetCommand.prototype.getAllMembers = function () {
+        console.assert(false, 'implement me!');
+        return null;
+    };
 
     //
     //  Query group command
     //
-    var QueryCommand = function () {
-        if (ns.Interface.conforms(arguments[0], ID)) {
-            // new QueryCommand(group);
-            GroupCommand.call(this, GroupCommand.QUERY, arguments[0]);
-        } else {
-            // new QueryCommand(map);
-            GroupCommand.call(this, arguments[0]);
-        }
-    };
+    var QueryCommand = function () {};
     ns.Class(QueryCommand, GroupCommand, null);
 
-    //-------- factories --------
-
-    GroupCommand.invite = function (group, members) {
-        return new InviteCommand(group, members);
+    // get text
+    QueryCommand.prototype.getText = function () {
+        console.assert(false, 'implement me!');
+        return null;
     };
-
-    GroupCommand.expel = function (group, members) {
-        return new ExpelCommand(group, members);
-    };
-
-    GroupCommand.join = function (group) {
-        return new JoinCommand(group);
-    };
-
-    GroupCommand.quit = function (group) {
-        return new QuitCommand(group);
-    };
-
-    GroupCommand.reset = function (group, members) {
-        return new ResetCommand(group, members);
-    };
-
-    GroupCommand.query = function (group) {
-        return new QueryCommand(group);
-    };
-
-    //-------- register --------
-    GroupCommand.register(GroupCommand.INVITE, InviteCommand);
-    GroupCommand.register(GroupCommand.EXPEL, ExpelCommand);
-    GroupCommand.register(GroupCommand.JOIN, JoinCommand);
-    GroupCommand.register(GroupCommand.QUIT, QuitCommand);
-
-    GroupCommand.register(GroupCommand.RESET, ResetCommand);
-    GroupCommand.register(GroupCommand.QUERY, QueryCommand);
 
     //-------- namespace --------
     ns.protocol.group.InviteCommand = InviteCommand;

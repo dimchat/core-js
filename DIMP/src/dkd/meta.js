@@ -31,6 +31,7 @@
 //
 
 //! require 'protocol/meta.js'
+//! require 'command.js'
 
 (function (ns) {
     'use strict';

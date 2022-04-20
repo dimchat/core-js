@@ -30,44 +30,46 @@
 // =============================================================================
 //
 
+//! require 'protocol/history.js'
 //! require 'command.js'
 
 (function (ns) {
     'use strict';
 
-    var Wrapper = ns.type.Wrapper;
-    var Command = ns.protocol.Command;
+    var ContentType = ns.protocol.ContentType;
+    var HistoryCommand = ns.protocol.HistoryCommand;
+    var BaseCommand = ns.dkd.BaseCommand;
 
     /**
-     *  History command: {
-     *      type : 0x89,
-     *      sn   : 123,
+     *  Create history command
      *
-     *      command : "...", // command name
-     *      time    : 0,     // command timestamp
-     *      extra   : info   // command parameters
-     *  }
+     *  Usages:
+     *      1. new BaseHistoryCommand(map);
+     *      2. new BaseHistoryCommand(cmd);
+     *      3. new BaseHistoryCommand(type, cmd);
      */
-    var HistoryCommand = function () {};
-    ns.Interface(HistoryCommand, [Command]);
-
-    HistoryCommand.protocol.getHistoryEvent = function () {
-        console.assert(false, 'implement me!');
-        return null;
+    var BaseHistoryCommand = function () {
+        if (arguments.length === 2) {
+            // new HistoryCommand(type, cmd);
+            BaseCommand.call(this, arguments[0], arguments[1]);
+        } else if (typeof arguments[0] === 'string') {
+            // new HistoryCommand(cmd);
+            BaseCommand.call(this, ContentType.HISTORY, arguments[0]);
+        } else {
+            // new HistoryCommand(map);
+            BaseCommand.call(this, arguments[0]);
+        }
     };
-    HistoryCommand.getHistoryEvent = function (cmd) {
-        cmd = Wrapper.fetchMap(cmd);
-        return cmd['event'];
-    };
+    ns.Class(BaseHistoryCommand, BaseCommand, [HistoryCommand]);
 
-    //-------- history command names --------
-    // account
-    HistoryCommand.REGISTER = 'register';
-    HistoryCommand.SUICIDE  = 'suicide';
+    // Override
+    BaseHistoryCommand.protocol.getHistoryEvent = function () {
+        return HistoryCommand.getHistoryEvent(this);
+    };
 
     //-------- namespace --------
-    ns.protocol.HistoryCommand = HistoryCommand;
+    ns.dkd.BaseHistoryCommand = BaseHistoryCommand;
 
-    ns.protocol.registers('HistoryCommand');
+    ns.dkd.registers('BaseHistoryCommand');
 
 })(DIMP);
