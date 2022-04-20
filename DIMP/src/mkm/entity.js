@@ -48,74 +48,29 @@
 (function (ns) {
     'use strict';
 
-    var obj = ns.type.Object;
     var ID = ns.protocol.ID;
 
-    var Entity = function (identifier) {
-        obj.call(this);
-        this.identifier = identifier;
-        this.__datasource = null;
-    };
-    ns.Class(Entity, obj, null);
+    var Entity = function () {};
+    ns.Interface(Entity, [ns.type.Object]);
 
     /**
-     *  Check whether the same user/group
+     *  Get entity ID
      *
-     * @param {Entity|ID} other - another entity
-     * @returns {boolean}
+     * @return {ID}
      */
-    Entity.prototype.equals = function (other) {
-        if (this === other) {
-            return true;
-        } else if (other instanceof Entity) {
-            // check with entity ID
-            return this.identifier.equals(other.identifier);
-        } else if (ns.Interface.conforms(other, ID)) {
-            return this.identifier.equals(other);
-        } else {
-            // null or unknown object
-            return false;
-        }
-    };
-
-    Entity.prototype.valueOf = function () {
-        var clazz = Object.getPrototypeOf(this).constructor;
-        return '<' + clazz.name
-            + '|' + this.getType()
-            + ' ' + this.identifier + '>';
-    };
-    Entity.prototype.toString = function () {
-        var clazz = Object.getPrototypeOf(this).constructor;
-        return '<' + clazz.name
-            + '|' + this.getType()
-            + ' ' + this.identifier + '>';
-    };
-    Entity.prototype.toLocaleString = function () {
-        var clazz = Object.getPrototypeOf(this).constructor;
-        return '<' + clazz.name
-            + '|' + this.getType()
-            + ' ' + this.identifier + '>';
+    Entity.prototype.getIdentifier = function () {
+        console.assert(false, 'implement me!');
+        return null;
     };
 
     /**
      *  Get entity type
      *
-     * @returns {char} 0 ~ 255
+     * @return {uint} ID.type
      */
     Entity.prototype.getType = function () {
-        return this.identifier.getType();
-    };
-
-    /**
-     *  Get data source for entity
-     *
-     * @return {*}
-     */
-    Entity.prototype.getDataSource = function () {
-        return this.__datasource;
-    };
-    Entity.prototype.setDataSource = function (delegate) {
-        this.__datasource = delegate;
+        console.assert(false, 'implement me!');
+        return 0;
     };
 
     /**
@@ -124,9 +79,11 @@
      * @returns {Meta}
      */
     Entity.prototype.getMeta = function () {
-        return this.getDataSource().getMeta(this.identifier);
+        console.assert(false, 'implement me!');
+        return null;
     };
 
+    // noinspection JSUnusedLocalSymbols
     /**
      *  Get profile for this entity
      *
@@ -134,27 +91,30 @@
      * @returns {Document}
      */
     Entity.prototype.getDocument = function (type) {
-        return this.getDataSource().getDocument(this.identifier, type);
+        console.assert(false, 'implement me!');
+        return null;
     };
 
-    //-------- namespace --------
-    ns.Entity = Entity;
-
-    ns.registers('Entity');
-
-})(DIMP);
-
-(function (ns) {
-    'use strict';
-
-    var Entity = ns.Entity;
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Set data source for entity
+     *
+     * @param {EntityDataSource} barrack
+     */
+    Entity.prototype.setDataSource = function (barrack) {
+        console.assert(false, 'implement me!');
+    };
+    Entity.prototype.getDataSource = function () {
+        console.assert(false, 'implement me!');
+        return null;
+    };
 
     /**
      *  Entity Data Source
      *  ~~~~~~~~~~~~~~~~~~
+     *  Barrack
      */
-    var EntityDataSource = function () {
-    };
+    var EntityDataSource = function () {};
     ns.Interface(EntityDataSource, null);
 
     // noinspection JSUnusedLocalSymbols
@@ -182,34 +142,13 @@
         return null;
     };
 
-    Entity.DataSource = EntityDataSource;
-
-})(DIMP);
-
-(function (ns) {
-    'use strict';
-
-    var Entity = ns.Entity;
-
     /**
      *  Entity Delegate
      *  ~~~~~~~~~~~~~~~
+     *  Barrack
      */
-    var EntityDelegate = function () {
-    };
+    var EntityDelegate = function () {};
     ns.Interface(EntityDelegate, null);
-
-    // noinspection JSUnusedLocalSymbols
-    /**
-     *  Select local user for receiver
-     *
-     * @param {ID} receiver - user/group ID
-     * @return {User} local user
-     */
-    EntityDelegate.prototype.selectLocalUser = function (receiver) {
-        console.assert(false, 'implement me!');
-        return null;
-    };
 
     // noinspection JSUnusedLocalSymbols
     /**
@@ -235,6 +174,91 @@
         return null;
     };
 
+    Entity.DataSource = EntityDataSource;
     Entity.Delegate = EntityDelegate;
+
+    //-------- namespace --------
+    ns.mkm.Entity = Entity;
+
+    ns.mkm.registers('Entity');
+
+})(DIMP);
+
+(function (ns) {
+    'use strict';
+
+    var BaseObject = ns.type.BaseObject;
+    var Entity = ns.mkm.Entity;
+
+    var BaseEntity = function (identifier) {
+        BaseObject.call(this);
+        this.__identifier = identifier;
+        this.__datasource = null;
+    };
+    ns.Class(BaseEntity, BaseObject, [Entity]);
+
+    //-------- IObject
+
+    // Override
+    BaseEntity.prototype.equals = function (other) {
+        if (!other) {
+            return false;
+        } else if (ns.Interface.conforms(other, Entity)) {
+            // check with entity ID
+            other = other.getIdentifier();
+        }
+        return this.__identifier.equals(other);
+    };
+
+    // Override
+    BaseEntity.prototype.valueOf = function () {
+        return desc.call(this);
+    };
+    // Override
+    BaseEntity.prototype.toString = function () {
+        return desc.call(this);
+    };
+    var desc = function () {
+        var clazz = Object.getPrototypeOf(this).constructor;
+        return '<' + clazz.name
+            + '|' + this.__identifier.getType()
+            + ' ' + this.__identifier + '>';
+    };
+
+    //-------- IEntity
+
+    // Override
+    BaseEntity.prototype.setDataSource = function (delegate) {
+        this.__datasource = delegate;
+    };
+    // Override
+    BaseEntity.prototype.getDataSource = function () {
+        return this.__datasource;
+    };
+
+    // Override
+    BaseEntity.prototype.getIdentifier = function () {
+        return this.__identifier;
+    };
+
+    // Override
+    BaseEntity.prototype.getType = function () {
+        return this.__identifier.getType();
+    };
+
+    // Override
+    BaseEntity.prototype.getMeta = function () {
+        return this.__datasource.getMeta(this.__identifier);
+    };
+
+    // Override
+    BaseEntity.prototype.getDocument = function (type) {
+        return this.__datasource.getDocument(this.__identifier, type);
+    };
+
+    //-------- namespace --------
+    ns.mkm.BaseEntity = BaseEntity;
+
+    ns.mkm.registers('BaseEntity');
 
 })(DIMP);

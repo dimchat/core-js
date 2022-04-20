@@ -35,62 +35,67 @@
 (function (ns) {
     'use strict';
 
-    var Document = ns.protocol.Document;
-    var Bulletin = ns.protocol.Bulletin;
+    var Entity = ns.mkm.Entity;
 
-    var Entity = ns.Entity;
+    var Group = function () {};
+    ns.Interface(Group, [Entity]);
 
-    var Group = function (identifier) {
-        Entity.call(this, identifier);
-        this.__founder = null;
-    };
-    ns.Class(Group, Entity, null);
-
+    /**
+     *  Get group document
+     *
+     * @return {Bulletin}
+     */
     Group.prototype.getBulletin = function () {
-        var doc = this.getDocument(Document.BULLETIN);
-        if (ns.Interface.conforms(doc, Bulletin)) {
-            return doc;
-        } else {
-            return null;
-        }
+        console.assert(false, 'implement me!');
+        return null;
     };
 
+    /**
+     *  Get group founder
+     *
+     * @return {ID}
+     */
     Group.prototype.getFounder = function () {
-        if (!this.__founder) {
-            this.__founder = this.getDataSource().getFounder(this.identifier);
-        }
-        return this.__founder;
+        console.assert(false, 'implement me!');
+        return null;
     };
 
+    /**
+     *  Get group owner
+     *
+     * @return {ID}
+     */
     Group.prototype.getOwner = function () {
-        return this.getDataSource().getOwner(this.identifier);
+        console.assert(false, 'implement me!');
+        return null;
     };
 
-    // NOTICE: the owner must be a member
-    //         (usually the first one)
+    /**
+     *  Get group members
+     *  (NOTICE: the owner must be a member, usually the first one)
+     *
+     * @return {ID[]}
+     */
     Group.prototype.getMembers = function () {
-        return this.getDataSource().getMembers(this.identifier);
+        console.assert(false, 'implement me!');
+        return null;
     };
 
+    /**
+     *  Get group assistants
+     *
+     * @return {ID[]} bots IDs
+     */
     Group.prototype.getAssistants = function () {
-        return this.getDataSource().getAssistants(this.identifier);
+        console.assert(false, 'implement me!');
+        return null;
     };
 
-    //-------- namespace --------
-    ns.Group = Group;
-
-    ns.registers('Group');
-
-})(DIMP);
-
-(function (ns) {
-    'use strict';
-
-    var Entity = ns.Entity;
-    var Group = ns.Group;
-
-    var GroupDataSource = function () {
-    };
+    /**
+     *  Group Data Source
+     *  ~~~~~~~~~~~~~~~~~
+     */
+    var GroupDataSource = function () {};
     ns.Interface(GroupDataSource, [Entity.DataSource]);
 
     // noinspection JSUnusedLocalSymbols
@@ -142,5 +147,72 @@
     };
 
     Group.DataSource = GroupDataSource;
+
+    //-------- namespace --------
+    ns.mkm.Group = Group;
+
+    ns.mkm.registers('Group');
+
+})(DIMP);
+
+(function (ns) {
+    'use strict';
+
+    var Document = ns.protocol.Document;
+    var Bulletin = ns.protocol.Bulletin;
+    var Group = ns.mkm.Group;
+    var BaseEntity = ns.mkm.BaseEntity;
+
+    var BaseGroup = function (identifier) {
+        BaseEntity.call(this, identifier);
+        this.__founder = null;
+    };
+    ns.Class(BaseGroup, BaseEntity, [Group]);
+
+    // Override
+    BaseGroup.prototype.getBulletin = function () {
+        var doc = this.getDocument(Document.BULLETIN);
+        if (ns.Interface.conforms(doc, Bulletin)) {
+            return doc;
+        } else {
+            return null;
+        }
+    };
+
+    // Override
+    BaseGroup.prototype.getFounder = function () {
+        if (!this.__founder) {
+            var barrack = this.getDataSource();
+            var gid = this.getIdentifier();
+            this.__founder = barrack.getFounder(gid);
+        }
+        return this.__founder;
+    };
+
+    // Override
+    BaseGroup.prototype.getOwner = function () {
+        var barrack = this.getDataSource();
+        var gid = this.getIdentifier();
+        return barrack.getOwner(gid);
+    };
+
+    // Override
+    BaseGroup.prototype.getMembers = function () {
+        var barrack = this.getDataSource();
+        var gid = this.getIdentifier();
+        return barrack.getMembers(gid);
+    };
+
+    // Override
+    BaseGroup.prototype.getAssistants = function () {
+        var barrack = this.getDataSource();
+        var gid = this.getIdentifier();
+        return barrack.getAssistants(gid);
+    };
+
+    //-------- namespace --------
+    ns.mkm.BaseGroup = BaseGroup;
+
+    ns.mkm.registers('BaseGroup');
 
 })(DIMP);
