@@ -31,114 +31,83 @@
 //
 
 /**
- *  Core Processor
- *  ~~~~~~~~~~~~~~
+ *  Message Processor
+ *  ~~~~~~~~~~~~~~~~~
  */
 
-//! require '../transceiver.js'
+//! require 'namespace.js'
 
 (function (ns) {
     'use strict';
 
-    var obj = ns.type.Object;
+    var Processor = function () {};
+    ns.Interface(Processor, null);
 
-    var Envelope = ns.protocol.Envelope;
-    var InstantMessage = ns.protocol.InstantMessage;
-    var Transceiver = ns.Transceiver;
-
-    var CoreProcessor = function (transceiver) {
-        obj.call(this);
-        this.__transceiver = transceiver;
-    };
-    ns.Class(CoreProcessor, obj, [Transceiver.Processor]);
-
-    CoreProcessor.prototype.getTransceiver = function () {
-        return this.__transceiver;
-    };
-
-    CoreProcessor.prototype.processData = function (data) {
-        var transceiver = this.getTransceiver();
-        // 1. deserialize message
-        var rMsg = transceiver.deserializeMessage(data);
-        if (rMsg == null) {
-            // no valid message received
-            return null;
-        }
-        // 2. process message
-        rMsg = transceiver.processReliableMessage(rMsg);
-        if (rMsg == null) {
-            // nothing to respond
-            return null;
-        }
-        // 3. serialize message
-        return transceiver.serializeMessage(rMsg);
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Process data package
+     *
+     * @param {Uint8Array} data - data to be processed
+     * @return {Uint8Array} response data
+     */
+    Processor.prototype.processPackage = function (data) {
+        console.assert(false, 'implement me!');
+        return null;
     };
 
-    CoreProcessor.prototype.processReliableMessage = function (rMsg) {
-        var transceiver = this.getTransceiver();
-        // TODO: override to check broadcast message before calling it
-        // 1. verify message
-        var sMsg = transceiver.verifyMessage(rMsg);
-        if (sMsg == null) {
-            // waiting for sender's meta if not exists
-            return null;
-        }
-        // 2. process message
-        sMsg = transceiver.processSecureMessage(sMsg, rMsg);
-        if (sMsg == null) {
-            // nothing to respond
-            return null;
-        }
-        // 3. sign message
-        return transceiver.signMessage(sMsg);
-        // TODO: override to deliver to the receiver when catch exception "receiver error ..."
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Process network message
+     *
+     * @param {ReliableMessage} rMsg - message to be processed
+     * @return {ReliableMessage} response message
+     */
+    Processor.prototype.processReliableMessage = function (rMsg) {
+        console.assert(false, 'implement me!');
+        return null;
     };
 
-    CoreProcessor.prototype.processSecureMessage = function (sMsg, rMsg) {
-        var transceiver = this.getTransceiver();
-        // 1. decrypt message
-        var iMsg = transceiver.decryptMessage(sMsg);
-        if (iMsg == null) {
-            // cannot decrypt this message, not for you?
-            // delivering message to other receiver?
-            return null;
-        }
-        // 2. process message
-        iMsg = transceiver.processInstantMessage(iMsg, rMsg);
-        if (iMsg == null) {
-            // nothing to respond
-            return null;
-        }
-        // 3. encrypt message
-        return transceiver.encryptMessage(iMsg);
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Process encrypted message
+     *
+     * @param {SecureMessage} sMsg - message to be processed
+     * @param {ReliableMessage} rMsg - message received
+     * @return {SecureMessage} response message
+     */
+    Processor.prototype.processSecureMessage = function (sMsg, rMsg) {
+        console.assert(false, 'implement me!');
+        return null;
     };
 
-    CoreProcessor.prototype.processInstantMessage = function (iMsg, rMsg) {
-        var transceiver = this.getTransceiver();
-        // 1. process content
-        var response = transceiver.processContent(iMsg.getContent(), rMsg);
-        if (response == null) {
-            // nothing to respond
-            return null;
-        }
-
-        // 2. select a local user to build message
-        var sender = iMsg.getSender();
-        var receiver = iMsg.getReceiver();
-        var user = transceiver.selectLocalUser(receiver);
-
-        // 3. pack message
-        var env = Envelope.create(user.identifier, sender, null);
-        return InstantMessage.create(env, response);
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Process plain message
+     *
+     * @param {InstantMessage} iMsg - message to be processed
+     * @param {ReliableMessage} rMsg - message received
+     * @return {InstantMessage} response message
+     */
+    Processor.prototype.processInstantMessage = function (iMsg, rMsg) {
+        console.assert(false, 'implement me!');
+        return null;
     };
 
-    // CoreProcessor.prototype.processContent = function (content, rMsg) {
-    //     console.assert(false, 'implement me!');
-    //     return null;
-    // };
+    // noinspection JSUnusedLocalSymbols
+    /**
+     *  Process message content
+     *
+     * @param {Content} content - content to be processed
+     * @param {ReliableMessage} rMsg - message received
+     * @return {Content} response content
+     */
+    Processor.prototype.processContent = function (content, rMsg) {
+        console.assert(false, 'implement me!');
+        return null;
+    };
 
     //-------- namespace --------
-    ns.core.Processor = CoreProcessor;
+    ns.core.Processor = Processor;
 
     ns.core.registers('Processor');
 

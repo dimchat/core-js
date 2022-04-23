@@ -33,188 +33,33 @@
 /**
  *  Entity Database
  *  ~~~~~~~~~~~~~~~
- *  Manage meta for all entities
+ *
+ *  Manage meta/document for all entities
  */
 
-//! require <mkm.js>
-//! require 'delegate.js'
+//! require 'namespace.js'
 
 (function (ns) {
     'use strict';
-
-    var obj = ns.type.Object;
 
     var EncryptKey = ns.crypto.EncryptKey;
     var VerifyKey = ns.crypto.VerifyKey;
 
     var ID = ns.protocol.ID;
     var NetworkType = ns.protocol.NetworkType;
+    var Meta = ns.protocol.Meta;
     var Document = ns.protocol.Document;
     var Visa = ns.protocol.Visa;
     var Bulletin = ns.protocol.Bulletin;
 
-    var Entity  = ns.Entity;
-    var User  = ns.User;
-    var Group = ns.Group;
+    var Entity  = ns.mkm.Entity;
+    var User  = ns.mkm.User;
+    var Group = ns.mkm.Group;
 
     var Barrack = function () {
-        obj.call(this);
-        // memory caches
-        this.__users  = {};  // String -> User
-        this.__groups = {};  // String -> Group
+        Object.call(this);
     };
-    ns.Class(Barrack, obj, [Entity.Delegate, User.DataSource, Group.DataSource]);
-
-    /**
-     *  Remove 1/2 objects from the dictionary
-     *  (Thanos can kill half lives of a world with a snap of the finger)
-     *
-     * @param {{}} map
-     * @param {Number} finger
-     * @returns {Number} number of survivors
-     */
-    var thanos = function (map, finger) {
-        var keys = Object.keys(map);
-        for (var i = 0; i < keys.length; ++i) {
-            var p = map[keys[i]];
-            if (typeof p === 'function') continue;
-            if ((++finger & 1) === 1) {
-                // kill it
-                delete map[p];
-            }
-            // let it go
-        }
-        return finger;
-    };
-
-    /**
-     *  Call it when received 'UIApplicationDidReceiveMemoryWarningNotification',
-     *  this will remove 50% of cached objects
-     *
-     * @returns {Number}
-     */
-    Barrack.prototype.reduceMemory = function () {
-        var finger = 0;
-        finger = thanos(this.__users, finger);
-        finger = thanos(this.__groups, finger);
-        return finger >> 1;
-    };
-
-    //
-    //  cache
-    //
-
-    var cacheUser = function (user) {
-        if (!user.getDataSource()) {
-            user.setDataSource(this);
-        }
-        this.__users[user.identifier.toString()] = user;
-        return true;
-    };
-
-    var cacheGroup = function (group) {
-        if (!group.getDataSource()) {
-            group.setDataSource(this);
-        }
-        this.__groups[group.identifier.toString()] = group;
-        return true;
-    };
-
-    // noinspection JSUnusedLocalSymbols
-    Barrack.prototype.createUser = function (identifier) {
-        console.assert(false, 'implement me!');
-        return null;
-    };
-
-    // noinspection JSUnusedLocalSymbols
-    Barrack.prototype.createGroup = function (identifier) {
-        console.assert(false, 'implement me!');
-        return null;
-    };
-
-    /**
-     *  Get all local users (for decrypting received message)
-     *
-     * @return {User[]} users with private key
-     */
-    Barrack.prototype.getLocalUsers = function () {
-        console.assert(false, 'implement me!');
-        return null;
-    };
-
-    //-------- EntityDelegate --------
-
-    // @override
-    Barrack.prototype.selectLocalUser = function (receiver) {
-        var users = this.getLocalUsers();
-        if (users == null || users.length === 0) {
-            throw new Error("local users should not be empty");
-        } else if (receiver.isBroadcast()) {
-            // broadcast message can decrypt by anyone, so just return current user
-            return users[0];
-        }
-        var i, user;
-        if (receiver.isGroup()) {
-            // group message (recipient not designated)
-            var members = this.getMembers(receiver);
-            if (members == null || members.length === 0) {
-                // TODO: group not ready, waiting for group info
-                return null;
-            }
-            var j, member;
-            for (i = 0; i < users.length; ++i) {
-                user = users[i];
-                for (j = 0; j < members.length; ++j) {
-                    member = members[j];
-                    if (member.equals(user.identifier)) {
-                        // DISCUSS: set this item to be current user?
-                        return user;
-                    }
-                }
-            }
-        } else {
-            // 1. personal message
-            // 2. split group message
-            for (i = 0; i < users.length; ++i) {
-                user = users[i];
-                if (receiver.equals(user.identifier)) {
-                    // DISCUSS: set this item to be current user?
-                    return user;
-                }
-            }
-        }
-        return null;
-    };
-
-    // @override
-    Barrack.prototype.getUser = function (identifier) {
-        // 1. get from user cache
-        var user = this.__users[identifier.toString()];
-        if (!user) {
-            // 2. create user and cache it
-            user = this.createUser(identifier);
-            if (user) {
-                cacheUser.call(this, user);
-            }
-        }
-        return user;
-    };
-
-    // @override
-    Barrack.prototype.getGroup = function (identifier) {
-        // 1. get from group cache
-        var group = this.__groups[identifier.toString()];
-        if (!group) {
-            // 2. create group and cache it
-            group = this.createGroup(identifier);
-            if (group) {
-                cacheGroup.call(this, group);
-            }
-        }
-        return group;
-    };
-
-    //-------- User DataSource --------
+    ns.Class(Barrack, Object, [Entity.Delegate, User.DataSource, Group.DataSource]);
 
     var visa_key = function (user) {
         var doc = this.getDocument(user, Document.VISA);
@@ -232,6 +77,8 @@
         }
         return null;
     };
+
+    //-------- User DataSource --------
 
     Barrack.prototype.getPublicKeyForEncryption = function (identifier) {
         // 1. get key from visa
@@ -271,8 +118,8 @@
 
     //-------- Group DataSource --------
 
-    var group_seed = function (identifier) {
-        var seed = identifier.getName();
+    var group_seed = function (gid) {
+        var seed = gid.getName();
         if (seed) {
             var len = seed.length;
             if (len === 0 || (len === 8 && seed.toLowerCase() === 'everyone')) {
@@ -282,6 +129,7 @@
         return seed;
     };
 
+    // protected
     Barrack.prototype.getBroadcastFounder = function (group) {
         var seed = group_seed(group);
         if (seed) {
@@ -295,6 +143,7 @@
         }
     };
 
+    // protected
     Barrack.prototype.getBroadcastOwner = function (group) {
         var seed = group_seed(group);
         if (seed) {
@@ -308,17 +157,23 @@
         }
     };
 
+    // protected
     Barrack.prototype.getBroadcastMembers = function (group) {
+        var members = [];
         var seed = group_seed(group);
         if (seed) {
             // DISCUSS: who should be the member of group 'xxx@everywhere'?
             //          'anyone@anywhere', or 'xxx.member@anywhere'
-            return ID.parse(seed + ".member@anywhere");
+            var owner = ID.parse(seed + ".owner@anywhere");
+            var member = ID.parse(seed + ".member@anywhere");
+            members.push(owner);
+            members.push(member);
         } else {
             // Consensus: the member of group 'everyone@everywhere'
             //            'anyone@anywhere'
-            return ID.ANYONE;
+            members.push(ID.ANYONE);
         }
+        return members;
     };
 
     Barrack.prototype.getFounder = function (group) {
@@ -336,18 +191,19 @@
         }
         // check each member's public key with group meta
         var members = this.getMembers(group);
-        if (members != null) {
-            var mMeta;
+        if (members) {
+            var item, mMeta;
             for (var i = 0; i < members.length; ++i) {
-                mMeta = this.getMeta(members[i]);
+                item = members[i];
+                mMeta = this.getMeta(item);
                 if (!mMeta) {
                     // failed to get member's meta
                     continue;
                 }
-                if (gMeta.matches(mMeta.getKey())) {
+                if (Meta.matches(gMeta, mMeta.getKey())) {
                     // if the member's public key matches with the group's meta,
                     // it means this meta was generated by the member's private key
-                    return members[i];
+                    return item;
                 }
             }
         }

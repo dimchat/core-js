@@ -30,36 +30,39 @@
 // =============================================================================
 //
 
-//!require 'protocol/forward.js'
-//!require 'protocol/text.js'
-//!require 'protocol/page.js'
-//!require 'protocol/money.js'
-//!require 'protocol/files.js'
-//!require 'protocol/groups.js'
-//!require 'protocol/documents.js'
+//!require 'dkd/command.js'
+//!require 'dkd/document.js'
+//!require 'dkd/file.js'
+//!require 'dkd/files.js'
+//!require 'dkd/forward.js'
+//!require 'dkd/group.js'
+//!require 'dkd/groups.js'
+//!require 'dkd/history.js'
+//!require 'dkd/meta.js'
+//!require 'dkd/money.js'
+//!require 'dkd/page.js'
+//!require 'dkd/text.js'
 
 (function (ns) {
     'use strict';
-
-    var obj = ns.type.Object;
 
     var ContentType = ns.protocol.ContentType;
     var Content = ns.protocol.Content;
     var Command = ns.protocol.Command;
     var HistoryCommand = ns.protocol.HistoryCommand;
     var GroupCommand = ns.protocol.GroupCommand;
-    var BaseContent = ns.dkd.BaseContent;
 
     /**
      *  Content Factory
      *  ~~~~~~~~~~~~~~~
      */
     var ContentFactory = function (clazz) {
-        obj.call(this);
+        Object.call(this);
         this.__class = clazz;
     };
-    ns.Class(ContentFactory, obj, [Content.Factory]);
+    ns.Class(ContentFactory, Object, [Content.Factory]);
 
+    // Override
     ContentFactory.prototype.parseContent = function (content) {
         return new this.__class(content);
     };
@@ -69,11 +72,12 @@
      *  ~~~~~~~~~~~~~~~
      */
     var CommandFactory = function (clazz) {
-        obj.call(this);
+        Object.call(this);
         this.__class = clazz;
     };
-    ns.Class(CommandFactory, obj, [Command.Factory]);
+    ns.Class(CommandFactory, Object, [Command.Factory]);
 
+    // Override
     CommandFactory.prototype.parseCommand = function (content) {
         return new this.__class(content);
     };
@@ -83,10 +87,11 @@
      *  ~~~~~~~~~~~~~~~~~~~~~~~
      */
     var GeneralCommandFactory = function () {
-        obj.call(this);
+        Object.call(this);
     };
-    ns.Class(GeneralCommandFactory, obj, [Content.Factory, Command.Factory]);
+    ns.Class(GeneralCommandFactory, Object, [Content.Factory, Command.Factory]);
 
+    // Override
     GeneralCommandFactory.prototype.parseContent = function (content) {
         var command = Command.getCommand(content);
         // get factory by command name
@@ -103,6 +108,7 @@
         return factory.parseCommand(content);
     };
 
+    // Override
     GeneralCommandFactory.prototype.parseCommand = function (cmd) {
         return new Command(cmd);
     }
@@ -116,6 +122,7 @@
     };
     ns.Class(HistoryCommandFactory, GeneralCommandFactory, null);
 
+    // Override
     HistoryCommandFactory.prototype.parseCommand = function (cmd) {
         return new HistoryCommand(cmd);
     }
@@ -129,6 +136,7 @@
     };
     ns.Class(GroupCommandFactory, HistoryCommandFactory, null);
 
+    // Override
     GroupCommandFactory.prototype.parseContent = function (content) {
         var command = Command.getCommand(content);
         // get factory by command name
@@ -139,6 +147,7 @@
         return factory.parseCommand(content);
     };
 
+    // Override
     GroupCommandFactory.prototype.parseCommand = function (cmd) {
         return new GroupCommand(cmd);
     }
@@ -149,35 +158,35 @@
     var registerContentFactories = function () {
 
         // Top-Secret
-        Content.register(ContentType.FORWARD, new ContentFactory(ns.protocol.ForwardContent));
+        Content.setFactory(ContentType.FORWARD, new ContentFactory(ns.dkd.SecretContent));
         // Text
-        Content.register(ContentType.TEXT, new ContentFactory(ns.protocol.TextContent));
+        Content.setFactory(ContentType.TEXT, new ContentFactory(ns.dkd.BaseTextContent));
 
         // File
-        Content.register(ContentType.FILE, new ContentFactory(ns.protocol.FileContent));
+        Content.setFactory(ContentType.FILE, new ContentFactory(ns.dkd.BaseFileContent));
         // Image
-        Content.register(ContentType.IMAGE, new ContentFactory(ns.protocol.ImageContent));
+        Content.setFactory(ContentType.IMAGE, new ContentFactory(ns.dkd.ImageFileContent));
         // Audio
-        Content.register(ContentType.AUDIO, new ContentFactory(ns.protocol.AudioContent));
+        Content.setFactory(ContentType.AUDIO, new ContentFactory(ns.dkd.AudioFileContent));
         // Video
-        Content.register(ContentType.VIDEO, new ContentFactory(ns.protocol.VideoContent));
+        Content.setFactory(ContentType.VIDEO, new ContentFactory(ns.dkd.VideoFileContent));
 
         // Web Page
-        Content.register(ContentType.PAGE, new ContentFactory(ns.protocol.PageContent));
+        Content.setFactory(ContentType.PAGE, new ContentFactory(ns.dkd.WebPageContent));
 
         // Money
-        Content.register(ContentType.MONEY, new ContentFactory(ns.protocol.MoneyContent));
-        Content.register(ContentType.TRANSFER, new ContentFactory(ns.protocol.TransferContent));
+        Content.setFactory(ContentType.MONEY, new ContentFactory(ns.dkd.BaseMoneyContent));
+        Content.setFactory(ContentType.TRANSFER, new ContentFactory(ns.dkd.TransferMoneyContent));
         // ...
 
         // Command
-        Content.register(ContentType.COMMAND, new GeneralCommandFactory());
+        Content.setFactory(ContentType.COMMAND, new GeneralCommandFactory());
 
         // History Command
-        Content.register(ContentType.HISTORY, new HistoryCommandFactory());
+        Content.setFactory(ContentType.HISTORY, new HistoryCommandFactory());
 
         // unknown content type
-        Content.register(0, new ContentFactory(BaseContent));
+        Content.setFactory(0, new ContentFactory(ns.dkd.BaseContent));
     };
 
     /**
@@ -186,28 +195,19 @@
     var registerCommandFactories = function () {
 
         // Meta Command
-        Command.register(Command.META, new CommandFactory(ns.protocol.MetaCommand));
+        Command.setFactory(Command.META, new CommandFactory(ns.dkd.BaseMetaCommand));
 
         // Document Command
-        var dpu = new CommandFactory(ns.protocol.DocumentCommand);
-        Command.register(Command.DOCUMENT, dpu);
-        Command.register('profile', dpu);
-        Command.register('visa', dpu);
-        Command.register('bulletin', dpu);
+        Command.setFactory(Command.DOCUMENT, new CommandFactory(ns.dkd.BaseDocumentCommand));
 
         // Group Commands
-        Command.register('group', new GroupCommandFactory());
-        Command.register(GroupCommand.INVITE, new CommandFactory(ns.protocol.group.InviteCommand));
-        Command.register(GroupCommand.EXPEL, new CommandFactory(ns.protocol.group.ExpelCommand));
-        Command.register(GroupCommand.JOIN, new CommandFactory(ns.protocol.group.JoinCommand));
-        Command.register(GroupCommand.QUIT, new CommandFactory(ns.protocol.group.QuitCommand));
-        Command.register(GroupCommand.QUERY, new CommandFactory(ns.protocol.group.QueryCommand));
-        Command.register(GroupCommand.RESET, new CommandFactory(ns.protocol.group.ResetCommand));
-    };
-
-    var registerCoreFactories = function () {
-        registerContentFactories();
-        registerCommandFactories();
+        Command.setFactory('group', new GroupCommandFactory());
+        Command.setFactory(GroupCommand.INVITE, new CommandFactory(ns.dkd.group.InviteGroupCommand));
+        Command.setFactory(GroupCommand.EXPEL, new CommandFactory(ns.dkd.group.ExpelGroupCommand));
+        Command.setFactory(GroupCommand.JOIN, new CommandFactory(ns.dkd.group.JoinGroupCommand));
+        Command.setFactory(GroupCommand.QUIT, new CommandFactory(ns.dkd.group.QuitGroupCommand));
+        Command.setFactory(GroupCommand.QUERY, new CommandFactory(ns.dkd.group.QueryGroupCommand));
+        Command.setFactory(GroupCommand.RESET, new CommandFactory(ns.dkd.group.ResetGroupCommand));
     };
 
     //-------- namespace --------
@@ -216,13 +216,15 @@
     ns.core.GeneralCommandFactory = GeneralCommandFactory;
     ns.core.HistoryCommandFactory = HistoryCommandFactory;
     ns.core.GroupCommandFactory = GroupCommandFactory;
-    ns.core.registerAllFactories = registerCoreFactories;
+    ns.core.registerContentFactories = registerContentFactories;
+    ns.core.registerCommandFactories = registerCommandFactories;
 
     ns.core.registers('ContentFactory');
     ns.core.registers('CommandFactory');
     ns.core.registers('GeneralCommandFactory');
     ns.core.registers('HistoryCommandFactory');
     ns.core.registers('GroupCommandFactory');
-    ns.core.registers('registerAllFactories');
+    ns.core.registers('registerContentFactories');
+    ns.core.registers('registerCommandFactories');
 
 })(DIMP);
