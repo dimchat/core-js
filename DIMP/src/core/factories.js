@@ -202,12 +202,12 @@
 
         // Group Commands
         Command.setFactory('group', new GroupCommandFactory());
-        Command.setFactory(GroupCommand.INVITE, new CommandFactory(ns.dkd.group.InviteGroupCommand));
-        Command.setFactory(GroupCommand.EXPEL, new CommandFactory(ns.dkd.group.ExpelGroupCommand));
-        Command.setFactory(GroupCommand.JOIN, new CommandFactory(ns.dkd.group.JoinGroupCommand));
-        Command.setFactory(GroupCommand.QUIT, new CommandFactory(ns.dkd.group.QuitGroupCommand));
-        Command.setFactory(GroupCommand.QUERY, new CommandFactory(ns.dkd.group.QueryGroupCommand));
-        Command.setFactory(GroupCommand.RESET, new CommandFactory(ns.dkd.group.ResetGroupCommand));
+        Command.setFactory(GroupCommand.INVITE, new CommandFactory(ns.dkd.InviteGroupCommand));
+        Command.setFactory(GroupCommand.EXPEL, new CommandFactory(ns.dkd.ExpelGroupCommand));
+        Command.setFactory(GroupCommand.JOIN, new CommandFactory(ns.dkd.JoinGroupCommand));
+        Command.setFactory(GroupCommand.QUIT, new CommandFactory(ns.dkd.QuitGroupCommand));
+        Command.setFactory(GroupCommand.QUERY, new CommandFactory(ns.dkd.QueryGroupCommand));
+        Command.setFactory(GroupCommand.RESET, new CommandFactory(ns.dkd.ResetGroupCommand));
     };
 
     //-------- namespace --------

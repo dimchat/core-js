@@ -1,275 +1,293 @@
 /**
- * DIMP - Decentralized Instant Messaging Protocol (v0.1.0)
+ * DIMP - Decentralized Instant Messaging Protocol (v0.2.0)
  *
  * @author    moKy <albert.moky at gmail.com>
- * @date      June. 4, 2021
- * @copyright (c) 2021 Albert Moky
+ * @date      Apr. 23, 2022
+ * @copyright (c) 2022 Albert Moky
  * @license   {@link https://mit-license.org | MIT License}
  */;
 if (typeof MONKEY !== "object") {
-    MONKEY = {}
+    MONKEY = {};
 }
-(function(ns) {
-    var namespacefy = function(space) {
+(function (ns) {
+    var namespacefy = function (space) {
         space.__all__ = [];
         space.registers = namespace.prototype.registers;
         space.exports = namespace.prototype.exports;
-        return space
+        return space;
     };
-    var is_space = function(space) {
+    var is_space = function (space) {
         if (space instanceof namespace) {
-            return true
+            return true;
         }
         if (typeof space.exports !== "function") {
-            return false
+            return false;
         }
         if (typeof space.registers !== "function") {
-            return false
+            return false;
         }
-        return space.__all__ instanceof Array
+        return space.__all__ instanceof Array;
     };
-    var namespace = function() {
-        this.__all__ = []
+    var namespace = function () {
+        this.__all__ = [];
     };
-    namespace.prototype.registers = function(name) {
+    namespace.prototype.registers = function (name) {
         if (this.__all__.indexOf(name) < 0) {
-            this.__all__.push(name)
+            this.__all__.push(name);
         }
     };
-    namespace.prototype.exports = function(to) {
+    namespace.prototype.exports = function (to) {
         var names = this.__all__;
         var name;
         for (var i = 0; i < names.length; ++i) {
             name = names[i];
             export_one(this, to, name);
-            to.registers(name)
+            to.registers(name);
         }
-        return to
+        return to;
     };
-    var export_one = function(from, to, name) {
+    var export_one = function (from, to, name) {
         var source = from[name];
         var target = to[name];
-        if (source === target) {} else {
+        if (source === target) {
+        } else {
             if (typeof target === "undefined") {
-                to[name] = source
+                to[name] = source;
             } else {
                 if (is_space(source)) {
                     if (!is_space(target)) {
-                        namespacefy(target)
+                        namespacefy(target);
                     }
-                    source.exports(target)
+                    source.exports(target);
                 } else {
-                    export_all(source, target)
+                    export_all(source, target);
                 }
             }
         }
     };
-    var export_all = function(from, to) {
+    var export_all = function (from, to) {
         var names = Object.getOwnPropertyNames(from);
         for (var i = 0; i < names.length; ++i) {
-            export_one(from, to, names[i])
+            export_one(from, to, names[i]);
         }
     };
     ns.Namespace = namespace;
     namespacefy(ns);
-    ns.registers("Namespace")
+    ns.registers("Namespace");
 })(MONKEY);
-(function(ns) {
+(function (ns) {
     if (typeof ns.type !== "object") {
-        ns.type = new ns.Namespace()
+        ns.type = new ns.Namespace();
     }
     if (typeof ns.threading !== "object") {
-        ns.threading = new ns.Namespace()
+        ns.threading = new ns.Namespace();
     }
     if (typeof ns.format !== "object") {
-        ns.format = new ns.Namespace()
+        ns.format = new ns.Namespace();
     }
     if (typeof ns.digest !== "object") {
-        ns.digest = new ns.Namespace()
+        ns.digest = new ns.Namespace();
     }
     if (typeof ns.crypto !== "object") {
-        ns.crypto = new ns.Namespace()
+        ns.crypto = new ns.Namespace();
     }
     ns.registers("type");
     ns.registers("threading");
     ns.registers("format");
     ns.registers("digest");
-    ns.registers("crypto")
+    ns.registers("crypto");
 })(MONKEY);
-(function(ns) {
-    var conforms = function(object, protocol) {
+(function (ns) {
+    var conforms = function (object, protocol) {
         if (!object) {
-            return false
+            return false;
         } else {
             if (object instanceof protocol) {
-                return true
+                return true;
             } else {
                 if (ns.type.Object.isBaseType(object)) {
-                    return false
+                    return false;
                 }
             }
         }
         var child = Object.getPrototypeOf(object);
         if (child === Object.getPrototypeOf({})) {
-            child = object
+            child = object;
         }
         var names = Object.getOwnPropertyNames(protocol.prototype);
         var p;
         for (var i = 0; i < names.length; ++i) {
             p = names[i];
             if (p === "constructor") {
-                continue
+                continue;
             }
             if (!child.hasOwnProperty(p)) {
-                return false
+                return false;
             }
         }
-        return true
+        return true;
     };
-    var inherits = function(child, parent) {
+    var inherits = function (child, parent) {
         var prototype = parent.prototype;
         var names = Object.getOwnPropertyNames(prototype);
         var key;
         for (var i = 0; i < names.length; ++i) {
             key = names[i];
             if (child.prototype.hasOwnProperty(key)) {
-                continue
+                continue;
             }
             var fn = prototype[key];
             if (typeof fn !== "function") {
-                continue
+                continue;
             }
-            child.prototype[key] = fn
+            child.prototype[key] = fn;
         }
-        return child
+        return child;
     };
-    var inherits_interfaces = function(child, interfaces) {
+    var inherits_interfaces = function (child, interfaces) {
         for (var i = 0; i < interfaces.length; ++i) {
-            child = inherits(child, interfaces[i])
+            child = inherits(child, interfaces[i]);
         }
-        return child
+        return child;
     };
-    var interfacefy = function(child, parents) {
+    var interfacefy = function (child, parents) {
         if (!child) {
-            child = function() {}
+            child = function () {};
         }
         if (parents) {
             var ancestors;
             if (parents instanceof Array) {
-                ancestors = parents
+                ancestors = parents;
             } else {
                 ancestors = [];
                 for (var i = 1; i < arguments.length; ++i) {
-                    ancestors.push(arguments[i])
+                    ancestors.push(arguments[i]);
                 }
             }
-            child = inherits_interfaces(child, ancestors)
+            child = inherits_interfaces(child, ancestors);
         }
-        return child
+        return child;
     };
     interfacefy.conforms = conforms;
-    var classify = function(child, parent, interfaces) {
+    var classify = function (child, parent, interfaces) {
         if (!child) {
-            child = function() {}
+            child = function () {};
         }
         if (!parent) {
-            parent = Object
+            parent = Object;
         }
         child.prototype = Object.create(parent.prototype);
         inherits(child, parent);
         if (interfaces) {
             var ancestors;
             if (interfaces instanceof Array) {
-                ancestors = interfaces
+                ancestors = interfaces;
             } else {
                 ancestors = [];
                 for (var i = 2; i < arguments.length; ++i) {
-                    ancestors.push(arguments[i])
+                    ancestors.push(arguments[i]);
                 }
             }
-            child = inherits_interfaces(child, ancestors)
+            child = inherits_interfaces(child, ancestors);
         }
         child.prototype.constructor = child;
-        return child
+        return child;
     };
     ns.Interface = interfacefy;
     ns.Class = classify;
     ns.registers("Interface");
-    ns.registers("Class")
+    ns.registers("Class");
 })(MONKEY);
-(function(ns) {
-    var is_null = function(object) {
+(function (ns) {
+    var is_null = function (object) {
         if (typeof object === "undefined") {
-            return true
+            return true;
         } else {
-            return object === null
+            return object === null;
         }
     };
-    var is_base_type = function(object) {
+    var is_base_type = function (object) {
         var t = typeof object;
-        if (t === "string" || t === "number" || t === "boolean" || t === "function") {
-            return true
+        if (
+            t === "string" ||
+            t === "number" ||
+            t === "boolean" ||
+            t === "function"
+        ) {
+            return true;
         }
         if (object instanceof String) {
-            return true
+            return true;
         }
         if (object instanceof Number) {
-            return true
+            return true;
         }
         if (object instanceof Boolean) {
-            return true
+            return true;
         }
         if (object instanceof Date) {
-            return true
+            return true;
         }
         if (object instanceof RegExp) {
-            return true
+            return true;
         }
-        return object instanceof Error
+        return object instanceof Error;
     };
-    var obj = function() {
-        Object.call(this)
+    var IObject = function () {};
+    ns.Interface(IObject, null);
+    IObject.prototype.equals = function (other) {
+        console.assert(false, "implement me!");
+        return false;
     };
-    ns.Class(obj, Object, null);
-    obj.isNull = is_null;
-    obj.isBaseType = is_base_type;
-    obj.prototype.equals = function(other) {
-        return this === other
+    IObject.prototype.valueOf = function () {
+        console.assert(false, "implement me!");
+        return false;
     };
-    ns.type.Object = obj;
-    ns.type.registers("Object")
+    IObject.isNull = is_null;
+    IObject.isBaseType = is_base_type;
+    var BaseObject = function () {
+        Object.call(this);
+    };
+    ns.Class(BaseObject, Object, [IObject]);
+    BaseObject.prototype.equals = function (other) {
+        return this === other;
+    };
+    ns.type.Object = IObject;
+    ns.type.BaseObject = BaseObject;
+    ns.type.registers("Object");
+    ns.type.registers("BaseObject");
 })(MONKEY);
-(function(ns) {
-    var is_array = function(obj) {
+(function (ns) {
+    var is_array = function (obj) {
         if (obj instanceof Array) {
-            return true
+            return true;
         } else {
             if (obj instanceof Uint8Array) {
-                return true
+                return true;
             } else {
                 if (obj instanceof Int8Array) {
-                    return true
+                    return true;
                 } else {
                     if (obj instanceof Uint8ClampedArray) {
-                        return true
+                        return true;
                     } else {
                         if (obj instanceof Uint16Array) {
-                            return true
+                            return true;
                         } else {
                             if (obj instanceof Int16Array) {
-                                return true
+                                return true;
                             } else {
                                 if (obj instanceof Uint32Array) {
-                                    return true
+                                    return true;
                                 } else {
                                     if (obj instanceof Int32Array) {
-                                        return true
+                                        return true;
                                     } else {
                                         if (obj instanceof Float32Array) {
-                                            return true
+                                            return true;
                                         } else {
                                             if (obj instanceof Float64Array) {
-                                                return true
+                                                return true;
                                             }
                                         }
                                     }
@@ -280,68 +298,68 @@ if (typeof MONKEY !== "object") {
                 }
             }
         }
-        return false
+        return false;
     };
-    var arrays_equal = function(array1, array2) {
+    var arrays_equal = function (array1, array2) {
         if (array1.length !== array2.length) {
-            return false
+            return false;
         }
         for (var i = 0; i < array1.length; ++i) {
             if (!objects_equal(array1[i], array2[i])) {
-                return false
+                return false;
             }
         }
-        return true
+        return true;
     };
-    var maps_equal = function(dict1, dict2) {
+    var maps_equal = function (dict1, dict2) {
         var keys1 = Object.keys(dict1);
         var keys2 = Object.keys(dict2);
         var len1 = keys1.length;
         var len2 = keys2.length;
         if (len1 !== len2) {
-            return false
+            return false;
         }
         var k;
         for (var i = 0; i < len1; ++i) {
             k = keys1[i];
             if (keys2.indexOf(k) < 0) {
-                return false
+                return false;
             }
             if (!objects_equal(dict1[k], dict2[k])) {
-                return false
+                return false;
             }
         }
-        return true
+        return true;
     };
-    var objects_equal = function(obj1, obj2) {
+    var objects_equal = function (obj1, obj2) {
         if (obj1 === obj2) {
-            return true
+            return true;
         } else {
             if (!obj1) {
-                return !obj2
+                return !obj2;
             } else {
                 if (!obj2) {
-                    return false
+                    return false;
                 } else {
                     if (typeof obj1["equals"] === "function") {
-                        return obj1.equals(obj2)
+                        return obj1.equals(obj2);
                     } else {
                         if (typeof obj2["equals"] === "function") {
-                            return obj2.equals(obj1)
+                            return obj2.equals(obj1);
                         } else {
                             if (ns.type.Object.isBaseType(obj1)) {
-                                return obj1 === obj2
+                                return obj1 === obj2;
                             } else {
                                 if (ns.type.Object.isBaseType(obj2)) {
-                                    return false
+                                    return false;
                                 } else {
                                     if (is_array(obj1)) {
-                                        return is_array(obj2) && arrays_equal(obj1, obj2)
+                                        return is_array(obj2) && arrays_equal(obj1, obj2);
                                     } else {
                                         if (is_array(obj2)) {
-                                            return false
+                                            return false;
                                         } else {
-                                            return maps_equal(obj1, obj2)
+                                            return maps_equal(obj1, obj2);
                                         }
                                     }
                                 }
@@ -352,60 +370,60 @@ if (typeof MONKEY !== "object") {
             }
         }
     };
-    var copy_items = function(src, srcPos, dest, destPos, length) {
+    var copy_items = function (src, srcPos, dest, destPos, length) {
         if (srcPos !== 0 || length !== src.length) {
-            src = src.subarray(srcPos, srcPos + length)
+            src = src.subarray(srcPos, srcPos + length);
         }
-        dest.set(src, destPos)
+        dest.set(src, destPos);
     };
-    var insert_item = function(array, index, item) {
+    var insert_item = function (array, index, item) {
         if (index < 0) {
             index += array.length + 1;
             if (index < 0) {
-                return false
+                return false;
             }
         }
         if (index === 0) {
-            array.unshift(item)
+            array.unshift(item);
         } else {
             if (index === array.length) {
-                array.push(item)
+                array.push(item);
             } else {
                 if (index > array.length) {
-                    array[index] = item
+                    array[index] = item;
                 } else {
-                    array.splice(index, 0, item)
+                    array.splice(index, 0, item);
                 }
             }
         }
-        return true
+        return true;
     };
-    var update_item = function(array, index, item) {
+    var update_item = function (array, index, item) {
         if (index < 0) {
             index += array.length;
             if (index < 0) {
-                return false
+                return false;
             }
         }
         array[index] = item;
-        return true
+        return true;
     };
-    var remove_item = function(array, item) {
+    var remove_item = function (array, item) {
         var index = array.indexOf(item);
         if (index < 0) {
-            return false
+            return false;
         } else {
             if (index === 0) {
-                array.shift()
+                array.shift();
             } else {
-                if ((index + 1) === array.length) {
-                    array.pop()
+                if (index + 1 === array.length) {
+                    array.pop();
                 } else {
-                    array.splice(index, 1)
+                    array.splice(index, 1);
                 }
             }
         }
-        return true
+        return true;
     };
     ns.type.Arrays = {
         insert: insert_item,
@@ -415,1355 +433,730 @@ if (typeof MONKEY !== "object") {
         isArray: is_array,
         copy: copy_items
     };
-    ns.type.registers("Arrays")
+    ns.type.registers("Arrays");
 })(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var get_alias = function(value) {
-        var enumeration = this.constructor;
+(function (ns) {
+    var base = ns.type.BaseObject;
+    var enumify = function (enumeration, elements) {
+        if (!enumeration) {
+            enumeration = function (value, alias) {
+                Enum.call(this, value, alias);
+            };
+        }
+        ns.Class(enumeration, Enum, null);
+        var e, v;
+        for (var name in elements) {
+            if (!elements.hasOwnProperty(name)) {
+                continue;
+            }
+            v = elements[name];
+            if (v instanceof Enum) {
+                v = v.__value;
+            } else {
+                if (typeof v !== "number") {
+                    throw new TypeError("Enum value must be a number!");
+                }
+            }
+            e = new enumeration(v, name);
+            enumeration[name] = e;
+        }
+        return enumeration;
+    };
+    var get_alias = function (enumeration, value) {
         var e;
         for (var k in enumeration) {
             if (!enumeration.hasOwnProperty(k)) {
-                continue
+                continue;
             }
             e = enumeration[k];
             if (e instanceof enumeration) {
                 if (e.equals(value)) {
-                    return e.__alias
+                    return e.__alias;
                 }
             }
         }
-        return null
+        return null;
     };
-    var base_enum = function(value, alias) {
-        obj.call(this);
+    var Enum = function (value, alias) {
+        base.call(this);
         if (!alias) {
-            if (value instanceof base_enum) {
-                alias = value.__alias
+            if (value instanceof Enum) {
+                alias = value.__alias;
             } else {
-                alias = get_alias.call(this, value)
+                alias = get_alias(this.constructor, value);
             }
         }
-        if (value instanceof base_enum) {
-            value = value.__value
+        if (value instanceof Enum) {
+            value = value.__value;
         }
         this.__value = value;
-        this.__alias = alias
+        this.__alias = alias;
     };
-    ns.Class(base_enum, obj, null);
-    base_enum.prototype.equals = function(other) {
+    ns.Class(Enum, base, null);
+    Enum.prototype.equals = function (other) {
         if (!other) {
-            return !this.__value
+            return !this.__value;
         } else {
-            if (other instanceof base_enum) {
-                return this.__value === other.valueOf()
+            if (other instanceof Enum) {
+                return this.__value === other.valueOf();
             } else {
-                return this.__value === other
+                return this.__value === other;
             }
         }
     };
-    base_enum.prototype.valueOf = function() {
-        return this.__value
+    Enum.prototype.valueOf = function () {
+        return this.__value;
     };
-    base_enum.prototype.toString = function() {
-        return "<" + this.__alias.toString() + ": " + this.__value.toString() + ">"
-    };
-    var enumify = function(enumeration, elements) {
-        if (!enumeration) {
-            enumeration = function(value, alias) {
-                base_enum.call(this, value, alias)
-            }
-        }
-        ns.Class(enumeration, base_enum, null);
-        var e, v;
-        for (var name in elements) {
-            if (!elements.hasOwnProperty(name)) {
-                continue
-            }
-            v = elements[name];
-            if (v instanceof base_enum) {
-                v = v.__value
-            } else {
-                if (typeof v !== "number") {
-                    throw new TypeError("Enum value must be a number!")
-                }
-            }
-            e = new enumeration(v, name);
-            enumeration[name] = e
-        }
-        return enumeration
+    Enum.prototype.toString = function () {
+        return "<" + this.__alias.toString() + ": " + this.__value.toString() + ">";
     };
     ns.type.Enum = enumify;
-    ns.type.registers("Enum")
+    ns.type.registers("Enum");
 })(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var Arrays = ns.type.Arrays;
-    var bytes = function() {
-        obj.call(this);
-        this._buffer = null;
-        this._offset = 0;
-        this._length = 0;
-        if (arguments.length === 0) {
-            this._buffer = new Uint8Array(4)
-        } else {
-            if (arguments.length === 1) {
-                var arg = arguments[0];
-                if (typeof arg === "number") {
-                    this._buffer = new Uint8Array(arg)
-                } else {
-                    if (arg instanceof bytes) {
-                        this._buffer = arg._buffer;
-                        this._offset = arg._offset;
-                        this._length = arg._length
-                    } else {
-                        if (arg instanceof Uint8Array) {
-                            this._buffer = arg
-                        } else {
-                            this._buffer = new Uint8Array(arg)
-                        }
-                        this._length = arg.length
-                    }
-                }
-            } else {
-                if (arguments.length === 3) {
-                    this._buffer = arguments[0];
-                    this._offset = arguments[1];
-                    this._length = arguments[2]
-                } else {
-                    throw new SyntaxError("arguments error: " + arguments)
-                }
-            }
-        }
+(function (ns) {
+    var Stringer = function () {};
+    ns.Interface(Stringer, [ns.type.Object]);
+    Stringer.prototype.equalsIgnoreCase = function (other) {
+        console.assert(false, "implement me!");
+        return false;
     };
-    ns.Class(bytes, obj, null);
-    bytes.ZERO = new bytes(new Uint8Array(0), 0, 0);
-    bytes.prototype.getBuffer = function() {
-        return this._buffer
+    Stringer.prototype.toString = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
-    bytes.prototype.getOffset = function() {
-        return this._offset
+    Stringer.prototype.getLength = function () {
+        console.assert(false, "implement me!");
+        return 0;
     };
-    bytes.prototype.equals = function(other) {
-        if (!other) {
-            return this._length === 0
-        } else {
-            if (this === other) {
-                return true
-            }
-        }
-        var otherBuffer, otherOffset, otherLength;
-        if (other instanceof bytes) {
-            otherBuffer = other._buffer;
-            otherOffset = other._offset;
-            otherLength = other._length
-        } else {
-            otherBuffer = other;
-            otherOffset = 0;
-            otherLength = other.length
-        }
-        if (this._length !== otherLength) {
-            return false
-        } else {
-            if (this._buffer === otherBuffer && this._offset === otherOffset) {
-                return true
-            }
-        }
-        var buffer = this._buffer;
-        var pos1 = this._offset + this._length - 1;
-        var pos2 = otherOffset + otherLength - 1;
-        for (; pos2 >= otherOffset; --pos1, --pos2) {
-            if (buffer[pos1] !== otherBuffer[pos2]) {
-                return false
-            }
-        }
-        return true
-    };
-    var adjust = function(pos, len) {
-        if (pos < 0) {
-            pos += len;
-            if (pos < 0) {
-                return 0
-            }
-        } else {
-            if (pos > len) {
-                return len
-            }
-        }
-        return pos
-    };
-    bytes.adjust = adjust;
-    var find_value = function(value, start, end) {
-        start += this._offset;
-        end += this._offset;
-        for (; start < end; ++start) {
-            if (this._buffer[start] === value) {
-                return start - this._offset
-            }
-        }
-        return -1
-    };
-    var find_sub = function(sub, start, end) {
-        if ((end - start) < sub._length) {
-            return -1
-        }
-        start += this._offset;
-        end += this._offset - sub._length + 1;
-        if (this._buffer === sub._buffer) {
-            if (start === sub._offset) {
-                return start - this._offset
-            }
-        }
-        var index;
-        for (; start < end; ++start) {
-            for (index = 0; index < sub._length; ++index) {
-                if (this._buffer[start + index] !== sub._buffer[sub._offset + index]) {
-                    break
-                }
-            }
-            if (index === sub._length) {
-                return start - this._offset
-            }
-        }
-        return -1
-    };
-    bytes.prototype.find = function() {
-        var sub, start, end;
-        if (arguments.length === 1) {
-            sub = arguments[0];
-            start = 0;
-            end = this._length
-        } else {
-            if (arguments.length === 2) {
-                sub = arguments[0];
-                start = arguments[1];
-                end = this._length;
-                start = adjust(start, this._length)
-            } else {
-                if (arguments.length === 3) {
-                    sub = arguments[0];
-                    start = arguments[1];
-                    end = arguments[2];
-                    start = adjust(start, this._length);
-                    end = adjust(end, this._length)
-                } else {
-                    throw new SyntaxError("arguments error: " + arguments)
-                }
-            }
-        }
-        if (typeof sub === "number") {
-            return find_value.call(this, sub & 255, start, end)
-        } else {
-            if (sub instanceof bytes) {
-                return find_sub.call(this, sub, start, end)
-            } else {
-                return find_sub.call(this, new bytes(sub), start, end)
-            }
-        }
-    };
-    bytes.prototype.getByte = function(index) {
-        if (index < 0) {
-            index += this._length;
-            if (index < 0) {
-                throw new RangeError("error index: " + (index - this._length) + ", length: " + this._length)
-            }
-        } else {
-            if (index >= this._length) {
-                throw new RangeError("error index: " + index + ", length: " + this._length)
-            }
-        }
-        return this._buffer[this._offset + index]
-    };
-    var get_bytes = function(start, end) {
-        start += this._offset;
-        end += this._offset;
-        if (start === 0 && end === this._buffer.length) {
-            return this._buffer
-        } else {
-            if (start < end) {
-                return this._buffer.subarray(start, end)
-            } else {
-                return this.ZERO.getBytes()
-            }
-        }
-    };
-    bytes.prototype.getBytes = function() {
-        var start, end;
-        if (arguments.length === 0) {
-            start = 0;
-            end = this._length
-        } else {
-            if (arguments.length === 1) {
-                start = arguments[0];
-                end = this._length;
-                start = adjust(start, this._length)
-            } else {
-                if (arguments.length === 2) {
-                    start = arguments[0];
-                    end = arguments[1];
-                    start = adjust(start, this._length);
-                    end = adjust(end, this._length)
-                } else {
-                    throw new SyntaxError("arguments error: " + arguments)
-                }
-            }
-        }
-        return get_bytes.call(this, start, end)
-    };
-    bytes.prototype.slice = function(start) {
-        var end;
-        if (arguments.length === 2) {
-            end = arguments[1];
-            end = adjust(end, this._length)
-        } else {
-            end = this._length
-        }
-        start = adjust(start, this._length);
-        return slice(this, start, end)
-    };
-    var slice = function(data, start, end) {
-        if (start === 0 && end === data._length) {
-            return data
-        } else {
-            if (start < end) {
-                return new bytes(data._buffer, data._offset + start, end - start)
-            } else {
-                return bytes.ZERO
-            }
-        }
-    };
-    bytes.prototype.concat = function() {
-        var result = this;
-        var arg, other;
-        for (var i = 0; i < arguments.length; ++i) {
-            arg = arguments[i];
-            if (arg instanceof bytes) {
-                other = arg
-            } else {
-                other = new bytes(arg)
-            }
-            result = concat(result, other)
-        }
-        return result
-    };
-    var concat = function(left, right) {
-        if (left._length === 0) {
-            return right
-        } else {
-            if (right._length === 0) {
-                return left
-            } else {
-                if (left._buffer === right._buffer && (left._offset + left._length) === right._offset) {
-                    return new bytes(left._buffer, left._offset, left._length + right._length)
-                } else {
-                    var joined = new Uint8Array(left._length + right._length);
-                    Arrays.copy(left._buffer, left._offset, joined, 0, left._length);
-                    Arrays.copy(right._buffer, right._offset, joined, left._length, right._length);
-                    return new bytes(joined, 0, joined.length)
-                }
-            }
-        }
-    };
-    bytes.prototype.copy = function() {
-        return new bytes(this._buffer, this._offset, this._length)
-    };
-    bytes.prototype.mutableCopy = function() {
-        var buffer = this.getBytes();
-        buffer = new Uint8Array(buffer);
-        return new bytes(buffer, 0, buffer.length)
-    };
-    bytes.prototype.toArray = function() {
-        var array = this.getBytes();
-        if (typeof Array.from === "function") {
-            return Array.from(array)
-        } else {
-            return [].slice.call(array)
-        }
-    };
-    ns.type.Data = bytes;
-    ns.type.registers("Data")
+    ns.type.Stringer = Stringer;
+    ns.type.registers("Stringer");
 })(MONKEY);
-(function(ns) {
-    var Arrays = ns.type.Arrays;
-    var bytes = ns.type.Data;
-    var adjust = bytes.adjust;
-    var resize = function(size) {
-        var bigger = new Uint8Array(size);
-        Arrays.copy(this._buffer, this._offset, bigger, 0, this._length);
-        this._buffer = bigger;
-        this._offset = 0
-    };
-    var expand = function() {
-        var capacity = this._buffer.length - this._offset;
-        if (capacity > 4) {
-            resize.call(this, capacity << 1)
+(function (ns) {
+    var BaseObject = ns.type.BaseObject;
+    var Stringer = ns.type.Stringer;
+    var ConstantString = function (str) {
+        BaseObject.call(this);
+        if (!str) {
+            str = "";
         } else {
-            resize.call(this, 8)
-        }
-    };
-    bytes.prototype.setByte = function(index, value) {
-        if (index < 0) {
-            index += this._length;
-            if (index < 0) {
-                return false
+            if (ns.Interface.conforms(str, Stringer)) {
+                str = str.toString();
             }
         }
-        if (index >= this._length) {
-            if (this._offset + index >= this._buffer.length) {
-                if (index < this._buffer.length) {
-                    Arrays.copy(this._buffer, this._offset, this._buffer, 0, this._length);
-                    this._offset = 0
+        this.__string = str;
+    };
+    ns.Class(ConstantString, BaseObject, [Stringer]);
+    ConstantString.prototype.equals = function (other) {
+        if (BaseObject.prototype.equals.call(this, other)) {
+            return true;
+        } else {
+            if (!other) {
+                return !this.__string;
+            } else {
+                if (ns.Interface.conforms(other, Stringer)) {
+                    return this.__string === other.toString();
                 } else {
-                    resize.call(this, index + 1)
+                    return this.__string === other;
                 }
             }
-            this._length = index + 1
-        }
-        this._buffer[this._offset + index] = value & 255;
-        return true
-    };
-    var copy_buffer = function(data, pos, source, start, end) {
-        var copyLen = end - start;
-        if (copyLen > 0) {
-            var copyEnd = pos + copyLen;
-            if (source !== data._buffer || (data._offset + pos) !== start) {
-                if (data._offset + copyEnd > data._buffer.length) {
-                    resize.call(data, copyEnd)
-                }
-                Arrays.copy(source, start, data._buffer, data._offset + pos, copyLen)
-            }
-            if (copyEnd > data._length) {
-                data._length = copyEnd
-            }
         }
     };
-    bytes.prototype.fill = function(pos, source) {
-        if (pos < 0) {
-            pos += this._length;
-            if (pos < 0) {
-                throw new RangeError("error position: " + (pos - this._length) + ", length: " + this._length)
-            }
-        }
-        var start, end;
-        if (arguments.length === 4) {
-            start = arguments[2];
-            end = arguments[3];
-            start = adjust(start, get_length(source));
-            end = adjust(end, get_length(source))
+    ConstantString.prototype.equalsIgnoreCase = function (other) {
+        if (this.equals(other)) {
+            return true;
         } else {
-            if (arguments.length === 3) {
-                start = arguments[2];
-                end = get_length(source);
-                start = adjust(start, get_length(source))
+            if (!other) {
+                return !this.__string;
             } else {
-                start = 0;
-                end = get_length(source)
-            }
-        }
-        if (source instanceof bytes) {
-            copy_buffer(this, pos, source._buffer, source._offset + start, source._offset + end)
-        } else {
-            copy_buffer(this, pos, source, start, end)
-        }
-    };
-    var get_length = function(source) {
-        if (source instanceof bytes) {
-            return source._length
-        } else {
-            return source.length
-        }
-    };
-    bytes.prototype.append = function(source) {
-        if (arguments.length > 1 && typeof arguments[1] !== "number") {
-            for (var i = 0; i < arguments.length; ++i) {
-                this.append(arguments[i])
-            }
-            return
-        }
-        var start, end;
-        if (arguments.length === 3) {
-            start = arguments[1];
-            end = arguments[2];
-            start = adjust(start, get_length(source));
-            end = adjust(end, get_length(source))
-        } else {
-            if (arguments.length === 2) {
-                start = arguments[1];
-                end = get_length(source);
-                start = adjust(start, get_length(source))
-            } else {
-                start = 0;
-                end = get_length(source)
-            }
-        }
-        if (source instanceof bytes) {
-            copy_buffer(this, this._length, source._buffer, source._offset + start, source._offset + end)
-        } else {
-            copy_buffer(this, this._length, source, start, end)
-        }
-    };
-    bytes.prototype.insert = function(index, value) {
-        if (index < 0) {
-            index += this._length;
-            if (index < 0) {
-                return false
-            }
-        }
-        if (index >= this._length) {
-            return this.setByte(index, value)
-        }
-        if (index === 0) {
-            if (this._offset > 0) {
-                this._offset -= 1
-            } else {
-                if (this._length === this._buffer.length) {
-                    expand.call(this)
-                }
-                Arrays.copy(this._buffer, 0, this._buffer, 1, this._length)
-            }
-        } else {
-            if (index < (this._length >> 1)) {
-                if (this._offset > 0) {
-                    Arrays.copy(this._buffer, this._offset, this._buffer, this._offset - 1, index);
-                    this._offset -= 1
+                if (ns.Interface.conforms(other, Stringer)) {
+                    return equalsIgnoreCase(this.__string, other.toString());
                 } else {
-                    if ((this._offset + this._length) === this._buffer.length) {
-                        expand.call(this)
-                    }
-                    Arrays.copy(this._buffer, this._offset + index, this._buffer, this._offset + index + 1, this._length - index)
-                }
-            } else {
-                if ((this._offset + this._length) < this._buffer.length) {
-                    Arrays.copy(this._buffer, this._offset + index, this._buffer, this._offset + index + 1, this._length - index)
-                } else {
-                    if (this._offset > 0) {
-                        Arrays.copy(this._buffer, this._offset, this._buffer, this._offset - 1, index);
-                        this._offset -= 1
-                    } else {
-                        expand.call(this);
-                        Arrays.copy(this._buffer, this._offset + index, this._buffer, this._offset + index + 1, this._length - index)
-                    }
+                    return equalsIgnoreCase(this.__string, other);
                 }
             }
         }
-        this._buffer[this._offset + index] = value & 255;
-        this._length += 1;
-        return true
     };
-    bytes.prototype.remove = function(index) {
-        if (index < 0) {
-            index += this._length;
-            if (index < 0) {
-                throw new RangeError("error index: " + (index - this._length) + ", length: " + this._length)
-            }
-        } else {
-            if (index >= this._length) {
-                throw new RangeError("index error: " + index + ", length: " + this._length)
-            }
-        }
-        if (index === 0) {
-            return this.shift()
-        } else {
-            if (index === (this._length - 1)) {
-                return this.pop()
-            }
-        }
-        var erased = this._buffer[this._offset + index];
-        if (index < (this._length >> 1)) {
-            Arrays.copy(this._buffer, this._offset, this._buffer, this._offset + 1, index)
-        } else {
-            Arrays.copy(this._buffer, this._offset + index + 1, this._buffer, this._offset + index, this._length - index - 1)
-        }
-        return erased
-    };
-    bytes.prototype.shift = function() {
-        if (this._length < 1) {
-            throw new RangeError("data empty!")
-        }
-        var erased = this._buffer[this._offset];
-        this._offset += 1;
-        this._length -= 1;
-        return erased
-    };
-    bytes.prototype.pop = function() {
-        if (this._length < 1) {
-            throw new RangeError("data empty!")
-        }
-        this._length -= 1;
-        return this._buffer[this._offset + this._length]
-    };
-    bytes.prototype.push = function(element) {
-        this.setByte(this._length, element)
-    };
-    ns.type.MutableData = bytes;
-    ns.type.registers("MutableData")
-})(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var str = function(value) {
-        obj.call(this);
-        if (!value) {
-            value = ""
-        } else {
-            if (value instanceof str) {
-                value = value.toString()
-            }
-        }
-        this.__string = value
-    };
-    ns.Class(str, obj, null);
-    str.prototype.equals = function(other) {
-        if (!other) {
-            return !this.__string
-        } else {
-            if (other instanceof str) {
-                return this.__string === other.__string
-            } else {
-                return this.__string === other
-            }
-        }
-    };
-    var equalsIgnoreCase = function(str1, str2) {
+    var equalsIgnoreCase = function (str1, str2) {
         if (str1.length !== str2.length) {
-            return false
+            return false;
         }
         var low1 = str1.toLowerCase();
         var low2 = str2.toLowerCase();
-        return low1 === low2
+        return low1 === low2;
     };
-    str.prototype.equalsIgnoreCase = function(other) {
-        if (!other) {
-            return !this.__string
-        } else {
-            if (other instanceof str) {
-                return equalsIgnoreCase(this.__string, other.__string)
-            } else {
-                return equalsIgnoreCase(this.__string, other)
-            }
-        }
+    ConstantString.prototype.valueOf = function () {
+        return this.__string;
     };
-    str.prototype.valueOf = function() {
-        return this.__string
+    ConstantString.prototype.toString = function () {
+        return this.__string;
     };
-    str.prototype.toString = function() {
-        return this.__string
+    ConstantString.prototype.getLength = function () {
+        return this.__string.length;
     };
-    str.prototype.getLength = function() {
-        return this.__string.length
-    };
-    ns.type.String = str;
-    ns.type.registers("String")
+    ns.type.ConstantString = ConstantString;
+    ns.type.registers("ConstantString");
 })(MONKEY);
-(function(ns) {
-    var map = function() {};
-    ns.Interface(map, null);
-    map.prototype.getMap = function() {
+(function (ns) {
+    var Mapper = function () {};
+    ns.Interface(Mapper, [ns.type.Object]);
+    Mapper.prototype.getValue = function (key) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    map.prototype.copyMap = function() {
+    Mapper.prototype.setValue = function (key, value) {
         console.assert(false, "implement me!");
-        return null
     };
-    map.copyMap = function(dictionary) {
-        if (ns.Interface.conforms(dictionary, map)) {
-            dictionary = dictionary.getMap()
-        }
-        var json = ns.format.JSON.encode(dictionary);
-        return ns.format.JSON.decode(json)
-    };
-    map.prototype.equals = function(other) {
+    Mapper.prototype.removeValue = function (key) {
         console.assert(false, "implement me!");
-        return false
     };
-    map.prototype.allKeys = function() {
+    Mapper.prototype.allKeys = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    map.prototype.getValue = function(key) {
+    Mapper.prototype.toMap = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    map.prototype.setValue = function(key, value) {
-        console.assert(false, "implement me!")
+    Mapper.prototype.copyMap = function (deepCopy) {
+        console.assert(false, "implement me!");
+        return null;
     };
-    ns.type.Map = map;
-    ns.type.registers("Map")
+    ns.type.Mapper = Mapper;
+    ns.type.registers("Mapper");
 })(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var map = ns.type.Map;
-    var Arrays = ns.type.Arrays;
-    var dict = function(dictionary) {
-        obj.call(this);
-        if (!dictionary) {
-            dictionary = {}
+(function (ns) {
+    var BaseObject = ns.type.BaseObject;
+    var Mapper = ns.type.Mapper;
+    var Dictionary = function (dict) {
+        BaseObject.call(this);
+        if (!dict) {
+            dict = {};
         } else {
-            if (ns.Interface.conforms(dictionary, map)) {
-                dictionary = dictionary.getMap()
+            if (ns.Interface.conforms(dict, Mapper)) {
+                dict = dict.toMap();
             }
         }
-        this.__dictionary = dictionary
+        this.__dictionary = dict;
     };
-    ns.Class(dict, obj, [map]);
-    dict.prototype.getMap = function() {
-        return this.__dictionary
-    };
-    dict.prototype.copyMap = function() {
-        return map.copyMap(this.__dictionary)
-    };
-    dict.prototype.valueOf = function() {
-        return this.__dictionary
-    };
-    dict.prototype.equals = function(other) {
-        if (!other) {
-            return !this.__dictionary
+    ns.Class(Dictionary, BaseObject, [Mapper]);
+    Dictionary.prototype.equals = function (other) {
+        if (BaseObject.prototype.equals.call(this, other)) {
+            return true;
         } else {
-            if (ns.Interface.conforms(other, map)) {
-                return Arrays.equals(this.__dictionary, other.getMap())
+            if (!other) {
+                return !this.__dictionary;
             } else {
-                return Arrays.equals(this.__dictionary, other)
+                if (ns.Interface.conforms(other, Mapper)) {
+                    return ns.type.Arrays.equals(this.__dictionary, other.toMap());
+                } else {
+                    return ns.type.Arrays.equals(this.__dictionary, other);
+                }
             }
         }
     };
-    dict.prototype.allKeys = function() {
-        return Object.keys(this.__dictionary)
+    Dictionary.prototype.valueOf = function () {
+        return this.__dictionary;
     };
-    dict.prototype.getValue = function(key) {
-        return this.__dictionary[key]
+    Dictionary.prototype.getValue = function (key) {
+        return this.__dictionary[key];
     };
-    dict.prototype.setValue = function(key, value) {
+    Dictionary.prototype.setValue = function (key, value) {
         if (value) {
-            this.__dictionary[key] = value
+            this.__dictionary[key] = value;
         } else {
             if (this.__dictionary.hasOwnProperty(key)) {
-                delete this.__dictionary[key]
+                delete this.__dictionary[key];
             }
         }
     };
-    ns.type.Dictionary = dict;
-    ns.type.registers("Dictionary")
+    Dictionary.prototype.removeValue = function (key) {
+        if (this.__dictionary.hasOwnProperty(key)) {
+            delete this.__dictionary[key];
+        }
+    };
+    Dictionary.prototype.allKeys = function () {
+        return Object.keys(this.__dictionary);
+    };
+    Dictionary.prototype.toMap = function () {
+        return this.__dictionary;
+    };
+    Dictionary.prototype.copyMap = function (deepCopy) {
+        if (deepCopy) {
+            return ns.type.Copier.deepCopyMap(this.__dictionary);
+        } else {
+            return ns.type.Copier.copyMap(this.__dictionary);
+        }
+    };
+    ns.type.Dictionary = Dictionary;
+    ns.type.registers("Dictionary");
 })(MONKEY);
-(function(ns) {
+(function (ns) {
     var obj = ns.type.Object;
-    var str = ns.type.String;
-    var map = ns.type.Map;
-    var Enum = ns.type.Enum;
-    var Data = ns.type.Data;
-    var Arrays = ns.type.Arrays;
-    var map_unwrap = function(dict) {
-        var result = {};
-        var keys = Object.keys(dict);
-        var key;
-        for (var i = 0; i < keys.length; ++i) {
-            key = keys[i];
-            if (key instanceof str) {
-                key = key.toString()
-            }
-            result[key] = unwrap(dict[key], true)
+    var Stringer = ns.type.Stringer;
+    var Mapper = ns.type.Mapper;
+    var fetch_string = function (str) {
+        if (ns.Interface.conforms(str, Stringer)) {
+            return str.toString();
+        } else {
+            return str;
         }
-        return result
     };
-    var list_unwrap = function(array) {
-        var result = [];
-        var item;
-        for (var i = 0; i < array.length; ++i) {
-            item = array[i];
-            if (item) {
-                item = unwrap(item, true);
-                if (item) {
-                    result[i] = item
-                }
-            }
+    var fetch_map = function (dict) {
+        if (ns.Interface.conforms(dict, Mapper)) {
+            return dict.toMap();
+        } else {
+            return dict;
         }
-        return result
     };
-    var unwrap = function(object, circularly) {
+    var unwrap = function (object) {
         if (obj.isNull(object)) {
-            return null
+            return null;
         } else {
             if (obj.isBaseType(object)) {
-                return object
-            }
-        }
-        if (object instanceof str) {
-            return object.toString()
-        }
-        if (object instanceof Enum) {
-            return object.valueOf()
-        }
-        if (object instanceof Data) {
-            return object.getBytes()
-        }
-        if (circularly) {
-            if (Arrays.isArray(object)) {
-                if (object instanceof Array) {
-                    return list_unwrap(object)
-                }
+                return object;
             } else {
-                if (ns.Interface.conforms(object, map)) {
-                    object = object.getMap()
-                }
-                return map_unwrap(object)
-            }
-        } else {
-            if (ns.Interface.conforms(object, map)) {
-                object = object.getMap()
-            }
-        }
-        return object
-    };
-    var wrapper = function() {};
-    ns.Interface(wrapper, null);
-    wrapper.unwrap = unwrap;
-    ns.type.Wrapper = wrapper;
-    ns.type.registers("Wrapper")
-})(MONKEY);
-(function(ns) {
-    var Runnable = function() {};
-    ns.Interface(Runnable, null);
-    Runnable.prototype.run = function() {
-        console.assert(false, "implement me!");
-        return false
-    };
-    ns.threading.Runnable = Runnable;
-    ns.threading.registers("Runnable")
-})(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var Runnable = ns.threading.Runnable;
-    var Thread = function() {
-        obj.call(this);
-        if (arguments.length === 0) {
-            this.__target = null;
-            this.__interval = 128
-        } else {
-            if (arguments.length === 2) {
-                this.__target = arguments[0];
-                this.__interval = arguments[1]
-            } else {
-                if (typeof arguments[0] === "number") {
-                    this.__target = null;
-                    this.__interval = arguments[0]
+                if (ns.Interface.conforms(object, Stringer)) {
+                    return object.toString();
                 } else {
-                    this.__target = arguments[0];
-                    this.__interval = 128
+                    if (!ns.type.Arrays.isArray(object)) {
+                        return unwrap_map(object);
+                    } else {
+                        if (object instanceof Array) {
+                            return unwrap_list(object);
+                        } else {
+                            return object;
+                        }
+                    }
                 }
             }
         }
-        this.__running = false;
-        this.__thread_id = 0
     };
-    ns.Class(Thread, obj, [Runnable]);
-    Thread.prototype.start = function() {
-        this.__running = true;
-        var thread = this;
-        this.__thread_id = setInterval(function() {
-            var ran = thread.isRunning() && thread.run();
-            if (!ran) {
-                stop(thread)
+    var unwrap_map = function (dict) {
+        if (ns.Interface.conforms(dict, Mapper)) {
+            dict = dict.toMap();
+        }
+        var allKeys = Object.keys(dict);
+        var key;
+        var naked, value;
+        var count = allKeys.length;
+        for (var i = 0; i < count; ++i) {
+            key = allKeys[i];
+            value = dict[key];
+            naked = unwrap(value);
+            if (naked !== value) {
+                dict[key] = naked;
             }
-        }, this.getInterval())
-    };
-    var stop = function(thread) {
-        var tid = thread.__thread_id;
-        if (tid > 0) {
-            thread.__thread_id = 0;
-            clearInterval(tid)
         }
+        return dict;
     };
-    Thread.prototype.stop = function() {
-        stop(this);
-        this.__running = false
-    };
-    Thread.prototype.isRunning = function() {
-        return this.__running
-    };
-    Thread.prototype.getInterval = function() {
-        return this.__interval
-    };
-    Thread.prototype.run = function() {
-        var target = this.__target;
-        if (!target || target === this) {
-            throw new SyntaxError("Thread::run() > override me!")
-        } else {
-            return target.run()
+    var unwrap_list = function (array) {
+        var naked, item;
+        var count = array.length;
+        for (var i = 0; i < count; ++i) {
+            item = array[i];
+            naked = unwrap(item);
+            if (naked !== item) {
+                array[i] = naked;
+            }
         }
+        return array;
     };
-    ns.threading.Thread = Thread;
-    ns.threading.registers("Thread")
+    ns.type.Wrapper = {
+        fetchString: fetch_string,
+        fetchMap: fetch_map,
+        unwrap: unwrap,
+        unwrapMap: unwrap_map,
+        unwrapList: unwrap_list
+    };
+    ns.type.registers("Wrapper");
 })(MONKEY);
-(function(ns) {
-    var Handler = function() {};
-    ns.Interface(Handler, null);
-    Handler.prototype.setup = function() {
-        console.assert(false, "implement me!");
-        return false
-    };
-    Handler.prototype.handle = function() {
-        console.assert(false, "implement me!");
-        return false
-    };
-    Handler.prototype.finish = function() {
-        console.assert(false, "implement me!");
-        return false
-    };
-    ns.threading.Handler = Handler;
-    ns.threading.registers("Handler")
-})(MONKEY);
-(function(ns) {
-    var Processor = function() {};
-    ns.Interface(Processor, null);
-    Processor.prototype.process = function() {
-        console.assert(false, "implement me!");
-        return false
-    };
-    ns.threading.Processor = Processor;
-    ns.threading.registers("Processor")
-})(MONKEY);
-(function(ns) {
-    var Thread = ns.threading.Thread;
-    var Handler = ns.threading.Handler;
-    var Processor = ns.threading.Processor;
-    var STAGE_INIT = 0;
-    var STAGE_HANDLING = 1;
-    var STAGE_CLEANING = 2;
-    var STAGE_STOPPED = 3;
-    var Runner = function() {
-        if (arguments.length === 0) {
-            Thread.call(this);
-            this.__processor = null
+(function (ns) {
+    var obj = ns.type.Object;
+    var Stringer = ns.type.Stringer;
+    var Mapper = ns.type.Mapper;
+    var copy = function (object) {
+        if (obj.isNull(object)) {
+            return null;
         } else {
-            if (arguments.length === 2) {
-                Thread.call(this, arguments[1]);
-                this.__processor = arguments[0]
+            if (obj.isBaseType(object)) {
+                return object;
             } else {
-                if (typeof arguments[0] === "number") {
-                    Thread.call(this, arguments[0]);
-                    this.__processor = null
+                if (ns.Interface.conforms(object, Stringer)) {
+                    return object.toString();
                 } else {
-                    Thread.call(this);
-                    this.__processor = arguments[0]
+                    if (!ns.type.Arrays.isArray(object)) {
+                        return copy_map(object);
+                    } else {
+                        if (object instanceof Array) {
+                            return copy_list(object);
+                        } else {
+                            return object;
+                        }
+                    }
                 }
             }
         }
-        this.__stage = STAGE_INIT
     };
-    ns.Class(Runner, Thread, [Handler, Processor]);
-    Runner.prototype.run = function() {
-        if (this.__stage === STAGE_INIT) {
-            if (this.setup()) {
-                return true
-            }
-            this.__stage = STAGE_HANDLING
+    var copy_map = function (dict) {
+        if (ns.Interface.conforms(dict, Mapper)) {
+            dict = dict.toMap();
         }
-        if (this.__stage === STAGE_HANDLING) {
-            try {
-                if (this.handle()) {
-                    return true
-                }
-            } catch (e) {
-                console.error("Runner::handle() error", this, e)
-            }
-            this.__stage = STAGE_CLEANING
+        var clone = {};
+        var allKeys = Object.keys(dict);
+        var key;
+        var count = allKeys.length;
+        for (var i = 0; i < count; ++i) {
+            key = allKeys[i];
+            clone[key] = dict[key];
         }
-        if (this.__stage === STAGE_CLEANING) {
-            if (this.finish()) {
-                return true
-            }
-            this.__stage = STAGE_STOPPED
+        return clone;
+    };
+    var copy_list = function (array) {
+        var clone = [];
+        var count = array.length;
+        for (var i = 0; i < count; ++i) {
+            clone.push(array[i]);
         }
-        return false
+        return clone;
     };
-    Runner.prototype.setup = function() {
-        return false
-    };
-    Runner.prototype.handle = function() {
-        while (this.isRunning()) {
-            if (this.process()) {} else {
-                return true
-            }
-        }
-        return false
-    };
-    Runner.prototype.finish = function() {
-        return false
-    };
-    Runner.prototype.process = function() {
-        var processor = this.__processor;
-        if (!processor || processor === this) {
-            throw new SyntaxError("Runner::process() > override me!")
+    var deep_copy = function (object) {
+        if (obj.isNull(object)) {
+            return null;
         } else {
-            return processor.process()
+            if (obj.isBaseType(object)) {
+                return object;
+            } else {
+                if (ns.Interface.conforms(object, Stringer)) {
+                    return object.toString();
+                } else {
+                    if (!ns.type.Arrays.isArray(object)) {
+                        return deep_copy_map(object);
+                    } else {
+                        if (object instanceof Array) {
+                            return deep_copy_list(object);
+                        } else {
+                            return object;
+                        }
+                    }
+                }
+            }
         }
     };
-    ns.threading.Runner = Runner;
-    ns.threading.registers("Runner")
+    var deep_copy_map = function (dict) {
+        if (ns.Interface.conforms(dict, Mapper)) {
+            dict = dict.toMap();
+        }
+        var clone = {};
+        var allKeys = Object.keys(dict);
+        var key;
+        var count = allKeys.length;
+        for (var i = 0; i < count; ++i) {
+            key = allKeys[i];
+            clone[key] = deep_copy(dict[key]);
+        }
+        return clone;
+    };
+    var deep_copy_list = function (array) {
+        var clone = [];
+        var count = array.length;
+        for (var i = 0; i < count; ++i) {
+            clone.push(deep_copy(array[i]));
+        }
+        return clone;
+    };
+    ns.type.Copier = {
+        copy: copy,
+        copyMap: copy_map,
+        copyList: copy_list,
+        deepCopy: deep_copy,
+        deepCopyMap: deep_copy_map,
+        deepCopyList: deep_copy_list
+    };
+    ns.type.registers("Copier");
 })(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var hash = function() {};
-    ns.Interface(hash, null);
-    hash.prototype.digest = function(data) {
+(function (ns) {
+    var DataDigester = function () {};
+    ns.Interface(DataDigester, null);
+    DataDigester.prototype.digest = function (data) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    var lib = function(hash) {
-        obj.call(this);
-        this.hash = hash
-    };
-    ns.Class(lib, obj, [hash]);
-    lib.prototype.digest = function(data) {
-        return this.hash.digest(data)
-    };
-    ns.digest.Hash = hash;
-    ns.digest.HashLib = lib;
-    ns.digest.registers("Hash");
-    ns.digest.registers("HashLib")
+    ns.digest.DataDigester = DataDigester;
+    ns.digest.registers("DataDigester");
 })(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var Hash = ns.digest.Hash;
-    var Lib = ns.digest.HashLib;
-    var md5 = function() {
-        obj.call(this)
+(function (ns) {
+    var MD5 = {
+        digest: function (data) {
+            return this.getDigester().digest(data);
+        },
+        getDigester: function () {
+            return md5Digester;
+        },
+        setDigester: function (digester) {
+            md5Digester = digester;
+        }
     };
-    ns.Class(md5, obj, [Hash]);
-    md5.prototype.digest = function(data) {
-        console.assert(false, "MD5 not implemented");
-        return null
-    };
-    ns.digest.MD5 = new Lib(new md5());
-    ns.digest.registers("MD5")
+    var md5Digester = null;
+    ns.digest.MD5 = MD5;
+    ns.digest.registers("MD5");
 })(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var Hash = ns.digest.Hash;
-    var Lib = ns.digest.HashLib;
-    var sha1 = function() {
-        obj.call(this)
+(function (ns) {
+    var SHA1 = {
+        digest: function (data) {
+            return this.getDigester().digest(data);
+        },
+        getDigester: function () {
+            return sha1Digester;
+        },
+        setDigester: function (digester) {
+            sha1Digester = digester;
+        }
     };
-    ns.Class(sha1, obj, [Hash]);
-    sha1.prototype.digest = function(data) {
-        console.assert(false, "SHA1 not implemented");
-        return null
-    };
-    ns.digest.SHA1 = new Lib(new sha1());
-    ns.digest.registers("SHA1")
+    var sha1Digester = null;
+    ns.digest.SHA1 = SHA1;
+    ns.digest.registers("SHA1");
 })(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var Hash = ns.digest.Hash;
-    var Lib = ns.digest.HashLib;
-    var sha256 = function() {
-        obj.call(this)
+(function (ns) {
+    var SHA256 = {
+        digest: function (data) {
+            return this.getDigester().digest(data);
+        },
+        getDigester: function () {
+            return sha256Digester;
+        },
+        setDigester: function (digester) {
+            sha256Digester = digester;
+        }
     };
-    ns.Class(sha256, obj, [Hash]);
-    sha256.prototype.digest = function(data) {
-        console.assert(false, "SHA256 not implemented");
-        return null
-    };
-    ns.digest.SHA256 = new Lib(new sha256());
-    ns.digest.registers("SHA256")
+    var sha256Digester = null;
+    ns.digest.SHA256 = SHA256;
+    ns.digest.registers("SHA256");
 })(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var Hash = ns.digest.Hash;
-    var Lib = ns.digest.HashLib;
-    var ripemd160 = function() {
-        obj.call(this)
+(function (ns) {
+    var RipeMD160 = {
+        digest: function (data) {
+            return this.getDigester().digest(data);
+        },
+        getDigester: function () {
+            return ripemd160Digester;
+        },
+        setDigester: function (digester) {
+            ripemd160Digester = digester;
+        }
     };
-    ns.Class(ripemd160, obj, [Hash]);
-    ripemd160.prototype.digest = function(data) {
-        console.assert(false, "RIPEMD160 not implemented");
-        return null
-    };
-    ns.digest.RIPEMD160 = new Lib(new ripemd160());
-    ns.digest.registers("RIPEMD160")
+    var ripemd160Digester = null;
+    ns.digest.RIPEMD160 = RipeMD160;
+    ns.digest.registers("RIPEMD160");
 })(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var Hash = ns.digest.Hash;
-    var Lib = ns.digest.HashLib;
-    var keccak256 = function() {
-        obj.call(this)
+(function (ns) {
+    var Keccak256 = {
+        digest: function (data) {
+            return this.getDigester().digest(data);
+        },
+        getDigester: function () {
+            return keccak256Digester;
+        },
+        setDigester: function (digester) {
+            keccak256Digester = digester;
+        }
     };
-    ns.Class(keccak256, obj, [Hash]);
-    keccak256.prototype.digest = function(data) {
-        console.assert(false, "KECCAK256 not implemented");
-        return null
-    };
-    ns.digest.KECCAK256 = new Lib(new keccak256());
-    ns.digest.registers("KECCAK256")
+    var keccak256Digester = null;
+    ns.digest.KECCAK256 = Keccak256;
+    ns.digest.registers("KECCAK256");
 })(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var coder = function() {};
-    ns.Interface(coder, null);
-    coder.prototype.encode = function(data) {
+(function (ns) {
+    var DataCoder = function () {};
+    ns.Interface(DataCoder, null);
+    DataCoder.prototype.encode = function (data) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    coder.prototype.decode = function(string) {
+    DataCoder.prototype.decode = function (string) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    var lib = function(coder) {
-        obj.call(this);
-        this.coder = coder
+    var ObjectCoder = function () {};
+    ns.Interface(ObjectCoder, null);
+    ObjectCoder.prototype.encode = function (object) {
+        console.assert(false, "implement me!");
+        return null;
     };
-    ns.Class(lib, obj, [coder]);
-    lib.prototype.encode = function(data) {
-        return this.coder.encode(data)
+    ObjectCoder.prototype.decode = function (string) {
+        console.assert(false, "implement me!");
+        return null;
     };
-    lib.prototype.decode = function(string) {
-        return this.coder.decode(string)
+    var StringCoder = function () {};
+    ns.Interface(StringCoder, null);
+    StringCoder.prototype.encode = function (string) {
+        console.assert(false, "implement me!");
+        return null;
     };
-    ns.format.BaseCoder = coder;
-    ns.format.CoderLib = lib;
-    ns.format.registers("BaseCoder");
-    ns.format.registers("CoderLib")
+    StringCoder.prototype.decode = function (data) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    ns.format.DataCoder = DataCoder;
+    ns.format.ObjectCoder = ObjectCoder;
+    ns.format.StringCoder = StringCoder;
+    ns.format.registers("DataCoder");
+    ns.format.registers("ObjectCoder");
+    ns.format.registers("StringCoder");
 })(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var Data = ns.type.Data;
-    var Coder = ns.format.BaseCoder;
-    var Lib = ns.format.CoderLib;
+(function (ns) {
+    var DataCoder = ns.format.DataCoder;
     var hex_chars = "0123456789abcdef";
     var hex_values = new Int8Array(128);
-    (function(chars, values) {
+    (function (chars, values) {
         for (var i = 0; i < chars.length; ++i) {
-            values[chars.charCodeAt(i)] = i
+            values[chars.charCodeAt(i)] = i;
         }
         values["A".charCodeAt(0)] = 10;
         values["B".charCodeAt(0)] = 11;
         values["C".charCodeAt(0)] = 12;
         values["D".charCodeAt(0)] = 13;
         values["E".charCodeAt(0)] = 14;
-        values["F".charCodeAt(0)] = 15
+        values["F".charCodeAt(0)] = 15;
     })(hex_chars, hex_values);
-    var hex_encode = function(data) {
+    var hex_encode = function (data) {
         var len = data.length;
         var str = "";
         var byt;
         for (var i = 0; i < len; ++i) {
             byt = data[i];
             str += hex_chars[byt >> 4];
-            str += hex_chars[byt & 15]
+            str += hex_chars[byt & 15];
         }
-        return str
+        return str;
     };
-    var hex_decode = function(string) {
-        var i = 0;
+    var hex_decode = function (string) {
         var len = string.length;
         if (len > 2) {
             if (string[0] === "0") {
                 if (string[1] === "x" || string[1] === "X") {
-                    i += 2
+                    string = string.substring(2);
+                    len -= 2;
                 }
             }
         }
-        var size = Math.floor(len / 2);
-        var data = new Data(size);
-        --len;
+        if (len % 2 === 1) {
+            string = "0" + string;
+            len += 1;
+        }
+        var cnt = len >> 1;
         var hi, lo;
-        for (; i < len; i += 2) {
-            hi = hex_values[string.charCodeAt(i)];
-            lo = hex_values[string.charCodeAt(i + 1)];
-            data.push((hi << 4) | lo)
+        var data = new Uint8Array(cnt);
+        for (var i = 0, j = 0; i < cnt; ++i, j += 2) {
+            hi = hex_values[string.charCodeAt(j)];
+            lo = hex_values[string.charCodeAt(j + 1)];
+            data[i] = (hi << 4) | lo;
         }
-        return data.getBytes()
+        return data;
     };
-    var hex = function() {
-        obj.call(this)
+    var HexCoder = function () {
+        Object.call(this);
     };
-    ns.Class(hex, obj, [Coder]);
-    hex.prototype.encode = function(data) {
-        return hex_encode(data)
+    ns.Class(HexCoder, Object, [DataCoder]);
+    HexCoder.prototype.encode = function (data) {
+        return hex_encode(data);
     };
-    hex.prototype.decode = function(str) {
-        return hex_decode(str)
+    HexCoder.prototype.decode = function (string) {
+        return hex_decode(string);
     };
-    ns.format.Hex = new Lib(new hex());
-    ns.format.registers("Hex")
+    var Hex = {
+        encode: function (data) {
+            return this.getCoder().encode(data);
+        },
+        decode: function (string) {
+            return this.getCoder().decode(string);
+        },
+        getCoder: function () {
+            return hexCoder;
+        },
+        setCoder: function (coder) {
+            hexCoder = coder;
+        }
+    };
+    var hexCoder = new HexCoder();
+    ns.format.Hex = Hex;
+    ns.format.registers("Hex");
 })(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var Coder = ns.format.BaseCoder;
-    var Lib = ns.format.CoderLib;
-    var base58 = function() {
-        obj.call(this)
+(function (ns) {
+    var Base58 = {
+        encode: function (data) {
+            return this.getCoder().encode(data);
+        },
+        decode: function (string) {
+            return this.getCoder().decode(string);
+        },
+        getCoder: function () {
+            return base58Coder;
+        },
+        setCoder: function (coder) {
+            base58Coder = coder;
+        }
     };
-    ns.Class(base58, obj, [Coder]);
-    base58.prototype.encode = function(data) {
-        console.assert(false, "Base58 encode not implemented");
-        return null
-    };
-    base58.prototype.decode = function(string) {
-        console.assert(false, "Base58 decode not implemented");
-        return null
-    };
-    ns.format.Base58 = new Lib(new base58());
-    ns.format.registers("Base58")
+    var base58Coder = null;
+    ns.format.Base58 = Base58;
+    ns.format.registers("Base58");
 })(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var Data = ns.type.Data;
-    var Coder = ns.format.BaseCoder;
-    var Lib = ns.format.CoderLib;
-    var base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    var base64_values = new Int8Array(128);
-    (function(chars, values) {
-        for (var i = 0; i < chars.length; ++i) {
-            values[chars.charCodeAt(i)] = i
+(function (ns) {
+    var Base64 = {
+        encode: function (data) {
+            return this.getCoder().encode(data);
+        },
+        decode: function (string) {
+            return this.getCoder().decode(string);
+        },
+        getCoder: function () {
+            return base64Coder;
+        },
+        setCoder: function (coder) {
+            base64Coder = coder;
         }
-    })(base64_chars, base64_values);
-    var base64_encode = function(data) {
-        var base64 = "";
-        var length = data.length;
-        var tail = "";
-        var remainder = length % 3;
-        if (remainder === 1) {
-            length -= 1;
-            tail = "=="
-        } else {
-            if (remainder === 2) {
-                length -= 2;
-                tail = "="
-            }
-        }
-        var x1, x2, x3;
-        var i;
-        for (i = 0; i < length; i += 3) {
-            x1 = data[i];
-            x2 = data[i + 1];
-            x3 = data[i + 2];
-            base64 += base64_chars.charAt((x1 & 252) >> 2);
-            base64 += base64_chars.charAt(((x1 & 3) << 4) | ((x2 & 240) >> 4));
-            base64 += base64_chars.charAt(((x2 & 15) << 2) | ((x3 & 192) >> 6));
-            base64 += base64_chars.charAt(x3 & 63)
-        }
-        if (remainder === 1) {
-            x1 = data[i];
-            base64 += base64_chars.charAt((x1 & 252) >> 2);
-            base64 += base64_chars.charAt((x1 & 3) << 4)
-        } else {
-            if (remainder === 2) {
-                x1 = data[i];
-                x2 = data[i + 1];
-                base64 += base64_chars.charAt((x1 & 252) >> 2);
-                base64 += base64_chars.charAt(((x1 & 3) << 4) | ((x2 & 240) >> 4));
-                base64 += base64_chars.charAt((x2 & 15) << 2)
-            }
-        }
-        return base64 + tail
     };
-    var base64_decode = function(string) {
-        var str = string.replace(/[^A-Za-z0-9+\/=]/g, "");
-        var length = str.length;
-        if ((length % 4) !== 0 || !/^[A-Za-z0-9+\/]+={0,2}$/.test(str)) {
-            throw new Error("base64 string error: " + string)
-        }
-        var array = new Data(length * 3 / 4);
-        var ch1, ch2, ch3, ch4;
-        var i;
-        for (i = 0; i < length; i += 4) {
-            ch1 = base64_values[str.charCodeAt(i)];
-            ch2 = base64_values[str.charCodeAt(i + 1)];
-            ch3 = base64_values[str.charCodeAt(i + 2)];
-            ch4 = base64_values[str.charCodeAt(i + 3)];
-            array.push(((ch1 & 63) << 2) | ((ch2 & 48) >> 4));
-            array.push(((ch2 & 15) << 4) | ((ch3 & 60) >> 2));
-            array.push(((ch3 & 3) << 6) | ((ch4 & 63) >> 0))
-        }
-        while (str[--i] === "=") {
-            array.pop()
-        }
-        return array.getBytes()
-    };
-    var base64 = function() {
-        obj.call(this)
-    };
-    ns.Class(base64, obj, [Coder]);
-    base64.prototype.encode = function(data) {
-        return base64_encode(data)
-    };
-    base64.prototype.decode = function(string) {
-        return base64_decode(string)
-    };
-    ns.format.Base64 = new Lib(new base64());
-    ns.format.registers("Base64")
+    var base64Coder = null;
+    ns.format.Base64 = Base64;
+    ns.format.registers("Base64");
 })(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var parser = function() {};
-    ns.Interface(parser, null);
-    parser.prototype.encode = function(object) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    parser.prototype.decode = function(data) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    var lib = function(parser) {
-        obj.call(this);
-        this.parser = parser
-    };
-    ns.Class(lib, obj, [parser]);
-    lib.prototype.encode = function(object) {
-        return this.parser.encode(object)
-    };
-    lib.prototype.decode = function(data) {
-        return this.parser.decode(data)
-    };
-    ns.format.DataParser = parser;
-    ns.format.ParserLib = lib;
-    ns.format.registers("DataParser");
-    ns.format.registers("ParserLib")
-})(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var Data = ns.type.Data;
-    var Parser = ns.format.DataParser;
-    var Lib = ns.format.ParserLib;
-    var utf8_encode = function(string) {
+(function (ns) {
+    var StringCoder = ns.format.StringCoder;
+    var utf8_encode = function (string) {
         var len = string.length;
-        var array = new Data(len);
+        var array = [];
         var c, l;
         for (var i = 0; i < len; ++i) {
             c = string.charCodeAt(i);
             if (55296 <= c && c <= 56319) {
                 l = string.charCodeAt(++i);
-                c = ((c - 55296) << 10) + 65536 + l - 56320
+                c = ((c - 55296) << 10) + 65536 + l - 56320;
             }
             if (c <= 0) {
-                break
+                break;
             } else {
                 if (c < 128) {
-                    array.push(c)
+                    array.push(c);
                 } else {
                     if (c < 2048) {
                         array.push(192 | ((c >> 6) & 31));
-                        array.push(128 | ((c >> 0) & 63))
+                        array.push(128 | ((c >> 0) & 63));
                     } else {
                         if (c < 65536) {
                             array.push(224 | ((c >> 12) & 15));
                             array.push(128 | ((c >> 6) & 63));
-                            array.push(128 | ((c >> 0) & 63))
+                            array.push(128 | ((c >> 0) & 63));
                         } else {
                             array.push(240 | ((c >> 18) & 7));
                             array.push(128 | ((c >> 12) & 63));
                             array.push(128 | ((c >> 6) & 63));
-                            array.push(128 | ((c >> 0) & 63))
+                            array.push(128 | ((c >> 0) & 63));
                         }
                     }
                 }
             }
         }
-        return array.getBytes()
+        return Uint8Array.from(array);
     };
-    var utf8_decode = function(array) {
+    var utf8_decode = function (array) {
         var string = "";
         var len = array.length;
         var c, c2, c3, c4;
@@ -1784,975 +1177,1031 @@ if (typeof MONKEY !== "object") {
                     c2 = array[++i];
                     c3 = array[++i];
                     c4 = array[++i];
-                    c = ((c & 7) << 18) | ((c2 & 63) << 12) | ((c3 & 63) << 6) | (c4 & 63);
-                    break
+                    c =
+                        ((c & 7) << 18) | ((c2 & 63) << 12) | ((c3 & 63) << 6) | (c4 & 63);
+                    break;
             }
             if (c < 65536) {
-                string += String.fromCharCode(c)
+                string += String.fromCharCode(c);
             } else {
                 c -= 65536;
                 string += String.fromCharCode((c >> 10) + 55296);
-                string += String.fromCharCode((c & 1023) + 56320)
+                string += String.fromCharCode((c & 1023) + 56320);
             }
         }
-        return string
+        return string;
     };
-    var utf8 = function() {
-        obj.call(this)
+    var UTF8Coder = function () {
+        Object.call(this);
     };
-    ns.Class(utf8, obj, [Parser]);
-    utf8.prototype.encode = utf8_encode;
-    utf8.prototype.decode = utf8_decode;
-    ns.format.UTF8 = new Lib(new utf8());
-    ns.format.registers("UTF8")
+    ns.Class(UTF8Coder, Object, [StringCoder]);
+    UTF8Coder.prototype.encode = function (string) {
+        return utf8_encode(string);
+    };
+    UTF8Coder.prototype.decode = function (data) {
+        return utf8_decode(data);
+    };
+    var UTF8 = {
+        encode: function (string) {
+            return this.getCoder().encode(string);
+        },
+        decode: function (data) {
+            return this.getCoder().decode(data);
+        },
+        getCoder: function () {
+            return utf8Coder;
+        },
+        setCoder: function (coder) {
+            utf8Coder = coder;
+        }
+    };
+    var utf8Coder = new UTF8Coder();
+    ns.format.UTF8 = UTF8;
+    ns.format.registers("UTF8");
 })(MONKEY);
-(function(ns) {
-    var obj = ns.type.Object;
-    var Parser = ns.format.DataParser;
-    var Lib = ns.format.ParserLib;
-    var json = function() {
-        obj.call(this)
+(function (ns) {
+    var ObjectCoder = ns.format.ObjectCoder;
+    var JsonCoder = function () {
+        Object.call(this);
     };
-    ns.Class(json, obj, [Parser]);
-    json.prototype.encode = function(container) {
-        var string = JSON.stringify(container);
-        if (!string) {
-            throw new TypeError("failed to encode JSON object: " + container)
-        }
-        return ns.format.UTF8.encode(string)
+    ns.Class(JsonCoder, Object, [ObjectCoder]);
+    JsonCoder.prototype.encode = function (object) {
+        return JSON.stringify(object);
     };
-    json.prototype.decode = function(json) {
-        var string;
-        if (typeof json === "string") {
-            string = json
-        } else {
-            string = ns.format.UTF8.decode(json)
-        }
-        if (!string) {
-            throw new TypeError("failed to decode JSON data: " + json)
-        }
-        return JSON.parse(string)
+    JsonCoder.prototype.decode = function (string) {
+        return JSON.parse(string);
     };
-    ns.format.JSON = new Lib(new json());
-    ns.format.registers("JSON")
+    var JsON = {
+        encode: function (object) {
+            return this.getCoder().encode(object);
+        },
+        decode: function (string) {
+            return this.getCoder().decode(string);
+        },
+        getCoder: function () {
+            return jsonCoder;
+        },
+        setCoder: function (coder) {
+            jsonCoder = coder;
+        }
+    };
+    var jsonCoder = new JsonCoder();
+    ns.format.JSON = JsON;
+    ns.format.registers("JSON");
 })(MONKEY);
-(function(ns) {
-    var map = ns.type.Map;
-    var CryptographyKey = function() {};
-    ns.Interface(CryptographyKey, [map]);
-    CryptographyKey.prototype.getAlgorithm = function() {
+(function (ns) {
+    var Mapper = ns.type.Mapper;
+    var CryptographyKey = function () {};
+    ns.Interface(CryptographyKey, [Mapper]);
+    CryptographyKey.prototype.getAlgorithm = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    CryptographyKey.getAlgorithm = function(key) {
-        return key["algorithm"]
-    };
-    CryptographyKey.prototype.getData = function() {
+    CryptographyKey.prototype.getData = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    CryptographyKey.promise = ns.format.UTF8.encode("Moky loves May Lee forever!");
-    CryptographyKey.matches = function(pKey, sKey) {
-        var promise = CryptographyKey.promise;
-        var ciphertext = pKey.encrypt(promise);
-        var plaintext = sKey.decrypt(ciphertext);
-        if (!plaintext || plaintext.length !== promise.length) {
-            return false
-        }
-        for (var i = 0; i < promise.length; ++i) {
-            if (plaintext[i] !== promise[i]) {
-                return false
-            }
-        }
-        return true
+    var EncryptKey = function () {};
+    ns.Interface(EncryptKey, [CryptographyKey]);
+    EncryptKey.prototype.encrypt = function (plaintext) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    var DecryptKey = function () {};
+    ns.Interface(DecryptKey, [CryptographyKey]);
+    DecryptKey.prototype.decrypt = function (ciphertext) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    DecryptKey.prototype.matches = function (pKey) {
+        console.assert(false, "implement me!");
+        return false;
     };
     ns.crypto.CryptographyKey = CryptographyKey;
-    ns.crypto.registers("CryptographyKey")
-})(MONKEY);
-(function(ns) {
-    var CryptographyKey = ns.crypto.CryptographyKey;
-    var EncryptKey = function() {};
-    ns.Interface(EncryptKey, [CryptographyKey]);
-    EncryptKey.prototype.encrypt = function(plaintext) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    var DecryptKey = function() {};
-    ns.Interface(DecryptKey, [CryptographyKey]);
-    DecryptKey.prototype.decrypt = function(ciphertext) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    DecryptKey.prototype.matches = function(pKey) {
-        console.assert(false, "implement me!");
-        return false
-    };
     ns.crypto.EncryptKey = EncryptKey;
     ns.crypto.DecryptKey = DecryptKey;
+    ns.crypto.registers("CryptographyKey");
     ns.crypto.registers("EncryptKey");
-    ns.crypto.registers("DecryptKey")
+    ns.crypto.registers("DecryptKey");
 })(MONKEY);
-(function(ns) {
-    var EncryptKey = ns.crypto.EncryptKey;
-    var DecryptKey = ns.crypto.DecryptKey;
-    var SymmetricKey = function() {};
-    ns.Interface(SymmetricKey, [EncryptKey, DecryptKey]);
-    SymmetricKey.AES = "AES";
-    SymmetricKey.DES = "DES";
-    ns.crypto.SymmetricKey = SymmetricKey;
-    ns.crypto.registers("SymmetricKey")
-})(MONKEY);
-(function(ns) {
-    var map = ns.type.Map;
+(function (ns) {
     var CryptographyKey = ns.crypto.CryptographyKey;
-    var SymmetricKey = ns.crypto.SymmetricKey;
-    var SymmetricKeyFactory = function() {};
-    ns.Interface(SymmetricKeyFactory, null);
-    SymmetricKeyFactory.prototype.generateSymmetricKey = function() {
-        console.assert(false, "implement me!");
-        return null
-    };
-    SymmetricKeyFactory.prototype.parseSymmetricKey = function(key) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    SymmetricKey.Factory = SymmetricKeyFactory;
-    var s_factories = {};
-    SymmetricKey.register = function(algorithm, factory) {
-        s_factories[algorithm] = factory
-    };
-    SymmetricKey.getFactory = function(algorithm) {
-        return s_factories[algorithm]
-    };
-    SymmetricKey.generate = function(algorithm) {
-        var factory = SymmetricKey.getFactory(algorithm);
-        if (!factory) {
-            throw new ReferenceError("key algorithm not support: " + algorithm)
-        }
-        return factory.generateSymmetricKey()
-    };
-    SymmetricKey.parse = function(key) {
-        if (!key) {
-            return null
-        } else {
-            if (ns.Interface.conforms(key, SymmetricKey)) {
-                return key
-            } else {
-                if (ns.Interface.conforms(key, map)) {
-                    key = key.getMap()
-                }
-            }
-        }
-        var algorithm = CryptographyKey.getAlgorithm(key);
-        var factory = SymmetricKey.getFactory(algorithm);
-        if (!factory) {
-            factory = SymmetricKey.getFactory("*")
-        }
-        return factory.parseSymmetricKey(key)
-    }
-})(MONKEY);
-(function(ns) {
-    var CryptographyKey = ns.crypto.CryptographyKey;
-    var AsymmetricKey = function(key) {};
+    var AsymmetricKey = function () {};
     ns.Interface(AsymmetricKey, [CryptographyKey]);
     AsymmetricKey.RSA = "RSA";
     AsymmetricKey.ECC = "ECC";
-    AsymmetricKey.matches = function(sKey, pKey) {
-        var promise = CryptographyKey.promise;
-        var signature = sKey.sign(promise);
-        return pKey.verify(promise, signature)
-    };
-    var SignKey = function() {};
+    var SignKey = function () {};
     ns.Interface(SignKey, [AsymmetricKey]);
-    SignKey.prototype.sign = function(data) {
+    SignKey.prototype.sign = function (data) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    var VerifyKey = function() {};
+    var VerifyKey = function () {};
     ns.Interface(VerifyKey, [AsymmetricKey]);
-    VerifyKey.prototype.verify = function(data, signature) {
+    VerifyKey.prototype.verify = function (data, signature) {
         console.assert(false, "implement me!");
-        return false
+        return false;
     };
-    VerifyKey.prototype.matches = function(sKey) {
+    VerifyKey.prototype.matches = function (sKey) {
         console.assert(false, "implement me!");
-        return false
+        return false;
     };
     ns.crypto.AsymmetricKey = AsymmetricKey;
     ns.crypto.SignKey = SignKey;
     ns.crypto.VerifyKey = VerifyKey;
     ns.crypto.registers("AsymmetricKey");
     ns.crypto.registers("SignKey");
-    ns.crypto.registers("VerifyKey")
+    ns.crypto.registers("VerifyKey");
 })(MONKEY);
-(function(ns) {
+(function (ns) {
+    var CryptographyKey = ns.crypto.CryptographyKey;
+    var AsymmetricKey = ns.crypto.AsymmetricKey;
+    CryptographyKey.getAlgorithm = function (key) {
+        return key["algorithm"];
+    };
+    CryptographyKey.promise = ns.format.UTF8.encode(
+        "Moky loves May Lee forever!"
+    );
+    AsymmetricKey.matches = function (sKey, pKey) {
+        var promise = CryptographyKey.promise;
+        var signature = sKey.sign(promise);
+        return pKey.verify(promise, signature);
+    };
+})(MONKEY);
+(function (ns) {
+    var CryptographyKey = ns.crypto.CryptographyKey;
+    var EncryptKey = ns.crypto.EncryptKey;
+    var DecryptKey = ns.crypto.DecryptKey;
+    var SymmetricKey = function () {};
+    ns.Interface(SymmetricKey, [EncryptKey, DecryptKey]);
+    SymmetricKey.AES = "AES";
+    SymmetricKey.DES = "DES";
+    SymmetricKey.matches = function (pKey, sKey) {
+        var promise = CryptographyKey.promise;
+        var ciphertext = pKey.encrypt(promise);
+        var plaintext = sKey.decrypt(ciphertext);
+        if (!plaintext || plaintext.length !== promise.length) {
+            return false;
+        }
+        for (var i = 0; i < promise.length; ++i) {
+            if (plaintext[i] !== promise[i]) {
+                return false;
+            }
+        }
+        return true;
+    };
+    var SymmetricKeyFactory = function () {};
+    ns.Interface(SymmetricKeyFactory, null);
+    SymmetricKeyFactory.prototype.generateSymmetricKey = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    SymmetricKeyFactory.prototype.parseSymmetricKey = function (key) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    SymmetricKey.Factory = SymmetricKeyFactory;
+    var s_factories = {};
+    SymmetricKey.setFactory = function (algorithm, factory) {
+        s_factories[algorithm] = factory;
+    };
+    SymmetricKey.getFactory = function (algorithm) {
+        return s_factories[algorithm];
+    };
+    SymmetricKey.generate = function (algorithm) {
+        var factory = SymmetricKey.getFactory(algorithm);
+        if (!factory) {
+            throw new ReferenceError("key algorithm not support: " + algorithm);
+        }
+        return factory.generateSymmetricKey();
+    };
+    SymmetricKey.parse = function (key) {
+        if (!key) {
+            return null;
+        } else {
+            if (ns.Interface.conforms(key, SymmetricKey)) {
+                return key;
+            }
+        }
+        key = ns.type.Wrapper.fetchMap(key);
+        var algorithm = CryptographyKey.getAlgorithm(key);
+        var factory = SymmetricKey.getFactory(algorithm);
+        if (!factory) {
+            factory = SymmetricKey.getFactory("*");
+        }
+        return factory.parseSymmetricKey(key);
+    };
+    ns.crypto.SymmetricKey = SymmetricKey;
+    ns.crypto.registers("SymmetricKey");
+})(MONKEY);
+(function (ns) {
+    var CryptographyKey = ns.crypto.CryptographyKey;
     var AsymmetricKey = ns.crypto.AsymmetricKey;
     var VerifyKey = ns.crypto.VerifyKey;
-    var PublicKey = function() {};
+    var PublicKey = function () {};
     ns.Interface(PublicKey, [VerifyKey]);
     PublicKey.RSA = AsymmetricKey.RSA;
     PublicKey.ECC = AsymmetricKey.ECC;
-    ns.crypto.PublicKey = PublicKey;
-    ns.crypto.registers("PublicKey")
-})(MONKEY);
-(function(ns) {
-    var map = ns.type.Map;
-    var CryptographyKey = ns.crypto.CryptographyKey;
-    var PublicKey = ns.crypto.PublicKey;
-    var PublicKeyFactory = function() {};
+    var PublicKeyFactory = function () {};
     ns.Interface(PublicKeyFactory, null);
-    PublicKeyFactory.prototype.parsePublicKey = function(key) {
+    PublicKeyFactory.prototype.parsePublicKey = function (key) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
     PublicKey.Factory = PublicKeyFactory;
     var s_factories = {};
-    PublicKey.register = function(algorithm, factory) {
-        s_factories[algorithm] = factory
+    PublicKey.setFactory = function (algorithm, factory) {
+        s_factories[algorithm] = factory;
     };
-    PublicKey.getFactory = function(algorithm) {
-        return s_factories[algorithm]
+    PublicKey.getFactory = function (algorithm) {
+        return s_factories[algorithm];
     };
-    PublicKey.parse = function(key) {
+    PublicKey.parse = function (key) {
         if (!key) {
-            return null
+            return null;
         } else {
             if (ns.Interface.conforms(key, PublicKey)) {
-                return key
-            } else {
-                if (ns.Interface.conforms(key, map)) {
-                    key = key.getMap()
-                }
+                return key;
             }
         }
+        key = ns.type.Wrapper.fetchMap(key);
         var algorithm = CryptographyKey.getAlgorithm(key);
         var factory = PublicKey.getFactory(algorithm);
         if (!factory) {
-            factory = PublicKey.getFactory("*")
+            factory = PublicKey.getFactory("*");
         }
-        return factory.parsePublicKey(key)
-    }
+        return factory.parsePublicKey(key);
+    };
+    ns.crypto.PublicKey = PublicKey;
+    ns.crypto.registers("PublicKey");
 })(MONKEY);
-(function(ns) {
+(function (ns) {
+    var CryptographyKey = ns.crypto.CryptographyKey;
     var AsymmetricKey = ns.crypto.AsymmetricKey;
     var SignKey = ns.crypto.SignKey;
-    var PrivateKey = function() {};
+    var PrivateKey = function () {};
     ns.Interface(PrivateKey, [SignKey]);
     PrivateKey.RSA = AsymmetricKey.RSA;
     PrivateKey.ECC = AsymmetricKey.ECC;
-    PrivateKey.prototype.getPublicKey = function() {
+    PrivateKey.prototype.getPublicKey = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    ns.crypto.PrivateKey = PrivateKey;
-    ns.crypto.registers("PrivateKey")
-})(MONKEY);
-(function(ns) {
-    var map = ns.type.Map;
-    var CryptographyKey = ns.crypto.CryptographyKey;
-    var PrivateKey = ns.crypto.PrivateKey;
-    var PrivateKeyFactory = function() {};
+    var PrivateKeyFactory = function () {};
     ns.Interface(PrivateKeyFactory, null);
-    PrivateKeyFactory.prototype.generatePrivateKey = function() {
+    PrivateKeyFactory.prototype.generatePrivateKey = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    PrivateKeyFactory.prototype.parsePrivateKey = function(key) {
+    PrivateKeyFactory.prototype.parsePrivateKey = function (key) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
     PrivateKey.Factory = PrivateKeyFactory;
     var s_factories = {};
-    PrivateKey.register = function(algorithm, factory) {
-        s_factories[algorithm] = factory
+    PrivateKey.setFactory = function (algorithm, factory) {
+        s_factories[algorithm] = factory;
     };
-    PrivateKey.getFactory = function(algorithm) {
-        return s_factories[algorithm]
+    PrivateKey.getFactory = function (algorithm) {
+        return s_factories[algorithm];
     };
-    PrivateKey.generate = function(algorithm) {
+    PrivateKey.generate = function (algorithm) {
         var factory = PrivateKey.getFactory(algorithm);
         if (!factory) {
-            throw new ReferenceError("key algorithm not support: " + algorithm)
+            throw new ReferenceError("key algorithm not support: " + algorithm);
         }
-        return factory.generatePrivateKey()
+        return factory.generatePrivateKey();
     };
-    PrivateKey.parse = function(key) {
+    PrivateKey.parse = function (key) {
         if (!key) {
-            return null
+            return null;
         } else {
             if (ns.Interface.conforms(key, PrivateKey)) {
-                return key
-            } else {
-                if (ns.Interface.conforms(key, map)) {
-                    key = key.getMap()
-                }
+                return key;
             }
         }
+        key = ns.type.Wrapper.fetchMap(key);
         var algorithm = CryptographyKey.getAlgorithm(key);
         var factory = PrivateKey.getFactory(algorithm);
         if (!factory) {
-            factory = PrivateKey.getFactory("*")
+            factory = PrivateKey.getFactory("*");
         }
-        return factory.parsePrivateKey(key)
-    }
+        return factory.parsePrivateKey(key);
+    };
+    ns.crypto.PrivateKey = PrivateKey;
+    ns.crypto.registers("PrivateKey");
 })(MONKEY);
 if (typeof MingKeMing !== "object") {
-    MingKeMing = new MONKEY.Namespace()
+    MingKeMing = new MONKEY.Namespace();
 }
-(function(ns, base) {
+(function (ns, base) {
     base.exports(ns);
     if (typeof ns.protocol !== "object") {
-        ns.protocol = new ns.Namespace()
+        ns.protocol = new ns.Namespace();
     }
     if (typeof ns.mkm !== "object") {
-        ns.mkm = new ns.Namespace()
+        ns.mkm = new ns.Namespace();
     }
     ns.registers("protocol");
-    ns.registers("mkm")
+    ns.registers("mkm");
 })(MingKeMing, MONKEY);
-(function(ns) {
+(function (ns) {
     var NetworkType = ns.type.Enum(null, {
-        BTC_MAIN: (0),
-        MAIN: (8),
-        GROUP: (16),
-        POLYLOGUE: (16),
-        CHATROOM: (48),
-        PROVIDER: (118),
-        STATION: (136),
-        THING: (128),
-        ROBOT: (200)
+        BTC_MAIN: 0,
+        MAIN: 8,
+        GROUP: 16,
+        POLYLOGUE: 16,
+        CHATROOM: 48,
+        PROVIDER: 118,
+        STATION: 136,
+        THING: 128,
+        ROBOT: 200
     });
-    NetworkType.isUser = function(network) {
+    NetworkType.isUser = function (network) {
         var main = NetworkType.MAIN.valueOf();
         var btcMain = NetworkType.BTC_MAIN.valueOf();
-        return ((network & main) === main) || (network === btcMain)
+        return (network & main) === main || network === btcMain;
     };
-    NetworkType.isGroup = function(network) {
+    NetworkType.isGroup = function (network) {
         var group = NetworkType.GROUP.valueOf();
-        return (network & group) === group
+        return (network & group) === group;
     };
     ns.protocol.NetworkType = NetworkType;
-    ns.protocol.registers("NetworkType")
+    ns.protocol.registers("NetworkType");
 })(MingKeMing);
-(function(ns) {
+(function (ns) {
     var MetaType = ns.type.Enum(null, {
-        DEFAULT: (1),
-        MKM: (1),
-        BTC: (2),
-        ExBTC: (3),
-        ETH: (4),
-        ExETH: (5)
+        DEFAULT: 1,
+        MKM: 1,
+        BTC: 2,
+        ExBTC: 3,
+        ETH: 4,
+        ExETH: 5
     });
-    MetaType.hasSeed = function(version) {
+    MetaType.hasSeed = function (version) {
         var mkm = MetaType.MKM.valueOf();
-        return (version & mkm) === mkm
+        return (version & mkm) === mkm;
     };
     ns.protocol.MetaType = MetaType;
-    ns.protocol.registers("MetaType")
+    ns.protocol.registers("MetaType");
 })(MingKeMing);
-(function(ns) {
-    var Address = function() {};
-    ns.Interface(Address, null);
-    Address.prototype.getNetwork = function() {
-        console.assert(false, "implement me!");
-        return 0
-    };
-    Address.prototype.isBroadcast = function() {
-        console.assert(false, "implement me!");
-        return false
-    };
-    Address.prototype.isUser = function() {
-        console.assert(false, "implement me!");
-        return false
-    };
-    Address.prototype.isGroup = function() {
-        console.assert(false, "implement me!");
-        return false
-    };
+(function (ns) {
+    var Stringer = ns.type.Stringer;
+    var Address = function () {};
+    ns.Interface(Address, [Stringer]);
     Address.ANYWHERE = null;
     Address.EVERYWHERE = null;
-    ns.protocol.Address = Address;
-    ns.protocol.registers("Address")
-})(MingKeMing);
-(function(ns) {
-    var str = ns.type.String;
-    var Address = ns.protocol.Address;
-    var AddressFactory = function() {};
-    ns.Interface(AddressFactory, null);
-    AddressFactory.prototype.parseAddress = function(address) {
+    Address.prototype.getNetwork = function () {
         console.assert(false, "implement me!");
-        return null
+        return 0;
+    };
+    Address.prototype.isBroadcast = function () {
+        console.assert(false, "implement me!");
+        return false;
+    };
+    Address.prototype.isUser = function () {
+        console.assert(false, "implement me!");
+        return false;
+    };
+    Address.prototype.isGroup = function () {
+        console.assert(false, "implement me!");
+        return false;
+    };
+    var AddressFactory = function () {};
+    ns.Interface(AddressFactory, null);
+    AddressFactory.prototype.generateAddress = function (meta, network) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    AddressFactory.prototype.createAddress = function (address) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    AddressFactory.prototype.parseAddress = function (address) {
+        console.assert(false, "implement me!");
+        return null;
     };
     Address.Factory = AddressFactory;
     var s_factory = null;
-    Address.getFactory = function() {
-        return s_factory
+    Address.setFactory = function (factory) {
+        s_factory = factory;
     };
-    Address.setFactory = function(factory) {
-        s_factory = factory
+    Address.getFactory = function () {
+        return s_factory;
     };
-    Address.parse = function(address) {
+    Address.generate = function (meta, network) {
+        var factory = Address.getFactory();
+        return factory.generateAddress(meta, network);
+    };
+    Address.create = function (address) {
+        var factory = Address.getFactory();
+        return factory.createAddress(address);
+    };
+    Address.parse = function (address) {
         if (!address) {
-            return null
+            return null;
         } else {
             if (ns.Interface.conforms(address, Address)) {
-                return address
-            } else {
-                if (address instanceof str) {
-                    address = address.toString()
-                }
+                return address;
             }
         }
-        return Address.getFactory().parseAddress(address)
-    }
+        address = ns.type.Wrapper.fetchString(address);
+        var factory = Address.getFactory();
+        return factory.parseAddress(address);
+    };
+    ns.protocol.Address = Address;
+    ns.protocol.registers("Address");
 })(MingKeMing);
-(function(ns) {
+(function (ns) {
+    var Stringer = ns.type.Stringer;
     var Address = ns.protocol.Address;
-    var ID = function() {};
-    ns.Interface(ID, null);
-    ID.prototype.getName = function() {
-        console.assert(false, "implement me!");
-        return null
-    };
-    ID.prototype.getAddress = function() {
-        console.assert(false, "implement me!");
-        return null
-    };
-    ID.prototype.getTerminal = function() {
-        console.assert(false, "implement me!");
-        return null
-    };
-    ID.prototype.getType = function() {
-        console.assert(false, "implement me!");
-        return 0
-    };
-    ID.prototype.isBroadcast = function() {
-        console.assert(false, "implement me!");
-        return false
-    };
-    ID.prototype.isUser = function() {
-        console.assert(false, "implement me!");
-        return false
-    };
-    ID.prototype.isGroup = function() {
-        console.assert(false, "implement me!");
-        return false
-    };
+    var ID = function () {};
+    ns.Interface(ID, [Stringer]);
     ID.ANYONE = null;
     ID.EVERYONE = null;
     ID.FOUNDER = null;
-    ID.convert = function(members) {
+    ID.prototype.getName = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    ID.prototype.getAddress = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    ID.prototype.getTerminal = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    ID.prototype.getType = function () {
+        console.assert(false, "implement me!");
+        return 0;
+    };
+    ID.prototype.isBroadcast = function () {
+        console.assert(false, "implement me!");
+        return false;
+    };
+    ID.prototype.isUser = function () {
+        console.assert(false, "implement me!");
+        return false;
+    };
+    ID.prototype.isGroup = function () {
+        console.assert(false, "implement me!");
+        return false;
+    };
+    ID.convert = function (members) {
         var array = [];
         var id;
         for (var i = 0; i < members.length; ++i) {
             id = ID.parse(members[i]);
             if (id) {
-                array.push(id)
+                array.push(id);
             }
         }
-        return array
+        return array;
     };
-    ID.revert = function(members) {
+    ID.revert = function (members) {
         var array = [];
         var id;
         for (var i = 0; i < members.length; ++i) {
             id = members[i];
-            if (typeof id === "string") {
-                array.push(id)
+            if (ns.Interface.conforms(id, Stringer)) {
+                array.push(id.toString());
             } else {
-                array.push(id.toString())
+                if (typeof id === "string") {
+                    array.push(id);
+                }
             }
         }
-        return array
+        return array;
     };
-    ns.protocol.ID = ID;
-    ns.protocol.registers("ID")
-})(MingKeMing);
-(function(ns) {
-    var str = ns.type.String;
-    var ID = ns.protocol.ID;
-    var IDFactory = function() {};
+    var IDFactory = function () {};
     ns.Interface(IDFactory, null);
-    IDFactory.prototype.createID = function(name, address, terminal) {
+    IDFactory.prototype.generateID = function (meta, network, terminal) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    IDFactory.prototype.parseID = function(identifier) {
+    IDFactory.prototype.createID = function (name, address, terminal) {
         console.assert(false, "implement me!");
-        return null
+        return null;
+    };
+    IDFactory.prototype.parseID = function (identifier) {
+        console.assert(false, "implement me!");
+        return null;
     };
     ID.Factory = IDFactory;
     var s_factory;
-    ID.getFactory = function() {
-        return s_factory
+    ID.setFactory = function (factory) {
+        s_factory = factory;
     };
-    ID.setFactory = function(factory) {
-        s_factory = factory
+    ID.getFactory = function () {
+        return s_factory;
     };
-    ID.create = function(name, address, terminal) {
-        return ID.getFactory().createID(name, address, terminal)
+    ID.generate = function (meta, network, terminal) {
+        var factory = ID.getFactory();
+        return factory.generateID(meta, network, terminal);
     };
-    ID.parse = function(identifier) {
+    ID.create = function (name, address, terminal) {
+        var factory = ID.getFactory();
+        return factory.createID(name, address, terminal);
+    };
+    ID.parse = function (identifier) {
         if (!identifier) {
-            return null
+            return null;
         } else {
             if (ns.Interface.conforms(identifier, ID)) {
-                return identifier
-            } else {
-                if (identifier instanceof str) {
-                    identifier = identifier.toString()
-                }
+                return identifier;
             }
         }
-        return ID.getFactory().parseID(identifier)
-    }
-})(MingKeMing);
-(function(ns) {
-    var map = ns.type.Map;
-    var PublicKey = ns.crypto.PublicKey;
-    var ID = ns.protocol.ID;
-    var Meta = function() {};
-    ns.Interface(Meta, [map]);
-    Meta.prototype.getType = function() {
-        console.assert(false, "implement me!");
-        return 0
+        identifier = ns.type.Wrapper.fetchString(identifier);
+        var factory = ID.getFactory();
+        return factory.parseID(identifier);
     };
-    Meta.getType = function(meta) {
+    ns.protocol.ID = ID;
+    ns.protocol.registers("ID");
+})(MingKeMing);
+(function (ns) {
+    var Mapper = ns.type.Mapper;
+    var Base64 = ns.format.Base64;
+    var UTF8 = ns.format.UTF8;
+    var PublicKey = ns.crypto.PublicKey;
+    var Address = ns.protocol.Address;
+    var ID = ns.protocol.ID;
+    var Meta = function () {};
+    ns.Interface(Meta, [Mapper]);
+    Meta.prototype.getType = function () {
+        console.assert(false, "implement me!");
+        return 0;
+    };
+    Meta.prototype.getKey = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    Meta.prototype.getSeed = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    Meta.prototype.getFingerprint = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    Meta.prototype.generateAddress = function (network) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    Meta.getType = function (meta) {
         var version = meta["type"];
         if (!version) {
-            version = meta["version"]
+            version = meta["version"];
         }
-        return version
+        return version;
     };
-    Meta.prototype.getKey = function() {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Meta.getKey = function(meta) {
+    Meta.getKey = function (meta) {
         var key = meta["key"];
         if (!key) {
-            throw new TypeError("meta key not found: " + meta)
+            throw new TypeError("meta key not found: " + meta);
         }
-        return PublicKey.parse(key)
+        return PublicKey.parse(key);
     };
-    Meta.prototype.getSeed = function() {
-        console.assert(false, "implement me!");
-        return null
+    Meta.getSeed = function (meta) {
+        return meta["seed"];
     };
-    Meta.getSeed = function(meta) {
-        return meta["seed"]
-    };
-    Meta.prototype.getFingerprint = function() {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Meta.getFingerprint = function(meta) {
+    Meta.getFingerprint = function (meta) {
         var base64 = meta["fingerprint"];
         if (!base64) {
-            return null
+            return null;
         }
-        return ns.format.Base64.decode(base64)
+        return Base64.decode(base64);
     };
-    Meta.prototype.isValid = function() {
-        console.assert(false, "implement me!");
-        return false
+    Meta.check = function (meta) {
+        var key = meta.getKey();
+        if (!key) {
+            return false;
+        }
+        if (!MetaType.hasSeed(meta.getType())) {
+            return true;
+        }
+        var seed = meta.getSeed();
+        var fingerprint = meta.getFingerprint();
+        if (!seed || !fingerprint) {
+            return false;
+        }
+        return key.verify(UTF8.encode(seed), fingerprint);
     };
-    Meta.prototype.generateID = function(type, terminal) {
-        console.assert(false, "implement me!");
-        return null
+    Meta.matches = function (meta, id_or_key) {
+        if (ns.Interface.conforms(id_or_key, ID)) {
+            return match_id(meta, id_or_key);
+        } else {
+            if (ns.Interface.conforms(id_or_key, PublicKey)) {
+                return match_key(meta, id_or_key);
+            } else {
+                return false;
+            }
+        }
     };
-    Meta.prototype.matches = function(id_or_key) {
-        console.assert(false, "implement me!");
-        return false
+    var match_id = function (meta, id) {
+        if (MetaType.hasSeed(meta.getType())) {
+            if (meta.getSeed() !== id.getName()) {
+                return false;
+            }
+        }
+        var address = Address.generate(meta, id.getType());
+        return id.getAddress().equals(address);
     };
-    ns.protocol.Meta = Meta;
-    ns.protocol.registers("Meta")
-})(MingKeMing);
-(function(ns) {
-    var map = ns.type.Map;
-    var MetaType = ns.protocol.MetaType;
-    var Meta = ns.protocol.Meta;
-    var MetaFactory = function() {};
+    var match_key = function (meta, key) {
+        if (meta.getKey().equals(key)) {
+            return true;
+        }
+        if (MetaType.hasSeed(meta.getType())) {
+            var seed = meta.getSeed();
+            var fingerprint = meta.getFingerprint();
+            return key.every(UTF8.encode(seed), fingerprint);
+        } else {
+            return false;
+        }
+    };
+    var EnumToUint = function (type) {
+        if (typeof type === "number") {
+            return type;
+        } else {
+            return type.valueOf();
+        }
+    };
+    var MetaFactory = function () {};
     ns.Interface(MetaFactory, null);
-    MetaFactory.prototype.createMeta = function(key, seed, fingerprint) {
+    MetaFactory.prototype.createMeta = function (pKey, seed, fingerprint) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    MetaFactory.prototype.generateMeta = function(sKey, seed) {
+    MetaFactory.prototype.generateMeta = function (sKey, seed) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    MetaFactory.prototype.parseMeta = function(meta) {
+    MetaFactory.prototype.parseMeta = function (meta) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
     Meta.Factory = MetaFactory;
     var s_factories = {};
-    Meta.register = function(type, factory) {
-        if (type instanceof MetaType) {
-            type = type.valueOf()
-        }
-        s_factories[type] = factory
+    Meta.setFactory = function (type, factory) {
+        s_factories[EnumToUint(type)] = factory;
     };
-    Meta.getFactory = function(type) {
-        if (type instanceof MetaType) {
-            type = type.valueOf()
-        }
-        return s_factories[type]
+    Meta.getFactory = function (type) {
+        return s_factories[EnumToUint(type)];
     };
-    Meta.create = function(type, key, seed, fingerprint) {
+    Meta.create = function (type, key, seed, fingerprint) {
         var factory = Meta.getFactory(type);
         if (!factory) {
-            throw new ReferenceError("meta type not support: " + type)
+            throw new ReferenceError("meta type not support: " + type);
         }
-        return factory.createMeta(key, seed, fingerprint)
+        return factory.createMeta(key, seed, fingerprint);
     };
-    Meta.generate = function(type, sKey, seed) {
+    Meta.generate = function (type, sKey, seed) {
         var factory = Meta.getFactory(type);
         if (!factory) {
-            throw new ReferenceError("meta type not support: " + type)
+            throw new ReferenceError("meta type not support: " + type);
         }
-        return factory.generateMeta(sKey, seed)
+        return factory.generateMeta(sKey, seed);
     };
-    Meta.parse = function(meta) {
+    Meta.parse = function (meta) {
         if (!meta) {
-            return null
+            return null;
         } else {
             if (ns.Interface.conforms(meta, Meta)) {
-                return meta
-            } else {
-                if (ns.Interface.conforms(meta, map)) {
-                    meta = meta.getMap()
-                }
+                return meta;
             }
         }
+        meta = ns.type.Wrapper.fetchMap(meta);
         var type = Meta.getType(meta);
         var factory = Meta.getFactory(type);
         if (!factory) {
-            factory = Meta.getFactory(0)
+            factory = Meta.getFactory(0);
         }
-        return factory.parseMeta(meta)
-    }
+        return factory.parseMeta(meta);
+    };
+    ns.protocol.Meta = Meta;
+    ns.protocol.registers("Meta");
 })(MingKeMing);
-(function(ns) {
-    var TAI = function() {};
+(function (ns) {
+    var TAI = function () {};
     ns.Interface(TAI, null);
-    TAI.prototype.isValid = function() {
+    TAI.prototype.isValid = function () {
         console.assert(false, "implement me!");
-        return false
+        return false;
     };
-    TAI.prototype.verify = function(publicKey) {
+    TAI.prototype.verify = function (publicKey) {
         console.assert(false, "implement me!");
-        return false
+        return false;
     };
-    TAI.prototype.sign = function(privateKey) {
+    TAI.prototype.sign = function (privateKey) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    TAI.prototype.allPropertyNames = function() {
+    TAI.prototype.allProperties = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    TAI.prototype.getProperty = function(name) {
+    TAI.prototype.getProperty = function (name) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    TAI.prototype.setProperty = function(name, value) {
-        console.assert(false, "implement me!")
+    TAI.prototype.setProperty = function (name, value) {
+        console.assert(false, "implement me!");
     };
     ns.protocol.TAI = TAI;
-    ns.protocol.registers("TAI")
+    ns.protocol.registers("TAI");
 })(MingKeMing);
-(function(ns) {
-    var map = ns.type.Map;
+(function (ns) {
+    var Mapper = ns.type.Mapper;
     var TAI = ns.protocol.TAI;
     var ID = ns.protocol.ID;
-    var Document = function() {};
-    ns.Interface(Document, [TAI, map]);
+    var Document = function () {};
+    ns.Interface(Document, [TAI, Mapper]);
     Document.VISA = "visa";
     Document.PROFILE = "profile";
     Document.BULLETIN = "bulletin";
-    Document.prototype.getType = function() {
+    Document.prototype.getType = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    Document.getType = function(doc) {
-        return doc["type"]
-    };
-    Document.prototype.getIdentifier = function() {
+    Document.prototype.getIdentifier = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    Document.getIdentifier = function(doc) {
-        return ID.parse(doc["ID"])
+    Document.prototype.getTime = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
-    Document.getData = function(doc) {
+    Document.prototype.getName = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    Document.prototype.setName = function (name) {
+        console.assert(false, "implement me!");
+    };
+    Document.getType = function (doc) {
+        return doc["type"];
+    };
+    Document.getIdentifier = function (doc) {
+        return ID.parse(doc["ID"]);
+    };
+    Document.getData = function (doc) {
         var utf8 = doc["data"];
         if (utf8) {
-            return ns.format.UTF8.encode(utf8)
+            return ns.format.UTF8.encode(utf8);
         } else {
-            return null
+            return null;
         }
     };
-    Document.getSignature = function(doc) {
+    Document.getSignature = function (doc) {
         var base64 = doc["signature"];
         if (base64) {
-            return ns.format.Base64.decode(base64)
+            return ns.format.Base64.decode(base64);
         } else {
-            return null
+            return null;
         }
     };
-    Document.prototype.getTime = function() {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Document.prototype.getName = function() {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Document.prototype.setName = function(name) {
-        console.assert(false, "implement me!")
-    };
-    ns.protocol.Document = Document;
-    ns.protocol.registers("Document")
-})(MingKeMing);
-(function(ns) {
-    var map = ns.type.Map;
-    var Document = ns.protocol.Document;
-    var DocumentFactory = function() {};
+    var DocumentFactory = function () {};
     ns.Interface(DocumentFactory, null);
-    DocumentFactory.prototype.createDocument = function(identifier, data, signature) {
+    DocumentFactory.prototype.createDocument = function (
+        identifier,
+        data,
+        signature
+    ) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    DocumentFactory.prototype.parseDocument = function(doc) {
+    DocumentFactory.prototype.parseDocument = function (doc) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
     Document.Factory = DocumentFactory;
     var s_factories = {};
-    Document.register = function(type, factory) {
-        s_factories[type] = factory
+    Document.setFactory = function (type, factory) {
+        s_factories[type] = factory;
     };
-    Document.getFactory = function(type) {
-        return s_factories[type]
+    Document.getFactory = function (type) {
+        return s_factories[type];
     };
-    Document.create = function(type, identifier, data, signature) {
+    Document.create = function (type, identifier, data, signature) {
         var factory = Document.getFactory(type);
         if (!factory) {
-            throw new ReferenceError("document type not support: " + type)
+            throw new ReferenceError("document type not support: " + type);
         }
-        return factory.createDocument(identifier, data, signature)
+        return factory.createDocument(identifier, data, signature);
     };
-    Document.parse = function(doc) {
+    Document.parse = function (doc) {
         if (!doc) {
-            return null
+            return null;
         } else {
             if (ns.Interface.conforms(doc, Document)) {
-                return doc
-            } else {
-                if (ns.Interface.conforms(doc, map)) {
-                    doc = doc.getMap()
-                }
+                return doc;
             }
         }
+        doc = ns.type.Wrapper.fetchMap(doc);
         var type = Document.getType(doc);
         var factory = Document.getFactory(type);
         if (!factory) {
-            factory = Document.getFactory("*")
+            factory = Document.getFactory("*");
         }
-        return factory.parseDocument(doc)
-    }
+        return factory.parseDocument(doc);
+    };
+    ns.protocol.Document = Document;
+    ns.protocol.registers("Document");
 })(MingKeMing);
-(function(ns) {
+(function (ns) {
     var Document = ns.protocol.Document;
-    var Visa = function() {};
+    var Visa = function () {};
     ns.Interface(Visa, [Document]);
-    Visa.prototype.getKey = function() {
+    Visa.prototype.getKey = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    Visa.prototype.setKey = function(publicKey) {
-        console.assert(false, "implement me!")
-    };
-    Visa.prototype.getAvatar = function() {
+    Visa.prototype.setKey = function (publicKey) {
         console.assert(false, "implement me!");
-        return null
     };
-    Visa.prototype.setAvatar = function(url) {
-        console.assert(false, "implement me!")
+    Visa.prototype.getAvatar = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    Visa.prototype.setAvatar = function (url) {
+        console.assert(false, "implement me!");
     };
     ns.protocol.Visa = Visa;
-    ns.protocol.registers("Visa")
+    ns.protocol.registers("Visa");
 })(MingKeMing);
-(function(ns) {
+(function (ns) {
     var Document = ns.protocol.Document;
-    var Bulletin = function() {};
+    var Bulletin = function () {};
     ns.Interface(Bulletin, [Document]);
-    Bulletin.prototype.getAssistants = function() {
+    Bulletin.prototype.getAssistants = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    Bulletin.prototype.setAssistants = function(assistants) {
-        console.assert(false, "implement me!")
+    Bulletin.prototype.setAssistants = function (assistants) {
+        console.assert(false, "implement me!");
     };
     ns.protocol.Bulletin = Bulletin;
-    ns.protocol.registers("Bulletin")
+    ns.protocol.registers("Bulletin");
 })(MingKeMing);
-(function(ns) {
-    var str = ns.type.String;
+(function (ns) {
+    var ConstantString = ns.type.ConstantString;
     var ID = ns.protocol.ID;
-    var Identifier = function(identifier, name, address, terminal) {
-        str.call(this, identifier);
+    var Identifier = function (identifier, name, address, terminal) {
+        ConstantString.call(this, identifier);
         this.__name = name;
         this.__address = address;
-        this.__terminal = terminal
+        this.__terminal = terminal;
     };
-    ns.Class(Identifier, str, [ID]);
-    Identifier.prototype.getName = function() {
-        return this.__name
+    ns.Class(Identifier, ConstantString, [ID]);
+    Identifier.prototype.getName = function () {
+        return this.__name;
     };
-    Identifier.prototype.getAddress = function() {
-        return this.__address
+    Identifier.prototype.getAddress = function () {
+        return this.__address;
     };
-    Identifier.prototype.getTerminal = function() {
-        return this.__terminal
+    Identifier.prototype.getTerminal = function () {
+        return this.__terminal;
     };
-    Identifier.prototype.getType = function() {
-        return this.getAddress().getNetwork()
+    Identifier.prototype.getType = function () {
+        return this.getAddress().getNetwork();
     };
-    Identifier.prototype.isBroadcast = function() {
-        return this.getAddress().isBroadcast()
+    Identifier.prototype.isBroadcast = function () {
+        return this.getAddress().isBroadcast();
     };
-    Identifier.prototype.isUser = function() {
-        return this.getAddress().isUser()
+    Identifier.prototype.isUser = function () {
+        return this.getAddress().isUser();
     };
-    Identifier.prototype.isGroup = function() {
-        return this.getAddress().isGroup()
+    Identifier.prototype.isGroup = function () {
+        return this.getAddress().isGroup();
     };
     ns.mkm.Identifier = Identifier;
-    ns.mkm.registers("Identifier")
+    ns.mkm.registers("Identifier");
 })(MingKeMing);
-(function(ns) {
-    var obj = ns.type.Object;
+(function (ns) {
     var Address = ns.protocol.Address;
     var ID = ns.protocol.ID;
     var Identifier = ns.mkm.Identifier;
-    var concat = function(name, address, terminal) {
+    var concat = function (name, address, terminal) {
         var string = address.toString();
         if (name && name.length > 0) {
-            string = name + "@" + string
+            string = name + "@" + string;
         }
         if (terminal && terminal.length > 0) {
-            string = string + "/" + terminal
+            string = string + "/" + terminal;
         }
-        return string
+        return string;
     };
-    var parse = function(string) {
+    var parse = function (string) {
         var name, address, terminal;
         var pair = string.split("/");
         if (pair.length === 1) {
-            terminal = null
+            terminal = null;
         } else {
-            terminal = pair[1]
+            terminal = pair[1];
         }
         pair = pair[0].split("@");
         if (pair.length === 1) {
             name = null;
-            address = Address.parse(pair[0])
+            address = Address.parse(pair[0]);
         } else {
             name = pair[0];
-            address = Address.parse(pair[1])
+            address = Address.parse(pair[1]);
         }
         if (!address) {
-            return null
+            return null;
         }
-        return new Identifier(string, name, address, terminal)
+        return new Identifier(string, name, address, terminal);
     };
-    var IDFactory = function() {
-        obj.call(this);
-        this.__identifiers = {}
+    var IDFactory = function () {
+        Object.call(this);
+        this.__identifiers = {};
     };
-    ns.Class(IDFactory, obj, [ID.Factory]);
-    IDFactory.prototype.createID = function(name, address, terminal) {
+    ns.Class(IDFactory, Object, [ID.Factory]);
+    IDFactory.prototype.generateID = function (meta, network, terminal) {
+        var address = Address.generate(meta, network);
+        return ID.create(meta.getSeed(), address, terminal);
+    };
+    IDFactory.prototype.createID = function (name, address, terminal) {
         var string = concat(name, address, terminal);
         var id = this.__identifiers[string];
         if (!id) {
             id = new Identifier(string, name, address, terminal);
-            this.__identifiers[string] = id
+            this.__identifiers[string] = id;
         }
-        return id
+        return id;
     };
-    IDFactory.prototype.parseID = function(identifier) {
+    IDFactory.prototype.parseID = function (identifier) {
         var id = this.__identifiers[identifier];
         if (!id) {
             id = parse(identifier);
             if (id) {
-                this.__identifiers[identifier] = id
+                this.__identifiers[identifier] = id;
             }
         }
-        return id
+        return id;
     };
     ns.mkm.IDFactory = IDFactory;
-    ns.mkm.registers("IDFactory")
+    ns.mkm.registers("IDFactory");
 })(MingKeMing);
-(function(ns) {
-    var str = ns.type.String;
+(function (ns) {
+    var Address = ns.protocol.Address;
+    var AddressFactory = function () {
+        Object.call(this);
+        this.__addresses = {};
+        this.__addresses[Address.ANYWHERE.toString()] = Address.ANYWHERE;
+        this.__addresses[Address.EVERYWHERE.toString()] = Address.EVERYWHERE;
+    };
+    ns.Class(AddressFactory, Object, [Address.Factory]);
+    AddressFactory.prototype.generateAddress = function (meta, network) {
+        var address = meta.generateAddress(network);
+        if (address) {
+            this.__addresses[address.toString()] = address;
+        }
+        return address;
+    };
+    AddressFactory.prototype.parseAddress = function (string) {
+        var address = this.__addresses[string];
+        if (!address) {
+            address = Address.create(string);
+            if (address) {
+                this.__addresses[string] = address;
+            }
+        }
+        return address;
+    };
+    ns.mkm.AddressFactory = AddressFactory;
+    ns.mkm.registers("AddressFactory");
+})(MingKeMing);
+(function (ns) {
+    var ConstantString = ns.type.ConstantString;
     var NetworkType = ns.protocol.NetworkType;
     var Address = ns.protocol.Address;
-    var BroadcastAddress = function(string, network) {
-        str.call(this, string);
+    var BroadcastAddress = function (string, network) {
+        ConstantString.call(this, string);
         if (network instanceof NetworkType) {
-            network = network.valueOf()
+            network = network.valueOf();
         }
-        this.__network = network
+        this.__network = network;
     };
-    ns.Class(BroadcastAddress, str, [Address]);
-    BroadcastAddress.prototype.getNetwork = function() {
-        return this.__network
+    ns.Class(BroadcastAddress, ConstantString, [Address]);
+    BroadcastAddress.prototype.getNetwork = function () {
+        return this.__network;
     };
-    BroadcastAddress.prototype.isBroadcast = function() {
-        return true
+    BroadcastAddress.prototype.isBroadcast = function () {
+        return true;
     };
-    BroadcastAddress.prototype.isUser = function() {
-        return NetworkType.isUser(this.__network)
+    BroadcastAddress.prototype.isUser = function () {
+        return NetworkType.isUser(this.__network);
     };
-    BroadcastAddress.prototype.isGroup = function() {
-        return NetworkType.isGroup(this.__network)
+    BroadcastAddress.prototype.isGroup = function () {
+        return NetworkType.isGroup(this.__network);
     };
     Address.ANYWHERE = new BroadcastAddress("anywhere", NetworkType.MAIN);
     Address.EVERYWHERE = new BroadcastAddress("everywhere", NetworkType.GROUP);
     ns.mkm.BroadcastAddress = BroadcastAddress;
-    ns.mkm.registers("BroadcastAddress")
+    ns.mkm.registers("BroadcastAddress");
 })(MingKeMing);
-(function(ns) {
-    var obj = ns.type.Object;
-    var Address = ns.protocol.Address;
-    var AddressFactory = function() {
-        obj.call(this);
-        this.__addresses = {};
-        this.__addresses[Address.ANYWHERE.toString()] = Address.ANYWHERE;
-        this.__addresses[Address.EVERYWHERE.toString()] = Address.EVERYWHERE
-    };
-    ns.Class(AddressFactory, obj, [Address.Factory]);
-    AddressFactory.prototype.parseAddress = function(string) {
-        var address = this.__addresses[string];
-        if (!address) {
-            address = this.createAddress(string);
-            if (address) {
-                this.__addresses[string] = address
-            }
-        }
-        return address
-    };
-    AddressFactory.prototype.createAddress = function(address) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    ns.mkm.AddressFactory = AddressFactory;
-    ns.mkm.registers("AddressFactory")
-})(MingKeMing);
-(function(ns) {
+(function (ns) {
     var ID = ns.protocol.ID;
     var Address = ns.protocol.Address;
     var IDFactory = ns.mkm.IDFactory;
@@ -2760,56 +2209,49 @@ if (typeof MingKeMing !== "object") {
     ID.setFactory(factory);
     ID.ANYONE = factory.createID("anyone", Address.ANYWHERE, null);
     ID.EVERYONE = factory.createID("everyone", Address.EVERYWHERE, null);
-    ID.FOUNDER = factory.createID("moky", Address.ANYWHERE, null)
+    ID.FOUNDER = factory.createID("moky", Address.ANYWHERE, null);
 })(MingKeMing);
-(function(ns) {
+(function (ns) {
+    var Base64 = ns.format.Base64;
     var Dictionary = ns.type.Dictionary;
-    var PublicKey = ns.crypto.PublicKey;
-    var MetaType = ns.protocol.MetaType;
-    var ID = ns.protocol.ID;
     var Meta = ns.protocol.Meta;
-    var BaseMeta = function() {
+    var EnumToUint = function (type) {
+        if (typeof type === "number") {
+            return type;
+        } else {
+            return type.valueOf();
+        }
+    };
+    var BaseMeta = function () {
         var type, key, seed, fingerprint;
-        var meta, status;
+        var meta;
         if (arguments.length === 1) {
             meta = arguments[0];
             type = Meta.getType(meta);
             key = Meta.getKey(meta);
             seed = Meta.getSeed(meta);
             fingerprint = Meta.getFingerprint(meta);
-            status = 0
         } else {
             if (arguments.length === 2) {
-                type = arguments[0];
+                type = EnumToUint(arguments[0]);
                 key = arguments[1];
                 seed = null;
                 fingerprint = null;
-                if (type instanceof MetaType) {
-                    type = type.valueOf()
-                }
-                meta = {
-                    "type": type,
-                    "key": key.getMap()
-                };
-                status = 1
+                meta = { type: type, key: key.toMap() };
             } else {
                 if (arguments.length === 4) {
-                    type = arguments[0];
+                    type = EnumToUint(arguments[0]);
                     key = arguments[1];
                     seed = arguments[2];
                     fingerprint = arguments[3];
-                    if (type instanceof MetaType) {
-                        type = type.valueOf()
-                    }
                     meta = {
-                        "type": type,
-                        "key": key.getMap(),
-                        "seed": seed,
-                        "fingerprint": ns.format.Base64.encode(fingerprint)
+                        type: type,
+                        key: key.toMap(),
+                        seed: seed,
+                        fingerprint: Base64.encode(fingerprint)
                     };
-                    status = 1
                 } else {
-                    throw new SyntaxError("meta arguments error: " + arguments)
+                    throw new SyntaxError("meta arguments error: " + arguments);
                 }
             }
         }
@@ -2818,1186 +2260,1126 @@ if (typeof MingKeMing !== "object") {
         this.__key = key;
         this.__seed = seed;
         this.__fingerprint = fingerprint;
-        this.__status = status
     };
     ns.Class(BaseMeta, Dictionary, [Meta]);
-    BaseMeta.prototype.getType = function() {
-        return this.__type
+    BaseMeta.prototype.getType = function () {
+        return this.__type;
     };
-    BaseMeta.prototype.getKey = function() {
-        return this.__key
+    BaseMeta.prototype.getKey = function () {
+        return this.__key;
     };
-    BaseMeta.prototype.getSeed = function() {
-        return this.__seed
+    BaseMeta.prototype.getSeed = function () {
+        return this.__seed;
     };
-    BaseMeta.prototype.getFingerprint = function() {
-        return this.__fingerprint
-    };
-    BaseMeta.prototype.isValid = function() {
-        if (this.__status === 0) {
-            if (!this.__key) {
-                this.__status = -1
-            } else {
-                if (MetaType.hasSeed(this.__type)) {
-                    if (!this.__seed || !this.__fingerprint) {
-                        this.__status = -1
-                    } else {
-                        if (this.__key.verify(ns.format.UTF8.encode(this.__seed), this.__fingerprint)) {
-                            this.__status = 1
-                        } else {
-                            this.__status = -1
-                        }
-                    }
-                } else {
-                    this.__status = 1
-                }
-            }
-        }
-        return this.__status === 1
-    };
-    BaseMeta.prototype.generateAddress = function(network) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    BaseMeta.prototype.generateID = function(type, terminal) {
-        var address = this.generateAddress(type);
-        if (!address) {
-            return null
-        }
-        return ID.create(this.getSeed(), address, terminal)
-    };
-    BaseMeta.prototype.matches = function(id_or_key) {
-        if (!this.isValid()) {
-            return false
-        }
-        if (ns.Interface.conforms(id_or_key, ID)) {
-            return match_identifier.call(this, id_or_key)
-        } else {
-            if (ns.Interface.conforms(id_or_key, PublicKey)) {
-                return match_public_key.call(this, id_or_key)
-            }
-        }
-        return false
-    };
-    var match_identifier = function(identifier) {
-        if (MetaType.hasSeed(this.__type)) {
-            if (identifier.getName() !== this.__seed) {
-                return false
-            }
-        }
-        var address = this.generateAddress(identifier.getType());
-        return identifier.getAddress().equals(address)
-    };
-    var match_public_key = function(publicKey) {
-        if (this.__key.equals(publicKey)) {
-            return true
-        }
-        if (MetaType.hasSeed(this.__type)) {
-            var data = ns.format.UTF8.encode(this.__seed);
-            var signature = this.__fingerprint;
-            return publicKey.verify(data, signature)
-        } else {
-            return false
-        }
+    BaseMeta.prototype.getFingerprint = function () {
+        return this.__fingerprint;
     };
     ns.mkm.BaseMeta = BaseMeta;
-    ns.mkm.registers("BaseMeta")
+    ns.mkm.registers("BaseMeta");
 })(MingKeMing);
-(function(ns) {
+(function (ns) {
+    var UTF8 = ns.format.UTF8;
+    var Base64 = ns.format.Base64;
+    var JSON = ns.format.JSON;
     var Dictionary = ns.type.Dictionary;
     var Document = ns.protocol.Document;
-    var BaseDocument = function() {
-        var identifier, data, signature;
+    var BaseDocument = function () {
         var map, status;
+        var identifier, data;
         var properties;
         if (arguments.length === 1) {
             map = arguments[0];
-            identifier = Document.getIdentifier(map);
-            data = Document.getData(map);
-            signature = Document.getSignature(map);
+            status = 0;
+            identifier = null;
+            data = null;
             properties = null;
-            status = 0
         } else {
             if (arguments.length === 2) {
                 identifier = arguments[0];
                 var type = arguments[1];
+                map = { ID: identifier.toString() };
+                status = 0;
                 data = null;
-                signature = null;
-                map = {
-                    "ID": identifier.toString()
-                };
                 if (type && type.length > 1) {
-                    properties = {
-                        "type": type
-                    }
+                    properties = { type: type };
                 } else {
-                    properties = null
+                    properties = null;
                 }
-                status = 0
             } else {
                 if (arguments.length === 3) {
                     identifier = arguments[0];
                     data = arguments[1];
-                    signature = arguments[2];
-                    map = {
-                        "ID": identifier.toString(),
-                        "data": ns.format.UTF8.decode(data),
-                        "signature": ns.format.Base64.encode(signature)
-                    };
+                    var signature = arguments[2];
+                    map = { ID: identifier.toString(), data: data, signature: signature };
+                    status = 1;
                     properties = null;
-                    status = 1
                 } else {
-                    throw new SyntaxError("document arguments error: " + arguments)
+                    throw new SyntaxError("document arguments error: " + arguments);
                 }
             }
         }
         Dictionary.call(this, map);
         this.__identifier = identifier;
-        this.__data = data;
-        this.__signature = signature;
+        this.__json = data;
+        this.__sig = null;
         this.__properties = properties;
-        this.__status = status
+        this.__status = status;
     };
     ns.Class(BaseDocument, Dictionary, [Document]);
-    BaseDocument.prototype.isValid = function() {
-        return this.__status > 0
+    BaseDocument.prototype.isValid = function () {
+        return this.__status > 0;
     };
-    BaseDocument.prototype.getType = function() {
+    BaseDocument.prototype.getType = function () {
         var type = this.getProperty("type");
         if (!type) {
-            type = Document.getType(this.getMap())
+            type = Document.getType(this.toMap());
         }
-        return type
+        return type;
     };
-    BaseDocument.prototype.getIdentifier = function() {
-        return this.__identifier
-    };
-    BaseDocument.prototype.allPropertyNames = function() {
-        var dict = this.getProperties();
-        if (!dict) {
-            return null
+    BaseDocument.prototype.getIdentifier = function () {
+        if (this.__identifier === null) {
+            this.__identifier = Document.getIdentifier(this.toMap());
         }
-        return Object.keys(dict)
+        return this.__identifier;
     };
-    BaseDocument.prototype.getProperties = function() {
-        if (this.__status < 0) {
-            return null
+    BaseDocument.prototype.getData = function () {
+        if (this.__json === null) {
+            this.__json = this.getValue("data");
         }
-        if (!this.__properties) {
-            var data = this.__data;
-            if (data) {
-                this.__properties = ns.format.JSON.decode(data)
-            } else {
-                this.__properties = {}
+        return this.__json;
+    };
+    BaseDocument.prototype.getSignature = function () {
+        if (this.__sig === null) {
+            var base64 = this.getValue("signature");
+            if (base64) {
+                this.__sig = Base64.decode(base64);
             }
         }
-        return this.__properties
+        return this.__sig;
     };
-    BaseDocument.prototype.getProperty = function(name) {
-        var dict = this.getProperties();
+    BaseDocument.prototype.allProperties = function () {
+        if (this.__status < 0) {
+            return null;
+        }
+        if (this.__properties === null) {
+            var data = this.getData();
+            if (data) {
+                this.__properties = JSON.decode(data);
+            } else {
+                this.__properties = {};
+            }
+        }
+        return this.__properties;
+    };
+    BaseDocument.prototype.getProperty = function (name) {
+        var dict = this.allProperties();
         if (!dict) {
-            return null
+            return null;
         }
-        return dict[name]
+        return dict[name];
     };
-    BaseDocument.prototype.setProperty = function(name, value) {
+    BaseDocument.prototype.setProperty = function (name, value) {
         this.__status = 0;
-        var dict = this.getProperties();
+        var dict = this.allProperties();
         dict[name] = value;
-        this.setValue("data", null);
-        this.setValue("signature", null);
-        this.__data = null;
-        this.__signature = null
+        this.removeValue("data");
+        this.removeValue("signature");
+        this.__json = null;
+        this.__sig = null;
     };
-    BaseDocument.prototype.verify = function(publicKey) {
+    BaseDocument.prototype.verify = function (publicKey) {
         if (this.__status > 0) {
-            return true
+            return true;
         }
-        var data = this.__data;
-        var signature = this.__signature;
+        var data = this.getData();
+        var signature = this.getSignature();
         if (!data) {
             if (!signature) {
-                this.__status = 0
+                this.__status = 0;
             } else {
-                this.__status = -1
+                this.__status = -1;
             }
         } else {
             if (!signature) {
-                this.__status = -1
+                this.__status = -1;
             } else {
-                if (publicKey.verify(data, signature)) {
-                    this.__status = 1
+                if (publicKey.verify(UTF8.encode(data), signature)) {
+                    this.__status = 1;
                 }
             }
         }
-        return this.__status > 0
+        return this.__status > 0;
     };
-    BaseDocument.prototype.sign = function(privateKey) {
+    BaseDocument.prototype.sign = function (privateKey) {
         if (this.__status > 0) {
-            return this.__signature
+            return this.getSignature();
         }
         var now = new Date();
         this.setProperty("time", now.getTime() / 1000);
         this.__status = 1;
-        this.__data = ns.format.JSON.encode(this.getProperties());
-        this.__signature = privateKey.sign(this.__data);
-        this.setValue("data", ns.format.UTF8.decode(this.__data));
-        this.setValue("signature", ns.format.Base64.encode(this.__signature));
-        return this.__signature
+        var dict = this.allProperties();
+        var json = JSON.encode(dict);
+        var data = UTF8.encode(json);
+        var sig = privateKey.sign(data);
+        var b64 = Base64.encode(sig);
+        this.__json = json;
+        this.__sig = sig;
+        this.setValue("data", json);
+        this.setValue("signature", b64);
+        return this.__sig;
     };
-    BaseDocument.prototype.getTime = function() {
+    BaseDocument.prototype.getTime = function () {
         var timestamp = this.getProperty("time");
         if (timestamp) {
-            return new Date(timestamp * 1000)
+            return new Date(timestamp * 1000);
         } else {
-            return null
+            return null;
         }
     };
-    BaseDocument.prototype.getName = function() {
-        return this.getProperty("name")
+    BaseDocument.prototype.getName = function () {
+        return this.getProperty("name");
     };
-    BaseDocument.prototype.setName = function(name) {
-        this.setProperty("name", name)
+    BaseDocument.prototype.setName = function (name) {
+        this.setProperty("name", name);
     };
     ns.mkm.BaseDocument = BaseDocument;
-    ns.mkm.registers("BaseDocument")
+    ns.mkm.registers("BaseDocument");
 })(MingKeMing);
-(function(ns) {
+(function (ns) {
     var EncryptKey = ns.crypto.EncryptKey;
     var PublicKey = ns.crypto.PublicKey;
     var ID = ns.protocol.ID;
     var Document = ns.protocol.Document;
     var Visa = ns.protocol.Visa;
     var BaseDocument = ns.mkm.BaseDocument;
-    var BaseVisa = function() {
+    var BaseVisa = function () {
         if (arguments.length === 3) {
-            BaseDocument.call(this, arguments[0], arguments[1], arguments[2])
+            BaseDocument.call(this, arguments[0], arguments[1], arguments[2]);
         } else {
             if (ns.Interface.conforms(arguments[0], ID)) {
-                BaseDocument.call(this, arguments[0], Document.VISA)
+                BaseDocument.call(this, arguments[0], Document.VISA);
             } else {
                 if (arguments.length === 1) {
-                    BaseDocument.call(this, arguments[0])
+                    BaseDocument.call(this, arguments[0]);
                 }
             }
         }
-        this.__key = null
+        this.__key = null;
     };
     ns.Class(BaseVisa, BaseDocument, [Visa]);
-    BaseVisa.prototype.getKey = function() {
-        if (!this.__key) {
+    BaseVisa.prototype.getKey = function () {
+        if (this.__key === null) {
             var key = this.getProperty("key");
             if (key) {
                 key = PublicKey.parse(key);
                 if (ns.Interface.conforms(key, EncryptKey)) {
-                    this.__key = key
+                    this.__key = key;
                 }
             }
         }
-        return this.__key
+        return this.__key;
     };
-    BaseVisa.prototype.setKey = function(publicKey) {
-        this.setProperty("key", publicKey.getMap());
-        this.__key = publicKey
+    BaseVisa.prototype.setKey = function (publicKey) {
+        this.setProperty("key", publicKey.toMap());
+        this.__key = publicKey;
     };
-    BaseVisa.prototype.getAvatar = function() {
-        return this.getProperty("avatar")
+    BaseVisa.prototype.getAvatar = function () {
+        return this.getProperty("avatar");
     };
-    BaseVisa.prototype.setAvatar = function(url) {
-        this.setProperty("avatar", url)
+    BaseVisa.prototype.setAvatar = function (url) {
+        this.setProperty("avatar", url);
     };
     ns.mkm.BaseVisa = BaseVisa;
-    ns.mkm.registers("BaseVisa")
+    ns.mkm.registers("BaseVisa");
 })(MingKeMing);
-(function(ns) {
+(function (ns) {
     var ID = ns.protocol.ID;
     var Document = ns.protocol.Document;
     var Bulletin = ns.protocol.Bulletin;
     var BaseDocument = ns.mkm.BaseDocument;
-    var BaseBulletin = function() {
+    var BaseBulletin = function () {
         if (arguments.length === 3) {
-            BaseDocument.call(this, arguments[0], arguments[1], arguments[2])
+            BaseDocument.call(this, arguments[0], arguments[1], arguments[2]);
         } else {
             if (ns.Interface.conforms(arguments[0], ID)) {
-                BaseDocument.call(this, arguments[0], Document.BULLETIN)
+                BaseDocument.call(this, arguments[0], Document.BULLETIN);
             } else {
                 if (arguments.length === 1) {
-                    BaseDocument.call(this, arguments[0])
+                    BaseDocument.call(this, arguments[0]);
                 }
             }
         }
-        this.__assistants = null
+        this.__assistants = null;
     };
     ns.Class(BaseBulletin, BaseDocument, [Bulletin]);
-    BaseBulletin.prototype.getAssistants = function() {
+    BaseBulletin.prototype.getAssistants = function () {
         if (!this.__assistants) {
             var assistants = this.getProperty("assistants");
             if (assistants) {
-                this.__assistants = ID.convert(assistants)
+                this.__assistants = ID.convert(assistants);
             }
         }
-        return this.__assistants
+        return this.__assistants;
     };
-    BaseBulletin.prototype.setAssistants = function(assistants) {
+    BaseBulletin.prototype.setAssistants = function (assistants) {
         if (assistants && assistants.length > 0) {
-            this.setProperty("assistants", ID.revert(assistants))
+            this.setProperty("assistants", ID.revert(assistants));
         } else {
-            this.setProperty("assistants", null)
+            this.setProperty("assistants", null);
         }
     };
     ns.mkm.BaseBulletin = BaseBulletin;
-    ns.mkm.registers("BaseBulletin")
+    ns.mkm.registers("BaseBulletin");
 })(MingKeMing);
 if (typeof DaoKeDao !== "object") {
-    DaoKeDao = new MingKeMing.Namespace()
+    DaoKeDao = new MingKeMing.Namespace();
 }
-(function(ns, base) {
+(function (ns, base) {
     base.exports(ns);
     if (typeof ns.protocol !== "object") {
-        ns.protocol = new ns.Namespace()
+        ns.protocol = new ns.Namespace();
     }
     if (typeof ns.dkd !== "object") {
-        ns.dkd = new ns.Namespace()
+        ns.dkd = new ns.Namespace();
     }
     ns.registers("protocol");
-    ns.registers("dkd")
+    ns.registers("dkd");
 })(DaoKeDao, MingKeMing);
-(function(ns) {
+(function (ns) {
     var ContentType = ns.type.Enum(null, {
-        TEXT: (1),
-        FILE: (16),
-        IMAGE: (18),
-        AUDIO: (20),
-        VIDEO: (22),
-        PAGE: (32),
-        QUOTE: (55),
-        MONEY: (64),
-        TRANSFER: (65),
-        LUCKY_MONEY: (66),
-        CLAIM_PAYMENT: (72),
-        SPLIT_BILL: (73),
-        COMMAND: (136),
-        HISTORY: (137),
-        FORWARD: (255)
+        TEXT: 1,
+        FILE: 16,
+        IMAGE: 18,
+        AUDIO: 20,
+        VIDEO: 22,
+        PAGE: 32,
+        QUOTE: 55,
+        MONEY: 64,
+        TRANSFER: 65,
+        LUCKY_MONEY: 66,
+        CLAIM_PAYMENT: 72,
+        SPLIT_BILL: 73,
+        COMMAND: 136,
+        HISTORY: 137,
+        FORWARD: 255
     });
     ns.protocol.ContentType = ContentType;
-    ns.protocol.registers("ContentType")
+    ns.protocol.registers("ContentType");
 })(DaoKeDao);
-(function(ns) {
-    var map = ns.type.Map;
+(function (ns) {
+    var Wrapper = ns.type.Wrapper;
+    var Mapper = ns.type.Mapper;
     var ID = ns.protocol.ID;
-    var Content = function() {};
-    ns.Interface(Content, [map]);
-    Content.prototype.getType = function() {
+    var ContentType = ns.protocol.ContentType;
+    var Content = function () {};
+    ns.Interface(Content, [Mapper]);
+    Content.prototype.getType = function () {
         console.assert(false, "implement me!");
-        return 0
+        return 0;
     };
-    Content.getType = function(content) {
-        return content["type"]
+    Content.getType = function (content) {
+        content = Wrapper.fetchMap(content);
+        return content["type"];
     };
-    Content.prototype.getSerialNumber = function() {
+    Content.prototype.getSerialNumber = function () {
         console.assert(false, "implement me!");
-        return 0
+        return 0;
     };
-    Content.getSerialNumber = function(content) {
-        return content["sn"]
+    Content.getSerialNumber = function (content) {
+        content = Wrapper.fetchMap(content);
+        return content["sn"];
     };
-    Content.prototype.getTime = function() {
+    Content.prototype.getTime = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    Content.getTime = function(content) {
+    Content.getTime = function (content) {
+        content = Wrapper.fetchMap(content);
         var timestamp = content["time"];
         if (timestamp) {
-            return new Date(timestamp * 1000)
+            return new Date(timestamp * 1000);
         } else {
-            return null
+            return null;
         }
     };
-    Content.prototype.getGroup = function() {
+    Content.prototype.getGroup = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    Content.prototype.setGroup = function(identifier) {
-        console.assert(false, "implement me!")
+    Content.prototype.setGroup = function (identifier) {
+        console.assert(false, "implement me!");
     };
-    Content.getGroup = function(content) {
-        return ID.parse(content["group"])
+    Content.getGroup = function (content) {
+        content = Wrapper.fetchMap(content);
+        return ID.parse(content["group"]);
     };
-    Content.setGroup = function(group, content) {
+    Content.setGroup = function (group, content) {
+        content = Wrapper.fetchMap(content);
         if (group) {
-            content["group"] = group.toString()
+            content["group"] = group.toString();
         } else {
-            delete content["group"]
+            delete content["group"];
         }
     };
-    ns.protocol.Content = Content;
-    ns.protocol.registers("Content")
-})(DaoKeDao);
-(function(ns) {
-    var map = ns.type.Map;
-    var ContentType = ns.protocol.ContentType;
-    var Content = ns.protocol.Content;
-    var ContentFactory = function() {};
+    var EnumToUint = function (type) {
+        if (typeof type === "number") {
+            return type;
+        } else {
+            return type.valueOf();
+        }
+    };
+    var ContentFactory = function () {};
     ns.Interface(ContentFactory, null);
-    ContentFactory.prototype.parseContent = function(content) {
+    ContentFactory.prototype.parseContent = function (content) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
     Content.Factory = ContentFactory;
-    var s_factories = {};
-    Content.register = function(type, factory) {
-        if (type instanceof ContentType) {
-            type = type.valueOf()
-        }
-        s_factories[type] = factory
+    var s_content_factories = {};
+    Content.setFactory = function (type, factory) {
+        s_content_factories[EnumToUint(type)] = factory;
     };
-    Content.getFactory = function(type) {
-        if (type instanceof ContentType) {
-            type = type.valueOf()
-        }
-        return s_factories[type]
+    Content.getFactory = function (type) {
+        return s_content_factories[EnumToUint(type)];
     };
-    Content.parse = function(content) {
+    Content.parse = function (content) {
         if (!content) {
-            return null
+            return null;
         } else {
             if (ns.Interface.conforms(content, Content)) {
-                return content
-            } else {
-                if (ns.Interface.conforms(content, map)) {
-                    content = content.getMap()
-                }
+                return content;
             }
         }
+        content = Wrapper.fetchMap(content);
         var type = Content.getType(content);
         var factory = Content.getFactory(type);
         if (!factory) {
-            factory = Content.getFactory(0)
+            factory = Content.getFactory(0);
         }
-        return factory.parseContent(content)
-    }
+        return factory.parseContent(content);
+    };
+    ns.protocol.Content = Content;
+    ns.protocol.registers("Content");
 })(DaoKeDao);
-(function(ns) {
-    var map = ns.type.Map;
+(function (ns) {
+    var Wrapper = ns.type.Wrapper;
+    var Mapper = ns.type.Mapper;
     var ID = ns.protocol.ID;
     var ContentType = ns.protocol.ContentType;
-    var Envelope = function() {};
-    ns.Interface(Envelope, [map]);
-    Envelope.prototype.getSender = function() {
+    var Envelope = function () {};
+    ns.Interface(Envelope, [Mapper]);
+    Envelope.prototype.getSender = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    Envelope.getSender = function(env) {
-        return ns.protocol.ID.parse(env["sender"])
+    Envelope.getSender = function (env) {
+        env = Wrapper.fetchMap(env);
+        return ID.parse(env["sender"]);
     };
-    Envelope.prototype.getReceiver = function() {
+    Envelope.prototype.getReceiver = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    Envelope.getReceiver = function(env) {
-        return ID.parse(env["receiver"])
+    Envelope.getReceiver = function (env) {
+        env = Wrapper.fetchMap(env);
+        return ID.parse(env["receiver"]);
     };
-    Envelope.prototype.getTime = function() {
+    Envelope.prototype.getTime = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    Envelope.getTime = function(env) {
+    Envelope.getTime = function (env) {
+        env = Wrapper.fetchMap(env);
         var timestamp = env["time"];
         if (timestamp) {
-            return new Date(timestamp * 1000)
+            return new Date(timestamp * 1000);
         } else {
-            return null
+            return null;
         }
     };
-    Envelope.prototype.getGroup = function() {
+    Envelope.prototype.getGroup = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    Envelope.prototype.setGroup = function(identifier) {
-        console.assert(false, "implement me!")
+    Envelope.prototype.setGroup = function (identifier) {
+        console.assert(false, "implement me!");
     };
-    Envelope.getGroup = function(env) {
-        return ID.parse(env["group"])
+    Envelope.getGroup = function (env) {
+        env = Wrapper.fetchMap(env);
+        return ID.parse(env["group"]);
     };
-    Envelope.setGroup = function(group, env) {
+    Envelope.setGroup = function (group, env) {
+        env = Wrapper.fetchMap(env);
         if (group) {
-            env["group"] = group.toString()
+            env["group"] = group.toString();
         } else {
-            delete env["group"]
+            delete env["group"];
         }
     };
-    Envelope.prototype.getType = function() {
+    Envelope.prototype.getType = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    Envelope.prototype.setType = function(type) {
-        console.assert(false, "implement me!")
+    Envelope.prototype.setType = function (type) {
+        console.assert(false, "implement me!");
     };
-    Envelope.getType = function(env) {
+    Envelope.getType = function (env) {
+        env = Wrapper.fetchMap(env);
         var type = env["type"];
         if (type) {
-            return type
+            return type;
         } else {
-            return 0
+            return 0;
         }
     };
-    Envelope.setType = function(type, env) {
+    Envelope.setType = function (type, env) {
+        env = Wrapper.fetchMap(env);
         if (type) {
             if (type instanceof ContentType) {
-                type = type.valueOf()
+                type = type.valueOf();
             }
-            env["type"] = type
+            env["type"] = type;
         } else {
-            delete env["type"]
+            delete env["type"];
         }
     };
-    ns.protocol.Envelope = Envelope;
-    ns.protocol.registers("Envelope")
-})(DaoKeDao);
-(function(ns) {
-    var map = ns.type.Map;
-    var Envelope = ns.protocol.Envelope;
-    var EnvelopeFactory = function() {};
+    var EnvelopeFactory = function () {};
     ns.Interface(EnvelopeFactory, null);
-    EnvelopeFactory.prototype.createEnvelope = function(from, to, when) {
+    EnvelopeFactory.prototype.createEnvelope = function (from, to, when) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    EnvelopeFactory.prototype.parseEnvelope = function(env) {
+    EnvelopeFactory.prototype.parseEnvelope = function (env) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
     Envelope.Factory = EnvelopeFactory;
-    var s_factory = null;
-    Envelope.getFactory = function() {
-        return s_factory
+    var s_envelope_factory = null;
+    Envelope.getFactory = function () {
+        return s_envelope_factory;
     };
-    Envelope.setFactory = function(factory) {
-        s_factory = factory
+    Envelope.setFactory = function (factory) {
+        s_envelope_factory = factory;
     };
-    Envelope.create = function(from, to, when) {
-        return Envelope.getFactory().createEnvelope(from, to, when)
+    Envelope.create = function (from, to, when) {
+        var factory = Envelope.getFactory();
+        return factory.createEnvelope(from, to, when);
     };
-    Envelope.parse = function(env) {
+    Envelope.parse = function (env) {
         if (!env) {
-            return null
+            return null;
         } else {
             if (ns.Interface.conforms(env, Envelope)) {
-                return env
-            } else {
-                if (ns.Interface.conforms(env, map)) {
-                    env = env.getMap()
-                }
+                return env;
             }
         }
-        return Envelope.getFactory().parseEnvelope(env)
-    }
+        env = Wrapper.fetchMap(env);
+        var factory = Envelope.getFactory();
+        return factory.parseEnvelope(env);
+    };
+    ns.protocol.Envelope = Envelope;
+    ns.protocol.registers("Envelope");
 })(DaoKeDao);
-(function(ns) {
-    var map = ns.type.Map;
+(function (ns) {
+    var Mapper = ns.type.Mapper;
     var Envelope = ns.protocol.Envelope;
-    var Message = function() {};
-    ns.Interface(Message, [map]);
-    Message.prototype.getDelegate = function() {
+    var Message = function () {};
+    ns.Interface(Message, [Mapper]);
+    Message.prototype.getDelegate = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    Message.prototype.setDelegate = function(delegate) {
-        console.assert(false, "implement me!")
-    };
-    Message.prototype.getEnvelope = function() {
+    Message.prototype.setDelegate = function (delegate) {
         console.assert(false, "implement me!");
-        return null
     };
-    Message.getEnvelope = function(msg) {
-        return Envelope.parse(msg)
-    };
-    Message.prototype.getSender = function() {
+    Message.prototype.getEnvelope = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    Message.prototype.getReceiver = function() {
+    Message.getEnvelope = function (msg) {
+        return Envelope.parse(msg);
+    };
+    Message.prototype.getSender = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    Message.prototype.getTime = function() {
+    Message.prototype.getReceiver = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    Message.prototype.getGroup = function() {
+    Message.prototype.getTime = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    Message.prototype.getType = function() {
+    Message.prototype.getGroup = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    ns.protocol.Message = Message;
-    ns.protocol.registers("Message")
-})(DaoKeDao);
-(function(ns) {
-    var Message = ns.protocol.Message;
-    var MessageDelegate = function() {};
+    Message.prototype.getType = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    var MessageDelegate = function () {};
     ns.Interface(MessageDelegate, null);
-    Message.Delegate = MessageDelegate
+    Message.Delegate = MessageDelegate;
+    ns.protocol.Message = Message;
+    ns.protocol.registers("Message");
 })(DaoKeDao);
-(function(ns) {
+(function (ns) {
+    var Wrapper = ns.type.Wrapper;
     var Content = ns.protocol.Content;
     var Message = ns.protocol.Message;
-    var InstantMessage = function() {};
+    var InstantMessage = function () {};
     ns.Interface(InstantMessage, [Message]);
-    InstantMessage.prototype.getContent = function() {
+    InstantMessage.prototype.getContent = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    InstantMessage.getContent = function(msg) {
-        return Content.parse(msg["content"])
+    InstantMessage.getContent = function (msg) {
+        msg = Wrapper.fetchMap(msg);
+        return Content.parse(msg["content"]);
     };
-    InstantMessage.prototype.encrypt = function(password, members) {
+    InstantMessage.prototype.encrypt = function (password, members) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    ns.protocol.InstantMessage = InstantMessage;
-    ns.protocol.registers("InstantMessage")
-})(DaoKeDao);
-(function(ns) {
-    var Message = ns.protocol.Message;
-    var InstantMessage = ns.protocol.InstantMessage;
-    var InstantMessageDelegate = function() {};
+    var InstantMessageDelegate = function () {};
     ns.Interface(InstantMessageDelegate, [Message.Delegate]);
-    InstantMessageDelegate.prototype.serializeContent = function(content, pwd, iMsg) {
+    InstantMessageDelegate.prototype.serializeContent = function (
+        content,
+        pwd,
+        iMsg
+    ) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    InstantMessageDelegate.prototype.encryptContent = function(data, pwd, iMsg) {
+    InstantMessageDelegate.prototype.encryptContent = function (data, pwd, iMsg) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    InstantMessageDelegate.prototype.encodeData = function(data, iMsg) {
+    InstantMessageDelegate.prototype.encodeData = function (data, iMsg) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    InstantMessageDelegate.prototype.serializeKey = function(pwd, iMsg) {
+    InstantMessageDelegate.prototype.serializeKey = function (pwd, iMsg) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    InstantMessageDelegate.prototype.encryptKey = function(data, receiver, iMsg) {
+    InstantMessageDelegate.prototype.encryptKey = function (
+        data,
+        receiver,
+        iMsg
+    ) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    InstantMessageDelegate.prototype.encodeKey = function(data, iMsg) {
+    InstantMessageDelegate.prototype.encodeKey = function (data, iMsg) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    InstantMessage.Delegate = InstantMessageDelegate
-})(DaoKeDao);
-(function(ns) {
-    var map = ns.type.Map;
-    var InstantMessage = ns.protocol.InstantMessage;
-    var InstantMessageFactory = function() {};
+    InstantMessage.Delegate = InstantMessageDelegate;
+    var InstantMessageFactory = function () {};
     ns.Interface(InstantMessageFactory, null);
-    InstantMessageFactory.prototype.createInstantMessage = function(head, body) {
+    InstantMessageFactory.prototype.generateSerialNumber = function (
+        msgType,
+        now
+    ) {
         console.assert(false, "implement me!");
-        return null
+        return 0;
     };
-    InstantMessageFactory.prototype.parseInstantMessage = function(msg) {
+    InstantMessageFactory.prototype.createInstantMessage = function (head, body) {
         console.assert(false, "implement me!");
-        return null
+        return null;
+    };
+    InstantMessageFactory.prototype.parseInstantMessage = function (msg) {
+        console.assert(false, "implement me!");
+        return null;
     };
     InstantMessage.Factory = InstantMessageFactory;
-    var s_factory = null;
-    InstantMessage.getFactory = function() {
-        return s_factory
+    var s_instant_factory = null;
+    InstantMessage.getFactory = function () {
+        return s_instant_factory;
     };
-    InstantMessage.setFactory = function(factory) {
-        s_factory = factory
+    InstantMessage.setFactory = function (factory) {
+        s_instant_factory = factory;
     };
-    InstantMessage.create = function(head, body) {
-        return InstantMessage.getFactory().createInstantMessage(head, body)
+    InstantMessage.generateSerialNumber = function (msgType, now) {
+        var factory = InstantMessage.getFactory();
+        return factory.generateSerialNumber(msgType, now);
     };
-    InstantMessage.parse = function(msg) {
+    InstantMessage.create = function (head, body) {
+        var factory = InstantMessage.getFactory();
+        return factory.createInstantMessage(head, body);
+    };
+    InstantMessage.parse = function (msg) {
         if (!msg) {
-            return null
+            return null;
         } else {
             if (ns.Interface.conforms(msg, InstantMessage)) {
-                return msg
-            } else {
-                if (ns.Interface.conforms(msg, map)) {
-                    msg = msg.getMap()
-                }
+                return msg;
             }
         }
-        return InstantMessage.getFactory().parseInstantMessage(msg)
-    }
+        msg = Wrapper.fetchMap(msg);
+        var factory = InstantMessage.getFactory();
+        return factory.parseInstantMessage(msg);
+    };
+    ns.protocol.InstantMessage = InstantMessage;
+    ns.protocol.registers("InstantMessage");
 })(DaoKeDao);
-(function(ns) {
+(function (ns) {
+    var Wrapper = ns.type.Wrapper;
     var Message = ns.protocol.Message;
-    var SecureMessage = function() {};
+    var SecureMessage = function () {};
     ns.Interface(SecureMessage, [Message]);
-    SecureMessage.prototype.getData = function() {
+    SecureMessage.prototype.getData = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    SecureMessage.prototype.getEncryptedKey = function() {
+    SecureMessage.prototype.getEncryptedKey = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    SecureMessage.prototype.getEncryptedKeys = function() {
+    SecureMessage.prototype.getEncryptedKeys = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    SecureMessage.prototype.decrypt = function() {
+    SecureMessage.prototype.decrypt = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    SecureMessage.prototype.sign = function() {
+    SecureMessage.prototype.sign = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    SecureMessage.prototype.split = function(members) {
+    SecureMessage.prototype.split = function (members) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    SecureMessage.prototype.trim = function(member) {
+    SecureMessage.prototype.trim = function (member) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    ns.protocol.SecureMessage = SecureMessage;
-    ns.protocol.registers("SecureMessage")
-})(DaoKeDao);
-(function(ns) {
-    var Message = ns.protocol.Message;
-    var SecureMessage = ns.protocol.SecureMessage;
-    var SecureMessageDelegate = function() {};
+    var SecureMessageDelegate = function () {};
     ns.Interface(SecureMessageDelegate, [Message.Delegate]);
-    SecureMessageDelegate.prototype.decodeKey = function(key, sMsg) {
+    SecureMessageDelegate.prototype.decodeKey = function (key, sMsg) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    SecureMessageDelegate.prototype.decryptKey = function(data, sender, receiver, sMsg) {
+    SecureMessageDelegate.prototype.decryptKey = function (
+        data,
+        sender,
+        receiver,
+        sMsg
+    ) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    SecureMessageDelegate.prototype.deserializeKey = function(data, sender, receiver, sMsg) {
+    SecureMessageDelegate.prototype.deserializeKey = function (
+        data,
+        sender,
+        receiver,
+        sMsg
+    ) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    SecureMessageDelegate.prototype.decodeData = function(data, sMsg) {
+    SecureMessageDelegate.prototype.decodeData = function (data, sMsg) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    SecureMessageDelegate.prototype.decryptContent = function(data, pwd, sMsg) {
+    SecureMessageDelegate.prototype.decryptContent = function (data, pwd, sMsg) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    SecureMessageDelegate.prototype.deserializeContent = function(data, pwd, sMsg) {
+    SecureMessageDelegate.prototype.deserializeContent = function (
+        data,
+        pwd,
+        sMsg
+    ) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    SecureMessageDelegate.prototype.signData = function(data, sender, sMsg) {
+    SecureMessageDelegate.prototype.signData = function (data, sender, sMsg) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    SecureMessageDelegate.prototype.encodeSignature = function(signature, sMsg) {
+    SecureMessageDelegate.prototype.encodeSignature = function (signature, sMsg) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    SecureMessage.Delegate = SecureMessageDelegate
-})(DaoKeDao);
-(function(ns) {
-    var map = ns.type.Map;
-    var SecureMessage = ns.protocol.SecureMessage;
-    var SecureMessageFactory = function() {};
+    SecureMessage.Delegate = SecureMessageDelegate;
+    var SecureMessageFactory = function () {};
     ns.Interface(SecureMessageFactory, null);
-    SecureMessageFactory.prototype.parseSecureMessage = function(msg) {
+    SecureMessageFactory.prototype.parseSecureMessage = function (msg) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
     SecureMessage.Factory = SecureMessageFactory;
-    var s_factory = null;
-    SecureMessage.getFactory = function() {
-        return s_factory
+    var s_secure_factory = null;
+    SecureMessage.getFactory = function () {
+        return s_secure_factory;
     };
-    SecureMessage.setFactory = function(factory) {
-        s_factory = factory
+    SecureMessage.setFactory = function (factory) {
+        s_secure_factory = factory;
     };
-    SecureMessage.parse = function(msg) {
+    SecureMessage.parse = function (msg) {
         if (!msg) {
-            return null
+            return null;
         } else {
             if (ns.Interface.conforms(msg, SecureMessage)) {
-                return msg
-            } else {
-                if (ns.Interface.conforms(msg, map)) {
-                    msg = msg.getMap()
-                }
+                return msg;
             }
         }
-        return SecureMessage.getFactory().parseSecureMessage(msg)
-    }
+        msg = Wrapper.fetchMap(msg);
+        var factory = SecureMessage.getFactory();
+        return factory.parseSecureMessage(msg);
+    };
+    ns.protocol.SecureMessage = SecureMessage;
+    ns.protocol.registers("SecureMessage");
 })(DaoKeDao);
-(function(ns) {
-    var map = ns.type.Map;
+(function (ns) {
+    var Wrapper = ns.type.Wrapper;
     var Meta = ns.protocol.Meta;
     var Document = ns.protocol.Document;
     var SecureMessage = ns.protocol.SecureMessage;
-    var ReliableMessage = function() {};
+    var ReliableMessage = function () {};
     ns.Interface(ReliableMessage, [SecureMessage]);
-    ReliableMessage.prototype.getSignature = function() {
+    ReliableMessage.prototype.getSignature = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    ReliableMessage.prototype.getMeta = function() {
+    ReliableMessage.prototype.getMeta = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    ReliableMessage.prototype.setMeta = function(meta) {
+    ReliableMessage.prototype.setMeta = function (meta) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    ReliableMessage.getMeta = function(msg) {
-        return Meta.parse(msg["meta"])
+    ReliableMessage.getMeta = function (msg) {
+        msg = Wrapper.fetchMap(msg);
+        return Meta.parse(msg["meta"]);
     };
-    ReliableMessage.setMeta = function(meta, msg) {
+    ReliableMessage.setMeta = function (meta, msg) {
+        msg = Wrapper.fetchMap(msg);
         if (meta) {
-            msg["meta"] = meta.getMap()
+            msg["meta"] = meta.toMap();
         } else {
-            delete msg["meta"]
+            delete msg["meta"];
         }
     };
-    ReliableMessage.prototype.getVisa = function() {
+    ReliableMessage.prototype.getVisa = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    ReliableMessage.prototype.setVisa = function(doc) {
+    ReliableMessage.prototype.setVisa = function (doc) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    ReliableMessage.getVisa = function(msg) {
-        var doc = msg["visa"];
-        if (!doc) {
-            doc = msg["profile"]
-        }
-        return Document.parse(doc)
+    ReliableMessage.getVisa = function (msg) {
+        msg = Wrapper.fetchMap(msg);
+        return Document.parse(msg["visa"]);
     };
-    ReliableMessage.setVisa = function(doc, msg) {
-        delete msg["visa"];
+    ReliableMessage.setVisa = function (doc, msg) {
+        msg = Wrapper.fetchMap(msg);
         if (doc) {
-            msg["profile"] = doc.getMap()
+            msg["visa"] = doc.toMap();
         } else {
-            delete msg["profile"]
+            delete msg["visa"];
         }
     };
-    ReliableMessage.prototype.verify = function() {
+    ReliableMessage.prototype.verify = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    ns.protocol.ReliableMessage = ReliableMessage;
-    ns.protocol.registers("ReliableMessage")
-})(DaoKeDao);
-(function(ns) {
-    var SecureMessage = ns.protocol.SecureMessage;
-    var ReliableMessage = ns.protocol.ReliableMessage;
-    var ReliableMessageDelegate = function() {};
+    var ReliableMessageDelegate = function () {};
     ns.Interface(ReliableMessageDelegate, [SecureMessage.Delegate]);
-    ReliableMessageDelegate.prototype.decodeSignature = function(signature, rMsg) {
+    ReliableMessageDelegate.prototype.decodeSignature = function (
+        signature,
+        rMsg
+    ) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    ReliableMessageDelegate.prototype.verifyDataSignature = function(data, signature, sender, rMsg) {
+    ReliableMessageDelegate.prototype.verifyDataSignature = function (
+        data,
+        signature,
+        sender,
+        rMsg
+    ) {
         console.assert(false, "implement me!");
-        return false
+        return false;
     };
-    ReliableMessage.Delegate = ReliableMessageDelegate
-})(DaoKeDao);
-(function(ns) {
-    var map = ns.type.Map;
-    var ReliableMessage = ns.protocol.ReliableMessage;
-    var ReliableMessageFactory = function() {};
+    ReliableMessage.Delegate = ReliableMessageDelegate;
+    var ReliableMessageFactory = function () {};
     ns.Interface(ReliableMessageFactory, null);
-    ReliableMessageFactory.prototype.parseReliableMessage = function(msg) {
+    ReliableMessageFactory.prototype.parseReliableMessage = function (msg) {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
     ReliableMessage.Factory = ReliableMessageFactory;
-    var s_factory = null;
-    ReliableMessage.getFactory = function() {
-        return s_factory
+    var s_reliable_factory = null;
+    ReliableMessage.getFactory = function () {
+        return s_reliable_factory;
     };
-    ReliableMessage.setFactory = function(factory) {
-        s_factory = factory
+    ReliableMessage.setFactory = function (factory) {
+        s_reliable_factory = factory;
     };
-    ReliableMessage.parse = function(msg) {
+    ReliableMessage.parse = function (msg) {
         if (!msg) {
-            return null
+            return null;
         } else {
             if (ns.Interface.conforms(msg, ReliableMessage)) {
-                return msg
-            } else {
-                if (ns.Interface.conforms(msg, map)) {
-                    msg = msg.getMap()
-                }
+                return msg;
             }
         }
-        return ReliableMessage.getFactory().parseReliableMessage(msg)
-    }
+        msg = Wrapper.fetchMap(msg);
+        var factory = ReliableMessage.getFactory();
+        return factory.parseReliableMessage(msg);
+    };
+    ns.protocol.ReliableMessage = ReliableMessage;
+    ns.protocol.registers("ReliableMessage");
 })(DaoKeDao);
-(function(ns) {
+(function (ns) {
     var Dictionary = ns.type.Dictionary;
     var ContentType = ns.protocol.ContentType;
     var Content = ns.protocol.Content;
-    var MAX_LONG = 4294967295;
-    var randomPositiveInteger = function() {
-        var sn = Math.ceil(Math.random() * MAX_LONG);
-        if (sn > 0) {
-            return sn
-        } else {
-            if (sn < 0) {
-                return -sn
-            }
-        }
-        return 9527 + 9394
-    };
-    var BaseContent = function(info) {
-        var content, type, sn, time;
+    var InstantMessage = ns.protocol.InstantMessage;
+    var BaseContent = function (info) {
         if (info instanceof ContentType) {
-            type = info.valueOf();
-            sn = null;
-            time = null;
-            content = {
-                "type": type
-            }
-        } else {
-            if (typeof info === "number") {
-                type = info;
-                sn = null;
-                time = null;
-                content = {
-                    "type": type
-                }
-            } else {
-                content = info;
-                type = Content.getType(content);
-                sn = Content.getSerialNumber(content);
-                time = Content.getTime(content)
-            }
+            info = info.valueOf();
         }
-        if (!sn) {
-            sn = randomPositiveInteger();
-            content["sn"] = sn
-        }
-        if (!time) {
+        var content, type, sn, time;
+        if (typeof info === "number") {
+            type = info;
             time = new Date();
-            content["time"] = time.getTime() / 1000
+            sn = InstantMessage.generateSerialNumber(type, time);
+            content = { type: type, sn: sn, time: time.getTime() / 1000 };
+        } else {
+            content = info;
+            type = Content.getType(content);
+            sn = Content.getSerialNumber(content);
+            time = Content.getTime(content);
         }
         Dictionary.call(this, content);
         this.__type = type;
         this.__sn = sn;
-        this.__time = time
+        this.__time = time;
     };
     ns.Class(BaseContent, Dictionary, [Content]);
-    BaseContent.prototype.getType = function() {
-        return this.__type
+    BaseContent.prototype.getType = function () {
+        return this.__type;
     };
-    BaseContent.prototype.getSerialNumber = function() {
-        return this.__sn
+    BaseContent.prototype.getSerialNumber = function () {
+        return this.__sn;
     };
-    BaseContent.prototype.getTime = function() {
-        return this.__time
+    BaseContent.prototype.getTime = function () {
+        return this.__time;
     };
-    BaseContent.prototype.getGroup = function() {
-        return Content.getGroup(this.getMap())
+    BaseContent.prototype.getGroup = function () {
+        return Content.getGroup(this);
     };
-    BaseContent.prototype.setGroup = function(identifier) {
-        Content.setGroup(identifier, this.getMap())
+    BaseContent.prototype.setGroup = function (identifier) {
+        Content.setGroup(identifier, this);
     };
     ns.dkd.BaseContent = BaseContent;
-    ns.dkd.registers("BaseContent")
+    ns.dkd.registers("BaseContent");
 })(DaoKeDao);
-(function(ns) {
+(function (ns) {
     var Dictionary = ns.type.Dictionary;
     var Envelope = ns.protocol.Envelope;
-    var MessageEnvelope = function() {
+    var MessageEnvelope = function () {
         var from, to, when;
         var env;
         if (arguments.length === 1) {
             env = arguments[0];
             from = Envelope.getSender(env);
             to = Envelope.getReceiver(env);
-            when = Envelope.getTime(env)
+            when = Envelope.getTime(env);
         } else {
             if (arguments.length === 2) {
                 from = arguments[0];
                 to = arguments[1];
                 when = new Date();
                 env = {
-                    "sender": from.toString(),
-                    "receiver": to.toString(),
-                    "time": Math.ceil(when.getTime() / 1000)
-                }
+                    sender: from.toString(),
+                    receiver: to.toString(),
+                    time: when.getTime() / 1000
+                };
             } else {
                 if (arguments.length === 3) {
                     from = arguments[0];
                     to = arguments[1];
-                    if (arguments[2] instanceof Date) {
-                        when = arguments[2]
+                    when = arguments[2];
+                    if (!when) {
+                        when = new Date();
                     } else {
-                        when = new Date(arguments[2] * 1000)
+                        if (typeof when === "number") {
+                            when = new Date(when * 1000);
+                        }
                     }
                     env = {
-                        "sender": from.toString(),
-                        "receiver": to.toString(),
-                        "time": Math.ceil(when.getTime() / 1000)
-                    }
+                        sender: from.toString(),
+                        receiver: to.toString(),
+                        time: when.getTime() / 1000
+                    };
                 } else {
-                    throw new SyntaxError("envelope arguments error: " + arguments)
+                    throw new SyntaxError("envelope arguments error: " + arguments);
                 }
             }
         }
         Dictionary.call(this, env);
         this.__sender = from;
         this.__receiver = to;
-        this.__time = when
+        this.__time = when;
     };
     ns.Class(MessageEnvelope, Dictionary, [Envelope]);
-    MessageEnvelope.prototype.getSender = function() {
-        return this.__sender
+    MessageEnvelope.prototype.getSender = function () {
+        return this.__sender;
     };
-    MessageEnvelope.prototype.getReceiver = function() {
-        return this.__receiver
+    MessageEnvelope.prototype.getReceiver = function () {
+        return this.__receiver;
     };
-    MessageEnvelope.prototype.getTime = function() {
-        return this.__time
+    MessageEnvelope.prototype.getTime = function () {
+        return this.__time;
     };
-    MessageEnvelope.prototype.getGroup = function() {
-        return Envelope.getGroup(this.getMap())
+    MessageEnvelope.prototype.getGroup = function () {
+        return Envelope.getGroup(this);
     };
-    MessageEnvelope.prototype.setGroup = function(identifier) {
-        Envelope.setGroup(identifier, this.getMap())
+    MessageEnvelope.prototype.setGroup = function (identifier) {
+        Envelope.setGroup(identifier, this);
     };
-    MessageEnvelope.prototype.getType = function() {
-        return Envelope.getType(this.getMap())
+    MessageEnvelope.prototype.getType = function () {
+        return Envelope.getType(this);
     };
-    MessageEnvelope.prototype.setType = function(type) {
-        Envelope.setType(type, this.getMap())
+    MessageEnvelope.prototype.setType = function (type) {
+        Envelope.setType(type, this);
     };
     ns.dkd.MessageEnvelope = MessageEnvelope;
-    ns.dkd.registers("MessageEnvelope")
+    ns.dkd.registers("MessageEnvelope");
 })(DaoKeDao);
-(function(ns) {
+(function (ns) {
     var Dictionary = ns.type.Dictionary;
     var Envelope = ns.protocol.Envelope;
     var Message = ns.protocol.Message;
-    var BaseMessage = function(msg) {
+    var BaseMessage = function (msg) {
         var env;
         if (ns.Interface.conforms(msg, Envelope)) {
             env = msg;
-            msg = env.getMap()
+            msg = env.toMap();
         } else {
-            env = Message.getEnvelope(msg)
+            env = Message.getEnvelope(msg);
         }
         Dictionary.call(this, msg);
         this.__envelope = env;
-        this.__delegate = null
+        this.__delegate = null;
     };
     ns.Class(BaseMessage, Dictionary, [Message]);
-    BaseMessage.prototype.getDelegate = function() {
-        return this.__delegate
+    BaseMessage.prototype.getDelegate = function () {
+        return this.__delegate;
     };
-    BaseMessage.prototype.setDelegate = function(delegate) {
-        this.__delegate = delegate
+    BaseMessage.prototype.setDelegate = function (delegate) {
+        this.__delegate = delegate;
     };
-    BaseMessage.prototype.getEnvelope = function() {
-        return this.__envelope
+    BaseMessage.prototype.getEnvelope = function () {
+        return this.__envelope;
     };
-    BaseMessage.prototype.getSender = function() {
-        return this.getEnvelope().getSender()
+    BaseMessage.prototype.getSender = function () {
+        var env = this.getEnvelope();
+        return env.getSender();
     };
-    BaseMessage.prototype.getReceiver = function() {
-        return this.getEnvelope().getReceiver()
+    BaseMessage.prototype.getReceiver = function () {
+        var env = this.getEnvelope();
+        return env.getReceiver();
     };
-    BaseMessage.prototype.getTime = function() {
-        return this.getEnvelope().getTime()
+    BaseMessage.prototype.getTime = function () {
+        var env = this.getEnvelope();
+        return env.getTime();
     };
-    BaseMessage.prototype.getGroup = function() {
-        return this.getEnvelope().getGroup()
+    BaseMessage.prototype.getGroup = function () {
+        var env = this.getEnvelope();
+        return env.getGroup();
     };
-    BaseMessage.prototype.getType = function() {
-        return this.getEnvelope().getTime()
+    BaseMessage.prototype.getType = function () {
+        var env = this.getEnvelope();
+        return env.getTime();
     };
     ns.dkd.BaseMessage = BaseMessage;
-    ns.dkd.registers("BaseMessage")
+    ns.dkd.registers("BaseMessage");
 })(DaoKeDao);
-(function(ns) {
+(function (ns) {
     var Message = ns.protocol.Message;
     var InstantMessage = ns.protocol.InstantMessage;
     var SecureMessage = ns.protocol.SecureMessage;
     var BaseMessage = ns.dkd.BaseMessage;
-    var PlainMessage = function() {
+    var PlainMessage = function () {
         var msg, head, body;
         if (arguments.length === 1) {
             msg = arguments[0];
             head = Message.getEnvelope(msg);
-            body = InstantMessage.getContent(msg)
+            body = InstantMessage.getContent(msg);
         } else {
             if (arguments.length === 2) {
                 head = arguments[0];
                 body = arguments[1];
-                msg = head.getMap();
-                msg["content"] = body.getMap()
+                msg = head.toMap();
+                msg["content"] = body.toMap();
             } else {
-                throw new SyntaxError("message arguments error: " + arguments)
+                throw new SyntaxError("message arguments error: " + arguments);
             }
         }
         BaseMessage.call(this, msg);
         this.__envelope = head;
-        this.__content = body
+        this.__content = body;
     };
     ns.Class(PlainMessage, BaseMessage, [InstantMessage]);
-    PlainMessage.prototype.getContent = function() {
-        return this.__content
+    PlainMessage.prototype.getContent = function () {
+        return this.__content;
     };
-    PlainMessage.prototype.getTime = function() {
-        var time = this.getContent().getTime();
+    PlainMessage.prototype.getTime = function () {
+        var content = this.getContent();
+        var time = content.getTime();
         if (!time) {
-            time = this.getEnvelope().getTime()
+            var env = this.getEnvelope();
+            time = env.getTime();
         }
-        return time
+        return time;
     };
-    PlainMessage.prototype.getGroup = function() {
-        return this.getContent().getGroup()
+    PlainMessage.prototype.getGroup = function () {
+        var content = this.getContent();
+        return content.getGroup();
     };
-    PlainMessage.prototype.getType = function() {
-        return this.getContent().getType()
+    PlainMessage.prototype.getType = function () {
+        var content = this.getContent();
+        return content.getType();
     };
-    PlainMessage.prototype.encrypt = function(password, members) {
+    PlainMessage.prototype.encrypt = function (password, members) {
         if (members && members.length > 0) {
-            return encrypt_group_message.call(this, password, members)
+            return encrypt_group_message.call(this, password, members);
         } else {
-            return encrypt_message.call(this, password)
+            return encrypt_message.call(this, password);
         }
     };
-    var encrypt_message = function(password) {
+    var encrypt_message = function (password) {
         var delegate = this.getDelegate();
         var msg = prepare_data.call(this, password);
         var key = delegate.serializeKey(password, this);
         if (!key) {
-            return SecureMessage.parse(msg)
+            return SecureMessage.parse(msg);
         }
         var data = delegate.encryptKey(key, this.getReceiver(), this);
         if (!data) {
-            return null
+            return null;
         }
         msg["key"] = delegate.encodeKey(data, this);
-        return SecureMessage.parse(msg)
+        return SecureMessage.parse(msg);
     };
-    var encrypt_group_message = function(password, members) {
+    var encrypt_group_message = function (password, members) {
         var delegate = this.getDelegate();
         var msg = prepare_data.call(this, password);
         var key = delegate.serializeKey(password, this);
         if (!key) {
-            return SecureMessage.parse(msg)
+            return SecureMessage.parse(msg);
         }
         var keys = {};
         var count = 0;
@@ -4007,17 +3389,17 @@ if (typeof DaoKeDao !== "object") {
             member = members[i];
             data = delegate.encryptKey(key, member, this);
             if (!data) {
-                continue
+                continue;
             }
             keys[member] = delegate.encodeKey(data, this);
-            ++count
+            ++count;
         }
         if (count > 0) {
-            msg["keys"] = keys
+            msg["keys"] = keys;
         }
-        return SecureMessage.parse(msg)
+        return SecureMessage.parse(msg);
     };
-    var prepare_data = function(password) {
+    var prepare_data = function (password) {
         var delegate = this.getDelegate();
         var data = delegate.serializeContent(this.__content, password, this);
         data = delegate.encryptContent(data, password, this);
@@ -4025,108 +3407,112 @@ if (typeof DaoKeDao !== "object") {
         var msg = this.copyMap();
         delete msg["content"];
         msg["data"] = base64;
-        return msg
+        return msg;
     };
     ns.dkd.PlainMessage = PlainMessage;
-    ns.dkd.registers("PlainMessage")
+    ns.dkd.registers("PlainMessage");
 })(DaoKeDao);
-(function(ns) {
-    var map = ns.type.Map;
+(function (ns) {
+    var Copier = ns.type.Copier;
     var InstantMessage = ns.protocol.InstantMessage;
     var SecureMessage = ns.protocol.SecureMessage;
     var ReliableMessage = ns.protocol.ReliableMessage;
     var BaseMessage = ns.dkd.BaseMessage;
-    var EncryptedMessage = function(msg) {
+    var EncryptedMessage = function (msg) {
         BaseMessage.call(this, msg);
         this.__data = null;
         this.__key = null;
-        this.__keys = null
+        this.__keys = null;
     };
     ns.Class(EncryptedMessage, BaseMessage, [SecureMessage]);
-    EncryptedMessage.prototype.getData = function() {
+    EncryptedMessage.prototype.getData = function () {
         if (!this.__data) {
             var base64 = this.getValue("data");
-            this.__data = this.getDelegate().decodeData(base64, this)
+            var delegate = this.getDelegate();
+            this.__data = delegate.decodeData(base64, this);
         }
-        return this.__data
+        return this.__data;
     };
-    EncryptedMessage.prototype.getEncryptedKey = function() {
+    EncryptedMessage.prototype.getEncryptedKey = function () {
         if (!this.__key) {
             var base64 = this.getValue("key");
             if (!base64) {
                 var keys = this.getEncryptedKeys();
                 if (keys) {
                     var receiver = this.getReceiver();
-                    base64 = keys[receiver.toString()]
+                    base64 = keys[receiver.toString()];
                 }
             }
             if (base64) {
-                this.__key = this.getDelegate().decodeKey(base64, this)
+                var delegate = this.getDelegate();
+                this.__key = delegate.decodeKey(base64, this);
             }
         }
-        return this.__key
+        return this.__key;
     };
-    EncryptedMessage.prototype.getEncryptedKeys = function() {
+    EncryptedMessage.prototype.getEncryptedKeys = function () {
         if (!this.__keys) {
-            this.__keys = this.getValue("keys")
+            this.__keys = this.getValue("keys");
         }
-        return this.__keys
+        return this.__keys;
     };
-    EncryptedMessage.prototype.decrypt = function() {
+    EncryptedMessage.prototype.decrypt = function () {
         var sender = this.getSender();
         var receiver;
         var group = this.getGroup();
         if (group) {
-            receiver = group
+            receiver = group;
         } else {
-            receiver = this.getReceiver()
+            receiver = this.getReceiver();
         }
         var delegate = this.getDelegate();
         var key = this.getEncryptedKey();
         if (key) {
             key = delegate.decryptKey(key, sender, receiver, this);
             if (!key) {
-                throw new Error("failed to decrypt key in msg: " + this)
+                throw new Error("failed to decrypt key in msg: " + this);
             }
         }
         var password = delegate.deserializeKey(key, sender, receiver, this);
         if (!password) {
-            throw new Error("failed to get msg key: " + sender + " -> " + receiver + ", " + key)
+            throw new Error(
+                "failed to get msg key: " + sender + " -> " + receiver + ", " + key
+            );
         }
         var data = this.getData();
         if (!data) {
-            throw new Error("failed to decode content data: " + this)
+            throw new Error("failed to decode content data: " + this);
         }
         data = delegate.decryptContent(data, password, this);
         if (!data) {
-            throw new Error("failed to decrypt data with key: " + password)
+            throw new Error("failed to decrypt data with key: " + password);
         }
         var content = delegate.deserializeContent(data, password, this);
         if (!content) {
-            throw new Error("failed to deserialize content: " + data)
+            throw new Error("failed to deserialize content: " + data);
         }
-        var msg = this.copyMap();
+        var msg = this.copyMap(false);
         delete msg["key"];
         delete msg["keys"];
         delete msg["data"];
-        msg["content"] = content.getMap();
-        return InstantMessage.parse(msg)
+        msg["content"] = content.toMap();
+        return InstantMessage.parse(msg);
     };
-    EncryptedMessage.prototype.sign = function() {
+    EncryptedMessage.prototype.sign = function () {
         var delegate = this.getDelegate();
         var signature = delegate.signData(this.getData(), this.getSender(), this);
         var base64 = delegate.encodeSignature(signature, this);
-        var msg = this.copyMap();
+        var msg = this.copyMap(false);
         msg["signature"] = base64;
-        return ReliableMessage.parse(msg)
+        return ReliableMessage.parse(msg);
     };
-    EncryptedMessage.prototype.split = function(members) {
-        var msg = this.copyMap();
+    EncryptedMessage.prototype.split = function (members) {
+        var msg = this.copyMap(false);
         var keys = this.getEncryptedKeys();
         if (keys) {
-            delete msg["keys"]
+            delete msg["keys"];
         } else {
-            keys = {}
+            keys = {};
         }
         msg["group"] = this.getReceiver().toString();
         var messages = [];
@@ -4138,1000 +3524,715 @@ if (typeof DaoKeDao !== "object") {
             msg["receiver"] = receiver;
             base64 = keys[receiver];
             if (base64) {
-                msg["key"] = base64
+                msg["key"] = base64;
             } else {
-                delete msg["key"]
+                delete msg["key"];
             }
-            item = SecureMessage.parse(map.copyMap(msg));
+            item = SecureMessage.parse(Copier.copyMap(msg));
             if (item) {
-                messages.push(item)
+                messages.push(item);
             }
         }
-        return messages
+        return messages;
     };
-    EncryptedMessage.prototype.trim = function(member) {
-        var msg = this.copyMap();
+    EncryptedMessage.prototype.trim = function (member) {
+        var msg = this.copyMap(false);
         var keys = this.getEncryptedKeys();
         if (keys) {
             var base64 = keys[member.toString()];
             if (base64) {
-                msg["key"] = base64
+                msg["key"] = base64;
             }
-            delete msg["keys"]
+            delete msg["keys"];
         }
         var group = this.getGroup();
         if (!group) {
-            msg["group"] = this.getReceiver().toString()
+            msg["group"] = this.getReceiver().toString();
         }
         msg["receiver"] = member.toString();
-        return SecureMessage.parse(msg)
+        return SecureMessage.parse(msg);
     };
     ns.dkd.EncryptedMessage = EncryptedMessage;
-    ns.dkd.registers("EncryptedMessage")
+    ns.dkd.registers("EncryptedMessage");
 })(DaoKeDao);
-(function(ns) {
+(function (ns) {
     var SecureMessage = ns.protocol.SecureMessage;
     var ReliableMessage = ns.protocol.ReliableMessage;
     var EncryptedMessage = ns.dkd.EncryptedMessage;
-    var NetworkMessage = function(msg) {
+    var NetworkMessage = function (msg) {
         EncryptedMessage.call(this, msg);
         this.__signature = null;
         this.__meta = null;
-        this.__visa = null
+        this.__visa = null;
     };
     ns.Class(NetworkMessage, EncryptedMessage, [ReliableMessage]);
-    NetworkMessage.prototype.getSignature = function() {
+    NetworkMessage.prototype.getSignature = function () {
         if (!this.__signature) {
             var base64 = this.getValue("signature");
-            this.__signature = this.getDelegate().decodeSignature(base64, this)
+            var delegate = this.getDelegate();
+            this.__signature = delegate.decodeSignature(base64, this);
         }
-        return this.__signature
+        return this.__signature;
     };
-    NetworkMessage.prototype.setMeta = function(meta) {
-        ReliableMessage.setMeta(meta, this.getMap());
-        this.__meta = meta
+    NetworkMessage.prototype.setMeta = function (meta) {
+        ReliableMessage.setMeta(meta, this);
+        this.__meta = meta;
     };
-    NetworkMessage.prototype.getMeta = function() {
+    NetworkMessage.prototype.getMeta = function () {
         if (!this.__meta) {
-            this.__meta = ReliableMessage.getMeta(this.getMap())
+            this.__meta = ReliableMessage.getMeta(this);
         }
-        return this.__meta
+        return this.__meta;
     };
-    NetworkMessage.prototype.setVisa = function(visa) {
-        ReliableMessage.setVisa(visa, this.getMap());
-        this.__visa = visa
+    NetworkMessage.prototype.setVisa = function (visa) {
+        ReliableMessage.setVisa(visa, this);
+        this.__visa = visa;
     };
-    NetworkMessage.prototype.getVisa = function() {
+    NetworkMessage.prototype.getVisa = function () {
         if (!this.__visa) {
-            this.__visa = ReliableMessage.getVisa(this.getMap())
+            this.__visa = ReliableMessage.getVisa(this);
         }
-        return this.__visa
+        return this.__visa;
     };
-    NetworkMessage.prototype.verify = function() {
+    NetworkMessage.prototype.verify = function () {
         var data = this.getData();
         if (!data) {
-            throw new Error("failed to decode content data: " + this)
+            throw new Error("failed to decode content data: " + this);
         }
         var signature = this.getSignature();
         if (!signature) {
-            throw new Error("failed to decode message signature: " + this)
+            throw new Error("failed to decode message signature: " + this);
         }
-        if (this.getDelegate().verifyDataSignature(data, signature, this.getSender(), this)) {
-            var msg = this.copyMap();
+        var delegate = this.getDelegate();
+        if (delegate.verifyDataSignature(data, signature, this.getSender(), this)) {
+            var msg = this.copyMap(false);
             delete msg["signature"];
-            return SecureMessage.parse(msg)
+            return SecureMessage.parse(msg);
         } else {
-            return null
+            return null;
         }
     };
     ns.dkd.NetworkMessage = NetworkMessage;
-    ns.dkd.registers("NetworkMessage")
+    ns.dkd.registers("NetworkMessage");
 })(DaoKeDao);
-(function(ns) {
-    var obj = ns.type.Object;
+(function (ns) {
     var Envelope = ns.protocol.Envelope;
     var MessageEnvelope = ns.dkd.MessageEnvelope;
-    var EnvelopeFactory = function() {
-        obj.call(this)
+    var EnvelopeFactory = function () {
+        Object.call(this);
     };
-    ns.Class(EnvelopeFactory, obj, [Envelope.Factory]);
-    EnvelopeFactory.prototype.createEnvelope = function(from, to, when) {
+    ns.Class(EnvelopeFactory, Object, [Envelope.Factory]);
+    EnvelopeFactory.prototype.createEnvelope = function (from, to, when) {
         if (!when) {
-            when = new Date()
+            when = new Date();
         }
-        return new MessageEnvelope(from, to, when)
+        return new MessageEnvelope(from, to, when);
     };
-    EnvelopeFactory.prototype.parseEnvelope = function(env) {
-        if (!env || !env["sender"]) {
-            return null
+    EnvelopeFactory.prototype.parseEnvelope = function (env) {
+        if (!env["sender"]) {
+            return null;
         }
-        return new MessageEnvelope(env)
+        return new MessageEnvelope(env);
     };
     Envelope.setFactory(new EnvelopeFactory());
     ns.dkd.EnvelopeFactory = EnvelopeFactory;
-    ns.dkd.registers("EnvelopeFactory")
+    ns.dkd.registers("EnvelopeFactory");
 })(DaoKeDao);
-(function(ns) {
-    var obj = ns.type.Object;
+(function (ns) {
     var InstantMessage = ns.protocol.InstantMessage;
     var PlainMessage = ns.dkd.PlainMessage;
-    var InstantMessageFactory = function() {
-        obj.call(this)
+    var InstantMessageFactory = function () {
+        Object.call(this);
     };
-    ns.Class(InstantMessageFactory, obj, [InstantMessage.Factory]);
-    InstantMessageFactory.prototype.createInstantMessage = function(head, body) {
-        return new PlainMessage(head, body)
+    ns.Class(InstantMessageFactory, Object, [InstantMessage.Factory]);
+    var MAX_LONG = 4294967295;
+    InstantMessageFactory.prototype.generateSerialNumber = function (
+        msgType,
+        now
+    ) {
+        var sn = Math.ceil(Math.random() * MAX_LONG);
+        if (sn > 0) {
+            return sn;
+        } else {
+            if (sn < 0) {
+                return -sn;
+            }
+        }
+        return 9527 + 9394;
     };
-    InstantMessageFactory.prototype.parseInstantMessage = function(msg) {
-        return new PlainMessage(msg)
+    InstantMessageFactory.prototype.createInstantMessage = function (head, body) {
+        return new PlainMessage(head, body);
+    };
+    InstantMessageFactory.prototype.parseInstantMessage = function (msg) {
+        return new PlainMessage(msg);
     };
     InstantMessage.setFactory(new InstantMessageFactory());
     ns.dkd.InstantMessageFactory = InstantMessageFactory;
-    ns.dkd.registers("InstantMessageFactory")
+    ns.dkd.registers("InstantMessageFactory");
 })(DaoKeDao);
-(function(ns) {
-    var obj = ns.type.Object;
+(function (ns) {
     var SecureMessage = ns.protocol.SecureMessage;
     var EncryptedMessage = ns.dkd.EncryptedMessage;
-    var SecureMessageFactory = function() {
-        obj.call(this)
+    var NetworkMessage = ns.dkd.NetworkMessage;
+    var SecureMessageFactory = function () {
+        Object.call(this);
     };
-    ns.Class(SecureMessageFactory, obj, [SecureMessage.Factory]);
-    SecureMessageFactory.prototype.parseSecureMessage = function(msg) {
-        return new EncryptedMessage(msg)
+    ns.Class(SecureMessageFactory, Object, [SecureMessage.Factory]);
+    SecureMessageFactory.prototype.parseSecureMessage = function (msg) {
+        if (msg["signature"]) {
+            return new NetworkMessage(msg);
+        }
+        return new EncryptedMessage(msg);
     };
     SecureMessage.setFactory(new SecureMessageFactory());
     ns.dkd.SecureMessageFactory = SecureMessageFactory;
-    ns.dkd.registers("SecureMessageFactory")
+    ns.dkd.registers("SecureMessageFactory");
 })(DaoKeDao);
-(function(ns) {
-    var obj = ns.type.Object;
+(function (ns) {
     var ReliableMessage = ns.protocol.ReliableMessage;
     var NetworkMessage = ns.dkd.NetworkMessage;
-    var ReliableMessageFactory = function() {
-        obj.call(this)
+    var ReliableMessageFactory = function () {
+        Object.call(this);
     };
-    ns.Class(ReliableMessageFactory, obj, [ReliableMessage.Factory]);
-    ReliableMessageFactory.prototype.parseReliableMessage = function(msg) {
-        return new NetworkMessage(msg)
+    ns.Class(ReliableMessageFactory, Object, [ReliableMessage.Factory]);
+    ReliableMessageFactory.prototype.parseReliableMessage = function (msg) {
+        if (!msg["sender"] || !msg["data"] || !msg["signature"]) {
+            return null;
+        }
+        return new NetworkMessage(msg);
     };
     ReliableMessage.setFactory(new ReliableMessageFactory());
     ns.dkd.ReliableMessageFactory = ReliableMessageFactory;
-    ns.dkd.registers("ReliableMessageFactory")
+    ns.dkd.registers("ReliableMessageFactory");
 })(DaoKeDao);
 if (typeof DIMP !== "object") {
-    DIMP = new MingKeMing.Namespace()
+    DIMP = new MingKeMing.Namespace();
 }
-(function(ns, base) {
+(function (ns, base) {
     base.exports(ns);
     if (typeof ns.core !== "object") {
-        ns.core = new ns.Namespace()
+        ns.core = new ns.Namespace();
+    }
+    if (typeof ns.dkd !== "object") {
+        ns.dkd = new ns.Namespace();
+    }
+    if (typeof ns.mkm !== "object") {
+        ns.mkm = new ns.Namespace();
     }
     if (typeof ns.protocol !== "object") {
-        ns.protocol = new ns.Namespace()
+        ns.protocol = new ns.Namespace();
     }
     if (typeof ns.protocol.group !== "object") {
-        ns.protocol.group = new ns.Namespace()
+        ns.protocol.group = new ns.Namespace();
     }
     ns.registers("core");
+    ns.registers("dkd");
+    ns.registers("mkm");
     ns.registers("protocol");
-    ns.protocol.registers("group")
+    ns.protocol.registers("group");
 })(DIMP, DaoKeDao);
-(function(ns) {
+(function (ns) {
+    var Wrapper = ns.type.Wrapper;
     var ReliableMessage = ns.protocol.ReliableMessage;
-    var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.dkd.BaseContent;
-    var ForwardContent = function() {
-        if (arguments.length === 0) {
-            BaseContent.call(this, ContentType.FORWARD);
-            this.__forward = null
-        } else {
-            if (ns.Interface.conforms(arguments[0], ReliableMessage)) {
-                BaseContent.call(this, ContentType.FORWARD);
-                this.setMessage(arguments[0])
-            } else {
-                BaseContent.call(this, arguments[0]);
-                this.__forward = null
-            }
-        }
+    var Content = ns.protocol.Content;
+    var ForwardContent = function () {};
+    ns.Interface(ForwardContent, [Content]);
+    ForwardContent.prototype.setMessage = function (secret) {
+        console.assert(false, "implement me!");
     };
-    ns.Class(ForwardContent, BaseContent, null);
-    ForwardContent.getMessage = function(content) {
+    ForwardContent.prototype.getMessage = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    ForwardContent.getMessage = function (content) {
+        content = Wrapper.fetchMap(content);
         var secret = content["forward"];
+        return ReliableMessage.parse(secret);
+    };
+    ForwardContent.setMessage = function (secret, content) {
+        content = Wrapper.fetchMap(content);
         if (secret) {
-            return ReliableMessage.parse(secret)
+            content["forward"] = Wrapper.fetchMap(secret);
         } else {
-            return null
+            delete content["forward"];
         }
-    };
-    ForwardContent.setMessage = function(secret, content) {
-        if (secret) {
-            content["forward"] = secret.getMap()
-        } else {
-            delete content["forward"]
-        }
-    };
-    ForwardContent.prototype.getMessage = function() {
-        if (!this.__forward) {
-            this.__forward = ForwardContent.getMessage(this.getMap())
-        }
-        return this.__forward
-    };
-    ForwardContent.prototype.setMessage = function(secret) {
-        ForwardContent.setMessage(secret, this.getMap());
-        this.__forward = secret
     };
     ns.protocol.ForwardContent = ForwardContent;
-    ns.protocol.registers("ForwardContent")
+    ns.protocol.registers("ForwardContent");
 })(DaoKeDao);
-(function(ns) {
+(function (ns) {
+    var Wrapper = ns.type.Wrapper;
     var SymmetricKey = ns.crypto.SymmetricKey;
-    var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.dkd.BaseContent;
-    var FileContent = function() {
-        if (arguments.length === 0) {
-            BaseContent.call(this, ContentType.FILE);
-            this.__data = null
-        } else {
-            if (arguments.length === 1) {
-                BaseContent.call(this, arguments[0]);
-                this.__data = null
-            } else {
-                if (arguments.length === 2) {
-                    BaseContent.call(this, ContentType.FILE);
-                    this.setFilename(arguments[0]);
-                    this.setData(arguments[1])
-                } else {
-                    if (arguments.length === 3) {
-                        BaseContent.call(this, arguments[0]);
-                        this.setFilename(arguments[1]);
-                        this.setData(arguments[2])
-                    } else {
-                        throw new SyntaxError("file content arguments error: " + arguments)
-                    }
-                }
-            }
-        }
-        this.__password = null
+    var Content = ns.protocol.Content;
+    var FileContent = function () {};
+    ns.Interface(FileContent, [Content]);
+    FileContent.prototype.setURL = function (url) {
+        console.assert(false, "implement me!");
     };
-    ns.Class(FileContent, BaseContent, null);
-    FileContent.getURL = function(content) {
-        return content["URL"]
+    FileContent.prototype.getURL = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
-    FileContent.setURL = function(url, content) {
-        if (url && url.indexOf("://") > 0) {
-            content["URL"] = url
+    FileContent.setURL = function (url, content) {
+        content = Wrapper.fetchMap(content);
+        if (url) {
+            content["URL"] = url;
         } else {
-            delete content["URL"]
+            delete content["URL"];
         }
     };
-    FileContent.getFilename = function(content) {
-        return content["filename"]
+    FileContent.getURL = function (content) {
+        content = Wrapper.fetchMap(content);
+        return content["URL"];
     };
-    FileContent.setFilename = function(filename, content) {
-        if (filename && filename.length > 0) {
-            content["filename"] = filename
+    FileContent.prototype.setFilename = function (filename) {
+        console.assert(false, "implement me!");
+    };
+    FileContent.prototype.getFilename = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    FileContent.setFilename = function (filename, content) {
+        content = Wrapper.fetchMap(content);
+        if (filename) {
+            content["filename"] = filename;
         } else {
-            delete content["filename"]
+            delete content["filename"];
         }
     };
-    FileContent.getData = function(content) {
+    FileContent.getFilename = function (content) {
+        content = Wrapper.fetchMap(content);
+        return content["filename"];
+    };
+    FileContent.prototype.setData = function (data) {
+        console.assert(false, "implement me!");
+    };
+    FileContent.prototype.getData = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    FileContent.setData = function (data, content) {
+        content = Wrapper.fetchMap(content);
+        if (data) {
+            content["data"] = ns.format.Base64.encode(data);
+        } else {
+            delete content["data"];
+        }
+    };
+    FileContent.getData = function (content) {
+        content = Wrapper.fetchMap(content);
         var base64 = content["data"];
-        if (base64 && base64.length > 0) {
-            return ns.format.Base64.decode(base64)
+        if (base64) {
+            return ns.format.Base64.decode(base64);
         } else {
-            return null
+            return null;
         }
     };
-    FileContent.setData = function(data, content) {
-        if (data && data.length > 0) {
-            content["data"] = ns.format.Base64.encode(data)
+    FileContent.prototype.setPassword = function (key) {
+        console.assert(false, "implement me!");
+    };
+    FileContent.prototype.getPassword = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    FileContent.setPassword = function (key, content) {
+        content = Wrapper.fetchMap(content);
+        if (key) {
+            content["password"] = Wrapper.fetchMap(key);
         } else {
-            delete content["data"]
+            delete content["password"];
         }
     };
-    FileContent.getPassword = function(content) {
+    FileContent.getPassword = function (content) {
+        content = Wrapper.fetchMap(content);
         var key = content["password"];
-        if (key) {
-            return SymmetricKey.parse(key)
-        } else {
-            return null
-        }
-    };
-    FileContent.setPassword = function(key, content) {
-        if (key) {
-            content["password"] = key.getMap()
-        } else {
-            delete content["password"]
-        }
-    };
-    FileContent.prototype.getURL = function() {
-        return FileContent.getURL(this.getMap())
-    };
-    FileContent.prototype.setURL = function(url) {
-        FileContent.setURL(url, this.getMap())
-    };
-    FileContent.prototype.getFilename = function() {
-        return FileContent.getFilename(this.getMap())
-    };
-    FileContent.prototype.setFilename = function(filename) {
-        FileContent.setFilename(filename, this.getMap())
-    };
-    FileContent.prototype.getData = function() {
-        if (!this.__data) {
-            this.__data = FileContent.getData(this.getMap())
-        }
-        return this.__data
-    };
-    FileContent.prototype.setData = function(data) {
-        FileContent.setData(data, this.getMap());
-        this.__data = data
-    };
-    FileContent.prototype.getPassword = function() {
-        if (!this.__password) {
-            this.__password = FileContent.getPassword(console)
-        }
-        return this.__password
-    };
-    FileContent.prototype.setPassword = function(key) {
-        FileContent.setPassword(key, this.getMap());
-        this.__password = key
+        return SymmetricKey.parse(key);
     };
     ns.protocol.FileContent = FileContent;
-    ns.protocol.registers("FileContent")
+    ns.protocol.registers("FileContent");
 })(DIMP);
-(function(ns) {
-    var ContentType = ns.protocol.ContentType;
+(function (ns) {
+    var Wrapper = ns.type.Wrapper;
     var FileContent = ns.protocol.FileContent;
-    var ImageContent = function() {
-        if (arguments.length === 0) {
-            FileContent.call(this, ContentType.IMAGE)
-        } else {
-            if (arguments.length === 1) {
-                FileContent.call(this, arguments[0])
-            } else {
-                if (arguments.length === 2) {
-                    FileContent.call(this, ContentType.IMAGE, arguments[0], arguments[1])
-                } else {
-                    throw new SyntaxError("image content arguments error: " + arguments)
-                }
-            }
-        }
-        this.__thumbnail = null
+    var ImageContent = function () {};
+    ns.Interface(ImageContent, [FileContent]);
+    ImageContent.prototype.setThumbnail = function (image) {
+        console.assert(false, "implement me!");
     };
-    ns.Class(ImageContent, FileContent, null);
-    ImageContent.getThumbnail = function(content) {
+    ImageContent.prototype.getThumbnail = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    ImageContent.setThumbnail = function (image, content) {
+        content = Wrapper.fetchMap(content);
+        if (image) {
+            content["thumbnail"] = ns.format.Base64.encode(image);
+        } else {
+            delete content["thumbnail"];
+        }
+    };
+    ImageContent.getThumbnail = function (content) {
+        content = Wrapper.fetchMap(content);
         var base64 = content["thumbnail"];
         if (base64) {
-            return ns.format.Base64.decode(base64)
+            return ns.format.Base64.decode(base64);
         } else {
-            return null
+            return null;
         }
     };
-    ImageContent.setThumbnail = function(image, content) {
-        if (image && image.length > 0) {
-            content["thumbnail"] = ns.format.Base64.encode(image)
+    var VideoContent = function () {};
+    ns.Interface(VideoContent, [FileContent]);
+    VideoContent.prototype.setSnapshot = function (image) {
+        console.assert(false, "implement me!");
+    };
+    VideoContent.prototype.getSnapshot = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    VideoContent.setSnapshot = function (image, content) {
+        content = Wrapper.fetchMap(content);
+        if (image) {
+            content["snapshot"] = ns.format.Base64.encode(image);
         } else {
-            delete content["thumbnail"]
+            delete content["snapshot"];
         }
     };
-    ImageContent.prototype.getThumbnail = function() {
-        if (!this.__thumbnail) {
-            this.__thumbnail = ImageContent.getThumbnail(this.getMap())
-        }
-        return this.__thumbnail
-    };
-    ImageContent.prototype.setThumbnail = function(image) {
-        ImageContent.setThumbnail(image, this.getMap());
-        this.__thumbnail = image
-    };
-    ns.protocol.ImageContent = ImageContent;
-    ns.protocol.registers("ImageContent")
-})(DIMP);
-(function(ns) {
-    var ContentType = ns.protocol.ContentType;
-    var FileContent = ns.protocol.FileContent;
-    var VideoContent = function() {
-        if (arguments.length === 0) {
-            FileContent.call(this, ContentType.VIDEO)
-        } else {
-            if (arguments.length === 1) {
-                FileContent.call(this, arguments[0])
-            } else {
-                if (arguments.length === 2) {
-                    FileContent.call(this, ContentType.VIDEO, arguments[0], arguments[1])
-                } else {
-                    throw new SyntaxError("video content arguments error: " + arguments)
-                }
-            }
-        }
-        this.__snapshot = null
-    };
-    ns.Class(VideoContent, FileContent, null);
-    VideoContent.getSnapshot = function(content) {
+    VideoContent.getSnapshot = function (content) {
+        content = Wrapper.fetchMap(content);
         var base64 = content["snapshot"];
         if (base64) {
-            return ns.format.Base64.decode(base64)
+            return ns.format.Base64.decode(base64);
         } else {
-            return null
+            return null;
         }
     };
-    VideoContent.setSnapshot = function(image, content) {
-        if (image && image.length > 0) {
-            content["snapshot"] = ns.format.Base64.encode(image)
-        } else {
-            delete content["snapshot"]
-        }
+    var AudioContent = function () {};
+    ns.Interface(AudioContent, [FileContent]);
+    AudioContent.prototype.setText = function (asr) {
+        console.assert(false, "implement me!");
     };
-    VideoContent.prototype.getSnapshot = function() {
-        if (!this.__snapshot) {
-            this.__snapshot = VideoContent.getSnapshot(this.getMap())
-        }
-        return this.__snapshot
+    AudioContent.prototype.getText = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
-    VideoContent.prototype.setSnapshot = function(image) {
-        VideoContent.setSnapshot(image, this.getMap());
-        this.__snapshot = image
-    };
+    ns.protocol.ImageContent = ImageContent;
     ns.protocol.VideoContent = VideoContent;
-    ns.protocol.registers("VideoContent")
-})(DIMP);
-(function(ns) {
-    var ContentType = ns.protocol.ContentType;
-    var FileContent = ns.protocol.FileContent;
-    var AudioContent = function() {
-        if (arguments.length === 0) {
-            FileContent.call(this, ContentType.AUDIO)
-        } else {
-            if (arguments.length === 1) {
-                FileContent.call(this, arguments[0])
-            } else {
-                if (arguments.length === 2) {
-                    FileContent.call(this, ContentType.AUDIO, arguments[0], arguments[1])
-                } else {
-                    throw new SyntaxError("audio content arguments error: " + arguments)
-                }
-            }
-        }
-    };
-    ns.Class(AudioContent, FileContent, null);
-    AudioContent.prototype.getText = function() {
-        return this.getValue("text")
-    };
-    AudioContent.prototype.setText = function(asr) {
-        this.setValue("text", asr)
-    };
     ns.protocol.AudioContent = AudioContent;
-    ns.protocol.registers("AudioContent")
+    ns.protocol.registers("ImageContent");
+    ns.protocol.registers("VideoContent");
+    ns.protocol.registers("AudioContent");
 })(DIMP);
-(function(ns) {
-    var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.dkd.BaseContent;
-    var TextContent = function() {
-        if (arguments.length === 0) {
-            BaseContent.call(this, ContentType.TEXT)
-        } else {
-            if (typeof arguments[0] === "string") {
-                BaseContent.call(this, ContentType.TEXT);
-                this.setText(arguments[0])
-            } else {
-                BaseContent.call(this, arguments[0])
-            }
-        }
+(function (ns) {
+    var Content = ns.protocol.Content;
+    var TextContent = function () {};
+    ns.Interface(TextContent, [Content]);
+    TextContent.prototype.setText = function (text) {
+        console.assert(false, "implement me!");
     };
-    ns.Class(TextContent, BaseContent, null);
-    TextContent.prototype.getText = function() {
-        return this.getValue("text")
-    };
-    TextContent.prototype.setText = function(text) {
-        this.setValue("text", text)
+    TextContent.prototype.getText = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
     ns.protocol.TextContent = TextContent;
-    ns.protocol.registers("TextContent")
+    ns.protocol.registers("TextContent");
 })(DIMP);
-(function(ns) {
-    var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.dkd.BaseContent;
-    var PageContent = function() {
-        if (arguments.length === 1) {
-            BaseContent.call(this, arguments[0]);
-            this.__icon = null
+(function (ns) {
+    var Wrapper = ns.type.Wrapper;
+    var Content = ns.protocol.Content;
+    var PageContent = function () {};
+    ns.Interface(PageContent, [Content]);
+    PageContent.prototype.setURL = function (url) {
+        console.assert(false, "implement me!");
+    };
+    PageContent.prototype.getURL = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    PageContent.getURL = function (content) {
+        content = Wrapper.fetchMap(content);
+        return content["URL"];
+    };
+    PageContent.setURL = function (url, content) {
+        content = Wrapper.fetchMap(content);
+        if (url) {
+            content["URL"] = url;
         } else {
-            if (arguments.length === 4) {
-                BaseContent.call(this, ContentType.PAGE);
-                this.setURL(arguments[0]);
-                this.setTitle(arguments[1]);
-                this.setDesc(arguments[2]);
-                this.setIcon(arguments[3])
-            } else {
-                throw new SyntaxError("web page content arguments error: " + arguments)
-            }
+            delete content["URL"];
         }
     };
-    ns.Class(PageContent, BaseContent, null);
-    PageContent.getURL = function(content) {
-        return content["URL"]
+    PageContent.prototype.setTitle = function (title) {
+        console.assert(false, "implement me!");
     };
-    PageContent.setURL = function(url, content) {
-        if (url && url.indexOf("://") > 0) {
-            content["URL"] = url
+    PageContent.prototype.getTitle = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    PageContent.getTitle = function (content) {
+        content = Wrapper.fetchMap(content);
+        return content["title"];
+    };
+    PageContent.setTitle = function (title, content) {
+        content = Wrapper.fetchMap(content);
+        if (title) {
+            content["title"] = title;
         } else {
-            delete content["URL"]
+            delete content["title"];
         }
     };
-    PageContent.getTitle = function(content) {
-        return content["title"]
+    PageContent.prototype.setDesc = function (text) {
+        console.assert(false, "implement me!");
     };
-    PageContent.setTitle = function(title, content) {
-        if (title && title.length > 0) {
-            content["title"] = title
+    PageContent.prototype.getDesc = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    PageContent.getDesc = function (content) {
+        content = Wrapper.fetchMap(content);
+        return content["desc"];
+    };
+    PageContent.setDesc = function (text, content) {
+        content = Wrapper.fetchMap(content);
+        if (text) {
+            content["desc"] = text;
         } else {
-            delete content["title"]
+            delete content["desc"];
         }
     };
-    PageContent.getDesc = function(content) {
-        return content["desc"]
+    PageContent.prototype.setIcon = function (image) {
+        console.assert(false, "implement me!");
     };
-    PageContent.setDesc = function(text, content) {
-        if (text && text.length > 0) {
-            content["desc"] = text
+    PageContent.prototype.getIcon = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    PageContent.setIcon = function (image, content) {
+        content = Wrapper.fetchMap(content);
+        if (image) {
+            content["icon"] = ns.format.Base64.encode(image);
         } else {
-            delete content["desc"]
+            delete content["icon"];
         }
     };
-    PageContent.getIcon = function(content) {
+    PageContent.getIcon = function (content) {
+        content = Wrapper.fetchMap(content);
         var base64 = content["icon"];
-        if (base64 && base64.length > 0) {
-            return ns.format.Base64.decode(base64)
+        if (base64) {
+            return ns.format.Base64.decode(base64);
         } else {
-            return null
+            return null;
         }
-    };
-    PageContent.setIcon = function(image, content) {
-        if (image && image.length > 0) {
-            content["icon"] = ns.format.Base64.encode(image)
-        } else {
-            delete content["icon"]
-        }
-    };
-    PageContent.prototype.getURL = function() {
-        return PageContent.getURL(this.getMap())
-    };
-    PageContent.prototype.setURL = function(url) {
-        PageContent.setURL(url, this.getMap())
-    };
-    PageContent.prototype.getTitle = function() {
-        return PageContent.getTitle(this.getMap())
-    };
-    PageContent.prototype.setTitle = function(title) {
-        PageContent.setTitle(title, this.getMap())
-    };
-    PageContent.prototype.getDesc = function() {
-        return PageContent.getDesc(this.getMap())
-    };
-    PageContent.prototype.setDesc = function(text) {
-        PageContent.setDesc(text, this.getMap())
-    };
-    PageContent.prototype.getIcon = function() {
-        if (!this.__icon) {
-            this.__icon = PageContent.getIcon(this.getMap())
-        }
-        return this.__icon
-    };
-    PageContent.prototype.setIcon = function(image) {
-        PageContent.setIcon(image, this.getMap());
-        this.__icon = image
     };
     ns.protocol.PageContent = PageContent;
-    ns.protocol.registers("PageContent")
+    ns.protocol.registers("PageContent");
 })(DIMP);
-(function(ns) {
-    var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.dkd.BaseContent;
-    var MoneyContent = function() {
-        if (arguments.length === 3) {
-            BaseContent.call(arguments[0]);
-            this.setCurrency(arguments[1]);
-            this.setAmount(arguments[2])
-        } else {
-            if (arguments.length === 2) {
-                BaseContent.call(ContentType.MONEY);
-                this.setCurrency(arguments[0]);
-                this.setAmount(arguments[1])
-            } else {
-                if (typeof arguments[0] === "string") {
-                    BaseContent.call(ContentType.MONEY);
-                    this.setCurrency(arguments[0])
-                } else {
-                    BaseContent.call(arguments[0])
-                }
-            }
-        }
+(function (ns) {
+    var Wrapper = ns.type.Wrapper;
+    var Content = ns.protocol.Content;
+    var MoneyContent = function () {};
+    ns.Interface(MoneyContent, [Content]);
+    MoneyContent.prototype.setCurrency = function (currency) {
+        console.assert(false, "implement me!");
     };
-    ns.Class(MoneyContent, BaseContent, null);
-    MoneyContent.getCurrency = function(content) {
-        return content["currency"]
+    MoneyContent.prototype.getCurrency = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
-    MoneyContent.setCurrency = function(currency, content) {
-        content["currency"] = currency
+    MoneyContent.setCurrency = function (currency, content) {
+        content = Wrapper.fetchMap(content);
+        content["currency"] = currency;
     };
-    MoneyContent.getAmount = function(content) {
-        return content["amount"]
+    MoneyContent.getCurrency = function (content) {
+        content = Wrapper.fetchMap(content);
+        return content["currency"];
     };
-    MoneyContent.setAmount = function(amount, content) {
-        content["amount"] = amount
+    MoneyContent.prototype.setAmount = function (amount) {
+        console.assert(false, "implement me!");
     };
-    MoneyContent.prototype.getCurrency = function() {
-        return MoneyContent.getCurrency(this.getMap())
+    MoneyContent.prototype.getAmount = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
-    MoneyContent.prototype.setCurrency = function(currency) {
-        MoneyContent.setCurrency(currency, this.getMap())
+    MoneyContent.setAmount = function (amount, content) {
+        content = Wrapper.fetchMap(content);
+        content["amount"] = amount;
     };
-    MoneyContent.prototype.getAmount = function() {
-        return MoneyContent.getAmount(this.getMap())
+    MoneyContent.getAmount = function (content) {
+        content = Wrapper.fetchMap(content);
+        return content["amount"];
     };
-    MoneyContent.prototype.setAmount = function(amount) {
-        MoneyContent.setAmount(amount, this.getMap())
+    var TransferContent = function () {};
+    ns.Interface(TransferContent, [MoneyContent]);
+    TransferContent.prototype.setComment = function (text) {
+        console.assert(false, "implement me!");
+    };
+    TransferContent.prototype.getComment = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
     ns.protocol.MoneyContent = MoneyContent;
-    ns.protocol.registers("MoneyContent")
-})(DIMP);
-(function(ns) {
-    var ContentType = ns.protocol.ContentType;
-    var MoneyContent = ns.MoneyContent;
-    var TransferContent = function() {
-        if (arguments.length === 2) {
-            MoneyContent.call(ContentType.TRANSFER, arguments[0], arguments[1])
-        } else {
-            if (typeof arguments[0] === "string") {
-                MoneyContent.call(ContentType.TRANSFER, arguments[0], 0)
-            } else {
-                MoneyContent.call(arguments[0])
-            }
-        }
-    };
-    ns.Class(TransferContent, MoneyContent, null);
     ns.protocol.TransferContent = TransferContent;
-    ns.protocol.registers("TransferContent")
+    ns.protocol.registers("MoneyContent");
+    ns.protocol.registers("TransferContent");
 })(DIMP);
-(function(ns) {
-    var ContentType = ns.protocol.ContentType;
-    var BaseContent = ns.dkd.BaseContent;
-    var Command = function() {
-        if (arguments.length === 2) {
-            BaseContent.call(this, arguments[0]);
-            this.setCommand(arguments[1])
-        } else {
-            if (typeof arguments[0] === "string") {
-                BaseContent.call(this, ContentType.COMMAND);
-                this.setCommand(arguments[0])
-            } else {
-                BaseContent.call(this, arguments[0])
-            }
-        }
-    };
-    ns.Class(Command, BaseContent, null);
-    Command.getCommand = function(cmd) {
-        return cmd["command"]
-    };
-    Command.setCommand = function(name, cmd) {
-        if (name && name.length > 0) {
-            cmd["command"] = name
-        } else {
-            delete cmd["command"]
-        }
-    };
-    Command.prototype.getCommand = function() {
-        return Command.getCommand(this.getMap())
-    };
-    Command.prototype.setCommand = function(name) {
-        Command.setCommand(name, this.getMap())
-    };
+(function (ns) {
+    var Wrapper = ns.type.Wrapper;
+    var Content = ns.protocol.Content;
+    var Command = function () {};
+    ns.Interface(Command, [Content]);
     Command.META = "meta";
     Command.DOCUMENT = "document";
     Command.RECEIPT = "receipt";
     Command.HANDSHAKE = "handshake";
     Command.LOGIN = "login";
-    ns.protocol.Command = Command;
-    ns.protocol.registers("Command")
-})(DIMP);
-(function(ns) {
-    var Command = ns.protocol.Command;
-    var CommandFactory = function() {};
-    ns.Interface(CommandFactory, null);
-    CommandFactory.prototype.parseCommand = function(cmd) {
+    Command.prototype.getCommand = function () {
         console.assert(false, "implement me!");
-        return null
+        return "";
+    };
+    Command.getCommand = function (cmd) {
+        cmd = Wrapper.fetchMap(cmd);
+        return cmd["command"];
+    };
+    var CommandFactory = function () {};
+    ns.Interface(CommandFactory, null);
+    CommandFactory.prototype.parseCommand = function (cmd) {
+        console.assert(false, "implement me!");
+        return null;
     };
     Command.Factory = CommandFactory;
-    var s_factories = {};
-    Command.register = function(name, factory) {
-        s_factories[name] = factory
+    var s_command_factories = {};
+    Command.setFactory = function (name, factory) {
+        s_command_factories[name] = factory;
     };
-    Command.getFactory = function(name) {
-        return s_factories[name]
-    }
+    Command.getFactory = function (name) {
+        return s_command_factories[name];
+    };
+    ns.protocol.Command = Command;
+    ns.protocol.registers("Command");
 })(DIMP);
-(function(ns) {
+(function (ns) {
+    var Wrapper = ns.type.Wrapper;
     var ID = ns.protocol.ID;
     var Meta = ns.protocol.Meta;
     var Command = ns.protocol.Command;
-    var MetaCommand = function() {
-        if (arguments.length === 1) {
-            if (ns.Interface.conforms(arguments[0], ID)) {
-                Command.call(this, Command.META);
-                this.setIdentifier(arguments[0])
-            } else {
-                Command.call(this, arguments[0]);
-                this.__identifier = null
-            }
-            this.__meta = null
-        } else {
-            if (arguments.length === 2) {
-                if (ns.Interface.conforms(arguments[0], ID)) {
-                    Command.call(this, Command.META);
-                    this.setIdentifier(arguments[0]);
-                    this.setMeta(arguments[1])
-                } else {
-                    Command.call(this, arguments[0]);
-                    this.setIdentifier(arguments[1]);
-                    this.__meta = null
-                }
-            } else {
-                if (arguments.length === 3) {
-                    Command.call(this, arguments[0]);
-                    this.setIdentifier(arguments[1]);
-                    this.setMeta(arguments[2])
-                } else {
-                    throw new SyntaxError("meta command arguments error: " + arguments)
-                }
-            }
-        }
+    var MetaCommand = function () {};
+    ns.Interface(MetaCommand, [Command]);
+    MetaCommand.prototype.setIdentifier = function (identifier) {
+        console.assert(false, "implement me!");
     };
-    ns.Class(MetaCommand, Command, null);
-    MetaCommand.getIdentifier = function(cmd) {
-        return ID.parse(cmd["ID"])
+    MetaCommand.prototype.getIdentifier = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
-    MetaCommand.setIdentifier = function(identifier, cmd) {
+    MetaCommand.setIdentifier = function (identifier, cmd) {
+        cmd = Wrapper.fetchMap(cmd);
         if (identifier) {
-            cmd["ID"] = identifier.toString()
+            cmd["ID"] = identifier.toString();
         } else {
-            delete cmd["ID"]
+            delete cmd["ID"];
         }
     };
-    MetaCommand.getMeta = function(cmd) {
-        return Meta.parse(cmd["meta"])
+    MetaCommand.getIdentifier = function (cmd) {
+        cmd = Wrapper.fetchMap(cmd);
+        return ID.parse(cmd["ID"]);
     };
-    MetaCommand.setMeta = function(meta, cmd) {
+    MetaCommand.prototype.setMeta = function (meta) {
+        console.assert(false, "implement me!");
+    };
+    MetaCommand.prototype.getMeta = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    MetaCommand.setMeta = function (meta, cmd) {
+        cmd = Wrapper.fetchMap(cmd);
         if (meta) {
-            cmd["meta"] = meta.getMap()
+            cmd["meta"] = Wrapper.fetchMap(meta);
         } else {
-            delete cmd["meta"]
+            delete cmd["meta"];
         }
     };
-    MetaCommand.prototype.getIdentifier = function() {
-        if (!this.__identifier) {
-            this.__identifier = MetaCommand.getIdentifier(this.getMap())
-        }
-        return this.__identifier
-    };
-    MetaCommand.prototype.setIdentifier = function(identifier) {
-        MetaCommand.setIdentifier(identifier, this.getMap());
-        this.__identifier = identifier
-    };
-    MetaCommand.prototype.getMeta = function() {
-        if (!this.__meta) {
-            this.__meta = MetaCommand.getMeta(this.getMap())
-        }
-        return this.__meta
-    };
-    MetaCommand.prototype.setMeta = function(meta) {
-        MetaCommand.setMeta(meta, this.getMap());
-        this.__meta = meta
-    };
-    MetaCommand.query = function(identifier) {
-        return new MetaCommand(identifier)
-    };
-    MetaCommand.response = function(identifier, meta) {
-        return new MetaCommand(identifier, meta)
+    MetaCommand.getMeta = function (cmd) {
+        cmd = Wrapper.fetchMap(cmd);
+        return Meta.parse(cmd["meta"]);
     };
     ns.protocol.MetaCommand = MetaCommand;
-    ns.protocol.registers("MetaCommand")
+    ns.protocol.registers("MetaCommand");
 })(DIMP);
-(function(ns) {
+(function (ns) {
+    var Wrapper = ns.type.Wrapper;
     var ID = ns.protocol.ID;
     var Meta = ns.protocol.Meta;
     var Document = ns.protocol.Document;
-    var Command = ns.protocol.Command;
     var MetaCommand = ns.protocol.MetaCommand;
-    var DocumentCommand = function() {
-        if (arguments.length === 1) {
-            if (ns.Interface.conforms(arguments[0], ID)) {
-                MetaCommand.call(this, Command.DOCUMENT, arguments[0])
-            } else {
-                MetaCommand.call(this, arguments[0])
-            }
-            this.__document = null
-        } else {
-            if (arguments.length === 2) {
-                if (ns.Interface.conforms(arguments[1], Meta)) {
-                    MetaCommand.call(this, Command.DOCUMENT, arguments[0], arguments[1])
-                } else {
-                    if (typeof arguments[1] === "string") {
-                        MetaCommand.call(this, Command.DOCUMENT, arguments[0], null);
-                        this.setSignature(arguments[1])
-                    } else {
-                        throw new SyntaxError("document command arguments error: " + arguments)
-                    }
-                }
-                this.__document = null
-            } else {
-                if (arguments.length === 3) {
-                    MetaCommand.call(this, Command.DOCUMENT, arguments[0], arguments[1]);
-                    this.setDocument(arguments[2])
-                } else {
-                    throw new SyntaxError("document command arguments error: " + arguments)
-                }
-            }
-        }
+    var DocumentCommand = function () {};
+    ns.Interface(DocumentCommand, [MetaCommand]);
+    DocumentCommand.prototype.setDocument = function (doc) {
+        console.assert(false, "implement me!");
     };
-    ns.Class(DocumentCommand, MetaCommand, null);
-    DocumentCommand.getDocument = function(cmd) {
-        var data = cmd["profile"];
-        if (!data) {
-            data = cmd["document"]
-        } else {
-            if (typeof data === "string") {
-                data = {
-                    "ID": cmd["ID"],
-                    "data": data,
-                    "signature": cmd["signature"]
-                }
-            }
-        }
-        if (data) {
-            return Document.parse(data)
-        } else {
-            return null
-        }
+    DocumentCommand.prototype.getDocument = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
-    DocumentCommand.setDocument = function(doc, cmd) {
+    DocumentCommand.setDocument = function (doc, cmd) {
+        cmd = Wrapper.fetchMap(cmd);
         if (doc) {
-            cmd["document"] = doc.getMap()
+            cmd["document"] = Wrapper.fetchMap(doc);
         } else {
-            delete cmd["command"]
+            delete cmd["command"];
         }
     };
-    DocumentCommand.getSignature = function(cmd) {
-        return cmd["signature"]
+    DocumentCommand.getDocument = function (cmd) {
+        cmd = Wrapper.fetchMap(cmd);
+        var doc = cmd["document"];
+        return Document.parse(doc);
     };
-    DocumentCommand.setSignature = function(base64, cmd) {
-        cmd["signature"] = base64
+    DocumentCommand.prototype.setSignature = function (base64) {
+        console.assert(false, "implement me!");
     };
-    DocumentCommand.prototype.getDocument = function() {
-        if (!this.__document) {
-            this.__document = DocumentCommand.getDocument(this.getMap())
-        }
-        return this.__document
+    DocumentCommand.prototype.getSignature = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
-    DocumentCommand.prototype.setDocument = function(doc) {
-        DocumentCommand.setDocument(doc, this.getMap());
-        this.__document = doc
+    DocumentCommand.setSignature = function (base64, cmd) {
+        cmd = Wrapper.fetchMap(cmd);
+        cmd["signature"] = base64;
     };
-    DocumentCommand.prototype.getSignature = function() {
-        return DocumentCommand.getSignature(this.getMap())
+    DocumentCommand.getSignature = function (cmd) {
+        cmd = Wrapper.fetchMap(cmd);
+        return cmd["signature"];
     };
-    DocumentCommand.prototype.setSignature = function(base64) {
-        DocumentCommand.setSignature(base64, this.getMap())
+    DocumentCommand.query = function (identifier, signature) {
+        return new DocumentCommand(identifier, signature);
     };
-    DocumentCommand.query = function(identifier, signature) {
-        return new DocumentCommand(identifier, signature)
-    };
-    DocumentCommand.response = function(identifier, meta, doc) {
-        return new DocumentCommand(identifier, meta, doc)
+    DocumentCommand.response = function (identifier, meta, doc) {
+        return new DocumentCommand(identifier, meta, doc);
     };
     ns.protocol.DocumentCommand = DocumentCommand;
-    ns.protocol.registers("DocumentCommand")
+    ns.protocol.registers("DocumentCommand");
 })(DIMP);
-(function(ns) {
-    var ContentType = ns.protocol.ContentType;
+(function (ns) {
+    var Wrapper = ns.type.Wrapper;
     var Command = ns.protocol.Command;
-    var HistoryCommand = function() {
-        if (arguments.length === 2) {
-            Command.call(this, arguments[0], arguments[1])
-        } else {
-            if (typeof arguments[0] === "string") {
-                Command.call(this, ContentType.HISTORY, arguments[0])
-            } else {
-                Command.call(this, arguments[0])
-            }
-        }
+    var HistoryCommand = function () {};
+    ns.Interface(HistoryCommand, [Command]);
+    HistoryCommand.prototype.getHistoryEvent = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
-    ns.Class(HistoryCommand, Command, null);
-    HistoryCommand.register = Command.register;
+    HistoryCommand.getHistoryEvent = function (cmd) {
+        cmd = Wrapper.fetchMap(cmd);
+        return cmd["event"];
+    };
     HistoryCommand.REGISTER = "register";
     HistoryCommand.SUICIDE = "suicide";
     ns.protocol.HistoryCommand = HistoryCommand;
-    ns.protocol.registers("HistoryCommand")
+    ns.protocol.registers("HistoryCommand");
 })(DIMP);
-(function(ns) {
+(function (ns) {
+    var Wrapper = ns.type.Wrapper;
     var ID = ns.protocol.ID;
     var HistoryCommand = ns.protocol.HistoryCommand;
-    var GroupCommand = function() {
-        if (arguments.length === 1) {
-            HistoryCommand.call(this, arguments[0]);
-            this.__member = null;
-            this.__members = null
-        } else {
-            if (arguments.length === 2) {
-                HistoryCommand.call(this, arguments[0]);
-                this.setGroup(arguments[1]);
-                this.__member = null;
-                this.__members = null
-            } else {
-                if (arguments[2] instanceof Array) {
-                    HistoryCommand.call(this, arguments[0]);
-                    this.setGroup(arguments[1]);
-                    this.__member = null;
-                    this.setMembers(arguments[2])
-                } else {
-                    HistoryCommand.call(this, arguments[0]);
-                    this.setGroup(arguments[1]);
-                    this.setMember(arguments[2]);
-                    this.__members = null
-                }
-            }
-        }
-    };
-    ns.Class(GroupCommand, HistoryCommand, null);
-    GroupCommand.getMember = function(cmd) {
-        return ID.parse(cmd["member"])
-    };
-    GroupCommand.setMember = function(member, cmd) {
-        if (member) {
-            cmd["member"] = member.toString()
-        } else {
-            delete cmd["member"]
-        }
-    };
-    GroupCommand.getMembers = function(cmd) {
-        var members = cmd["members"];
-        if (members) {
-            return ID.convert(members)
-        } else {
-            return null
-        }
-    };
-    GroupCommand.setMembers = function(members, cmd) {
-        if (members && members.length > 0) {
-            cmd["members"] = ID.revert(members)
-        } else {
-            delete cmd["members"]
-        }
-    };
-    GroupCommand.prototype.getMember = function() {
-        if (!this.__member) {
-            this.__member = GroupCommand.getMember(this.getMap())
-        }
-        return this.__member
-    };
-    GroupCommand.prototype.setMember = function(identifier) {
-        GroupCommand.setMembers(null, this.getMap());
-        GroupCommand.setMember(identifier, this.getMap());
-        this.__member = identifier
-    };
-    GroupCommand.prototype.getMembers = function() {
-        if (!this.__members) {
-            this.__members = GroupCommand.getMembers(this.getMap())
-        }
-        return this.__members
-    };
-    GroupCommand.prototype.setMembers = function(members) {
-        GroupCommand.setMember(null, this.getMap());
-        GroupCommand.setMembers(members, this.getMap());
-        this.__members = members
-    };
-    GroupCommand.register = HistoryCommand.register;
+    var GroupCommand = function () {};
+    ns.Interface(GroupCommand, [HistoryCommand]);
     GroupCommand.FOUND = "found";
     GroupCommand.ABDICATE = "abdicate";
     GroupCommand.INVITE = "invite";
@@ -5143,84 +4244,90 @@ if (typeof DIMP !== "object") {
     GroupCommand.HIRE = "hire";
     GroupCommand.FIRE = "fire";
     GroupCommand.RESIGN = "resign";
+    GroupCommand.prototype.setMember = function (identifier) {
+        console.assert(false, "implement me!");
+    };
+    GroupCommand.prototype.getMember = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    GroupCommand.prototype.setMembers = function (members) {
+        console.assert(false, "implement me!");
+    };
+    GroupCommand.prototype.getMembers = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    GroupCommand.setMember = function (member, cmd) {
+        cmd = Wrapper.fetchMap(cmd);
+        if (member) {
+            cmd["member"] = member.toString();
+        } else {
+            delete cmd["member"];
+        }
+    };
+    GroupCommand.getMember = function (cmd) {
+        cmd = Wrapper.fetchMap(cmd);
+        return ID.parse(cmd["member"]);
+    };
+    GroupCommand.setMembers = function (members, cmd) {
+        cmd = Wrapper.fetchMap(cmd);
+        if (members) {
+            cmd["members"] = ID.revert(members);
+        } else {
+            delete cmd["members"];
+        }
+    };
+    GroupCommand.getMembers = function (cmd) {
+        cmd = Wrapper.fetchMap(cmd);
+        var members = cmd["members"];
+        if (members) {
+            return ID.convert(members);
+        } else {
+            return null;
+        }
+    };
     ns.protocol.GroupCommand = GroupCommand;
-    ns.protocol.registers("GroupCommand")
+    ns.protocol.registers("GroupCommand");
 })(DIMP);
-(function(ns) {
-    var ID = ns.protocol.ID;
+(function (ns) {
     var GroupCommand = ns.protocol.GroupCommand;
-    var InviteCommand = function() {
-        if (arguments.length === 1) {
-            GroupCommand.call(this, arguments[0])
-        } else {
-            GroupCommand.call(this, GroupCommand.INVITE, arguments[0], arguments[1])
-        }
+    var InviteCommand = function () {};
+    ns.Interface(InviteCommand, [GroupCommand]);
+    InviteCommand.prototype.getInviteMembers = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
-    ns.Class(InviteCommand, GroupCommand, null);
-    var ExpelCommand = function() {
-        if (arguments.length === 1) {
-            GroupCommand.call(this, arguments[0])
-        } else {
-            GroupCommand.call(this, GroupCommand.EXPEL, arguments[0], arguments[1])
-        }
+    var ExpelCommand = function () {};
+    ns.Interface(ExpelCommand, [GroupCommand]);
+    ExpelCommand.prototype.getExpelMembers = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
-    ns.Class(ExpelCommand, GroupCommand, null);
-    var JoinCommand = function() {
-        if (ns.Interface.conforms(arguments[0], ID)) {
-            GroupCommand.call(this, GroupCommand.JOIN, arguments[0])
-        } else {
-            GroupCommand.call(this, arguments[0])
-        }
+    var JoinCommand = function () {};
+    ns.Interface(JoinCommand, [GroupCommand]);
+    JoinCommand.prototype.getAsk = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
-    ns.Class(JoinCommand, GroupCommand, null);
-    var QuitCommand = function() {
-        if (ns.Interface.conforms(arguments[0], ID)) {
-            GroupCommand.call(this, GroupCommand.QUIT, arguments[0])
-        } else {
-            GroupCommand.call(this, arguments[0])
-        }
+    var QuitCommand = function () {};
+    ns.Interface(QuitCommand, [GroupCommand]);
+    QuitCommand.prototype.getBye = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
-    ns.Class(QuitCommand, GroupCommand, null);
-    var ResetCommand = function() {
-        if (arguments.length === 1) {
-            GroupCommand.call(this, arguments[0])
-        } else {
-            GroupCommand.call(this, GroupCommand.RESET, arguments[0], arguments[1])
-        }
+    var ResetCommand = function () {};
+    ns.Interface(ResetCommand, [GroupCommand]);
+    ResetCommand.prototype.getAllMembers = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
-    ns.Class(ResetCommand, GroupCommand, null);
-    var QueryCommand = function() {
-        if (ns.Interface.conforms(arguments[0], ID)) {
-            GroupCommand.call(this, GroupCommand.QUERY, arguments[0])
-        } else {
-            GroupCommand.call(this, arguments[0])
-        }
+    var QueryCommand = function () {};
+    ns.Interface(QueryCommand, [GroupCommand]);
+    QueryCommand.prototype.getText = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
-    ns.Class(QueryCommand, GroupCommand, null);
-    GroupCommand.invite = function(group, members) {
-        return new InviteCommand(group, members)
-    };
-    GroupCommand.expel = function(group, members) {
-        return new ExpelCommand(group, members)
-    };
-    GroupCommand.join = function(group) {
-        return new JoinCommand(group)
-    };
-    GroupCommand.quit = function(group) {
-        return new QuitCommand(group)
-    };
-    GroupCommand.reset = function(group, members) {
-        return new ResetCommand(group, members)
-    };
-    GroupCommand.query = function(group) {
-        return new QueryCommand(group)
-    };
-    GroupCommand.register(GroupCommand.INVITE, InviteCommand);
-    GroupCommand.register(GroupCommand.EXPEL, ExpelCommand);
-    GroupCommand.register(GroupCommand.JOIN, JoinCommand);
-    GroupCommand.register(GroupCommand.QUIT, QuitCommand);
-    GroupCommand.register(GroupCommand.RESET, ResetCommand);
-    GroupCommand.register(GroupCommand.QUERY, QueryCommand);
     ns.protocol.group.InviteCommand = InviteCommand;
     ns.protocol.group.ExpelCommand = ExpelCommand;
     ns.protocol.group.JoinCommand = JoinCommand;
@@ -5232,1030 +4339,1560 @@ if (typeof DIMP !== "object") {
     ns.protocol.group.registers("JoinCommand");
     ns.protocol.group.registers("QuitCommand");
     ns.protocol.group.registers("ResetCommand");
-    ns.protocol.group.registers("QueryCommand")
+    ns.protocol.group.registers("QueryCommand");
 })(DIMP);
-(function(ns) {
-    var obj = ns.type.Object;
-    var ID = ns.protocol.ID;
-    var Entity = function(identifier) {
-        obj.call(this);
-        this.identifier = identifier;
-        this.__datasource = null
-    };
-    ns.Class(Entity, obj, null);
-    Entity.prototype.equals = function(other) {
-        if (this === other) {
-            return true
+(function (ns) {
+    var ReliableMessage = ns.protocol.ReliableMessage;
+    var ContentType = ns.protocol.ContentType;
+    var ForwardContent = ns.protocol.ForwardContent;
+    var BaseContent = ns.dkd.BaseContent;
+    var SecretContent = function () {
+        if (arguments.length === 0) {
+            BaseContent.call(this, ContentType.FORWARD);
+            this.__forward = null;
         } else {
-            if (other instanceof Entity) {
-                return this.identifier.equals(other.identifier)
+            if (ns.Interface.conforms(arguments[0], ReliableMessage)) {
+                BaseContent.call(this, ContentType.FORWARD);
+                this.setMessage(arguments[0]);
             } else {
-                if (ns.Interface.conforms(other, ID)) {
-                    return this.identifier.equals(other)
+                BaseContent.call(this, arguments[0]);
+                this.__forward = null;
+            }
+        }
+    };
+    ns.Class(SecretContent, BaseContent, [ForwardContent]);
+    SecretContent.prototype.getMessage = function () {
+        if (!this.__forward) {
+            this.__forward = ForwardContent.getMessage(this);
+        }
+        return this.__forward;
+    };
+    SecretContent.prototype.setMessage = function (secret) {
+        ForwardContent.setMessage(secret, this);
+        this.__forward = secret;
+    };
+    ns.dkd.SecretContent = SecretContent;
+    ns.dkd.registers("SecretContent");
+})(DaoKeDao);
+(function (ns) {
+    var ContentType = ns.protocol.ContentType;
+    var FileContent = ns.protocol.FileContent;
+    var BaseContent = ns.dkd.BaseContent;
+    var BaseFileContent = function () {
+        if (arguments.length === 0) {
+            BaseContent.call(this, ContentType.FILE);
+            this.__data = null;
+        } else {
+            if (arguments.length === 1) {
+                BaseContent.call(this, arguments[0]);
+                this.__data = null;
+            } else {
+                if (arguments.length === 2) {
+                    BaseContent.call(this, ContentType.FILE);
+                    this.setFilename(arguments[0]);
+                    this.setData(arguments[1]);
                 } else {
-                    return false
+                    if (arguments.length === 3) {
+                        BaseContent.call(this, arguments[0]);
+                        this.setFilename(arguments[1]);
+                        this.setData(arguments[2]);
+                    } else {
+                        throw new SyntaxError("file content arguments error: " + arguments);
+                    }
+                }
+            }
+        }
+        this.__password = null;
+    };
+    ns.Class(BaseFileContent, BaseContent, [FileContent]);
+    BaseFileContent.prototype.setURL = function (url) {
+        FileContent.setURL(url, this);
+    };
+    BaseFileContent.prototype.getURL = function () {
+        return FileContent.getURL(this);
+    };
+    BaseFileContent.prototype.setFilename = function (filename) {
+        FileContent.setFilename(filename, this);
+    };
+    BaseFileContent.prototype.getFilename = function () {
+        return FileContent.getFilename(this);
+    };
+    BaseFileContent.prototype.setData = function (data) {
+        FileContent.setData(data, this);
+        this.__data = data;
+    };
+    BaseFileContent.prototype.getData = function () {
+        if (!this.__data) {
+            this.__data = FileContent.getData(this);
+        }
+        return this.__data;
+    };
+    BaseFileContent.prototype.setPassword = function (key) {
+        FileContent.setPassword(key, this);
+        this.__password = key;
+    };
+    BaseFileContent.prototype.getPassword = function () {
+        if (!this.__password) {
+            this.__password = FileContent.getPassword(this);
+        }
+        return this.__password;
+    };
+    ns.dkd.BaseFileContent = BaseFileContent;
+    ns.dkd.registers("BaseFileContent");
+})(DIMP);
+(function (ns) {
+    var ContentType = ns.protocol.ContentType;
+    var ImageContent = ns.protocol.ImageContent;
+    var VideoContent = ns.protocol.VideoContent;
+    var AudioContent = ns.protocol.AudioContent;
+    var BaseFileContent = ns.dkd.BaseFileContent;
+    var ImageFileContent = function () {
+        if (arguments.length === 0) {
+            BaseFileContent.call(this, ContentType.IMAGE);
+        } else {
+            if (arguments.length === 1) {
+                BaseFileContent.call(this, arguments[0]);
+            } else {
+                if (arguments.length === 2) {
+                    BaseFileContent.call(
+                        this,
+                        ContentType.IMAGE,
+                        arguments[0],
+                        arguments[1]
+                    );
+                } else {
+                    throw new SyntaxError("image content arguments error: " + arguments);
+                }
+            }
+        }
+        this.__thumbnail = null;
+    };
+    ns.Class(ImageFileContent, BaseFileContent, [ImageContent]);
+    ImageFileContent.prototype.getThumbnail = function () {
+        if (!this.__thumbnail) {
+            this.__thumbnail = ImageContent.getThumbnail(this);
+        }
+        return this.__thumbnail;
+    };
+    ImageFileContent.prototype.setThumbnail = function (image) {
+        ImageContent.setThumbnail(image, this);
+        this.__thumbnail = image;
+    };
+    var VideoFileContent = function () {
+        if (arguments.length === 0) {
+            BaseFileContent.call(this, ContentType.VIDEO);
+        } else {
+            if (arguments.length === 1) {
+                BaseFileContent.call(this, arguments[0]);
+            } else {
+                if (arguments.length === 2) {
+                    BaseFileContent.call(
+                        this,
+                        ContentType.VIDEO,
+                        arguments[0],
+                        arguments[1]
+                    );
+                } else {
+                    throw new SyntaxError("video content arguments error: " + arguments);
+                }
+            }
+        }
+        this.__snapshot = null;
+    };
+    ns.Class(VideoFileContent, BaseFileContent, [VideoContent]);
+    VideoFileContent.prototype.getSnapshot = function () {
+        if (!this.__snapshot) {
+            this.__snapshot = VideoContent.getSnapshot(this);
+        }
+        return this.__snapshot;
+    };
+    VideoFileContent.prototype.setSnapshot = function (image) {
+        VideoContent.setSnapshot(image, this);
+        this.__snapshot = image;
+    };
+    var AudioFileContent = function () {
+        if (arguments.length === 0) {
+            BaseFileContent.call(this, ContentType.AUDIO);
+        } else {
+            if (arguments.length === 1) {
+                BaseFileContent.call(this, arguments[0]);
+            } else {
+                if (arguments.length === 2) {
+                    BaseFileContent.call(
+                        this,
+                        ContentType.AUDIO,
+                        arguments[0],
+                        arguments[1]
+                    );
+                } else {
+                    throw new SyntaxError("audio content arguments error: " + arguments);
                 }
             }
         }
     };
-    Entity.prototype.valueOf = function() {
-        var clazz = Object.getPrototypeOf(this).constructor;
-        return "<" + clazz.name + "|" + this.getType() + " " + this.identifier + ">"
+    ns.Class(AudioFileContent, BaseFileContent, [AudioContent]);
+    AudioFileContent.prototype.getText = function () {
+        return this.getValue("text");
     };
-    Entity.prototype.toString = function() {
-        var clazz = Object.getPrototypeOf(this).constructor;
-        return "<" + clazz.name + "|" + this.getType() + " " + this.identifier + ">"
+    AudioFileContent.prototype.setText = function (asr) {
+        this.setValue("text", asr);
     };
-    Entity.prototype.toLocaleString = function() {
-        var clazz = Object.getPrototypeOf(this).constructor;
-        return "<" + clazz.name + "|" + this.getType() + " " + this.identifier + ">"
-    };
-    Entity.prototype.getType = function() {
-        return this.identifier.getType()
-    };
-    Entity.prototype.getDataSource = function() {
-        return this.__datasource
-    };
-    Entity.prototype.setDataSource = function(delegate) {
-        this.__datasource = delegate
-    };
-    Entity.prototype.getMeta = function() {
-        return this.getDataSource().getMeta(this.identifier)
-    };
-    Entity.prototype.getDocument = function(type) {
-        return this.getDataSource().getDocument(this.identifier, type)
-    };
-    ns.Entity = Entity;
-    ns.registers("Entity")
+    ns.dkd.ImageFileContent = ImageFileContent;
+    ns.dkd.VideoFileContent = VideoFileContent;
+    ns.dkd.AudioFileContent = AudioFileContent;
+    ns.dkd.registers("ImageFileContent");
+    ns.dkd.registers("VideoFileContent");
+    ns.dkd.registers("AudioFileContent");
 })(DIMP);
-(function(ns) {
-    var Entity = ns.Entity;
-    var EntityDataSource = function() {};
-    ns.Interface(EntityDataSource, null);
-    EntityDataSource.prototype.getMeta = function(identifier) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    EntityDataSource.prototype.getDocument = function(identifier, type) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Entity.DataSource = EntityDataSource
-})(DIMP);
-(function(ns) {
-    var Entity = ns.Entity;
-    var EntityDelegate = function() {};
-    ns.Interface(EntityDelegate, null);
-    EntityDelegate.prototype.selectLocalUser = function(receiver) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    EntityDelegate.prototype.getUser = function(identifier) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    EntityDelegate.prototype.getGroup = function(identifier) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Entity.Delegate = EntityDelegate
-})(DIMP);
-(function(ns) {
-    var EncryptKey = ns.crypto.EncryptKey;
-    var PublicKey = ns.crypto.PublicKey;
-    var Document = ns.protocol.Document;
-    var Visa = ns.protocol.Visa;
-    var Entity = ns.Entity;
-    var User = function(identifier) {
-        Entity.call(this, identifier)
-    };
-    ns.Class(User, Entity, null);
-    User.prototype.getVisa = function() {
-        var doc = this.getDocument(Document.VISA);
-        if (ns.Interface.conforms(doc, Visa)) {
-            return doc
+(function (ns) {
+    var ContentType = ns.protocol.ContentType;
+    var TextContent = ns.protocol.TextContent;
+    var BaseContent = ns.dkd.BaseContent;
+    var BaseTextContent = function () {
+        if (arguments.length === 0) {
+            BaseContent.call(this, ContentType.TEXT);
         } else {
-            return null
+            if (typeof arguments[0] === "string") {
+                BaseContent.call(this, ContentType.TEXT);
+                this.setText(arguments[0]);
+            } else {
+                BaseContent.call(this, arguments[0]);
+            }
         }
     };
-    User.prototype.getContacts = function() {
-        return this.getDataSource().getContacts(this.identifier)
+    ns.Class(BaseTextContent, BaseContent, [TextContent]);
+    BaseTextContent.prototype.getText = function () {
+        return this.getValue("text");
     };
-    User.prototype.verify = function(data, signature) {
-        var keys = this.getDataSource().getPublicKeysForVerification(this.identifier);
+    BaseTextContent.prototype.setText = function (text) {
+        this.setValue("text", text);
+    };
+    ns.dkd.BaseTextContent = BaseTextContent;
+    ns.dkd.registers("BaseTextContent");
+})(DIMP);
+(function (ns) {
+    var ContentType = ns.protocol.ContentType;
+    var PageContent = ns.protocol.PageContent;
+    var BaseContent = ns.dkd.BaseContent;
+    var WebPageContent = function () {
+        if (arguments.length === 1) {
+            BaseContent.call(this, arguments[0]);
+            this.__icon = null;
+        } else {
+            if (arguments.length === 4) {
+                BaseContent.call(this, ContentType.PAGE);
+                this.setURL(arguments[0]);
+                this.setTitle(arguments[1]);
+                this.setDesc(arguments[2]);
+                this.setIcon(arguments[3]);
+            } else {
+                throw new SyntaxError("web page content arguments error: " + arguments);
+            }
+        }
+    };
+    ns.Class(WebPageContent, BaseContent, [PageContent]);
+    WebPageContent.prototype.getURL = function () {
+        return PageContent.getURL(this);
+    };
+    WebPageContent.prototype.setURL = function (url) {
+        PageContent.setURL(url, this);
+    };
+    WebPageContent.prototype.getTitle = function () {
+        return PageContent.getTitle(this);
+    };
+    WebPageContent.prototype.setTitle = function (title) {
+        PageContent.setTitle(title, this);
+    };
+    WebPageContent.prototype.getDesc = function () {
+        return PageContent.getDesc(this);
+    };
+    WebPageContent.prototype.setDesc = function (text) {
+        PageContent.setDesc(text, this);
+    };
+    WebPageContent.prototype.getIcon = function () {
+        if (!this.__icon) {
+            this.__icon = PageContent.getIcon(this);
+        }
+        return this.__icon;
+    };
+    WebPageContent.prototype.setIcon = function (image) {
+        PageContent.setIcon(image, this);
+        this.__icon = image;
+    };
+    ns.dkd.WebPageContent = WebPageContent;
+    ns.dkd.registers("WebPageContent");
+})(DIMP);
+(function (ns) {
+    var ContentType = ns.protocol.ContentType;
+    var MoneyContent = ns.protocol.MoneyContent;
+    var TransferContent = ns.protocol.TransferContent;
+    var BaseContent = ns.dkd.BaseContent;
+    var BaseMoneyContent = function () {
+        if (arguments.length === 3) {
+            BaseContent.call(arguments[0]);
+            this.setCurrency(arguments[1]);
+            this.setAmount(arguments[2]);
+        } else {
+            if (arguments.length === 2) {
+                BaseContent.call(ContentType.MONEY);
+                this.setCurrency(arguments[0]);
+                this.setAmount(arguments[1]);
+            } else {
+                if (typeof arguments[0] === "string") {
+                    BaseContent.call(ContentType.MONEY);
+                    this.setCurrency(arguments[0]);
+                } else {
+                    BaseContent.call(arguments[0]);
+                }
+            }
+        }
+    };
+    ns.Class(BaseMoneyContent, BaseContent, [MoneyContent]);
+    BaseMoneyContent.prototype.setCurrency = function (currency) {
+        MoneyContent.setCurrency(currency, this);
+    };
+    BaseMoneyContent.prototype.getCurrency = function () {
+        return MoneyContent.getCurrency(this);
+    };
+    BaseMoneyContent.prototype.setAmount = function (amount) {
+        MoneyContent.setAmount(amount, this);
+    };
+    BaseMoneyContent.prototype.getAmount = function () {
+        return MoneyContent.getAmount(this);
+    };
+    var TransferMoneyContent = function () {
+        if (arguments.length === 2) {
+            MoneyContent.call(ContentType.TRANSFER, arguments[0], arguments[1]);
+        } else {
+            if (typeof arguments[0] === "string") {
+                MoneyContent.call(ContentType.TRANSFER, arguments[0], 0);
+            } else {
+                MoneyContent.call(arguments[0]);
+            }
+        }
+    };
+    ns.Class(TransferMoneyContent, BaseMoneyContent, [TransferContent]);
+    TransferMoneyContent.prototype.getText = function () {
+        return this.getValue("text");
+    };
+    TransferMoneyContent.prototype.setText = function (text) {
+        this.setValue("text", text);
+    };
+    ns.dkd.BaseMoneyContent = BaseMoneyContent;
+    ns.dkd.TransferMoneyContent = TransferMoneyContent;
+    ns.dkd.registers("BaseMoneyContent");
+    ns.dkd.registers("TransferMoneyContent");
+})(DIMP);
+(function (ns) {
+    var ContentType = ns.protocol.ContentType;
+    var Command = ns.protocol.Command;
+    var BaseContent = ns.dkd.BaseContent;
+    var BaseCommand = function () {
+        if (arguments.length === 2) {
+            BaseContent.call(this, arguments[0]);
+            this.setValue("command", arguments[1]);
+        } else {
+            if (typeof arguments[0] === "string") {
+                BaseContent.call(this, ContentType.COMMAND);
+                this.setValue("command", arguments[0]);
+            } else {
+                BaseContent.call(this, arguments[0]);
+            }
+        }
+    };
+    ns.Class(BaseCommand, BaseContent, [Command]);
+    BaseCommand.prototype.getCommand = function () {
+        return Command.getCommand(this);
+    };
+    ns.dkd.BaseCommand = BaseCommand;
+    ns.dkd.registers("BaseCommand");
+})(DIMP);
+(function (ns) {
+    var ID = ns.protocol.ID;
+    var Meta = ns.protocol.Meta;
+    var Command = ns.protocol.Command;
+    var MetaCommand = ns.protocol.MetaCommand;
+    var BaseCommand = ns.dkd.BaseCommand;
+    var BaseMetaCommand = function () {
+        if (arguments.length === 1) {
+            if (ns.Interface.conforms(arguments[0], ID)) {
+                BaseCommand.call(this, Command.META);
+                this.setIdentifier(arguments[0]);
+            } else {
+                BaseCommand.call(this, arguments[0]);
+                this.__identifier = null;
+            }
+            this.__meta = null;
+        } else {
+            if (arguments.length === 2) {
+                if (ns.Interface.conforms(arguments[0], ID)) {
+                    BaseCommand.call(this, Command.META);
+                    this.setIdentifier(arguments[0]);
+                    this.setMeta(arguments[1]);
+                } else {
+                    BaseCommand.call(this, arguments[0]);
+                    this.setIdentifier(arguments[1]);
+                    this.__meta = null;
+                }
+            } else {
+                if (arguments.length === 3) {
+                    BaseCommand.call(this, arguments[0]);
+                    this.setIdentifier(arguments[1]);
+                    this.setMeta(arguments[2]);
+                } else {
+                    throw new SyntaxError("meta command arguments error: " + arguments);
+                }
+            }
+        }
+    };
+    ns.Class(BaseMetaCommand, BaseCommand, [MetaCommand]);
+    BaseMetaCommand.prototype.setIdentifier = function (identifier) {
+        MetaCommand.setIdentifier(identifier, this);
+        this.__identifier = identifier;
+    };
+    BaseMetaCommand.prototype.getIdentifier = function () {
+        if (!this.__identifier) {
+            this.__identifier = MetaCommand.getIdentifier(this);
+        }
+        return this.__identifier;
+    };
+    BaseMetaCommand.prototype.setMeta = function (meta) {
+        MetaCommand.setMeta(meta, this);
+        this.__meta = meta;
+    };
+    BaseMetaCommand.prototype.getMeta = function () {
+        if (!this.__meta) {
+            this.__meta = MetaCommand.getMeta(this);
+        }
+        return this.__meta;
+    };
+    MetaCommand.query = function (identifier) {
+        return new BaseMetaCommand(identifier);
+    };
+    MetaCommand.response = function (identifier, meta) {
+        return new BaseMetaCommand(identifier, meta);
+    };
+    ns.dkd.BaseMetaCommand = BaseMetaCommand;
+    ns.dkd.registers("BaseMetaCommand");
+})(DIMP);
+(function (ns) {
+    var ID = ns.protocol.ID;
+    var Meta = ns.protocol.Meta;
+    var Document = ns.protocol.Document;
+    var Command = ns.protocol.Command;
+    var DocumentCommand = ns.protocol.DocumentCommand;
+    var BaseMetaCommand = ns.dkd.BaseMetaCommand;
+    var BaseDocumentCommand = function () {
+        if (arguments.length === 1) {
+            if (ns.Interface.conforms(arguments[0], ID)) {
+                BaseMetaCommand.call(this, Command.DOCUMENT, arguments[0]);
+            } else {
+                BaseMetaCommand.call(this, arguments[0]);
+            }
+            this.__document = null;
+        } else {
+            if (arguments.length === 2) {
+                if (ns.Interface.conforms(arguments[1], Meta)) {
+                    BaseMetaCommand.call(
+                        this,
+                        Command.DOCUMENT,
+                        arguments[0],
+                        arguments[1]
+                    );
+                } else {
+                    if (typeof arguments[1] === "string") {
+                        BaseMetaCommand.call(this, Command.DOCUMENT, arguments[0], null);
+                        this.setSignature(arguments[1]);
+                    } else {
+                        throw new SyntaxError(
+                            "document command arguments error: " + arguments
+                        );
+                    }
+                }
+                this.__document = null;
+            } else {
+                if (arguments.length === 3) {
+                    BaseMetaCommand.call(
+                        this,
+                        Command.DOCUMENT,
+                        arguments[0],
+                        arguments[1]
+                    );
+                    this.setDocument(arguments[2]);
+                } else {
+                    throw new SyntaxError(
+                        "document command arguments error: " + arguments
+                    );
+                }
+            }
+        }
+    };
+    ns.Class(BaseDocumentCommand, BaseMetaCommand, [DocumentCommand]);
+    BaseDocumentCommand.prototype.setDocument = function (doc) {
+        DocumentCommand.setDocument(doc, this);
+        this.__document = doc;
+    };
+    BaseDocumentCommand.prototype.getDocument = function () {
+        if (!this.__document) {
+            this.__document = DocumentCommand.getDocument(this);
+        }
+        return this.__document;
+    };
+    BaseDocumentCommand.prototype.setSignature = function (base64) {
+        DocumentCommand.setSignature(base64, this);
+    };
+    BaseDocumentCommand.prototype.getSignature = function () {
+        return DocumentCommand.getSignature(this);
+    };
+    BaseDocumentCommand.query = function (identifier, signature) {
+        return new BaseDocumentCommand(identifier, signature);
+    };
+    BaseDocumentCommand.response = function (identifier, meta, doc) {
+        return new BaseDocumentCommand(identifier, meta, doc);
+    };
+    ns.dkd.BaseDocumentCommand = BaseDocumentCommand;
+    ns.dkd.registers("BaseDocumentCommand");
+})(DIMP);
+(function (ns) {
+    var ContentType = ns.protocol.ContentType;
+    var HistoryCommand = ns.protocol.HistoryCommand;
+    var BaseCommand = ns.dkd.BaseCommand;
+    var BaseHistoryCommand = function () {
+        if (arguments.length === 2) {
+            BaseCommand.call(this, arguments[0], arguments[1]);
+        } else {
+            if (typeof arguments[0] === "string") {
+                BaseCommand.call(this, ContentType.HISTORY, arguments[0]);
+            } else {
+                BaseCommand.call(this, arguments[0]);
+            }
+        }
+    };
+    ns.Class(BaseHistoryCommand, BaseCommand, [HistoryCommand]);
+    BaseHistoryCommand.prototype.getHistoryEvent = function () {
+        return HistoryCommand.getHistoryEvent(this);
+    };
+    ns.dkd.BaseHistoryCommand = BaseHistoryCommand;
+    ns.dkd.registers("BaseHistoryCommand");
+})(DIMP);
+(function (ns) {
+    var GroupCommand = ns.protocol.GroupCommand;
+    var BaseHistoryCommand = ns.dkd.BaseHistoryCommand;
+    var BaseGroupCommand = function () {
+        if (arguments.length === 1) {
+            BaseHistoryCommand.call(this, arguments[0]);
+            this.__member = null;
+            this.__members = null;
+        } else {
+            if (arguments.length === 2) {
+                BaseHistoryCommand.call(this, arguments[0]);
+                this.setGroup(arguments[1]);
+                this.__member = null;
+                this.__members = null;
+            } else {
+                if (arguments[2] instanceof Array) {
+                    BaseHistoryCommand.call(this, arguments[0]);
+                    this.setGroup(arguments[1]);
+                    this.__member = null;
+                    this.setMembers(arguments[2]);
+                } else {
+                    BaseHistoryCommand.call(this, arguments[0]);
+                    this.setGroup(arguments[1]);
+                    this.setMember(arguments[2]);
+                    this.__members = null;
+                }
+            }
+        }
+    };
+    ns.Class(BaseGroupCommand, BaseHistoryCommand, [GroupCommand]);
+    BaseGroupCommand.prototype.setMember = function (identifier) {
+        GroupCommand.setMembers(null, this);
+        GroupCommand.setMember(identifier, this);
+        this.__member = identifier;
+    };
+    BaseGroupCommand.prototype.getMember = function () {
+        if (!this.__member) {
+            this.__member = GroupCommand.getMember(this);
+        }
+        return this.__member;
+    };
+    BaseGroupCommand.prototype.setMembers = function (members) {
+        GroupCommand.setMember(null, this);
+        GroupCommand.setMembers(members, this);
+        this.__members = members;
+    };
+    BaseGroupCommand.prototype.getMembers = function () {
+        if (!this.__members) {
+            this.__members = GroupCommand.getMembers(this);
+        }
+        return this.__members;
+    };
+    ns.dkd.BaseGroupCommand = BaseGroupCommand;
+    ns.dkd.registers("BaseGroupCommand");
+})(DIMP);
+(function (ns) {
+    var ID = ns.protocol.ID;
+    var GroupCommand = ns.protocol.GroupCommand;
+    var InviteCommand = ns.protocol.group.InviteCommand;
+    var ExpelCommand = ns.protocol.group.ExpelCommand;
+    var JoinCommand = ns.protocol.group.JoinCommand;
+    var QuitCommand = ns.protocol.group.QuitCommand;
+    var ResetCommand = ns.protocol.group.ResetCommand;
+    var QueryCommand = ns.protocol.group.QueryCommand;
+    var BaseGroupCommand = ns.dkd.BaseGroupCommand;
+    var InviteGroupCommand = function () {
+        if (arguments.length === 1) {
+            BaseGroupCommand.call(this, arguments[0]);
+        } else {
+            BaseGroupCommand.call(
+                this,
+                GroupCommand.INVITE,
+                arguments[0],
+                arguments[1]
+            );
+        }
+    };
+    ns.Class(InviteGroupCommand, BaseGroupCommand, [InviteCommand]);
+    InviteGroupCommand.prototype.getInviteMembers = function () {
+        return this.getMembers();
+    };
+    var ExpelGroupCommand = function () {
+        if (arguments.length === 1) {
+            BaseGroupCommand.call(this, arguments[0]);
+        } else {
+            BaseGroupCommand.call(
+                this,
+                GroupCommand.EXPEL,
+                arguments[0],
+                arguments[1]
+            );
+        }
+    };
+    ns.Class(ExpelGroupCommand, BaseGroupCommand, [ExpelCommand]);
+    ExpelGroupCommand.prototype.getExpelMembers = function () {
+        return this.getMembers();
+    };
+    var JoinGroupCommand = function () {
+        if (ns.Interface.conforms(arguments[0], ID)) {
+            BaseGroupCommand.call(this, GroupCommand.JOIN, arguments[0]);
+        } else {
+            BaseGroupCommand.call(this, arguments[0]);
+        }
+    };
+    ns.Class(JoinGroupCommand, BaseGroupCommand, [JoinCommand]);
+    JoinGroupCommand.prototype.getAsk = function () {
+        return this.getValue("text");
+    };
+    var QuitGroupCommand = function () {
+        if (ns.Interface.conforms(arguments[0], ID)) {
+            BaseGroupCommand.call(this, GroupCommand.QUIT, arguments[0]);
+        } else {
+            BaseGroupCommand.call(this, arguments[0]);
+        }
+    };
+    ns.Class(QuitGroupCommand, BaseGroupCommand, [QuitCommand]);
+    QuitGroupCommand.prototype.getBye = function () {
+        return this.getValue("text");
+    };
+    var ResetGroupCommand = function () {
+        if (arguments.length === 1) {
+            BaseGroupCommand.call(this, arguments[0]);
+        } else {
+            BaseGroupCommand.call(
+                this,
+                GroupCommand.RESET,
+                arguments[0],
+                arguments[1]
+            );
+        }
+    };
+    ns.Class(ResetGroupCommand, BaseGroupCommand, [ResetCommand]);
+    ResetGroupCommand.prototype.getAllMembers = function () {
+        return this.getMembers();
+    };
+    var QueryGroupCommand = function () {
+        if (ns.Interface.conforms(arguments[0], ID)) {
+            BaseGroupCommand.call(this, GroupCommand.QUERY, arguments[0]);
+        } else {
+            BaseGroupCommand.call(this, arguments[0]);
+        }
+    };
+    ns.Class(QueryGroupCommand, BaseGroupCommand, [QueryCommand]);
+    QueryGroupCommand.prototype.getText = function () {
+        return this.getValue("text");
+    };
+    GroupCommand.invite = function (group, members) {
+        return new InviteGroupCommand(group, members);
+    };
+    GroupCommand.expel = function (group, members) {
+        return new ExpelGroupCommand(group, members);
+    };
+    GroupCommand.join = function (group) {
+        return new JoinGroupCommand(group);
+    };
+    GroupCommand.quit = function (group) {
+        return new QuitGroupCommand(group);
+    };
+    GroupCommand.reset = function (group, members) {
+        return new ResetGroupCommand(group, members);
+    };
+    GroupCommand.query = function (group) {
+        return new QueryGroupCommand(group);
+    };
+    ns.dkd.InviteGroupCommand = InviteGroupCommand;
+    ns.dkd.ExpelGroupCommand = ExpelGroupCommand;
+    ns.dkd.JoinGroupCommand = JoinGroupCommand;
+    ns.dkd.QuitGroupCommand = QuitGroupCommand;
+    ns.dkd.ResetGroupCommand = ResetGroupCommand;
+    ns.dkd.QueryGroupCommand = QueryGroupCommand;
+    ns.dkd.registers("InviteGroupCommand");
+    ns.dkd.registers("ExpelGroupCommand");
+    ns.dkd.registers("JoinGroupCommand");
+    ns.dkd.registers("QuitGroupCommand");
+    ns.dkd.registers("ResetGroupCommand");
+    ns.dkd.registers("QueryGroupCommand");
+})(DIMP);
+(function (ns) {
+    var ID = ns.protocol.ID;
+    var Entity = function () {};
+    ns.Interface(Entity, [ns.type.Object]);
+    Entity.prototype.getIdentifier = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    Entity.prototype.getType = function () {
+        console.assert(false, "implement me!");
+        return 0;
+    };
+    Entity.prototype.getMeta = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    Entity.prototype.getDocument = function (type) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    Entity.prototype.setDataSource = function (barrack) {
+        console.assert(false, "implement me!");
+    };
+    Entity.prototype.getDataSource = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    var EntityDataSource = function () {};
+    ns.Interface(EntityDataSource, null);
+    EntityDataSource.prototype.getMeta = function (identifier) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    EntityDataSource.prototype.getDocument = function (identifier, type) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    var EntityDelegate = function () {};
+    ns.Interface(EntityDelegate, null);
+    EntityDelegate.prototype.getUser = function (identifier) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    EntityDelegate.prototype.getGroup = function (identifier) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    Entity.DataSource = EntityDataSource;
+    Entity.Delegate = EntityDelegate;
+    ns.mkm.Entity = Entity;
+    ns.mkm.registers("Entity");
+})(DIMP);
+(function (ns) {
+    var BaseObject = ns.type.BaseObject;
+    var Entity = ns.mkm.Entity;
+    var BaseEntity = function (identifier) {
+        BaseObject.call(this);
+        this.__identifier = identifier;
+        this.__datasource = null;
+    };
+    ns.Class(BaseEntity, BaseObject, [Entity]);
+    BaseEntity.prototype.equals = function (other) {
+        if (!other) {
+            return false;
+        } else {
+            if (ns.Interface.conforms(other, Entity)) {
+                other = other.getIdentifier();
+            }
+        }
+        return this.__identifier.equals(other);
+    };
+    BaseEntity.prototype.valueOf = function () {
+        return desc.call(this);
+    };
+    BaseEntity.prototype.toString = function () {
+        return desc.call(this);
+    };
+    var desc = function () {
+        var clazz = Object.getPrototypeOf(this).constructor;
+        return (
+            "<" +
+            clazz.name +
+            "|" +
+            this.__identifier.getType() +
+            " " +
+            this.__identifier +
+            ">"
+        );
+    };
+    BaseEntity.prototype.setDataSource = function (delegate) {
+        this.__datasource = delegate;
+    };
+    BaseEntity.prototype.getDataSource = function () {
+        return this.__datasource;
+    };
+    BaseEntity.prototype.getIdentifier = function () {
+        return this.__identifier;
+    };
+    BaseEntity.prototype.getType = function () {
+        return this.__identifier.getType();
+    };
+    BaseEntity.prototype.getMeta = function () {
+        return this.__datasource.getMeta(this.__identifier);
+    };
+    BaseEntity.prototype.getDocument = function (type) {
+        return this.__datasource.getDocument(this.__identifier, type);
+    };
+    ns.mkm.BaseEntity = BaseEntity;
+    ns.mkm.registers("BaseEntity");
+})(DIMP);
+(function (ns) {
+    var Entity = ns.mkm.Entity;
+    var User = function () {};
+    ns.Interface(User, [Entity]);
+    User.prototype.getVisa = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    User.prototype.getContacts = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    User.prototype.verify = function (data, signature) {
+        console.assert(false, "implement me!");
+        return false;
+    };
+    User.prototype.encrypt = function (plaintext) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    User.prototype.sign = function (data) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    User.prototype.decrypt = function (ciphertext) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    User.prototype.signVisa = function (visa) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    User.prototype.verifyVisa = function (visa) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    var UserDataSource = function () {};
+    ns.Interface(UserDataSource, [Entity.DataSource]);
+    UserDataSource.prototype.getContacts = function (identifier) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    UserDataSource.prototype.getPublicKeyForEncryption = function (identifier) {
+        return null;
+    };
+    UserDataSource.prototype.getPublicKeysForVerification = function (
+        identifier
+    ) {
+        return null;
+    };
+    UserDataSource.prototype.getPrivateKeysForDecryption = function (identifier) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    UserDataSource.prototype.getPrivateKeyForSignature = function (identifier) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    UserDataSource.prototype.getPrivateKeyForVisaSignature = function (
+        identifier
+    ) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    User.DataSource = UserDataSource;
+    ns.mkm.User = User;
+    ns.mkm.registers("User");
+})(DIMP);
+(function (ns) {
+    var Document = ns.protocol.Document;
+    var Visa = ns.protocol.Visa;
+    var User = ns.mkm.User;
+    var BaseEntity = ns.mkm.BaseEntity;
+    var BaseUser = function (identifier) {
+        BaseEntity.call(this, identifier);
+    };
+    ns.Class(BaseUser, BaseEntity, [User]);
+    BaseUser.prototype.getVisa = function () {
+        var doc = this.getDocument(Document.VISA);
+        if (ns.Interface.conforms(doc, Visa)) {
+            return doc;
+        } else {
+            return null;
+        }
+    };
+    BaseUser.prototype.getContacts = function () {
+        var barrack = this.getDataSource();
+        var uid = this.getIdentifier();
+        return barrack.getContacts(uid);
+    };
+    BaseUser.prototype.verify = function (data, signature) {
+        var barrack = this.getDataSource();
+        var uid = this.getIdentifier();
+        var keys = barrack.getPublicKeysForVerification(uid);
         if (!keys || keys.length === 0) {
-            throw new Error("failed to get verify keys for user: " + this.identifier)
+            throw new Error("failed to get verify keys for user: " + uid);
         }
         for (var i = 0; i < keys.length; ++i) {
             if (keys[i].verify(data, signature)) {
-                return true
+                return true;
             }
         }
-        return false
+        return false;
     };
-    User.prototype.encrypt = function(plaintext) {
-        var key = this.getDataSource().getPublicKeyForEncryption(this.identifier);
+    BaseUser.prototype.encrypt = function (plaintext) {
+        var barrack = this.getDataSource();
+        var uid = this.getIdentifier();
+        var key = barrack.getPublicKeyForEncryption(uid);
         if (!key) {
-            throw new Error("failed to get encrypt key for user: " + this.identifier)
+            throw new Error("failed to get encrypt key for user: " + uid);
         }
-        return key.encrypt(plaintext)
+        return key.encrypt(plaintext);
     };
-    User.prototype.sign = function(data) {
-        var key = this.getDataSource().getPrivateKeyForSignature(this.identifier);
+    BaseUser.prototype.sign = function (data) {
+        var barrack = this.getDataSource();
+        var uid = this.getIdentifier();
+        var key = barrack.getPrivateKeyForSignature(uid);
         if (!key) {
-            throw new Error("failed to get sign key for user: " + this.identifier)
+            throw new Error("failed to get sign key for user: " + uid);
         }
-        return key.sign(data)
+        return key.sign(data);
     };
-    User.prototype.decrypt = function(ciphertext) {
-        var keys = this.getDataSource().getPrivateKeysForDecryption(this.identifier);
+    BaseUser.prototype.decrypt = function (ciphertext) {
+        var barrack = this.getDataSource();
+        var uid = this.getIdentifier();
+        var keys = barrack.getPrivateKeysForDecryption(uid);
         if (!keys || keys.length === 0) {
-            throw new Error("failed to get decrypt keys for user: " + this.identifier)
+            throw new Error("failed to get decrypt keys for user: " + uid);
         }
         var plaintext;
         for (var i = 0; i < keys.length; ++i) {
             try {
                 plaintext = keys[i].decrypt(ciphertext);
                 if (plaintext && plaintext.length > 0) {
-                    return plaintext
+                    return plaintext;
                 }
             } catch (e) {
-                console.log("User::decrypt() error", this, e, keys[i], ciphertext)
+                console.log("User::decrypt() error", this, e, keys[i], ciphertext);
             }
         }
-        return null
+        return null;
     };
-    User.prototype.signVisa = function(visa) {
-        if (!this.identifier.equals(visa.getIdentifier())) {
-            return null
+    BaseUser.prototype.signVisa = function (visa) {
+        var uid = this.getIdentifier();
+        if (!uid.equals(visa.getIdentifier())) {
+            return null;
         }
-        var key = this.getDataSource().getPrivateKeyForVisaSignature(this.identifier);
+        var barrack = this.getDataSource();
+        var key = barrack.getPrivateKeyForVisaSignature(uid);
         if (!key) {
-            throw new Error("failed to get sign key for user: " + this.identifier)
+            throw new Error("failed to get sign key for user: " + uid);
         }
         visa.sign(key);
-        return visa
+        return visa;
     };
-    User.prototype.verifyVisa = function(visa) {
-        if (!this.identifier.equals(visa.getIdentifier())) {
-            return null
+    BaseUser.prototype.verifyVisa = function (visa) {
+        var uid = this.getIdentifier();
+        if (!uid.equals(visa.getIdentifier())) {
+            return null;
         }
-        var key = this.getMeta().getKey();
+        var meta = this.getMeta();
+        var key = meta.getKey();
         if (!key) {
-            throw new Error("failed to get meta key for user: " + this.identifier)
+            throw new Error("failed to get meta key for user: " + uid);
         }
-        return visa.verify(key)
+        return visa.verify(key);
     };
-    ns.User = User;
-    ns.registers("User")
+    ns.mkm.BaseUser = BaseUser;
+    ns.mkm.registers("BaseUser");
 })(DIMP);
-(function(ns) {
-    var Entity = ns.Entity;
-    var User = ns.User;
-    var UserDataSource = function() {};
-    ns.Interface(UserDataSource, [Entity.DataSource]);
-    UserDataSource.prototype.getContacts = function(identifier) {
+(function (ns) {
+    var Entity = ns.mkm.Entity;
+    var Group = function () {};
+    ns.Interface(Group, [Entity]);
+    Group.prototype.getBulletin = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    UserDataSource.prototype.getPublicKeyForEncryption = function(identifier) {
-        return null
-    };
-    UserDataSource.prototype.getPublicKeysForVerification = function(identifier) {
-        return null
-    };
-    UserDataSource.prototype.getPrivateKeysForDecryption = function(identifier) {
+    Group.prototype.getFounder = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    UserDataSource.prototype.getPrivateKeyForSignature = function(identifier) {
+    Group.prototype.getOwner = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    UserDataSource.prototype.getPrivateKeyForVisaSignature = function(identifier) {
+    Group.prototype.getMembers = function () {
         console.assert(false, "implement me!");
-        return null
+        return null;
     };
-    User.DataSource = UserDataSource
+    Group.prototype.getAssistants = function () {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    var GroupDataSource = function () {};
+    ns.Interface(GroupDataSource, [Entity.DataSource]);
+    GroupDataSource.prototype.getFounder = function (identifier) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    GroupDataSource.prototype.getOwner = function (identifier) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    GroupDataSource.prototype.getMembers = function (identifier) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    GroupDataSource.prototype.getAssistants = function (identifier) {
+        console.assert(false, "implement me!");
+        return null;
+    };
+    Group.DataSource = GroupDataSource;
+    ns.mkm.Group = Group;
+    ns.mkm.registers("Group");
 })(DIMP);
-(function(ns) {
+(function (ns) {
     var Document = ns.protocol.Document;
     var Bulletin = ns.protocol.Bulletin;
-    var Entity = ns.Entity;
-    var Group = function(identifier) {
-        Entity.call(this, identifier);
-        this.__founder = null
+    var Group = ns.mkm.Group;
+    var BaseEntity = ns.mkm.BaseEntity;
+    var BaseGroup = function (identifier) {
+        BaseEntity.call(this, identifier);
+        this.__founder = null;
     };
-    ns.Class(Group, Entity, null);
-    Group.prototype.getBulletin = function() {
+    ns.Class(BaseGroup, BaseEntity, [Group]);
+    BaseGroup.prototype.getBulletin = function () {
         var doc = this.getDocument(Document.BULLETIN);
         if (ns.Interface.conforms(doc, Bulletin)) {
-            return doc
+            return doc;
         } else {
-            return null
+            return null;
         }
     };
-    Group.prototype.getFounder = function() {
+    BaseGroup.prototype.getFounder = function () {
         if (!this.__founder) {
-            this.__founder = this.getDataSource().getFounder(this.identifier)
+            var barrack = this.getDataSource();
+            var gid = this.getIdentifier();
+            this.__founder = barrack.getFounder(gid);
         }
-        return this.__founder
+        return this.__founder;
     };
-    Group.prototype.getOwner = function() {
-        return this.getDataSource().getOwner(this.identifier)
+    BaseGroup.prototype.getOwner = function () {
+        var barrack = this.getDataSource();
+        var gid = this.getIdentifier();
+        return barrack.getOwner(gid);
     };
-    Group.prototype.getMembers = function() {
-        return this.getDataSource().getMembers(this.identifier)
+    BaseGroup.prototype.getMembers = function () {
+        var barrack = this.getDataSource();
+        var gid = this.getIdentifier();
+        return barrack.getMembers(gid);
     };
-    Group.prototype.getAssistants = function() {
-        return this.getDataSource().getAssistants(this.identifier)
+    BaseGroup.prototype.getAssistants = function () {
+        var barrack = this.getDataSource();
+        var gid = this.getIdentifier();
+        return barrack.getAssistants(gid);
     };
-    ns.Group = Group;
-    ns.registers("Group")
+    ns.mkm.BaseGroup = BaseGroup;
+    ns.mkm.registers("BaseGroup");
 })(DIMP);
-(function(ns) {
-    var Entity = ns.Entity;
-    var Group = ns.Group;
-    var GroupDataSource = function() {};
-    ns.Interface(GroupDataSource, [Entity.DataSource]);
-    GroupDataSource.prototype.getFounder = function(identifier) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    GroupDataSource.prototype.getOwner = function(identifier) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    GroupDataSource.prototype.getMembers = function(identifier) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    GroupDataSource.prototype.getAssistants = function(identifier) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Group.DataSource = GroupDataSource
-})(DIMP);
-(function(ns) {
-    var CipherKeyDelegate = function() {};
-    ns.Interface(CipherKeyDelegate, null);
-    CipherKeyDelegate.prototype.getCipherKey = function(from, to, generate) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    CipherKeyDelegate.prototype.cacheCipherKey = function(from, to, key) {
-        console.assert(false, "implement me!")
-    };
-    ns.CipherKeyDelegate = CipherKeyDelegate;
-    ns.registers("CipherKeyDelegate")
-})(DIMP);
-(function(ns) {
-    var Packer = function() {};
-    ns.Interface(Packer, null);
-    Packer.prototype.getOvertGroup = function(content) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Packer.prototype.encryptMessage = function(iMsg) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Packer.prototype.signMessage = function(sMsg) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Packer.prototype.serializeMessage = function(rMsg) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Packer.prototype.deserializeMessage = function(data) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Packer.prototype.verifyMessage = function(rMsg) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Packer.prototype.decryptMessage = function(sMsg) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    var Processor = function() {};
-    ns.Interface(Processor, null);
-    Processor.prototype.processData = function(data) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Processor.prototype.processReliableMessage = function(rMsg) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Processor.prototype.processSecureMessage = function(sMsg, rMsg) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Processor.prototype.processInstantMessage = function(iMsg, rMsg) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Processor.prototype.processContent = function(content, rMsg) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    var Message = ns.protocol.Message;
-    var Entity = ns.Entity;
-    var CipherKeyDelegate = ns.CipherKeyDelegate;
-    var Transceiver = function() {};
-    ns.Interface(Transceiver, [Entity.Delegate, CipherKeyDelegate, Message.Delegate, Packer, Processor]);
-    Transceiver.Packer = Packer;
-    Transceiver.Processor = Processor;
-    ns.Transceiver = Transceiver;
-    ns.registers("Transceiver")
-})(DIMP);
-(function(ns) {
-    var obj = ns.type.Object;
+(function (ns) {
     var EncryptKey = ns.crypto.EncryptKey;
     var VerifyKey = ns.crypto.VerifyKey;
     var ID = ns.protocol.ID;
     var NetworkType = ns.protocol.NetworkType;
+    var Meta = ns.protocol.Meta;
     var Document = ns.protocol.Document;
     var Visa = ns.protocol.Visa;
     var Bulletin = ns.protocol.Bulletin;
-    var Entity = ns.Entity;
-    var User = ns.User;
-    var Group = ns.Group;
-    var Barrack = function() {
-        obj.call(this);
-        this.__users = {};
-        this.__groups = {}
+    var Entity = ns.mkm.Entity;
+    var User = ns.mkm.User;
+    var Group = ns.mkm.Group;
+    var Barrack = function () {
+        Object.call(this);
     };
-    ns.Class(Barrack, obj, [Entity.Delegate, User.DataSource, Group.DataSource]);
-    var thanos = function(map, finger) {
-        var keys = Object.keys(map);
-        for (var i = 0; i < keys.length; ++i) {
-            var p = map[keys[i]];
-            if (typeof p === "function") {
-                continue
-            }
-            if ((++finger & 1) === 1) {
-                delete map[p]
-            }
-        }
-        return finger
-    };
-    Barrack.prototype.reduceMemory = function() {
-        var finger = 0;
-        finger = thanos(this.__users, finger);
-        finger = thanos(this.__groups, finger);
-        return finger >> 1
-    };
-    var cacheUser = function(user) {
-        if (!user.getDataSource()) {
-            user.setDataSource(this)
-        }
-        this.__users[user.identifier.toString()] = user;
-        return true
-    };
-    var cacheGroup = function(group) {
-        if (!group.getDataSource()) {
-            group.setDataSource(this)
-        }
-        this.__groups[group.identifier.toString()] = group;
-        return true
-    };
-    Barrack.prototype.createUser = function(identifier) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Barrack.prototype.createGroup = function(identifier) {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Barrack.prototype.getLocalUsers = function() {
-        console.assert(false, "implement me!");
-        return null
-    };
-    Barrack.prototype.selectLocalUser = function(receiver) {
-        var users = this.getLocalUsers();
-        if (users == null || users.length === 0) {
-            throw new Error("local users should not be empty")
-        } else {
-            if (receiver.isBroadcast()) {
-                return users[0]
-            }
-        }
-        var i, user;
-        if (receiver.isGroup()) {
-            var members = this.getMembers(receiver);
-            if (members == null || members.length === 0) {
-                return null
-            }
-            var j, member;
-            for (i = 0; i < users.length; ++i) {
-                user = users[i];
-                for (j = 0; j < members.length; ++j) {
-                    member = members[j];
-                    if (member.equals(user.identifier)) {
-                        return user
-                    }
-                }
-            }
-        } else {
-            for (i = 0; i < users.length; ++i) {
-                user = users[i];
-                if (receiver.equals(user.identifier)) {
-                    return user
-                }
-            }
-        }
-        return null
-    };
-    Barrack.prototype.getUser = function(identifier) {
-        var user = this.__users[identifier.toString()];
-        if (!user) {
-            user = this.createUser(identifier);
-            if (user) {
-                cacheUser.call(this, user)
-            }
-        }
-        return user
-    };
-    Barrack.prototype.getGroup = function(identifier) {
-        var group = this.__groups[identifier.toString()];
-        if (!group) {
-            group = this.createGroup(identifier);
-            if (group) {
-                cacheGroup.call(this, group)
-            }
-        }
-        return group
-    };
-    var visa_key = function(user) {
+    ns.Class(Barrack, Object, [
+        Entity.Delegate,
+        User.DataSource,
+        Group.DataSource
+    ]);
+    var visa_key = function (user) {
         var doc = this.getDocument(user, Document.VISA);
         if (ns.Interface.conforms(doc, Visa)) {
             if (doc.isValid()) {
-                return doc.getKey()
+                return doc.getKey();
             }
         }
-        return null
+        return null;
     };
-    var meta_key = function(user) {
+    var meta_key = function (user) {
         var meta = this.getMeta(user);
         if (meta) {
-            return meta.getKey()
+            return meta.getKey();
         }
-        return null
+        return null;
     };
-    Barrack.prototype.getPublicKeyForEncryption = function(identifier) {
+    Barrack.prototype.getPublicKeyForEncryption = function (identifier) {
         var key = visa_key.call(this, identifier);
         if (key) {
-            return key
+            return key;
         }
         key = meta_key.call(this, identifier);
         if (ns.Interface.conforms(key, EncryptKey)) {
-            return key
+            return key;
         }
-        return null
+        return null;
     };
-    Barrack.prototype.getPublicKeysForVerification = function(identifier) {
+    Barrack.prototype.getPublicKeysForVerification = function (identifier) {
         var keys = [];
         var key = visa_key.call(this, identifier);
         if (ns.Interface.conforms(key, VerifyKey)) {
-            keys.push(key)
+            keys.push(key);
         }
         key = meta_key.call(this, identifier);
         if (key) {
-            keys.push(key)
+            keys.push(key);
         }
-        return keys
+        return keys;
     };
-    var group_seed = function(identifier) {
-        var seed = identifier.getName();
+    var group_seed = function (gid) {
+        var seed = gid.getName();
         if (seed) {
             var len = seed.length;
             if (len === 0 || (len === 8 && seed.toLowerCase() === "everyone")) {
-                seed = null
+                seed = null;
             }
         }
-        return seed
+        return seed;
     };
-    Barrack.prototype.getBroadcastFounder = function(group) {
+    Barrack.prototype.getBroadcastFounder = function (group) {
         var seed = group_seed(group);
         if (seed) {
-            return ID.parse(seed + ".founder@anywhere")
+            return ID.parse(seed + ".founder@anywhere");
         } else {
-            return ID.FOUNDER
+            return ID.FOUNDER;
         }
     };
-    Barrack.prototype.getBroadcastOwner = function(group) {
+    Barrack.prototype.getBroadcastOwner = function (group) {
         var seed = group_seed(group);
         if (seed) {
-            return ID.parse(seed + ".owner@anywhere")
+            return ID.parse(seed + ".owner@anywhere");
         } else {
-            return ID.ANYONE
+            return ID.ANYONE;
         }
     };
-    Barrack.prototype.getBroadcastMembers = function(group) {
+    Barrack.prototype.getBroadcastMembers = function (group) {
+        var members = [];
         var seed = group_seed(group);
         if (seed) {
-            return ID.parse(seed + ".member@anywhere")
+            var owner = ID.parse(seed + ".owner@anywhere");
+            var member = ID.parse(seed + ".member@anywhere");
+            members.push(owner);
+            members.push(member);
         } else {
-            return ID.ANYONE
+            members.push(ID.ANYONE);
         }
+        return members;
     };
-    Barrack.prototype.getFounder = function(group) {
+    Barrack.prototype.getFounder = function (group) {
         if (group.isBroadcast()) {
-            return this.getBroadcastFounder(group)
+            return this.getBroadcastFounder(group);
         }
         var gMeta = this.getMeta(group);
         if (!gMeta) {
-            return null
+            return null;
         }
         var members = this.getMembers(group);
-        if (members != null) {
-            var mMeta;
+        if (members) {
+            var item, mMeta;
             for (var i = 0; i < members.length; ++i) {
-                mMeta = this.getMeta(members[i]);
+                item = members[i];
+                mMeta = this.getMeta(item);
                 if (!mMeta) {
-                    continue
+                    continue;
                 }
-                if (gMeta.matches(mMeta.getKey())) {
-                    return members[i]
+                if (Meta.matches(gMeta, mMeta.getKey())) {
+                    return item;
                 }
             }
         }
-        return null
+        return null;
     };
-    Barrack.prototype.getOwner = function(group) {
+    Barrack.prototype.getOwner = function (group) {
         if (group.isBroadcast()) {
-            return this.getBroadcastOwner(group)
+            return this.getBroadcastOwner(group);
         }
         if (NetworkType.POLYLOGUE.equals(group.getType())) {
-            return this.getFounder(group)
+            return this.getFounder(group);
         }
-        return null
+        return null;
     };
-    Barrack.prototype.getMembers = function(group) {
+    Barrack.prototype.getMembers = function (group) {
         if (group.isBroadcast()) {
-            return this.getBroadcastMembers(group)
+            return this.getBroadcastMembers(group);
         }
-        return null
+        return null;
     };
-    Barrack.prototype.getAssistants = function(group) {
+    Barrack.prototype.getAssistants = function (group) {
         var doc = this.getDocument(group, Document.BULLETIN);
         if (ns.Interface.conforms(doc, Bulletin)) {
             if (doc.isValid()) {
-                return doc.getAssistants()
+                return doc.getAssistants();
             }
         }
-        return null
+        return null;
     };
     ns.core.Barrack = Barrack;
-    ns.core.registers("Barrack")
+    ns.core.registers("Barrack");
 })(DIMP);
-(function(ns) {
-    var obj = ns.type.Object;
-    var Command = ns.protocol.Command;
-    var ReliableMessage = ns.protocol.ReliableMessage;
-    var Transceiver = ns.Transceiver;
-    var CorePacker = function(transceiver) {
-        obj.call(this);
-        this.__transceiver = transceiver
+(function (ns) {
+    var Packer = function () {};
+    ns.Interface(Packer, null);
+    Packer.prototype.getOvertGroup = function (content) {
+        console.assert(false, "implement me!");
+        return null;
     };
-    ns.Class(CorePacker, obj, [Transceiver.Packer]);
-    CorePacker.prototype.getTransceiver = function() {
-        return this.__transceiver
+    Packer.prototype.encryptMessage = function (iMsg) {
+        console.assert(false, "implement me!");
+        return null;
     };
-    CorePacker.prototype.getOvertGroup = function(content) {
-        var group = content.getGroup();
-        if (!group) {
-            return null
-        }
-        if (group.isBroadcast()) {
-            return group
-        }
-        if (content instanceof Command) {
-            return null
-        }
-        return group
+    Packer.prototype.signMessage = function (sMsg) {
+        console.assert(false, "implement me!");
+        return null;
     };
-    CorePacker.prototype.encryptMessage = function(iMsg) {
-        var transceiver = this.getTransceiver();
-        if (!iMsg.getDelegate()) {
-            iMsg.setDelegate(transceiver)
-        }
-        var sender = iMsg.getSender();
-        var receiver = iMsg.getReceiver();
-        var group = transceiver.getOvertGroup(iMsg.getContent());
-        var password;
-        if (group) {
-            password = transceiver.getCipherKey(sender, group, true)
-        } else {
-            password = transceiver.getCipherKey(sender, receiver, true)
-        }
-        var sMsg;
-        if (receiver.isGroup()) {
-            var grp = transceiver.getGroup(receiver);
-            if (!grp) {
-                return null
-            }
-            var members = grp.getMembers();
-            if (!members || members.length === 0) {
-                return null
-            }
-            sMsg = iMsg.encrypt(password, members)
-        } else {
-            sMsg = iMsg.encrypt(password, null)
-        }
-        if (!sMsg) {
-            return null
-        }
-        if (group && !receiver.equals(group)) {
-            sMsg.getEnvelope().setGroup(group)
-        }
-        sMsg.getEnvelope().setType(iMsg.getContent().getType());
-        return sMsg
+    Packer.prototype.serializeMessage = function (rMsg) {
+        console.assert(false, "implement me!");
+        return null;
     };
-    CorePacker.prototype.signMessage = function(sMsg) {
-        if (!sMsg.getDelegate()) {
-            sMsg.setDelegate(this.getTransceiver())
-        }
-        return sMsg.sign()
+    Packer.prototype.deserializeMessage = function (data) {
+        console.assert(false, "implement me!");
+        return null;
     };
-    CorePacker.prototype.serializeMessage = function(rMsg) {
-        return ns.format.JSON.encode(rMsg.getMap())
+    Packer.prototype.verifyMessage = function (rMsg) {
+        console.assert(false, "implement me!");
+        return null;
     };
-    CorePacker.prototype.deserializeMessage = function(data) {
-        var dict = ns.format.JSON.decode(data);
-        return ReliableMessage.parse(dict)
+    Packer.prototype.decryptMessage = function (sMsg) {
+        console.assert(false, "implement me!");
+        return null;
     };
-    CorePacker.prototype.verifyMessage = function(rMsg) {
-        if (!rMsg.getDelegate()) {
-            rMsg.setDelegate(this.getTransceiver())
-        }
-        return rMsg.verify()
-    };
-    CorePacker.prototype.decryptMessage = function(sMsg) {
-        if (!sMsg.getDelegate()) {
-            sMsg.setDelegate(this.getTransceiver())
-        }
-        return sMsg.decrypt()
-    };
-    ns.core.Packer = CorePacker;
-    ns.core.registers("Packer")
+    ns.core.Packer = Packer;
+    ns.core.registers("Packer");
 })(DIMP);
-(function(ns) {
-    var obj = ns.type.Object;
-    var Envelope = ns.protocol.Envelope;
-    var InstantMessage = ns.protocol.InstantMessage;
-    var Transceiver = ns.Transceiver;
-    var CoreProcessor = function(transceiver) {
-        obj.call(this);
-        this.__transceiver = transceiver
+(function (ns) {
+    var Processor = function () {};
+    ns.Interface(Processor, null);
+    Processor.prototype.processPackage = function (data) {
+        console.assert(false, "implement me!");
+        return null;
     };
-    ns.Class(CoreProcessor, obj, [Transceiver.Processor]);
-    CoreProcessor.prototype.getTransceiver = function() {
-        return this.__transceiver
+    Processor.prototype.processReliableMessage = function (rMsg) {
+        console.assert(false, "implement me!");
+        return null;
     };
-    CoreProcessor.prototype.processData = function(data) {
-        var transceiver = this.getTransceiver();
-        var rMsg = transceiver.deserializeMessage(data);
-        if (rMsg == null) {
-            return null
-        }
-        rMsg = transceiver.processReliableMessage(rMsg);
-        if (rMsg == null) {
-            return null
-        }
-        return transceiver.serializeMessage(rMsg)
+    Processor.prototype.processSecureMessage = function (sMsg, rMsg) {
+        console.assert(false, "implement me!");
+        return null;
     };
-    CoreProcessor.prototype.processReliableMessage = function(rMsg) {
-        var transceiver = this.getTransceiver();
-        var sMsg = transceiver.verifyMessage(rMsg);
-        if (sMsg == null) {
-            return null
-        }
-        sMsg = transceiver.processSecureMessage(sMsg, rMsg);
-        if (sMsg == null) {
-            return null
-        }
-        return transceiver.signMessage(sMsg)
+    Processor.prototype.processInstantMessage = function (iMsg, rMsg) {
+        console.assert(false, "implement me!");
+        return null;
     };
-    CoreProcessor.prototype.processSecureMessage = function(sMsg, rMsg) {
-        var transceiver = this.getTransceiver();
-        var iMsg = transceiver.decryptMessage(sMsg);
-        if (iMsg == null) {
-            return null
-        }
-        iMsg = transceiver.processInstantMessage(iMsg, rMsg);
-        if (iMsg == null) {
-            return null
-        }
-        return transceiver.encryptMessage(iMsg)
+    Processor.prototype.processContent = function (content, rMsg) {
+        console.assert(false, "implement me!");
+        return null;
     };
-    CoreProcessor.prototype.processInstantMessage = function(iMsg, rMsg) {
-        var transceiver = this.getTransceiver();
-        var response = transceiver.processContent(iMsg.getContent(), rMsg);
-        if (response == null) {
-            return null
-        }
-        var sender = iMsg.getSender();
-        var receiver = iMsg.getReceiver();
-        var user = transceiver.selectLocalUser(receiver);
-        var env = Envelope.create(user.identifier, sender, null);
-        return InstantMessage.create(env, response)
-    };
-    ns.core.Processor = CoreProcessor;
-    ns.core.registers("Processor")
+    ns.core.Processor = Processor;
+    ns.core.registers("Processor");
 })(DIMP);
-(function(ns) {
-    var obj = ns.type.Object;
+(function (ns) {
     var SymmetricKey = ns.crypto.SymmetricKey;
     var Content = ns.protocol.Content;
     var InstantMessage = ns.protocol.InstantMessage;
     var ReliableMessage = ns.protocol.ReliableMessage;
-    var Transceiver = ns.Transceiver;
-    var CoreTransceiver = function() {
-        obj.call(this);
-        this.__barrack = null;
-        this.__keycache = null;
-        this.__packer = null;
-        this.__processor = null
+    var Transceiver = function () {
+        Object.call(this);
     };
-    ns.Class(CoreTransceiver, obj, [Transceiver, InstantMessage.Delegate, ReliableMessage.Delegate]);
-    CoreTransceiver.prototype.setEntityDelegate = function(barrack) {
-        this.__barrack = barrack
+    ns.Class(Transceiver, Object, [
+        InstantMessage.Delegate,
+        ReliableMessage.Delegate
+    ]);
+    Transceiver.prototype.getEntityDelegate = function () {
+        console.assert(false, "implement me!");
+        return null;
     };
-    CoreTransceiver.prototype.getEntityDelegate = function() {
-        return this.__barrack
-    };
-    CoreTransceiver.prototype.selectLocalUser = function(receiver) {
-        return this.getEntityDelegate().selectLocalUser(receiver)
-    };
-    CoreTransceiver.prototype.getUser = function(identifier) {
-        return this.getEntityDelegate().getUser(identifier)
-    };
-    CoreTransceiver.prototype.getGroup = function(identifier) {
-        return this.getEntityDelegate().getGroup(identifier)
-    };
-    CoreTransceiver.prototype.setCipherKeyDelegate = function(keyCache) {
-        this.__keycache = keyCache
-    };
-    CoreTransceiver.prototype.getCipherKeyDelegate = function() {
-        return this.__keycache
-    };
-    CoreTransceiver.prototype.getCipherKey = function(from, to, generate) {
-        return this.getCipherKeyDelegate().getCipherKey(from, to, generate)
-    };
-    CoreTransceiver.prototype.cacheCipherKey = function(from, to, key) {
-        return this.getCipherKeyDelegate().cacheCipherKey(from, to, key)
-    };
-    CoreTransceiver.prototype.setPacker = function(packer) {
-        this.__packer = packer
-    };
-    CoreTransceiver.prototype.getPacker = function() {
-        return this.__packer
-    };
-    CoreTransceiver.prototype.getOvertGroup = function(content) {
-        return this.getPacker().getOvertGroup(content)
-    };
-    CoreTransceiver.prototype.encryptMessage = function(iMsg) {
-        return this.getPacker().encryptMessage(iMsg)
-    };
-    CoreTransceiver.prototype.signMessage = function(sMsg) {
-        return this.getPacker().signMessage(sMsg)
-    };
-    CoreTransceiver.prototype.serializeMessage = function(rMsg) {
-        return this.getPacker().serializeMessage(rMsg)
-    };
-    CoreTransceiver.prototype.deserializeMessage = function(data) {
-        return this.getPacker().deserializeMessage(data)
-    };
-    CoreTransceiver.prototype.verifyMessage = function(rMsg) {
-        return this.getPacker().verifyMessage(rMsg)
-    };
-    CoreTransceiver.prototype.decryptMessage = function(sMsg) {
-        return this.getPacker().decryptMessage(sMsg)
-    };
-    CoreTransceiver.prototype.setProcessor = function(processor) {
-        this.__processor = processor
-    };
-    CoreTransceiver.prototype.getProcessor = function() {
-        return this.__processor
-    };
-    CoreTransceiver.prototype.processData = function(data) {
-        return this.getProcessor().processData(data)
-    };
-    CoreTransceiver.prototype.processReliableMessage = function(rMsg) {
-        return this.getProcessor().processReliableMessage(rMsg)
-    };
-    CoreTransceiver.prototype.processSecureMessage = function(sMsg, rMsg) {
-        return this.getProcessor().processSecureMessage(sMsg, rMsg)
-    };
-    CoreTransceiver.prototype.processInstantMessage = function(iMsg, rMsg) {
-        return this.getProcessor().processInstantMessage(iMsg, rMsg)
-    };
-    CoreTransceiver.prototype.processContent = function(content, rMsg) {
-        return this.getProcessor().processContent(content, rMsg)
-    };
-    var is_broadcast_msg = function(msg) {
+    var is_broadcast = function (msg) {
         var receiver = msg.getGroup();
         if (!receiver) {
-            receiver = msg.getReceiver()
+            receiver = msg.getReceiver();
         }
-        return receiver.isBroadcast()
+        return receiver.isBroadcast();
     };
-    CoreTransceiver.prototype.serializeContent = function(content, pwd, iMsg) {
-        return ns.format.JSON.encode(content.getMap())
+    Transceiver.prototype.serializeContent = function (content, pwd, iMsg) {
+        var dict = content.toMap();
+        var json = ns.format.JSON.encode(dict);
+        return ns.format.UTF8.encode(json);
     };
-    CoreTransceiver.prototype.encryptContent = function(data, pwd, iMsg) {
-        return pwd.encrypt(data)
+    Transceiver.prototype.encryptContent = function (data, pwd, iMsg) {
+        return pwd.encrypt(data);
     };
-    CoreTransceiver.prototype.encodeData = function(data, iMsg) {
-        if (is_broadcast_msg(iMsg)) {
-            return ns.format.UTF8.decode(data)
+    Transceiver.prototype.encodeData = function (data, iMsg) {
+        if (is_broadcast(iMsg)) {
+            return ns.format.UTF8.decode(data);
         }
-        return ns.format.Base64.encode(data)
+        return ns.format.Base64.encode(data);
     };
-    CoreTransceiver.prototype.serializeKey = function(pwd, iMsg) {
-        if (is_broadcast_msg(iMsg)) {
-            return null
+    Transceiver.prototype.serializeKey = function (pwd, iMsg) {
+        if (is_broadcast(iMsg)) {
+            return null;
         }
-        return ns.format.JSON.encode(pwd.getMap())
+        var dict = pwd.toMap();
+        var json = ns.format.JSON.encode(dict);
+        return ns.format.UTF8.encode(json);
     };
-    CoreTransceiver.prototype.encryptKey = function(data, receiver, iMsg) {
-        var contact = this.getUser(receiver);
-        return contact.encrypt(data)
+    Transceiver.prototype.encryptKey = function (data, receiver, iMsg) {
+        var barrack = this.getEntityDelegate();
+        var contact = barrack.getUser(receiver);
+        return contact.encrypt(data);
     };
-    CoreTransceiver.prototype.encodeKey = function(key, iMsg) {
-        return ns.format.Base64.encode(key)
+    Transceiver.prototype.encodeKey = function (key, iMsg) {
+        return ns.format.Base64.encode(key);
     };
-    CoreTransceiver.prototype.decodeKey = function(key, sMsg) {
-        return ns.format.Base64.decode(key)
+    Transceiver.prototype.decodeKey = function (key, sMsg) {
+        return ns.format.Base64.decode(key);
     };
-    CoreTransceiver.prototype.decryptKey = function(data, sender, receiver, sMsg) {
+    Transceiver.prototype.decryptKey = function (data, sender, receiver, sMsg) {
+        var barrack = this.getEntityDelegate();
         var identifier = sMsg.getReceiver();
-        var user = this.getUser(identifier);
-        return user.decrypt(data)
+        var user = barrack.getUser(identifier);
+        return user.decrypt(data);
     };
-    CoreTransceiver.prototype.deserializeKey = function(data, sender, receiver, sMsg) {
-        if (data) {
-            var dict = ns.format.JSON.decode(data);
-            return SymmetricKey.parse(dict)
-        } else {
-            return this.getCipherKey(sender, receiver, false)
+    Transceiver.prototype.deserializeKey = function (
+        data,
+        sender,
+        receiver,
+        sMsg
+    ) {
+        var json = ns.format.UTF8.decode(data);
+        var dict = ns.format.JSON.decode(json);
+        return SymmetricKey.parse(dict);
+    };
+    Transceiver.prototype.decodeData = function (data, sMsg) {
+        if (is_broadcast(sMsg)) {
+            return ns.format.UTF8.encode(data);
         }
+        return ns.format.Base64.decode(data);
     };
-    CoreTransceiver.prototype.decodeData = function(data, sMsg) {
-        if (is_broadcast_msg(sMsg)) {
-            return ns.format.UTF8.encode(data)
-        }
-        return ns.format.Base64.decode(data)
+    Transceiver.prototype.decryptContent = function (data, pwd, sMsg) {
+        return pwd.decrypt(data);
     };
-    CoreTransceiver.prototype.decryptContent = function(data, pwd, sMsg) {
-        return pwd.decrypt(data)
+    Transceiver.prototype.deserializeContent = function (data, pwd, sMsg) {
+        var json = ns.format.UTF8.decode(data);
+        var dict = ns.format.JSON.decode(json);
+        return Content.parse(dict);
     };
-    CoreTransceiver.prototype.deserializeContent = function(data, pwd, sMsg) {
-        var dict = ns.format.JSON.decode(data);
-        var content = Content.parse(dict);
-        if (!is_broadcast_msg(sMsg)) {
-            var sender = sMsg.getSender();
-            var group = this.getOvertGroup(content);
-            if (group) {
-                this.cacheCipherKey(sender, group, pwd)
-            } else {
-                var receiver = sMsg.getReceiver();
-                this.cacheCipherKey(sender, receiver, pwd)
-            }
-        }
-        return content
+    Transceiver.prototype.signData = function (data, sender, sMsg) {
+        var barrack = this.getEntityDelegate();
+        var user = barrack.getUser(sender);
+        return user.sign(data);
     };
-    CoreTransceiver.prototype.signData = function(data, sender, sMsg) {
-        var user = this.getUser(sender);
-        return user.sign(data)
+    Transceiver.prototype.encodeSignature = function (signature, sMsg) {
+        return ns.format.Base64.encode(signature);
     };
-    CoreTransceiver.prototype.encodeSignature = function(signature, sMsg) {
-        return ns.format.Base64.encode(signature)
+    Transceiver.prototype.decodeSignature = function (signature, rMsg) {
+        return ns.format.Base64.decode(signature);
     };
-    CoreTransceiver.prototype.decodeSignature = function(signature, rMsg) {
-        return ns.format.Base64.decode(signature)
+    Transceiver.prototype.verifyDataSignature = function (
+        data,
+        signature,
+        sender,
+        rMsg
+    ) {
+        var barrack = this.getEntityDelegate();
+        var contact = barrack.getUser(sender);
+        return contact.verify(data, signature);
     };
-    CoreTransceiver.prototype.verifyDataSignature = function(data, signature, sender, rMsg) {
-        var contact = this.getUser(sender);
-        return contact.verify(data, signature)
-    };
-    ns.core.Transceiver = CoreTransceiver;
-    ns.core.registers("Transceiver")
+    ns.core.Transceiver = Transceiver;
+    ns.core.registers("Transceiver");
 })(DIMP);
-(function(ns) {
-    var obj = ns.type.Object;
+(function (ns) {
     var ContentType = ns.protocol.ContentType;
     var Content = ns.protocol.Content;
     var Command = ns.protocol.Command;
     var HistoryCommand = ns.protocol.HistoryCommand;
     var GroupCommand = ns.protocol.GroupCommand;
-    var BaseContent = ns.dkd.BaseContent;
-    var ContentFactory = function(clazz) {
-        obj.call(this);
-        this.__class = clazz
+    var ContentFactory = function (clazz) {
+        Object.call(this);
+        this.__class = clazz;
     };
-    ns.Class(ContentFactory, obj, [Content.Factory]);
-    ContentFactory.prototype.parseContent = function(content) {
-        return new this.__class(content)
+    ns.Class(ContentFactory, Object, [Content.Factory]);
+    ContentFactory.prototype.parseContent = function (content) {
+        return new this.__class(content);
     };
-    var CommandFactory = function(clazz) {
-        obj.call(this);
-        this.__class = clazz
+    var CommandFactory = function (clazz) {
+        Object.call(this);
+        this.__class = clazz;
     };
-    ns.Class(CommandFactory, obj, [Command.Factory]);
-    CommandFactory.prototype.parseCommand = function(content) {
-        return new this.__class(content)
+    ns.Class(CommandFactory, Object, [Command.Factory]);
+    CommandFactory.prototype.parseCommand = function (content) {
+        return new this.__class(content);
     };
-    var GeneralCommandFactory = function() {
-        obj.call(this)
+    var GeneralCommandFactory = function () {
+        Object.call(this);
     };
-    ns.Class(GeneralCommandFactory, obj, [Content.Factory, Command.Factory]);
-    GeneralCommandFactory.prototype.parseContent = function(content) {
+    ns.Class(GeneralCommandFactory, Object, [Content.Factory, Command.Factory]);
+    GeneralCommandFactory.prototype.parseContent = function (content) {
         var command = Command.getCommand(content);
         var factory = Command.getFactory(command);
         if (!factory) {
             if (Content.getGroup(content)) {
-                factory = Command.getFactory("group")
+                factory = Command.getFactory("group");
             }
             if (!factory) {
-                factory = this
+                factory = this;
             }
         }
-        return factory.parseCommand(content)
+        return factory.parseCommand(content);
     };
-    GeneralCommandFactory.prototype.parseCommand = function(cmd) {
-        return new Command(cmd)
+    GeneralCommandFactory.prototype.parseCommand = function (cmd) {
+        return new Command(cmd);
     };
-    var HistoryCommandFactory = function() {
-        GeneralCommandFactory.call(this)
+    var HistoryCommandFactory = function () {
+        GeneralCommandFactory.call(this);
     };
     ns.Class(HistoryCommandFactory, GeneralCommandFactory, null);
-    HistoryCommandFactory.prototype.parseCommand = function(cmd) {
-        return new HistoryCommand(cmd)
+    HistoryCommandFactory.prototype.parseCommand = function (cmd) {
+        return new HistoryCommand(cmd);
     };
-    var GroupCommandFactory = function() {
-        HistoryCommandFactory.call(this)
+    var GroupCommandFactory = function () {
+        HistoryCommandFactory.call(this);
     };
     ns.Class(GroupCommandFactory, HistoryCommandFactory, null);
-    GroupCommandFactory.prototype.parseContent = function(content) {
+    GroupCommandFactory.prototype.parseContent = function (content) {
         var command = Command.getCommand(content);
         var factory = Command.getFactory(command);
         if (!factory) {
-            factory = this
+            factory = this;
         }
-        return factory.parseCommand(content)
+        return factory.parseCommand(content);
     };
-    GroupCommandFactory.prototype.parseCommand = function(cmd) {
-        return new GroupCommand(cmd)
+    GroupCommandFactory.prototype.parseCommand = function (cmd) {
+        return new GroupCommand(cmd);
     };
-    var registerContentFactories = function() {
-        Content.register(ContentType.FORWARD, new ContentFactory(ns.protocol.ForwardContent));
-        Content.register(ContentType.TEXT, new ContentFactory(ns.protocol.TextContent));
-        Content.register(ContentType.FILE, new ContentFactory(ns.protocol.FileContent));
-        Content.register(ContentType.IMAGE, new ContentFactory(ns.protocol.ImageContent));
-        Content.register(ContentType.AUDIO, new ContentFactory(ns.protocol.AudioContent));
-        Content.register(ContentType.VIDEO, new ContentFactory(ns.protocol.VideoContent));
-        Content.register(ContentType.PAGE, new ContentFactory(ns.protocol.PageContent));
-        Content.register(ContentType.MONEY, new ContentFactory(ns.protocol.MoneyContent));
-        Content.register(ContentType.TRANSFER, new ContentFactory(ns.protocol.TransferContent));
-        Content.register(ContentType.COMMAND, new GeneralCommandFactory());
-        Content.register(ContentType.HISTORY, new HistoryCommandFactory());
-        Content.register(0, new ContentFactory(BaseContent))
+    var registerContentFactories = function () {
+        Content.setFactory(
+            ContentType.FORWARD,
+            new ContentFactory(ns.dkd.SecretContent)
+        );
+        Content.setFactory(
+            ContentType.TEXT,
+            new ContentFactory(ns.dkd.BaseTextContent)
+        );
+        Content.setFactory(
+            ContentType.FILE,
+            new ContentFactory(ns.dkd.BaseFileContent)
+        );
+        Content.setFactory(
+            ContentType.IMAGE,
+            new ContentFactory(ns.dkd.ImageFileContent)
+        );
+        Content.setFactory(
+            ContentType.AUDIO,
+            new ContentFactory(ns.dkd.AudioFileContent)
+        );
+        Content.setFactory(
+            ContentType.VIDEO,
+            new ContentFactory(ns.dkd.VideoFileContent)
+        );
+        Content.setFactory(
+            ContentType.PAGE,
+            new ContentFactory(ns.dkd.WebPageContent)
+        );
+        Content.setFactory(
+            ContentType.MONEY,
+            new ContentFactory(ns.dkd.BaseMoneyContent)
+        );
+        Content.setFactory(
+            ContentType.TRANSFER,
+            new ContentFactory(ns.dkd.TransferMoneyContent)
+        );
+        Content.setFactory(ContentType.COMMAND, new GeneralCommandFactory());
+        Content.setFactory(ContentType.HISTORY, new HistoryCommandFactory());
+        Content.setFactory(0, new ContentFactory(ns.dkd.BaseContent));
     };
-    var registerCommandFactories = function() {
-        Command.register(Command.META, new CommandFactory(ns.protocol.MetaCommand));
-        var dpu = new CommandFactory(ns.protocol.DocumentCommand);
-        Command.register(Command.DOCUMENT, dpu);
-        Command.register("profile", dpu);
-        Command.register("visa", dpu);
-        Command.register("bulletin", dpu);
-        Command.register("group", new GroupCommandFactory());
-        Command.register(GroupCommand.INVITE, new CommandFactory(ns.protocol.group.InviteCommand));
-        Command.register(GroupCommand.EXPEL, new CommandFactory(ns.protocol.group.ExpelCommand));
-        Command.register(GroupCommand.JOIN, new CommandFactory(ns.protocol.group.JoinCommand));
-        Command.register(GroupCommand.QUIT, new CommandFactory(ns.protocol.group.QuitCommand));
-        Command.register(GroupCommand.QUERY, new CommandFactory(ns.protocol.group.QueryCommand));
-        Command.register(GroupCommand.RESET, new CommandFactory(ns.protocol.group.ResetCommand))
-    };
-    var registerCoreFactories = function() {
-        registerContentFactories();
-        registerCommandFactories()
+    var registerCommandFactories = function () {
+        Command.setFactory(
+            Command.META,
+            new CommandFactory(ns.dkd.BaseMetaCommand)
+        );
+        Command.setFactory(
+            Command.DOCUMENT,
+            new CommandFactory(ns.dkd.BaseDocumentCommand)
+        );
+        Command.setFactory("group", new GroupCommandFactory());
+        Command.setFactory(
+            GroupCommand.INVITE,
+            new CommandFactory(ns.dkd.InviteGroupCommand)
+        );
+        Command.setFactory(
+            GroupCommand.EXPEL,
+            new CommandFactory(ns.dkd.ExpelGroupCommand)
+        );
+        Command.setFactory(
+            GroupCommand.JOIN,
+            new CommandFactory(ns.dkd.JoinGroupCommand)
+        );
+        Command.setFactory(
+            GroupCommand.QUIT,
+            new CommandFactory(ns.dkd.QuitGroupCommand)
+        );
+        Command.setFactory(
+            GroupCommand.QUERY,
+            new CommandFactory(ns.dkd.QueryGroupCommand)
+        );
+        Command.setFactory(
+            GroupCommand.RESET,
+            new CommandFactory(ns.dkd.ResetGroupCommand)
+        );
     };
     ns.core.ContentFactory = ContentFactory;
     ns.core.CommandFactory = CommandFactory;
     ns.core.GeneralCommandFactory = GeneralCommandFactory;
     ns.core.HistoryCommandFactory = HistoryCommandFactory;
     ns.core.GroupCommandFactory = GroupCommandFactory;
-    ns.core.registerAllFactories = registerCoreFactories;
+    ns.core.registerContentFactories = registerContentFactories;
+    ns.core.registerCommandFactories = registerCommandFactories;
     ns.core.registers("ContentFactory");
     ns.core.registers("CommandFactory");
     ns.core.registers("GeneralCommandFactory");
     ns.core.registers("HistoryCommandFactory");
     ns.core.registers("GroupCommandFactory");
-    ns.core.registers("registerAllFactories")
+    ns.core.registers("registerContentFactories");
+    ns.core.registers("registerCommandFactories");
 })(DIMP);

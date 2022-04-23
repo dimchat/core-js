@@ -10,35 +10,35 @@ core_tests = [];
 
     var ContentType = ns.protocol.ContentType;
 
-    var TextContent = ns.protocol.TextContent;
-    var ImageContent = ns.protocol.ImageContent;
-    var AudioContent = ns.protocol.AudioContent;
-    var VideoContent = ns.protocol.VideoContent;
+    var BaseTextContent = ns.dkd.BaseTextContent;
+    var ImageFileContent = ns.dkd.ImageFileContent;
+    var AudioFileContent = ns.dkd.AudioFileContent;
+    var VideoFileContent = ns.dkd.VideoFileContent;
 
     var test_text_content = function () {
         var text = 'Hello world!';
-        var content = new TextContent(text);
+        var content = new BaseTextContent(text);
         log('content: ', content);
         assert(content.getText() === text, 'text content error');
     };
     core_tests.push(test_text_content);
 
     var test_image_content = function () {
-        var content = new ImageContent();
+        var content = new ImageFileContent();
         log('content: ', content);
         assert(ContentType.IMAGE.equals(content.getType()) === true, 'image content error');
     };
     core_tests.push(test_image_content);
 
     var test_audio_content = function () {
-        var content = new AudioContent();
+        var content = new AudioFileContent();
         log('content: ', content);
         assert(ContentType.AUDIO.equals(content.getType()) === true, 'audio content error');
     };
     core_tests.push(test_audio_content);
 
     var test_video_content = function () {
-        var content = new VideoContent();
+        var content = new VideoFileContent();
         log('content: ', content);
         assert(ContentType.VIDEO.equals(content.getType()) === true, 'video content error');
     };
@@ -48,6 +48,8 @@ core_tests = [];
 
 !function (ns) {
     'use strict';
+
+    var confirms = ns.Interface.conforms;
 
     var GroupCommand = ns.protocol.GroupCommand;
 
@@ -65,42 +67,42 @@ core_tests = [];
     var test_invite_group = function () {
         var cmd = GroupCommand.invite(group, members);
         log('invite command: ', cmd);
-        assert(cmd instanceof InviteCommand, 'invite command error');
+        assert(confirms(cmd, InviteCommand), 'invite command error');
     };
     core_tests.push(test_invite_group);
 
     var test_expel_group = function () {
         var cmd = GroupCommand.expel(group, member);
         log('expel command: ', cmd);
-        assert(cmd instanceof ExpelCommand, 'expel command error');
+        assert(confirms(cmd, ExpelCommand), 'expel command error');
     };
     core_tests.push(test_expel_group);
 
     var test_join_group = function () {
         var cmd = GroupCommand.join(group);
         log('join command: ', cmd);
-        assert(cmd instanceof JoinCommand, 'join command error');
+        assert(confirms(cmd, JoinCommand), 'join command error');
     };
     core_tests.push(test_join_group);
 
     var test_quit_group = function () {
         var cmd = GroupCommand.quit(group);
         log('quit command: ', cmd);
-        assert(cmd instanceof QuitCommand, 'quit command error');
+        assert(confirms(cmd, QuitCommand), 'quit command error');
     };
     core_tests.push(test_quit_group);
 
     var test_query_group = function () {
         var cmd = GroupCommand.query(group);
         log('query command: ', cmd);
-        assert(cmd instanceof QueryCommand, 'query command error');
+        assert(confirms(cmd, QueryCommand), 'query command error');
     };
     core_tests.push(test_query_group);
 
     var test_reset_group = function () {
         var cmd = GroupCommand.reset(group, members);
         log('reset command: ', cmd);
-        assert(cmd instanceof ResetCommand, 'reset command error');
+        assert(confirms(cmd, ResetCommand), 'reset command error');
     };
     core_tests.push(test_reset_group);
 

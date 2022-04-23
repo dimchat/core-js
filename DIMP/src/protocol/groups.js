@@ -65,7 +65,7 @@
     //  Expel group command
     //
     var ExpelCommand = function () {};
-    ns.Interface(ExpelCommand, GroupCommand, null);
+    ns.Interface(ExpelCommand, [GroupCommand]);
 
     // get members
     ExpelCommand.prototype.getExpelMembers = function () {
@@ -77,7 +77,7 @@
     //  Join group command
     //
     var JoinCommand = function () {};
-    ns.Class(JoinCommand, GroupCommand, null);
+    ns.Interface(JoinCommand, [GroupCommand]);
 
     // get text
     JoinCommand.prototype.getAsk = function () {
@@ -89,7 +89,7 @@
     //  Quit group command
     //
     var QuitCommand = function () {};
-    ns.Class(QuitCommand, GroupCommand, null);
+    ns.Interface(QuitCommand, [GroupCommand]);
 
     // get text
     QuitCommand.prototype.getBye = function () {
@@ -101,7 +101,7 @@
     //  Reset group command
     //
     var ResetCommand = function () {};
-    ns.Class(ResetCommand, GroupCommand, null);
+    ns.Interface(ResetCommand, [GroupCommand]);
 
     // get members
     ResetCommand.prototype.getAllMembers = function () {
@@ -113,7 +113,7 @@
     //  Query group command
     //
     var QueryCommand = function () {};
-    ns.Class(QueryCommand, GroupCommand, null);
+    ns.Interface(QueryCommand, [GroupCommand]);
 
     // get text
     QueryCommand.prototype.getText = function () {

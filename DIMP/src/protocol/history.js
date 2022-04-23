@@ -51,7 +51,7 @@
     var HistoryCommand = function () {};
     ns.Interface(HistoryCommand, [Command]);
 
-    HistoryCommand.protocol.getHistoryEvent = function () {
+    HistoryCommand.prototype.getHistoryEvent = function () {
         console.assert(false, 'implement me!');
         return null;
     };

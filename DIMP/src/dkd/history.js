@@ -63,7 +63,7 @@
     ns.Class(BaseHistoryCommand, BaseCommand, [HistoryCommand]);
 
     // Override
-    BaseHistoryCommand.protocol.getHistoryEvent = function () {
+    BaseHistoryCommand.prototype.getHistoryEvent = function () {
         return HistoryCommand.getHistoryEvent(this);
     };
 

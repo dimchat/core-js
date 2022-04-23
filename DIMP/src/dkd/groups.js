@@ -50,12 +50,12 @@
 
     var ID = ns.protocol.ID;
     var GroupCommand = ns.protocol.GroupCommand;
-    var InviteCommand = ns.protocol.InviteCommand;
-    var ExpelCommand = ns.protocol.ExpelCommand;
-    var JoinCommand = ns.protocol.JoinCommand;
-    var QuitCommand = ns.protocol.QuitCommand;
-    var ResetCommand = ns.protocol.ResetCommand;
-    var QueryCommand = ns.protocol.QueryCommand;
+    var InviteCommand = ns.protocol.group.InviteCommand;
+    var ExpelCommand = ns.protocol.group.ExpelCommand;
+    var JoinCommand = ns.protocol.group.JoinCommand;
+    var QuitCommand = ns.protocol.group.QuitCommand;
+    var ResetCommand = ns.protocol.group.ResetCommand;
+    var QueryCommand = ns.protocol.group.QueryCommand;
     var BaseGroupCommand = ns.dkd.BaseGroupCommand;
 
     //
@@ -201,20 +201,20 @@
     };
 
     //-------- namespace --------
-    ns.dkd.group.InviteGroupCommand = InviteGroupCommand;
-    ns.dkd.group.ExpelGroupCommand = ExpelGroupCommand;
-    ns.dkd.group.JoinGroupCommand = JoinGroupCommand;
-    ns.dkd.group.QuitGroupCommand = QuitGroupCommand;
+    ns.dkd.InviteGroupCommand = InviteGroupCommand;
+    ns.dkd.ExpelGroupCommand = ExpelGroupCommand;
+    ns.dkd.JoinGroupCommand = JoinGroupCommand;
+    ns.dkd.QuitGroupCommand = QuitGroupCommand;
 
-    ns.dkd.group.ResetGroupCommand = ResetGroupCommand;
-    ns.dkd.group.QueryGroupCommand = QueryGroupCommand;
+    ns.dkd.ResetGroupCommand = ResetGroupCommand;
+    ns.dkd.QueryGroupCommand = QueryGroupCommand;
 
-    ns.dkd.group.registers('InviteGroupCommand');
-    ns.dkd.group.registers('ExpelGroupCommand');
-    ns.dkd.group.registers('JoinGroupCommand');
-    ns.dkd.group.registers('QuitGroupCommand');
+    ns.dkd.registers('InviteGroupCommand');
+    ns.dkd.registers('ExpelGroupCommand');
+    ns.dkd.registers('JoinGroupCommand');
+    ns.dkd.registers('QuitGroupCommand');
 
-    ns.dkd.group.registers('ResetGroupCommand');
-    ns.dkd.group.registers('QueryGroupCommand');
+    ns.dkd.registers('ResetGroupCommand');
+    ns.dkd.registers('QueryGroupCommand');
 
 })(DIMP);
