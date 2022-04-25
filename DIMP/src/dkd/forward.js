@@ -68,14 +68,16 @@
     // Override
     SecretContent.prototype.getMessage = function () {
         if (!this.__forward) {
-            this.__forward = ForwardContent.getMessage(this);
+            var dict = this.toMap();
+            this.__forward = ForwardContent.getMessage(dict);
         }
         return this.__forward;
     };
 
     // Override
     SecretContent.prototype.setMessage = function (secret) {
-        ForwardContent.setMessage(secret, this);
+        var dict = this.toMap();
+        ForwardContent.setMessage(secret, dict);
         this.__forward = secret;
     };
 

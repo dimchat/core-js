@@ -78,30 +78,34 @@
 
     // Override
     BaseGroupCommand.prototype.setMember = function (identifier) {
-        GroupCommand.setMembers(null, this);
-        GroupCommand.setMember(identifier, this);
+        var dict = this.toMap();
+        GroupCommand.setMembers(null, dict);
+        GroupCommand.setMember(identifier, dict);
         this.__member = identifier;
     };
 
     // Override
     BaseGroupCommand.prototype.getMember = function () {
         if (!this.__member) {
-            this.__member = GroupCommand.getMember(this);
+            var dict = this.toMap();
+            this.__member = GroupCommand.getMember(dict);
         }
         return this.__member;
     };
 
     // Override
     BaseGroupCommand.prototype.setMembers = function (members) {
-        GroupCommand.setMember(null, this);
-        GroupCommand.setMembers(members, this);
+        var dict = this.toMap();
+        GroupCommand.setMember(null, dict);
+        GroupCommand.setMembers(members, dict);
         this.__members = members;
     };
 
     // Override
     BaseGroupCommand.prototype.getMembers = function () {
         if (!this.__members) {
-            this.__members = GroupCommand.getMembers(this);
+            var dict = this.toMap();
+            this.__members = GroupCommand.getMembers(dict);
             // TODO: get from 'member'?
         }
         return this.__members;

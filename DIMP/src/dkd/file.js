@@ -78,48 +78,56 @@
 
     // Override
     BaseFileContent.prototype.setURL = function (url) {
-        FileContent.setURL(url, this);
+        var dict = this.toMap();
+        FileContent.setURL(url, dict);
     };
 
     // Override
     BaseFileContent.prototype.getURL = function () {
-        return FileContent.getURL(this);
+        var dict = this.toMap();
+        return FileContent.getURL(dict);
     };
 
     // Override
     BaseFileContent.prototype.setFilename = function (filename) {
-        FileContent.setFilename(filename, this)
+        var dict = this.toMap();
+        FileContent.setFilename(filename, dict)
     };
 
     // Override
     BaseFileContent.prototype.getFilename = function () {
-        return FileContent.getFilename(this);
+        var dict = this.toMap();
+        return FileContent.getFilename(dict);
     };
 
     // Override
     BaseFileContent.prototype.setData = function (data) {
-        FileContent.setData(data, this);
+        var dict = this.toMap();
+        FileContent.setData(data, dict);
         this.__data = data;
     };
 
     // Override
     BaseFileContent.prototype.getData = function () {
         if (!this.__data) {
-            this.__data = FileContent.getData(this);
+            var dict = this.toMap();
+            this.__data = FileContent.getData(dict);
         }
         return this.__data;
     };
 
     // Override
     BaseFileContent.prototype.setPassword = function (key) {
-        FileContent.setPassword(key, this);
+        var dict = this.toMap();
+        FileContent.setPassword(key, dict);
         this.__password = key;
     };
 
     // Override
     BaseFileContent.prototype.getPassword = function () {
         if (!this.__password) {
-            this.__password = FileContent.getPassword(this);
+            var dict = this.toMap();
+            this.__password = FileContent.getPassword(dict);
         }
         return this.__password;
     };

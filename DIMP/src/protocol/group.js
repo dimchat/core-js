@@ -35,7 +35,6 @@
 (function (ns) {
     'use strict';
 
-    var Wrapper = ns.type.Wrapper;
     var ID = ns.protocol.ID;
     var HistoryCommand = ns.protocol.HistoryCommand;
 
@@ -96,7 +95,6 @@
     };
 
     GroupCommand.setMember = function (member, cmd) {
-        cmd = Wrapper.fetchMap(cmd);
         if (member) {
             cmd['member'] = member.toString();
         } else {
@@ -104,12 +102,10 @@
         }
     };
     GroupCommand.getMember = function (cmd) {
-        cmd = Wrapper.fetchMap(cmd);
         return ID.parse(cmd['member']);
     };
 
     GroupCommand.setMembers = function (members, cmd) {
-        cmd = Wrapper.fetchMap(cmd);
         if (members/* && members.length > 0*/) {
             cmd['members'] = ID.revert(members);
         } else {
@@ -117,7 +113,6 @@
         }
     };
     GroupCommand.getMembers = function (cmd) {
-        cmd = Wrapper.fetchMap(cmd);
         var members = cmd['members'];
         if (members) {
             return ID.convert(members);

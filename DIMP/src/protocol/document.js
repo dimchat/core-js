@@ -35,7 +35,6 @@
 (function (ns) {
     'use strict';
 
-    var Wrapper = ns.type.Wrapper;
     var ID = ns.protocol.ID;
     var Meta = ns.protocol.Meta;
     var Document = ns.protocol.Document;
@@ -69,15 +68,13 @@
         return null;
     };
     DocumentCommand.setDocument = function (doc, cmd) {
-        cmd = Wrapper.fetchMap(cmd);
         if (doc) {
-            cmd['document'] = Wrapper.fetchMap(doc);
+            cmd['document'] = doc.toMap();
         } else {
             delete cmd['command'];
         }
     };
     DocumentCommand.getDocument = function (cmd) {
-        cmd = Wrapper.fetchMap(cmd);
         var doc = cmd['document'];
         return Document.parse(doc);
     };
@@ -95,11 +92,9 @@
         return null;
     };
     DocumentCommand.setSignature = function (base64, cmd) {
-        cmd = Wrapper.fetchMap(cmd);
         cmd['signature'] = base64;
     };
     DocumentCommand.getSignature = function (cmd) {
-        cmd = Wrapper.fetchMap(cmd);
         return cmd['signature'];
     };
 

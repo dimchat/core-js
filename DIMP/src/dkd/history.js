@@ -64,7 +64,8 @@
 
     // Override
     BaseHistoryCommand.prototype.getHistoryEvent = function () {
-        return HistoryCommand.getHistoryEvent(this);
+        var dict = this.toMap();
+        return HistoryCommand.getHistoryEvent(dict);
     };
 
     //-------- namespace --------

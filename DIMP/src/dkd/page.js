@@ -66,45 +66,53 @@
 
     // Override
     WebPageContent.prototype.getURL = function () {
-        return PageContent.getURL(this);
+        var dict = this.toMap();
+        return PageContent.getURL(dict);
     };
 
     // Override
     WebPageContent.prototype.setURL = function (url) {
-        PageContent.setURL(url, this);
+        var dict = this.toMap();
+        PageContent.setURL(url, dict);
     };
 
     // Override
     WebPageContent.prototype.getTitle = function () {
-        return PageContent.getTitle(this);
+        var dict = this.toMap();
+        return PageContent.getTitle(dict);
     };
 
     // Override
     WebPageContent.prototype.setTitle = function (title) {
-        PageContent.setTitle(title, this);
+        var dict = this.toMap();
+        PageContent.setTitle(title, dict);
     };
 
     // Override
     WebPageContent.prototype.getDesc = function () {
-        return PageContent.getDesc(this);
+        var dict = this.toMap();
+        return PageContent.getDesc(dict);
     };
 
     // Override
     WebPageContent.prototype.setDesc = function (text) {
-        PageContent.setDesc(text, this);
+        var dict = this.toMap();
+        PageContent.setDesc(text, dict);
     };
 
     // Override
     WebPageContent.prototype.getIcon = function () {
         if (!this.__icon) {
-            this.__icon = PageContent.getIcon(this);
+            var dict = this.toMap();
+            this.__icon = PageContent.getIcon(dict);
         }
         return this.__icon;
     };
 
     // Override
     WebPageContent.prototype.setIcon = function (image) {
-        PageContent.setIcon(image, this);
+        var dict = this.toMap();
+        PageContent.setIcon(image, dict);
         this.__icon = image;
     };
 

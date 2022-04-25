@@ -35,7 +35,6 @@
 (function (ns) {
     'use strict';
 
-    var Wrapper = ns.type.Wrapper;
     var ID = ns.protocol.ID;
     var Meta = ns.protocol.Meta;
     var Command = ns.protocol.Command;
@@ -66,7 +65,6 @@
         return null;
     };
     MetaCommand.setIdentifier = function (identifier, cmd) {
-        cmd = Wrapper.fetchMap(cmd);
         if (identifier) {
             cmd['ID'] = identifier.toString();
         } else {
@@ -74,7 +72,6 @@
         }
     };
     MetaCommand.getIdentifier = function (cmd) {
-        cmd = Wrapper.fetchMap(cmd);
         return ID.parse(cmd['ID']);
     };
 
@@ -91,15 +88,13 @@
         return null;
     };
     MetaCommand.setMeta = function (meta, cmd) {
-        cmd = Wrapper.fetchMap(cmd);
         if (meta) {
-            cmd['meta'] = Wrapper.fetchMap(meta);
+            cmd['meta'] = meta.toMap();
         } else {
             delete cmd['meta'];
         }
     };
     MetaCommand.getMeta = function (cmd) {
-        cmd = Wrapper.fetchMap(cmd);
         return Meta.parse(cmd['meta']);
     };
 

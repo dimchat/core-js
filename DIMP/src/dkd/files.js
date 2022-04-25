@@ -71,14 +71,16 @@
     // Override
     ImageFileContent.prototype.getThumbnail = function () {
         if (!this.__thumbnail) {
-            this.__thumbnail = ImageContent.getThumbnail(this);
+            var dict = this.toMap();
+            this.__thumbnail = ImageContent.getThumbnail(dict);
         }
         return this.__thumbnail;
     };
 
     // Override
     ImageFileContent.prototype.setThumbnail = function (image) {
-        ImageContent.setThumbnail(image, this);
+        var dict = this.toMap();
+        ImageContent.setThumbnail(image, dict);
         this.__thumbnail = image;
     };
 
@@ -110,14 +112,16 @@
     // Override
     VideoFileContent.prototype.getSnapshot = function () {
         if (!this.__snapshot) {
-            this.__snapshot = VideoContent.getSnapshot(this);
+            var dict = this.toMap();
+            this.__snapshot = VideoContent.getSnapshot(dict);
         }
         return this.__snapshot;
     };
 
     // Override
     VideoFileContent.prototype.setSnapshot = function (image) {
-        VideoContent.setSnapshot(image, this);
+        var dict = this.toMap();
+        VideoContent.setSnapshot(image, dict);
         this.__snapshot = image;
     };
 
@@ -175,7 +179,7 @@
      *
      * @param {String} filename
      * @param {Uint8Array} data
-     * @return {ImageFileContent}
+     * @return {ImageContent}
      */
     FileContent.image = function (filename, data) {
         return new ImageFileContent(filename, data);
@@ -186,7 +190,7 @@
      *
      * @param {String} filename
      * @param {Uint8Array} data
-     * @return {AudioFileContent}
+     * @return {AudioContent}
      */
     FileContent.audio = function (filename, data) {
         return new AudioFileContent(filename, data);
@@ -197,7 +201,7 @@
      *
      * @param {String} filename
      * @param {Uint8Array} data
-     * @return {VideoFileContent}
+     * @return {VideoContent}
      */
     FileContent.video = function (filename, data) {
         return new VideoFileContent(filename, data);

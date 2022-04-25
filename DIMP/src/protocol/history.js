@@ -35,7 +35,6 @@
 (function (ns) {
     'use strict';
 
-    var Wrapper = ns.type.Wrapper;
     var Command = ns.protocol.Command;
 
     /**
@@ -56,7 +55,6 @@
         return null;
     };
     HistoryCommand.getHistoryEvent = function (cmd) {
-        cmd = Wrapper.fetchMap(cmd);
         return cmd['event'];
     };
 

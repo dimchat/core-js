@@ -35,7 +35,6 @@
 (function (ns) {
     'use strict';
 
-    var Wrapper = ns.type.Wrapper;
     var Content = ns.protocol.Content;
 
     /**
@@ -67,7 +66,6 @@
         return '';
     };
     Command.getCommand = function (cmd) {
-        cmd = Wrapper.fetchMap(cmd);
         return cmd['command'];
     };
 

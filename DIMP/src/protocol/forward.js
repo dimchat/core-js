@@ -35,7 +35,6 @@
 (function (ns) {
     'use strict';
 
-    var Wrapper = ns.type.Wrapper;
     var ReliableMessage = ns.protocol.ReliableMessage;
     var Content = ns.protocol.Content;
 
@@ -63,14 +62,12 @@
         return null;
     };
     ForwardContent.getMessage = function (content) {
-        content = Wrapper.fetchMap(content);
         var secret = content['forward'];
         return ReliableMessage.parse(secret);
     };
     ForwardContent.setMessage = function (secret, content) {
-        content = Wrapper.fetchMap(content);
         if (secret) {
-            content['forward'] = Wrapper.fetchMap(secret);
+            content['forward'] = secret.toMap();
         } else {
             delete content['forward'];
         }

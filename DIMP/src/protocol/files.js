@@ -35,7 +35,7 @@
 (function (ns) {
     'use strict';
 
-    var Wrapper = ns.type.Wrapper;
+    var Base64 = ns.format.Base64;
     var FileContent = ns.protocol.FileContent;
 
     /**
@@ -64,18 +64,16 @@
         return null;
     };
     ImageContent.setThumbnail = function (image, content) {
-        content = Wrapper.fetchMap(content);
         if (image/* && image.length > 0*/) {
-            content['thumbnail'] = ns.format.Base64.encode(image);
+            content['thumbnail'] = Base64.encode(image);
         } else {
             delete content['thumbnail'];
         }
     }
     ImageContent.getThumbnail = function (content) {
-        content = Wrapper.fetchMap(content);
         var base64 = content['thumbnail'];
         if (base64) {
-            return ns.format.Base64.decode(base64);
+            return Base64.decode(base64);
         } else {
             return null;
         }
@@ -107,18 +105,16 @@
         return null;
     };
     VideoContent.setSnapshot = function (image, content) {
-        content = Wrapper.fetchMap(content);
         if (image/* && image.length > 0*/) {
-            content['snapshot'] = ns.format.Base64.encode(image);
+            content['snapshot'] = Base64.encode(image);
         } else {
             delete content['snapshot'];
         }
     }
     VideoContent.getSnapshot = function (content) {
-        content = Wrapper.fetchMap(content);
         var base64 = content['snapshot'];
         if (base64) {
-            return ns.format.Base64.decode(base64);
+            return Base64.decode(base64);
         } else {
             return null;
         }

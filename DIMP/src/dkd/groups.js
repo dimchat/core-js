@@ -183,7 +183,7 @@
      *
      * @param {ID} group
      * @param {ID|ID[]} members
-     * @return {InviteGroupCommand}
+     * @return {InviteCommand}
      */
     GroupCommand.invite = function (group, members) {
         return new InviteGroupCommand(group, members);
@@ -194,7 +194,7 @@
      *
      * @param {ID} group
      * @param {ID|ID[]} members
-     * @return {ExpelGroupCommand}
+     * @return {ExpelCommand}
      */
     GroupCommand.expel = function (group, members) {
         return new ExpelGroupCommand(group, members);
@@ -204,7 +204,7 @@
      *  Create join group command
      *
      * @param {ID} group
-     * @return {JoinGroupCommand}
+     * @return {JoinCommand}
      */
     GroupCommand.join = function (group) {
         return new JoinGroupCommand(group);
@@ -214,7 +214,7 @@
      *  Create quit group command
      *
      * @param {ID} group
-     * @return {QuitGroupCommand}
+     * @return {QuitCommand}
      */
     GroupCommand.quit = function (group) {
         return new QuitGroupCommand(group);
@@ -225,7 +225,7 @@
      *
      * @param {ID} group
      * @param {ID[]} members
-     * @return {ResetGroupCommand}
+     * @return {ResetCommand}
      */
     GroupCommand.reset = function (group, members) {
         return new ResetGroupCommand(group, members);
@@ -235,7 +235,7 @@
      *  Create query group command
      *
      * @param {ID} group
-     * @return {QueryGroupCommand}
+     * @return {QueryCommand}
      */
     GroupCommand.query = function (group) {
         return new QueryGroupCommand(group);

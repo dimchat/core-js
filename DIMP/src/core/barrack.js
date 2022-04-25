@@ -80,6 +80,7 @@
 
     //-------- User DataSource --------
 
+    // Override
     Barrack.prototype.getPublicKeyForEncryption = function (identifier) {
         // 1. get key from visa
         var key = visa_key.call(this, identifier);
@@ -97,6 +98,7 @@
         return null;
     };
 
+    // Override
     Barrack.prototype.getPublicKeysForVerification = function (identifier) {
         var keys = [];
         // 1. get key from visa
@@ -176,6 +178,7 @@
         return members;
     };
 
+    // Override
     Barrack.prototype.getFounder = function (group) {
         // check for broadcast
         if (group.isBroadcast()) {
@@ -211,6 +214,7 @@
         return null;
     };
 
+    // Override
     Barrack.prototype.getOwner = function (group) {
         // check broadcast group
         if (group.isBroadcast()) {
@@ -226,6 +230,7 @@
         return null;
     };
 
+    // Override
     Barrack.prototype.getMembers = function (group) {
         // check broadcast group
         if (group.isBroadcast()) {
@@ -236,6 +241,7 @@
         return null;
     };
 
+    // Override
     Barrack.prototype.getAssistants = function (group) {
         var doc = this.getDocument(group, Document.BULLETIN);
         if (ns.Interface.conforms(doc, Bulletin)) {

@@ -87,29 +87,35 @@
 
     // Override
     BaseDocumentCommand.prototype.setDocument = function (doc) {
-        DocumentCommand.setDocument(doc, this);
+        var dict = this.toMap();
+        DocumentCommand.setDocument(doc, dict);
         this.__document = doc;
     };
 
     // Override
     BaseDocumentCommand.prototype.getDocument = function () {
         if (!this.__document) {
-            this.__document = DocumentCommand.getDocument(this);
+            var dict = this.toMap();
+            this.__document = DocumentCommand.getDocument(dict);
         }
         return this.__document;
     };
 
     // Override
     BaseDocumentCommand.prototype.setSignature = function (base64) {
-        DocumentCommand.setSignature(base64, this);
+        var dict = this.toMap();
+        DocumentCommand.setSignature(base64, dict);
     };
 
     // Override
     BaseDocumentCommand.prototype.getSignature = function () {
-        return DocumentCommand.getSignature(this);
+        var dict = this.toMap();
+        return DocumentCommand.getSignature(dict);
     };
 
-    //-------- factories --------
+    //
+    //  Factories
+    //
 
     /**
      *  Create query command
@@ -118,7 +124,7 @@
      * @param {String} signature - OPTIONAL
      * @returns {DocumentCommand}
      */
-    BaseDocumentCommand.query = function (identifier, signature) {
+    DocumentCommand.query = function (identifier, signature) {
         return new BaseDocumentCommand(identifier, signature);
     };
 
@@ -130,7 +136,7 @@
      * @param {Document} doc
      * @returns {DocumentCommand}
      */
-    BaseDocumentCommand.response = function (identifier, meta, doc) {
+    DocumentCommand.response = function (identifier, meta, doc) {
         return new BaseDocumentCommand(identifier, meta, doc);
     };
 

@@ -35,7 +35,7 @@
 (function (ns) {
     'use strict';
 
-    var Wrapper = ns.type.Wrapper;
+    var Base64 = ns.format.Base64;
     var SymmetricKey = ns.crypto.SymmetricKey;
     var Content = ns.protocol.Content;
 
@@ -65,7 +65,6 @@
         return null;
     };
     FileContent.setURL = function (url, content) {
-        content = Wrapper.fetchMap(content);
         if (url/* && url.indexOf('://') > 0*/) {
             content['URL'] = url;
         } else {
@@ -73,7 +72,6 @@
         }
     };
     FileContent.getURL = function (content) {
-        content = Wrapper.fetchMap(content);
         return content['URL'];
     };
 
@@ -90,7 +88,6 @@
         return null;
     };
     FileContent.setFilename = function (filename, content) {
-        content = Wrapper.fetchMap(content);
         if (filename/* && filename.length > 0*/) {
             content['filename'] = filename;
         } else {
@@ -98,7 +95,6 @@
         }
     };
     FileContent.getFilename = function (content) {
-        content = Wrapper.fetchMap(content);
         return content['filename'];
     };
 
@@ -118,18 +114,16 @@
         return null;
     };
     FileContent.setData = function (data, content) {
-        content = Wrapper.fetchMap(content);
         if (data/* && data.length > 0*/) {
-            content['data'] = ns.format.Base64.encode(data);
+            content['data'] = Base64.encode(data);
         } else {
             delete content['data'];
         }
     };
     FileContent.getData = function (content) {
-        content = Wrapper.fetchMap(content);
         var base64 = content['data'];
         if (base64/* && base64.length > 0*/) {
-            return ns.format.Base64.decode(base64);
+            return Base64.decode(base64);
         } else {
             return null;
         }
@@ -148,15 +142,13 @@
         return null;
     };
     FileContent.setPassword = function (key, content) {
-        content = Wrapper.fetchMap(content);
         if (key) {
-            content['password'] = Wrapper.fetchMap(key);
+            content['password'] = key.toMap();
         } else {
             delete content['password'];
         }
     };
     FileContent.getPassword = function (content) {
-        content = Wrapper.fetchMap(content);
         var key = content['password'];
         return SymmetricKey.parse(key);
     };

@@ -73,22 +73,26 @@
 
     // Override
     BaseMoneyContent.prototype.setCurrency = function (currency) {
-        MoneyContent.setCurrency(currency, this);
+        var dict = this.toMap();
+        MoneyContent.setCurrency(currency, dict);
     };
 
     // Override
     BaseMoneyContent.prototype.getCurrency = function () {
-        return MoneyContent.getCurrency(this);
+        var dict = this.toMap();
+        return MoneyContent.getCurrency(dict);
     };
 
     // Override
     BaseMoneyContent.prototype.setAmount = function (amount) {
-        MoneyContent.setAmount(amount, this);
+        var dict = this.toMap();
+        MoneyContent.setAmount(amount, dict);
     };
 
     // Override
     BaseMoneyContent.prototype.getAmount = function () {
-        return MoneyContent.getAmount(this);
+        var dict = this.toMap();
+        return MoneyContent.getAmount(dict);
     };
 
     /**

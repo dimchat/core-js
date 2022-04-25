@@ -43,7 +43,9 @@
     'use strict';
 
     var SymmetricKey = ns.crypto.SymmetricKey;
-
+    var UTF8 = ns.format.UTF8;
+    var Base64 = ns.format.Base64;
+    var JsON = ns.format.JSON;
     var Content = ns.protocol.Content;
     var InstantMessage = ns.protocol.InstantMessage;
     var ReliableMessage = ns.protocol.ReliableMessage;
@@ -76,8 +78,8 @@
         // NOTICE: check attachment for File/Image/Audio/Video message content
         //         before serialize content, this job should be do in subclass
         var dict = content.toMap();
-        var json = ns.format.JSON.encode(dict);
-        return ns.format.UTF8.encode(json);
+        var json = JsON.encode(dict);
+        return UTF8.encode(json);
     };
 
     // Override
@@ -90,9 +92,9 @@
         if (is_broadcast(iMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so no need to encode to Base64 here
-            return ns.format.UTF8.decode(data);
+            return UTF8.decode(data);
         }
-        return ns.format.Base64.encode(data);
+        return Base64.encode(data);
     };
 
     // Override
@@ -102,8 +104,8 @@
             return null;
         }
         var dict = pwd.toMap();
-        var json = ns.format.JSON.encode(dict);
-        return ns.format.UTF8.encode(json);
+        var json = JsON.encode(dict);
+        return UTF8.encode(json);
     };
 
     // Override
@@ -116,14 +118,14 @@
 
     // Override
     Transceiver.prototype.encodeKey = function (key, iMsg) {
-        return ns.format.Base64.encode(key);
+        return Base64.encode(key);
     };
 
     //-------- SecureMessage Delegate --------
 
     // Override
     Transceiver.prototype.decodeKey = function (key, sMsg) {
-        return ns.format.Base64.decode(key);
+        return Base64.decode(key);
     };
 
     // Override
@@ -138,8 +140,8 @@
 
     // Override
     Transceiver.prototype.deserializeKey = function (data, sender, receiver, sMsg) {
-        var json = ns.format.UTF8.decode(data);
-        var dict = ns.format.JSON.decode(json);
+        var json = UTF8.decode(data);
+        var dict = JsON.decode(json);
         // TODO: translate short keys
         //       'A' -> 'algorithm'
         //       'D' -> 'data'
@@ -154,9 +156,9 @@
         if (is_broadcast(sMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so return the string data directly
-            return ns.format.UTF8.encode(data);
+            return UTF8.encode(data);
         }
-        return ns.format.Base64.decode(data);
+        return Base64.decode(data);
     };
 
     // Override
@@ -166,8 +168,8 @@
 
     // Override
     Transceiver.prototype.deserializeContent = function (data, pwd, sMsg) {
-        var json = ns.format.UTF8.decode(data);
-        var dict = ns.format.JSON.decode(json);
+        var json = UTF8.decode(data);
+        var dict = JsON.decode(json);
         // TODO: translate short keys
         //       'T' -> 'type'
         //       'N' -> 'sn'
@@ -184,14 +186,14 @@
 
     // Override
     Transceiver.prototype.encodeSignature = function (signature, sMsg) {
-        return ns.format.Base64.encode(signature);
+        return Base64.encode(signature);
     };
 
     //-------- ReliableMessage Delegate --------
 
     // Override
     Transceiver.prototype.decodeSignature = function (signature, rMsg) {
-        return ns.format.Base64.decode(signature);
+        return Base64.decode(signature);
     };
 
     // Override

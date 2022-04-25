@@ -65,7 +65,8 @@
 
     // Override
     BaseCommand.prototype.getCommand = function () {
-        return Command.getCommand(this);
+        var dict = this.toMap();
+        return Command.getCommand(dict);
     };
 
     //-------- namespace --------

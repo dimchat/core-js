@@ -35,7 +35,6 @@
 (function (ns) {
     'use strict';
 
-    var Wrapper = ns.type.Wrapper;
     var Content = ns.protocol.Content;
 
     /**
@@ -63,11 +62,9 @@
         return null;
     };
     MoneyContent.setCurrency = function (currency, content) {
-        content = Wrapper.fetchMap(content);
         content['currency'] = currency;
     };
     MoneyContent.getCurrency = function (content) {
-        content = Wrapper.fetchMap(content);
         return content['currency'];
     };
 
@@ -84,11 +81,9 @@
         return null;
     };
     MoneyContent.setAmount = function (amount, content) {
-        content = Wrapper.fetchMap(content);
         content['amount'] = amount;
     };
     MoneyContent.getAmount = function (content) {
-        content = Wrapper.fetchMap(content);
         return content['amount'];
     };
 

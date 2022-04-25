@@ -89,33 +89,39 @@
 
     // Override
     BaseMetaCommand.prototype.setIdentifier = function (identifier) {
-        MetaCommand.setIdentifier(identifier, this);
+        var dict = this.toMap();
+        MetaCommand.setIdentifier(identifier, dict);
         this.__identifier = identifier;
     };
 
     // Override
     BaseMetaCommand.prototype.getIdentifier = function () {
         if (!this.__identifier) {
-            this.__identifier = MetaCommand.getIdentifier(this);
+            var dict = this.toMap();
+            this.__identifier = MetaCommand.getIdentifier(dict);
         }
         return this.__identifier;
     };
 
     // Override
     BaseMetaCommand.prototype.setMeta = function (meta) {
-        MetaCommand.setMeta(meta, this);
+        var dict = this.toMap();
+        MetaCommand.setMeta(meta, dict);
         this.__meta = meta;
     };
 
     // Override
     BaseMetaCommand.prototype.getMeta = function () {
         if (!this.__meta) {
-            this.__meta = MetaCommand.getMeta(this);
+            var dict = this.toMap();
+            this.__meta = MetaCommand.getMeta(dict);
         }
         return this.__meta;
     };
 
-    //-------- factories --------
+    //
+    //  Factories
+    //
 
     /**
      *  Create query command
