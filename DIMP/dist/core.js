@@ -743,6 +743,7 @@ if (typeof DIMP !== "object") {
 })(DIMP);
 (function (ns) {
     var ContentType = ns.protocol.ContentType;
+    var FileContent = ns.protocol.FileContent;
     var ImageContent = ns.protocol.ImageContent;
     var VideoContent = ns.protocol.VideoContent;
     var AudioContent = ns.protocol.AudioContent;
@@ -837,6 +838,18 @@ if (typeof DIMP !== "object") {
     };
     AudioFileContent.prototype.setText = function (asr) {
         this.setValue("text", asr);
+    };
+    FileContent.file = function (filename, data) {
+        return new BaseFileContent(filename, data);
+    };
+    FileContent.image = function (filename, data) {
+        return new ImageFileContent(filename, data);
+    };
+    FileContent.audio = function (filename, data) {
+        return new AudioFileContent(filename, data);
+    };
+    FileContent.video = function (filename, data) {
+        return new VideoFileContent(filename, data);
     };
     ns.dkd.ImageFileContent = ImageFileContent;
     ns.dkd.VideoFileContent = VideoFileContent;

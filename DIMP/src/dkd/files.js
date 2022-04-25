@@ -37,6 +37,7 @@
     'use strict';
 
     var ContentType = ns.protocol.ContentType;
+    var FileContent = ns.protocol.FileContent;
     var ImageContent = ns.protocol.ImageContent;
     var VideoContent = ns.protocol.VideoContent;
     var AudioContent = ns.protocol.AudioContent;
@@ -152,6 +153,54 @@
     // Override
     AudioFileContent.prototype.setText = function (asr) {
         this.setValue('text', asr);
+    };
+
+    //
+    //  Factories
+    //
+
+    /**
+     *  Create file content
+     *
+     * @param {String} filename
+     * @param {Uint8Array} data
+     * @return {FileContent}
+     */
+    FileContent.file = function (filename, data) {
+        return new BaseFileContent(filename, data);
+    };
+
+    /**
+     *  Create image content
+     *
+     * @param {String} filename
+     * @param {Uint8Array} data
+     * @return {ImageFileContent}
+     */
+    FileContent.image = function (filename, data) {
+        return new ImageFileContent(filename, data);
+    };
+
+    /**
+     *  Create audio content
+     *
+     * @param {String} filename
+     * @param {Uint8Array} data
+     * @return {AudioFileContent}
+     */
+    FileContent.audio = function (filename, data) {
+        return new AudioFileContent(filename, data);
+    };
+
+    /**
+     *  Create video content
+     *
+     * @param {String} filename
+     * @param {Uint8Array} data
+     * @return {VideoFileContent}
+     */
+    FileContent.video = function (filename, data) {
+        return new VideoFileContent(filename, data);
     };
 
     //-------- namespace --------

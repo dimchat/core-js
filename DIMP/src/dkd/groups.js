@@ -174,28 +174,69 @@
         return this.getValue('text');
     };
 
-    //-------- factories --------
+    //
+    //  Factories
+    //
 
+    /**
+     *  Create invite group command
+     *
+     * @param {ID} group
+     * @param {ID|ID[]} members
+     * @return {InviteGroupCommand}
+     */
     GroupCommand.invite = function (group, members) {
         return new InviteGroupCommand(group, members);
     };
 
+    /**
+     *  Create expel group command
+     *
+     * @param {ID} group
+     * @param {ID|ID[]} members
+     * @return {ExpelGroupCommand}
+     */
     GroupCommand.expel = function (group, members) {
         return new ExpelGroupCommand(group, members);
     };
 
+    /**
+     *  Create join group command
+     *
+     * @param {ID} group
+     * @return {JoinGroupCommand}
+     */
     GroupCommand.join = function (group) {
         return new JoinGroupCommand(group);
     };
 
+    /**
+     *  Create quit group command
+     *
+     * @param {ID} group
+     * @return {QuitGroupCommand}
+     */
     GroupCommand.quit = function (group) {
         return new QuitGroupCommand(group);
     };
 
+    /**
+     *  Create reset group command
+     *
+     * @param {ID} group
+     * @param {ID[]} members
+     * @return {ResetGroupCommand}
+     */
     GroupCommand.reset = function (group, members) {
         return new ResetGroupCommand(group, members);
     };
 
+    /**
+     *  Create query group command
+     *
+     * @param {ID} group
+     * @return {QueryGroupCommand}
+     */
     GroupCommand.query = function (group) {
         return new QueryGroupCommand(group);
     };
