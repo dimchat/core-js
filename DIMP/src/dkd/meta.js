@@ -85,39 +85,39 @@
             throw new SyntaxError('meta command arguments error: ' + arguments);
         }
     };
-    ns.Class(BaseMetaCommand, BaseCommand, [MetaCommand]);
-
-    // Override
-    BaseMetaCommand.prototype.setIdentifier = function (identifier) {
-        var dict = this.toMap();
-        MetaCommand.setIdentifier(identifier, dict);
-        this.__identifier = identifier;
-    };
-
-    // Override
-    BaseMetaCommand.prototype.getIdentifier = function () {
-        if (!this.__identifier) {
+    ns.Class(BaseMetaCommand, BaseCommand, [MetaCommand], {
+        // Override
+        setIdentifier: function (identifier) {
             var dict = this.toMap();
-            this.__identifier = MetaCommand.getIdentifier(dict);
-        }
-        return this.__identifier;
-    };
+            MetaCommand.setIdentifier(identifier, dict);
+            this.__identifier = identifier;
+        },
 
-    // Override
-    BaseMetaCommand.prototype.setMeta = function (meta) {
-        var dict = this.toMap();
-        MetaCommand.setMeta(meta, dict);
-        this.__meta = meta;
-    };
+        // Override
+        getIdentifier: function () {
+            if (!this.__identifier) {
+                var dict = this.toMap();
+                this.__identifier = MetaCommand.getIdentifier(dict);
+            }
+            return this.__identifier;
+        },
 
-    // Override
-    BaseMetaCommand.prototype.getMeta = function () {
-        if (!this.__meta) {
+        // Override
+        setMeta: function (meta) {
             var dict = this.toMap();
-            this.__meta = MetaCommand.getMeta(dict);
+            MetaCommand.setMeta(meta, dict);
+            this.__meta = meta;
+        },
+
+        // Override
+        getMeta: function () {
+            if (!this.__meta) {
+                var dict = this.toMap();
+                this.__meta = MetaCommand.getMeta(dict);
+            }
+            return this.__meta;
         }
-        return this.__meta;
-    };
+    });
 
     //
     //  Factories

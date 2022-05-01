@@ -62,59 +62,55 @@
             throw new SyntaxError('web page content arguments error: ' + arguments);
         }
     };
-    ns.Class(WebPageContent, BaseContent, [PageContent]);
-
-    // Override
-    WebPageContent.prototype.getURL = function () {
-        var dict = this.toMap();
-        return PageContent.getURL(dict);
-    };
-
-    // Override
-    WebPageContent.prototype.setURL = function (url) {
-        var dict = this.toMap();
-        PageContent.setURL(url, dict);
-    };
-
-    // Override
-    WebPageContent.prototype.getTitle = function () {
-        var dict = this.toMap();
-        return PageContent.getTitle(dict);
-    };
-
-    // Override
-    WebPageContent.prototype.setTitle = function (title) {
-        var dict = this.toMap();
-        PageContent.setTitle(title, dict);
-    };
-
-    // Override
-    WebPageContent.prototype.getDesc = function () {
-        var dict = this.toMap();
-        return PageContent.getDesc(dict);
-    };
-
-    // Override
-    WebPageContent.prototype.setDesc = function (text) {
-        var dict = this.toMap();
-        PageContent.setDesc(text, dict);
-    };
-
-    // Override
-    WebPageContent.prototype.getIcon = function () {
-        if (!this.__icon) {
+    ns.Class(WebPageContent, BaseContent, [PageContent], {
+        // Override
+        getURL: function () {
             var dict = this.toMap();
-            this.__icon = PageContent.getIcon(dict);
-        }
-        return this.__icon;
-    };
+            return PageContent.getURL(dict);
+        },
+        // Override
+        setURL: function (url) {
+            var dict = this.toMap();
+            PageContent.setURL(url, dict);
+        },
 
-    // Override
-    WebPageContent.prototype.setIcon = function (image) {
-        var dict = this.toMap();
-        PageContent.setIcon(image, dict);
-        this.__icon = image;
-    };
+        // Override
+        getTitle: function () {
+            var dict = this.toMap();
+            return PageContent.getTitle(dict);
+        },
+        // Override
+        setTitle: function (title) {
+            var dict = this.toMap();
+            PageContent.setTitle(title, dict);
+        },
+
+        // Override
+        getDesc: function () {
+            var dict = this.toMap();
+            return PageContent.getDesc(dict);
+        },
+        // Override
+        setDesc: function (text) {
+            var dict = this.toMap();
+            PageContent.setDesc(text, dict);
+        },
+
+        // Override
+        getIcon: function () {
+            if (!this.__icon) {
+                var dict = this.toMap();
+                this.__icon = PageContent.getIcon(dict);
+            }
+            return this.__icon;
+        },
+        // Override
+        setIcon: function (image) {
+            var dict = this.toMap();
+            PageContent.setIcon(image, dict);
+            this.__icon = image;
+        }
+    });
 
     //-------- namespace --------
     ns.dkd.WebPageContent = WebPageContent;

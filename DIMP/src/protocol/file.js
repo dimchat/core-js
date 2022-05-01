@@ -58,10 +58,10 @@
      * @param {String} url
      */
     FileContent.prototype.setURL = function (url) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     FileContent.prototype.getURL = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
     FileContent.setURL = function (url, content) {
@@ -81,10 +81,10 @@
      * @param {String} filename
      */
     FileContent.prototype.setFilename = function (filename) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     FileContent.prototype.getFilename = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
     FileContent.setFilename = function (filename, content) {
@@ -107,10 +107,10 @@
      * @param {Uint8Array} data
      */
     FileContent.prototype.setData = function (data) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     FileContent.prototype.getData = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
     FileContent.setData = function (data, content) {
@@ -135,10 +135,10 @@
      * @param {DecryptKey} key - symmetric key to decrypt file data
      */
     FileContent.prototype.setPassword = function (key) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     FileContent.prototype.getPassword = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
     FileContent.setPassword = function (key, content) {

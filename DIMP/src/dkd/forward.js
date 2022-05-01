@@ -63,23 +63,23 @@
             this.__forward = null;
         }
     };
-    ns.Class(SecretContent, BaseContent, [ForwardContent]);
+    ns.Class(SecretContent, BaseContent, [ForwardContent], {
+        // Override
+        getMessage: function () {
+            if (!this.__forward) {
+                var dict = this.toMap();
+                this.__forward = ForwardContent.getMessage(dict);
+            }
+            return this.__forward;
+        },
 
-    // Override
-    SecretContent.prototype.getMessage = function () {
-        if (!this.__forward) {
+        // Override
+        setMessage: function (secret) {
             var dict = this.toMap();
-            this.__forward = ForwardContent.getMessage(dict);
+            ForwardContent.setMessage(secret, dict);
+            this.__forward = secret;
         }
-        return this.__forward;
-    };
-
-    // Override
-    SecretContent.prototype.setMessage = function (secret) {
-        var dict = this.toMap();
-        ForwardContent.setMessage(secret, dict);
-        this.__forward = secret;
-    };
+    });
 
     //-------- namespace --------
     ns.dkd.SecretContent = SecretContent;

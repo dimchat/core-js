@@ -49,10 +49,10 @@
     ns.Interface(TextContent, [Content]);
 
     TextContent.prototype.setText = function (text) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     TextContent.prototype.getText = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 

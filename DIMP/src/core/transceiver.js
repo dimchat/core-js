@@ -53,13 +53,13 @@
     var Transceiver = function () {
         Object.call(this);
     };
-    ns.Class(Transceiver, Object, [InstantMessage.Delegate, ReliableMessage.Delegate]);
+    ns.Class(Transceiver, Object, [InstantMessage.Delegate, ReliableMessage.Delegate], null);
 
     /**
      *  Get entity delegate
      */
     Transceiver.prototype.getEntityDelegate = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 

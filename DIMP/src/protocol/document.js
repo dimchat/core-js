@@ -61,10 +61,10 @@
      * @param {Document} doc
      */
     DocumentCommand.prototype.setDocument = function (doc) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     DocumentCommand.prototype.getDocument = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
     DocumentCommand.setDocument = function (doc, cmd) {
@@ -85,10 +85,10 @@
      * @param {String} base64 - encoded signature
      */
     DocumentCommand.prototype.setSignature = function (base64) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     DocumentCommand.prototype.getSignature = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
     DocumentCommand.setSignature = function (base64, cmd) {

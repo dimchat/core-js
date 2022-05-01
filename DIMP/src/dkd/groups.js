@@ -71,12 +71,12 @@
             BaseGroupCommand.call(this, GroupCommand.INVITE, arguments[0], arguments[1]);
         }
     };
-    ns.Class(InviteGroupCommand, BaseGroupCommand, [InviteCommand]);
-
-    // Override
-    InviteGroupCommand.prototype.getInviteMembers = function () {
-        return this.getMembers();
-    };
+    ns.Class(InviteGroupCommand, BaseGroupCommand, [InviteCommand], {
+        // Override
+        getInviteMembers: function () {
+            return this.getMembers();
+        }
+    });
 
     //
     //  Expel group command
@@ -91,12 +91,12 @@
             BaseGroupCommand.call(this, GroupCommand.EXPEL, arguments[0], arguments[1]);
         }
     };
-    ns.Class(ExpelGroupCommand, BaseGroupCommand, [ExpelCommand]);
-
-    // Override
-    ExpelGroupCommand.prototype.getExpelMembers = function () {
-        return this.getMembers();
-    };
+    ns.Class(ExpelGroupCommand, BaseGroupCommand, [ExpelCommand], {
+        // Override
+        getExpelMembers: function () {
+            return this.getMembers();
+        }
+    });
 
     //
     //  Join group command
@@ -110,12 +110,12 @@
             BaseGroupCommand.call(this, arguments[0]);
         }
     };
-    ns.Class(JoinGroupCommand, BaseGroupCommand, [JoinCommand]);
-
-    // Override
-    JoinGroupCommand.prototype.getAsk = function () {
-        return this.getValue('text');
-    };
+    ns.Class(JoinGroupCommand, BaseGroupCommand, [JoinCommand], {
+        // Override
+        getAsk: function () {
+            return this.getValue('text');
+        }
+    });
 
     //
     //  Quit group command
@@ -129,12 +129,12 @@
             BaseGroupCommand.call(this, arguments[0]);
         }
     };
-    ns.Class(QuitGroupCommand, BaseGroupCommand, [QuitCommand]);
-
-    // Override
-    QuitGroupCommand.prototype.getBye = function () {
-        return this.getValue('text');
-    };
+    ns.Class(QuitGroupCommand, BaseGroupCommand, [QuitCommand], {
+        // Override
+        getBye: function () {
+            return this.getValue('text');
+        }
+    });
 
     //
     //  Reset group command
@@ -148,12 +148,12 @@
             BaseGroupCommand.call(this, GroupCommand.RESET, arguments[0], arguments[1]);
         }
     };
-    ns.Class(ResetGroupCommand, BaseGroupCommand, [ResetCommand]);
-
-    // Override
-    ResetGroupCommand.prototype.getAllMembers = function () {
-        return this.getMembers();
-    };
+    ns.Class(ResetGroupCommand, BaseGroupCommand, [ResetCommand], {
+        // Override
+        getAllMembers: function () {
+            return this.getMembers();
+        }
+    });
 
     //
     //  Query group command
@@ -167,12 +167,12 @@
             BaseGroupCommand.call(this, arguments[0]);
         }
     };
-    ns.Class(QueryGroupCommand, BaseGroupCommand, [QueryCommand]);
-
-    // Override
-    QueryGroupCommand.prototype.getText = function () {
-        return this.getValue('text');
-    };
+    ns.Class(QueryGroupCommand, BaseGroupCommand, [QueryCommand], {
+        // Override
+        getText: function () {
+            return this.getValue('text');
+        }
+    });
 
     //
     //  Factories

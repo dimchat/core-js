@@ -83,35 +83,35 @@
             throw new SyntaxError('document command arguments error: ' + arguments);
         }
     };
-    ns.Class(BaseDocumentCommand, BaseMetaCommand, [DocumentCommand]);
-
-    // Override
-    BaseDocumentCommand.prototype.setDocument = function (doc) {
-        var dict = this.toMap();
-        DocumentCommand.setDocument(doc, dict);
-        this.__document = doc;
-    };
-
-    // Override
-    BaseDocumentCommand.prototype.getDocument = function () {
-        if (!this.__document) {
+    ns.Class(BaseDocumentCommand, BaseMetaCommand, [DocumentCommand], {
+        // Override
+        setDocument: function (doc) {
             var dict = this.toMap();
-            this.__document = DocumentCommand.getDocument(dict);
+            DocumentCommand.setDocument(doc, dict);
+            this.__document = doc;
+        },
+
+        // Override
+        getDocument: function () {
+            if (!this.__document) {
+                var dict = this.toMap();
+                this.__document = DocumentCommand.getDocument(dict);
+            }
+            return this.__document;
+        },
+
+        // Override
+        setSignature: function (base64) {
+            var dict = this.toMap();
+            DocumentCommand.setSignature(base64, dict);
+        },
+
+        // Override
+        getSignature: function () {
+            var dict = this.toMap();
+            return DocumentCommand.getSignature(dict);
         }
-        return this.__document;
-    };
-
-    // Override
-    BaseDocumentCommand.prototype.setSignature = function (base64) {
-        var dict = this.toMap();
-        DocumentCommand.setSignature(base64, dict);
-    };
-
-    // Override
-    BaseDocumentCommand.prototype.getSignature = function () {
-        var dict = this.toMap();
-        return DocumentCommand.getSignature(dict);
-    };
+    });
 
     //
     //  Factories

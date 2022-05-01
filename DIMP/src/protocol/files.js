@@ -57,10 +57,10 @@
      * @param {Uint8Array} image data
      */
     ImageContent.prototype.setThumbnail = function (image) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     ImageContent.prototype.getThumbnail = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
     ImageContent.setThumbnail = function (image, content) {
@@ -98,10 +98,10 @@
      * @param {Uint8Array} image data
      */
     VideoContent.prototype.setSnapshot = function (image) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     VideoContent.prototype.getSnapshot = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
     VideoContent.setSnapshot = function (image, content) {
@@ -140,10 +140,10 @@
      * @param {String} asr
      */
     AudioContent.prototype.setText = function (asr) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     AudioContent.prototype.getText = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 

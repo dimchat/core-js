@@ -55,10 +55,10 @@
      * @param {String} currency
      */
     MoneyContent.prototype.setCurrency = function (currency) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     MoneyContent.prototype.getCurrency = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
     MoneyContent.setCurrency = function (currency, content) {
@@ -74,10 +74,10 @@
      * @param {float} amount
      */
     MoneyContent.prototype.setAmount = function (amount) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     MoneyContent.prototype.getAmount = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
     MoneyContent.setAmount = function (amount, content) {
@@ -100,10 +100,10 @@
     ns.Interface(TransferContent, [MoneyContent]);
 
     TransferContent.prototype.setComment = function (text) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     TransferContent.prototype.getComment = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 

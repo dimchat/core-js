@@ -59,7 +59,7 @@
      * @return {ID}
      */
     Entity.prototype.getIdentifier = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
@@ -69,7 +69,7 @@
      * @return {uint} ID.type
      */
     Entity.prototype.getType = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return 0;
     };
 
@@ -79,11 +79,10 @@
      * @returns {Meta}
      */
     Entity.prototype.getMeta = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Get profile for this entity
      *
@@ -91,21 +90,20 @@
      * @returns {Document}
      */
     Entity.prototype.getDocument = function (type) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Set data source for entity
      *
      * @param {EntityDataSource} barrack
      */
     Entity.prototype.setDataSource = function (barrack) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     Entity.prototype.getDataSource = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
@@ -117,7 +115,6 @@
     var EntityDataSource = function () {};
     ns.Interface(EntityDataSource, null);
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Get meta for entity ID
      *
@@ -125,11 +122,10 @@
      * @returns {Meta}
      */
     EntityDataSource.prototype.getMeta = function (identifier) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Get profile for entity ID
      *
@@ -138,7 +134,7 @@
      * @returns {Document}
      */
     EntityDataSource.prototype.getDocument = function (identifier, type) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
@@ -150,7 +146,6 @@
     var EntityDelegate = function () {};
     ns.Interface(EntityDelegate, null);
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Create user with ID
      *
@@ -158,11 +153,10 @@
      * @return {User}
      */
     EntityDelegate.prototype.getUser = function (identifier) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Create group with ID
      *
@@ -170,7 +164,7 @@
      * @return {Group}
      */
     EntityDelegate.prototype.getGroup = function (identifier) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
@@ -195,7 +189,7 @@
         this.__identifier = identifier;
         this.__datasource = null;
     };
-    ns.Class(BaseEntity, BaseObject, [Entity]);
+    ns.Class(BaseEntity, BaseObject, [Entity], null);
 
     //-------- IObject
 

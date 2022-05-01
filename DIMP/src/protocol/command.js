@@ -62,7 +62,7 @@
      * @returns {String}
      */
     Command.prototype.getCommand = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return '';
     };
     Command.getCommand = function (cmd) {
@@ -76,9 +76,8 @@
     var CommandFactory = function () {};
     ns.Interface(CommandFactory, null);
 
-    // noinspection JSUnusedLocalSymbols
     CommandFactory.prototype.parseCommand = function (cmd) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 

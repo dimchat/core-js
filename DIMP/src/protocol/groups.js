@@ -57,7 +57,7 @@
 
     // get members
     InviteCommand.prototype.getInviteMembers = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
@@ -69,7 +69,7 @@
 
     // get members
     ExpelCommand.prototype.getExpelMembers = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
@@ -81,7 +81,7 @@
 
     // get text
     JoinCommand.prototype.getAsk = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
@@ -93,7 +93,7 @@
 
     // get text
     QuitCommand.prototype.getBye = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
@@ -105,7 +105,7 @@
 
     // get members
     ResetCommand.prototype.getAllMembers = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
@@ -117,7 +117,7 @@
 
     // get text
     QueryCommand.prototype.getText = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 

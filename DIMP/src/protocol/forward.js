@@ -55,10 +55,10 @@
      * @param {ReliableMessage} secret - message to be forwarded
      */
     ForwardContent.prototype.setMessage = function (secret) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     ForwardContent.prototype.getMessage = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
     ForwardContent.getMessage = function (content) {

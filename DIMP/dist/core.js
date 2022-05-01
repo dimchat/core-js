@@ -11,6 +11,9 @@ if (typeof DIMP !== "object") {
 }
 (function (ns, base) {
     base.exports(ns);
+    if (typeof ns.assert !== "function") {
+        ns.assert = console.assert;
+    }
     if (typeof ns.core !== "object") {
         ns.core = new ns.Namespace();
     }
@@ -38,10 +41,10 @@ if (typeof DIMP !== "object") {
     var ForwardContent = function () {};
     ns.Interface(ForwardContent, [Content]);
     ForwardContent.prototype.setMessage = function (secret) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     ForwardContent.prototype.getMessage = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     ForwardContent.getMessage = function (content) {
@@ -65,10 +68,10 @@ if (typeof DIMP !== "object") {
     var FileContent = function () {};
     ns.Interface(FileContent, [Content]);
     FileContent.prototype.setURL = function (url) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     FileContent.prototype.getURL = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     FileContent.setURL = function (url, content) {
@@ -82,10 +85,10 @@ if (typeof DIMP !== "object") {
         return content["URL"];
     };
     FileContent.prototype.setFilename = function (filename) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     FileContent.prototype.getFilename = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     FileContent.setFilename = function (filename, content) {
@@ -99,10 +102,10 @@ if (typeof DIMP !== "object") {
         return content["filename"];
     };
     FileContent.prototype.setData = function (data) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     FileContent.prototype.getData = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     FileContent.setData = function (data, content) {
@@ -121,10 +124,10 @@ if (typeof DIMP !== "object") {
         }
     };
     FileContent.prototype.setPassword = function (key) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     FileContent.prototype.getPassword = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     FileContent.setPassword = function (key, content) {
@@ -147,10 +150,10 @@ if (typeof DIMP !== "object") {
     var ImageContent = function () {};
     ns.Interface(ImageContent, [FileContent]);
     ImageContent.prototype.setThumbnail = function (image) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     ImageContent.prototype.getThumbnail = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     ImageContent.setThumbnail = function (image, content) {
@@ -171,10 +174,10 @@ if (typeof DIMP !== "object") {
     var VideoContent = function () {};
     ns.Interface(VideoContent, [FileContent]);
     VideoContent.prototype.setSnapshot = function (image) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     VideoContent.prototype.getSnapshot = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     VideoContent.setSnapshot = function (image, content) {
@@ -195,10 +198,10 @@ if (typeof DIMP !== "object") {
     var AudioContent = function () {};
     ns.Interface(AudioContent, [FileContent]);
     AudioContent.prototype.setText = function (asr) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     AudioContent.prototype.getText = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     ns.protocol.ImageContent = ImageContent;
@@ -213,10 +216,10 @@ if (typeof DIMP !== "object") {
     var TextContent = function () {};
     ns.Interface(TextContent, [Content]);
     TextContent.prototype.setText = function (text) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     TextContent.prototype.getText = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     ns.protocol.TextContent = TextContent;
@@ -228,10 +231,10 @@ if (typeof DIMP !== "object") {
     var PageContent = function () {};
     ns.Interface(PageContent, [Content]);
     PageContent.prototype.setURL = function (url) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     PageContent.prototype.getURL = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     PageContent.getURL = function (content) {
@@ -245,10 +248,10 @@ if (typeof DIMP !== "object") {
         }
     };
     PageContent.prototype.setTitle = function (title) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     PageContent.prototype.getTitle = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     PageContent.getTitle = function (content) {
@@ -262,10 +265,10 @@ if (typeof DIMP !== "object") {
         }
     };
     PageContent.prototype.setDesc = function (text) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     PageContent.prototype.getDesc = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     PageContent.getDesc = function (content) {
@@ -279,10 +282,10 @@ if (typeof DIMP !== "object") {
         }
     };
     PageContent.prototype.setIcon = function (image) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     PageContent.prototype.getIcon = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     PageContent.setIcon = function (image, content) {
@@ -308,10 +311,10 @@ if (typeof DIMP !== "object") {
     var MoneyContent = function () {};
     ns.Interface(MoneyContent, [Content]);
     MoneyContent.prototype.setCurrency = function (currency) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     MoneyContent.prototype.getCurrency = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     MoneyContent.setCurrency = function (currency, content) {
@@ -321,10 +324,10 @@ if (typeof DIMP !== "object") {
         return content["currency"];
     };
     MoneyContent.prototype.setAmount = function (amount) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     MoneyContent.prototype.getAmount = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     MoneyContent.setAmount = function (amount, content) {
@@ -336,10 +339,10 @@ if (typeof DIMP !== "object") {
     var TransferContent = function () {};
     ns.Interface(TransferContent, [MoneyContent]);
     TransferContent.prototype.setComment = function (text) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     TransferContent.prototype.getComment = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     ns.protocol.MoneyContent = MoneyContent;
@@ -357,7 +360,7 @@ if (typeof DIMP !== "object") {
     Command.HANDSHAKE = "handshake";
     Command.LOGIN = "login";
     Command.prototype.getCommand = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return "";
     };
     Command.getCommand = function (cmd) {
@@ -366,7 +369,7 @@ if (typeof DIMP !== "object") {
     var CommandFactory = function () {};
     ns.Interface(CommandFactory, null);
     CommandFactory.prototype.parseCommand = function (cmd) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Command.Factory = CommandFactory;
@@ -387,10 +390,10 @@ if (typeof DIMP !== "object") {
     var MetaCommand = function () {};
     ns.Interface(MetaCommand, [Command]);
     MetaCommand.prototype.setIdentifier = function (identifier) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     MetaCommand.prototype.getIdentifier = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     MetaCommand.setIdentifier = function (identifier, cmd) {
@@ -404,10 +407,10 @@ if (typeof DIMP !== "object") {
         return ID.parse(cmd["ID"]);
     };
     MetaCommand.prototype.setMeta = function (meta) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     MetaCommand.prototype.getMeta = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     MetaCommand.setMeta = function (meta, cmd) {
@@ -431,10 +434,10 @@ if (typeof DIMP !== "object") {
     var DocumentCommand = function () {};
     ns.Interface(DocumentCommand, [MetaCommand]);
     DocumentCommand.prototype.setDocument = function (doc) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     DocumentCommand.prototype.getDocument = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     DocumentCommand.setDocument = function (doc, cmd) {
@@ -449,10 +452,10 @@ if (typeof DIMP !== "object") {
         return Document.parse(doc);
     };
     DocumentCommand.prototype.setSignature = function (base64) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     DocumentCommand.prototype.getSignature = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     DocumentCommand.setSignature = function (base64, cmd) {
@@ -475,7 +478,7 @@ if (typeof DIMP !== "object") {
     var HistoryCommand = function () {};
     ns.Interface(HistoryCommand, [Command]);
     HistoryCommand.prototype.getHistoryEvent = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     HistoryCommand.getHistoryEvent = function (cmd) {
@@ -503,17 +506,17 @@ if (typeof DIMP !== "object") {
     GroupCommand.FIRE = "fire";
     GroupCommand.RESIGN = "resign";
     GroupCommand.prototype.setMember = function (identifier) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     GroupCommand.prototype.getMember = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     GroupCommand.prototype.setMembers = function (members) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     GroupCommand.prototype.getMembers = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     GroupCommand.setMember = function (member, cmd) {
@@ -549,37 +552,37 @@ if (typeof DIMP !== "object") {
     var InviteCommand = function () {};
     ns.Interface(InviteCommand, [GroupCommand]);
     InviteCommand.prototype.getInviteMembers = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     var ExpelCommand = function () {};
     ns.Interface(ExpelCommand, [GroupCommand]);
     ExpelCommand.prototype.getExpelMembers = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     var JoinCommand = function () {};
     ns.Interface(JoinCommand, [GroupCommand]);
     JoinCommand.prototype.getAsk = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     var QuitCommand = function () {};
     ns.Interface(QuitCommand, [GroupCommand]);
     QuitCommand.prototype.getBye = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     var ResetCommand = function () {};
     ns.Interface(ResetCommand, [GroupCommand]);
     ResetCommand.prototype.getAllMembers = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     var QueryCommand = function () {};
     ns.Interface(QueryCommand, [GroupCommand]);
     QueryCommand.prototype.getText = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     ns.protocol.group.InviteCommand = InviteCommand;
@@ -614,19 +617,20 @@ if (typeof DIMP !== "object") {
             }
         }
     };
-    ns.Class(SecretContent, BaseContent, [ForwardContent]);
-    SecretContent.prototype.getMessage = function () {
-        if (!this.__forward) {
+    ns.Class(SecretContent, BaseContent, [ForwardContent], {
+        getMessage: function () {
+            if (!this.__forward) {
+                var dict = this.toMap();
+                this.__forward = ForwardContent.getMessage(dict);
+            }
+            return this.__forward;
+        },
+        setMessage: function (secret) {
             var dict = this.toMap();
-            this.__forward = ForwardContent.getMessage(dict);
+            ForwardContent.setMessage(secret, dict);
+            this.__forward = secret;
         }
-        return this.__forward;
-    };
-    SecretContent.prototype.setMessage = function (secret) {
-        var dict = this.toMap();
-        ForwardContent.setMessage(secret, dict);
-        this.__forward = secret;
-    };
+    });
     ns.dkd.SecretContent = SecretContent;
     ns.dkd.registers("SecretContent");
 })(DaoKeDao);
@@ -660,47 +664,48 @@ if (typeof DIMP !== "object") {
         }
         this.__password = null;
     };
-    ns.Class(BaseFileContent, BaseContent, [FileContent]);
-    BaseFileContent.prototype.setURL = function (url) {
-        var dict = this.toMap();
-        FileContent.setURL(url, dict);
-    };
-    BaseFileContent.prototype.getURL = function () {
-        var dict = this.toMap();
-        return FileContent.getURL(dict);
-    };
-    BaseFileContent.prototype.setFilename = function (filename) {
-        var dict = this.toMap();
-        FileContent.setFilename(filename, dict);
-    };
-    BaseFileContent.prototype.getFilename = function () {
-        var dict = this.toMap();
-        return FileContent.getFilename(dict);
-    };
-    BaseFileContent.prototype.setData = function (data) {
-        var dict = this.toMap();
-        FileContent.setData(data, dict);
-        this.__data = data;
-    };
-    BaseFileContent.prototype.getData = function () {
-        if (!this.__data) {
+    ns.Class(BaseFileContent, BaseContent, [FileContent], {
+        setURL: function (url) {
             var dict = this.toMap();
-            this.__data = FileContent.getData(dict);
-        }
-        return this.__data;
-    };
-    BaseFileContent.prototype.setPassword = function (key) {
-        var dict = this.toMap();
-        FileContent.setPassword(key, dict);
-        this.__password = key;
-    };
-    BaseFileContent.prototype.getPassword = function () {
-        if (!this.__password) {
+            FileContent.setURL(url, dict);
+        },
+        getURL: function () {
             var dict = this.toMap();
-            this.__password = FileContent.getPassword(dict);
+            return FileContent.getURL(dict);
+        },
+        setFilename: function (filename) {
+            var dict = this.toMap();
+            FileContent.setFilename(filename, dict);
+        },
+        getFilename: function () {
+            var dict = this.toMap();
+            return FileContent.getFilename(dict);
+        },
+        setData: function (data) {
+            var dict = this.toMap();
+            FileContent.setData(data, dict);
+            this.__data = data;
+        },
+        getData: function () {
+            if (!this.__data) {
+                var dict = this.toMap();
+                this.__data = FileContent.getData(dict);
+            }
+            return this.__data;
+        },
+        setPassword: function (key) {
+            var dict = this.toMap();
+            FileContent.setPassword(key, dict);
+            this.__password = key;
+        },
+        getPassword: function () {
+            if (!this.__password) {
+                var dict = this.toMap();
+                this.__password = FileContent.getPassword(dict);
+            }
+            return this.__password;
         }
-        return this.__password;
-    };
+    });
     ns.dkd.BaseFileContent = BaseFileContent;
     ns.dkd.registers("BaseFileContent");
 })(DIMP);
@@ -732,19 +737,20 @@ if (typeof DIMP !== "object") {
         }
         this.__thumbnail = null;
     };
-    ns.Class(ImageFileContent, BaseFileContent, [ImageContent]);
-    ImageFileContent.prototype.getThumbnail = function () {
-        if (!this.__thumbnail) {
+    ns.Class(ImageFileContent, BaseFileContent, [ImageContent], {
+        getThumbnail: function () {
+            if (!this.__thumbnail) {
+                var dict = this.toMap();
+                this.__thumbnail = ImageContent.getThumbnail(dict);
+            }
+            return this.__thumbnail;
+        },
+        setThumbnail: function (image) {
             var dict = this.toMap();
-            this.__thumbnail = ImageContent.getThumbnail(dict);
+            ImageContent.setThumbnail(image, dict);
+            this.__thumbnail = image;
         }
-        return this.__thumbnail;
-    };
-    ImageFileContent.prototype.setThumbnail = function (image) {
-        var dict = this.toMap();
-        ImageContent.setThumbnail(image, dict);
-        this.__thumbnail = image;
-    };
+    });
     var VideoFileContent = function () {
         if (arguments.length === 0) {
             BaseFileContent.call(this, ContentType.VIDEO);
@@ -766,19 +772,20 @@ if (typeof DIMP !== "object") {
         }
         this.__snapshot = null;
     };
-    ns.Class(VideoFileContent, BaseFileContent, [VideoContent]);
-    VideoFileContent.prototype.getSnapshot = function () {
-        if (!this.__snapshot) {
+    ns.Class(VideoFileContent, BaseFileContent, [VideoContent], {
+        getSnapshot: function () {
+            if (!this.__snapshot) {
+                var dict = this.toMap();
+                this.__snapshot = VideoContent.getSnapshot(dict);
+            }
+            return this.__snapshot;
+        },
+        setSnapshot: function (image) {
             var dict = this.toMap();
-            this.__snapshot = VideoContent.getSnapshot(dict);
+            VideoContent.setSnapshot(image, dict);
+            this.__snapshot = image;
         }
-        return this.__snapshot;
-    };
-    VideoFileContent.prototype.setSnapshot = function (image) {
-        var dict = this.toMap();
-        VideoContent.setSnapshot(image, dict);
-        this.__snapshot = image;
-    };
+    });
     var AudioFileContent = function () {
         if (arguments.length === 0) {
             BaseFileContent.call(this, ContentType.AUDIO);
@@ -799,13 +806,14 @@ if (typeof DIMP !== "object") {
             }
         }
     };
-    ns.Class(AudioFileContent, BaseFileContent, [AudioContent]);
-    AudioFileContent.prototype.getText = function () {
-        return this.getValue("text");
-    };
-    AudioFileContent.prototype.setText = function (asr) {
-        this.setValue("text", asr);
-    };
+    ns.Class(AudioFileContent, BaseFileContent, [AudioContent], {
+        getText: function () {
+            return this.getValue("text");
+        },
+        setText: function (asr) {
+            this.setValue("text", asr);
+        }
+    });
     FileContent.file = function (filename, data) {
         return new BaseFileContent(filename, data);
     };
@@ -841,13 +849,14 @@ if (typeof DIMP !== "object") {
             }
         }
     };
-    ns.Class(BaseTextContent, BaseContent, [TextContent]);
-    BaseTextContent.prototype.getText = function () {
-        return this.getValue("text");
-    };
-    BaseTextContent.prototype.setText = function (text) {
-        this.setValue("text", text);
-    };
+    ns.Class(BaseTextContent, BaseContent, [TextContent], {
+        getText: function () {
+            return this.getValue("text");
+        },
+        setText: function (text) {
+            this.setValue("text", text);
+        }
+    });
     ns.dkd.BaseTextContent = BaseTextContent;
     ns.dkd.registers("BaseTextContent");
 })(DIMP);
@@ -871,43 +880,44 @@ if (typeof DIMP !== "object") {
             }
         }
     };
-    ns.Class(WebPageContent, BaseContent, [PageContent]);
-    WebPageContent.prototype.getURL = function () {
-        var dict = this.toMap();
-        return PageContent.getURL(dict);
-    };
-    WebPageContent.prototype.setURL = function (url) {
-        var dict = this.toMap();
-        PageContent.setURL(url, dict);
-    };
-    WebPageContent.prototype.getTitle = function () {
-        var dict = this.toMap();
-        return PageContent.getTitle(dict);
-    };
-    WebPageContent.prototype.setTitle = function (title) {
-        var dict = this.toMap();
-        PageContent.setTitle(title, dict);
-    };
-    WebPageContent.prototype.getDesc = function () {
-        var dict = this.toMap();
-        return PageContent.getDesc(dict);
-    };
-    WebPageContent.prototype.setDesc = function (text) {
-        var dict = this.toMap();
-        PageContent.setDesc(text, dict);
-    };
-    WebPageContent.prototype.getIcon = function () {
-        if (!this.__icon) {
+    ns.Class(WebPageContent, BaseContent, [PageContent], {
+        getURL: function () {
             var dict = this.toMap();
-            this.__icon = PageContent.getIcon(dict);
+            return PageContent.getURL(dict);
+        },
+        setURL: function (url) {
+            var dict = this.toMap();
+            PageContent.setURL(url, dict);
+        },
+        getTitle: function () {
+            var dict = this.toMap();
+            return PageContent.getTitle(dict);
+        },
+        setTitle: function (title) {
+            var dict = this.toMap();
+            PageContent.setTitle(title, dict);
+        },
+        getDesc: function () {
+            var dict = this.toMap();
+            return PageContent.getDesc(dict);
+        },
+        setDesc: function (text) {
+            var dict = this.toMap();
+            PageContent.setDesc(text, dict);
+        },
+        getIcon: function () {
+            if (!this.__icon) {
+                var dict = this.toMap();
+                this.__icon = PageContent.getIcon(dict);
+            }
+            return this.__icon;
+        },
+        setIcon: function (image) {
+            var dict = this.toMap();
+            PageContent.setIcon(image, dict);
+            this.__icon = image;
         }
-        return this.__icon;
-    };
-    WebPageContent.prototype.setIcon = function (image) {
-        var dict = this.toMap();
-        PageContent.setIcon(image, dict);
-        this.__icon = image;
-    };
+    });
     ns.dkd.WebPageContent = WebPageContent;
     ns.dkd.registers("WebPageContent");
 })(DIMP);
@@ -936,23 +946,24 @@ if (typeof DIMP !== "object") {
             }
         }
     };
-    ns.Class(BaseMoneyContent, BaseContent, [MoneyContent]);
-    BaseMoneyContent.prototype.setCurrency = function (currency) {
-        var dict = this.toMap();
-        MoneyContent.setCurrency(currency, dict);
-    };
-    BaseMoneyContent.prototype.getCurrency = function () {
-        var dict = this.toMap();
-        return MoneyContent.getCurrency(dict);
-    };
-    BaseMoneyContent.prototype.setAmount = function (amount) {
-        var dict = this.toMap();
-        MoneyContent.setAmount(amount, dict);
-    };
-    BaseMoneyContent.prototype.getAmount = function () {
-        var dict = this.toMap();
-        return MoneyContent.getAmount(dict);
-    };
+    ns.Class(BaseMoneyContent, BaseContent, [MoneyContent], {
+        setCurrency: function (currency) {
+            var dict = this.toMap();
+            MoneyContent.setCurrency(currency, dict);
+        },
+        getCurrency: function () {
+            var dict = this.toMap();
+            return MoneyContent.getCurrency(dict);
+        },
+        setAmount: function (amount) {
+            var dict = this.toMap();
+            MoneyContent.setAmount(amount, dict);
+        },
+        getAmount: function () {
+            var dict = this.toMap();
+            return MoneyContent.getAmount(dict);
+        }
+    });
     var TransferMoneyContent = function () {
         if (arguments.length === 2) {
             MoneyContent.call(ContentType.TRANSFER, arguments[0], arguments[1]);
@@ -964,13 +975,14 @@ if (typeof DIMP !== "object") {
             }
         }
     };
-    ns.Class(TransferMoneyContent, BaseMoneyContent, [TransferContent]);
-    TransferMoneyContent.prototype.getText = function () {
-        return this.getValue("text");
-    };
-    TransferMoneyContent.prototype.setText = function (text) {
-        this.setValue("text", text);
-    };
+    ns.Class(TransferMoneyContent, BaseMoneyContent, [TransferContent], {
+        getText: function () {
+            return this.getValue("text");
+        },
+        setText: function (text) {
+            this.setValue("text", text);
+        }
+    });
     ns.dkd.BaseMoneyContent = BaseMoneyContent;
     ns.dkd.TransferMoneyContent = TransferMoneyContent;
     ns.dkd.registers("BaseMoneyContent");
@@ -993,11 +1005,12 @@ if (typeof DIMP !== "object") {
             }
         }
     };
-    ns.Class(BaseCommand, BaseContent, [Command]);
-    BaseCommand.prototype.getCommand = function () {
-        var dict = this.toMap();
-        return Command.getCommand(dict);
-    };
+    ns.Class(BaseCommand, BaseContent, [Command], {
+        getCommand: function () {
+            var dict = this.toMap();
+            return Command.getCommand(dict);
+        }
+    });
     ns.dkd.BaseCommand = BaseCommand;
     ns.dkd.registers("BaseCommand");
 })(DIMP);
@@ -1039,31 +1052,32 @@ if (typeof DIMP !== "object") {
             }
         }
     };
-    ns.Class(BaseMetaCommand, BaseCommand, [MetaCommand]);
-    BaseMetaCommand.prototype.setIdentifier = function (identifier) {
-        var dict = this.toMap();
-        MetaCommand.setIdentifier(identifier, dict);
-        this.__identifier = identifier;
-    };
-    BaseMetaCommand.prototype.getIdentifier = function () {
-        if (!this.__identifier) {
+    ns.Class(BaseMetaCommand, BaseCommand, [MetaCommand], {
+        setIdentifier: function (identifier) {
             var dict = this.toMap();
-            this.__identifier = MetaCommand.getIdentifier(dict);
-        }
-        return this.__identifier;
-    };
-    BaseMetaCommand.prototype.setMeta = function (meta) {
-        var dict = this.toMap();
-        MetaCommand.setMeta(meta, dict);
-        this.__meta = meta;
-    };
-    BaseMetaCommand.prototype.getMeta = function () {
-        if (!this.__meta) {
+            MetaCommand.setIdentifier(identifier, dict);
+            this.__identifier = identifier;
+        },
+        getIdentifier: function () {
+            if (!this.__identifier) {
+                var dict = this.toMap();
+                this.__identifier = MetaCommand.getIdentifier(dict);
+            }
+            return this.__identifier;
+        },
+        setMeta: function (meta) {
             var dict = this.toMap();
-            this.__meta = MetaCommand.getMeta(dict);
+            MetaCommand.setMeta(meta, dict);
+            this.__meta = meta;
+        },
+        getMeta: function () {
+            if (!this.__meta) {
+                var dict = this.toMap();
+                this.__meta = MetaCommand.getMeta(dict);
+            }
+            return this.__meta;
         }
-        return this.__meta;
-    };
+    });
     MetaCommand.query = function (identifier) {
         return new BaseMetaCommand(identifier);
     };
@@ -1125,27 +1139,28 @@ if (typeof DIMP !== "object") {
             }
         }
     };
-    ns.Class(BaseDocumentCommand, BaseMetaCommand, [DocumentCommand]);
-    BaseDocumentCommand.prototype.setDocument = function (doc) {
-        var dict = this.toMap();
-        DocumentCommand.setDocument(doc, dict);
-        this.__document = doc;
-    };
-    BaseDocumentCommand.prototype.getDocument = function () {
-        if (!this.__document) {
+    ns.Class(BaseDocumentCommand, BaseMetaCommand, [DocumentCommand], {
+        setDocument: function (doc) {
             var dict = this.toMap();
-            this.__document = DocumentCommand.getDocument(dict);
+            DocumentCommand.setDocument(doc, dict);
+            this.__document = doc;
+        },
+        getDocument: function () {
+            if (!this.__document) {
+                var dict = this.toMap();
+                this.__document = DocumentCommand.getDocument(dict);
+            }
+            return this.__document;
+        },
+        setSignature: function (base64) {
+            var dict = this.toMap();
+            DocumentCommand.setSignature(base64, dict);
+        },
+        getSignature: function () {
+            var dict = this.toMap();
+            return DocumentCommand.getSignature(dict);
         }
-        return this.__document;
-    };
-    BaseDocumentCommand.prototype.setSignature = function (base64) {
-        var dict = this.toMap();
-        DocumentCommand.setSignature(base64, dict);
-    };
-    BaseDocumentCommand.prototype.getSignature = function () {
-        var dict = this.toMap();
-        return DocumentCommand.getSignature(dict);
-    };
+    });
     DocumentCommand.query = function (identifier, signature) {
         return new BaseDocumentCommand(identifier, signature);
     };
@@ -1170,11 +1185,12 @@ if (typeof DIMP !== "object") {
             }
         }
     };
-    ns.Class(BaseHistoryCommand, BaseCommand, [HistoryCommand]);
-    BaseHistoryCommand.prototype.getHistoryEvent = function () {
-        var dict = this.toMap();
-        return HistoryCommand.getHistoryEvent(dict);
-    };
+    ns.Class(BaseHistoryCommand, BaseCommand, [HistoryCommand], {
+        getHistoryEvent: function () {
+            var dict = this.toMap();
+            return HistoryCommand.getHistoryEvent(dict);
+        }
+    });
     ns.dkd.BaseHistoryCommand = BaseHistoryCommand;
     ns.dkd.registers("BaseHistoryCommand");
 })(DIMP);
@@ -1207,33 +1223,34 @@ if (typeof DIMP !== "object") {
             }
         }
     };
-    ns.Class(BaseGroupCommand, BaseHistoryCommand, [GroupCommand]);
-    BaseGroupCommand.prototype.setMember = function (identifier) {
-        var dict = this.toMap();
-        GroupCommand.setMembers(null, dict);
-        GroupCommand.setMember(identifier, dict);
-        this.__member = identifier;
-    };
-    BaseGroupCommand.prototype.getMember = function () {
-        if (!this.__member) {
+    ns.Class(BaseGroupCommand, BaseHistoryCommand, [GroupCommand], {
+        setMember: function (identifier) {
             var dict = this.toMap();
-            this.__member = GroupCommand.getMember(dict);
-        }
-        return this.__member;
-    };
-    BaseGroupCommand.prototype.setMembers = function (members) {
-        var dict = this.toMap();
-        GroupCommand.setMember(null, dict);
-        GroupCommand.setMembers(members, dict);
-        this.__members = members;
-    };
-    BaseGroupCommand.prototype.getMembers = function () {
-        if (!this.__members) {
+            GroupCommand.setMembers(null, dict);
+            GroupCommand.setMember(identifier, dict);
+            this.__member = identifier;
+        },
+        getMember: function () {
+            if (!this.__member) {
+                var dict = this.toMap();
+                this.__member = GroupCommand.getMember(dict);
+            }
+            return this.__member;
+        },
+        setMembers: function (members) {
             var dict = this.toMap();
-            this.__members = GroupCommand.getMembers(dict);
+            GroupCommand.setMember(null, dict);
+            GroupCommand.setMembers(members, dict);
+            this.__members = members;
+        },
+        getMembers: function () {
+            if (!this.__members) {
+                var dict = this.toMap();
+                this.__members = GroupCommand.getMembers(dict);
+            }
+            return this.__members;
         }
-        return this.__members;
-    };
+    });
     ns.dkd.BaseGroupCommand = BaseGroupCommand;
     ns.dkd.registers("BaseGroupCommand");
 })(DIMP);
@@ -1259,10 +1276,11 @@ if (typeof DIMP !== "object") {
             );
         }
     };
-    ns.Class(InviteGroupCommand, BaseGroupCommand, [InviteCommand]);
-    InviteGroupCommand.prototype.getInviteMembers = function () {
-        return this.getMembers();
-    };
+    ns.Class(InviteGroupCommand, BaseGroupCommand, [InviteCommand], {
+        getInviteMembers: function () {
+            return this.getMembers();
+        }
+    });
     var ExpelGroupCommand = function () {
         if (arguments.length === 1) {
             BaseGroupCommand.call(this, arguments[0]);
@@ -1275,10 +1293,11 @@ if (typeof DIMP !== "object") {
             );
         }
     };
-    ns.Class(ExpelGroupCommand, BaseGroupCommand, [ExpelCommand]);
-    ExpelGroupCommand.prototype.getExpelMembers = function () {
-        return this.getMembers();
-    };
+    ns.Class(ExpelGroupCommand, BaseGroupCommand, [ExpelCommand], {
+        getExpelMembers: function () {
+            return this.getMembers();
+        }
+    });
     var JoinGroupCommand = function () {
         if (ns.Interface.conforms(arguments[0], ID)) {
             BaseGroupCommand.call(this, GroupCommand.JOIN, arguments[0]);
@@ -1286,10 +1305,11 @@ if (typeof DIMP !== "object") {
             BaseGroupCommand.call(this, arguments[0]);
         }
     };
-    ns.Class(JoinGroupCommand, BaseGroupCommand, [JoinCommand]);
-    JoinGroupCommand.prototype.getAsk = function () {
-        return this.getValue("text");
-    };
+    ns.Class(JoinGroupCommand, BaseGroupCommand, [JoinCommand], {
+        getAsk: function () {
+            return this.getValue("text");
+        }
+    });
     var QuitGroupCommand = function () {
         if (ns.Interface.conforms(arguments[0], ID)) {
             BaseGroupCommand.call(this, GroupCommand.QUIT, arguments[0]);
@@ -1297,10 +1317,11 @@ if (typeof DIMP !== "object") {
             BaseGroupCommand.call(this, arguments[0]);
         }
     };
-    ns.Class(QuitGroupCommand, BaseGroupCommand, [QuitCommand]);
-    QuitGroupCommand.prototype.getBye = function () {
-        return this.getValue("text");
-    };
+    ns.Class(QuitGroupCommand, BaseGroupCommand, [QuitCommand], {
+        getBye: function () {
+            return this.getValue("text");
+        }
+    });
     var ResetGroupCommand = function () {
         if (arguments.length === 1) {
             BaseGroupCommand.call(this, arguments[0]);
@@ -1313,10 +1334,11 @@ if (typeof DIMP !== "object") {
             );
         }
     };
-    ns.Class(ResetGroupCommand, BaseGroupCommand, [ResetCommand]);
-    ResetGroupCommand.prototype.getAllMembers = function () {
-        return this.getMembers();
-    };
+    ns.Class(ResetGroupCommand, BaseGroupCommand, [ResetCommand], {
+        getAllMembers: function () {
+            return this.getMembers();
+        }
+    });
     var QueryGroupCommand = function () {
         if (ns.Interface.conforms(arguments[0], ID)) {
             BaseGroupCommand.call(this, GroupCommand.QUERY, arguments[0]);
@@ -1324,10 +1346,11 @@ if (typeof DIMP !== "object") {
             BaseGroupCommand.call(this, arguments[0]);
         }
     };
-    ns.Class(QueryGroupCommand, BaseGroupCommand, [QueryCommand]);
-    QueryGroupCommand.prototype.getText = function () {
-        return this.getValue("text");
-    };
+    ns.Class(QueryGroupCommand, BaseGroupCommand, [QueryCommand], {
+        getText: function () {
+            return this.getValue("text");
+        }
+    });
     GroupCommand.invite = function (group, members) {
         return new InviteGroupCommand(group, members);
     };
@@ -1364,46 +1387,46 @@ if (typeof DIMP !== "object") {
     var Entity = function () {};
     ns.Interface(Entity, [ns.type.Object]);
     Entity.prototype.getIdentifier = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Entity.prototype.getType = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return 0;
     };
     Entity.prototype.getMeta = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Entity.prototype.getDocument = function (type) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Entity.prototype.setDataSource = function (barrack) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
     };
     Entity.prototype.getDataSource = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     var EntityDataSource = function () {};
     ns.Interface(EntityDataSource, null);
     EntityDataSource.prototype.getMeta = function (identifier) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     EntityDataSource.prototype.getDocument = function (identifier, type) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     var EntityDelegate = function () {};
     ns.Interface(EntityDelegate, null);
     EntityDelegate.prototype.getUser = function (identifier) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     EntityDelegate.prototype.getGroup = function (identifier) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Entity.DataSource = EntityDataSource;
@@ -1419,7 +1442,7 @@ if (typeof DIMP !== "object") {
         this.__identifier = identifier;
         this.__datasource = null;
     };
-    ns.Class(BaseEntity, BaseObject, [Entity]);
+    ns.Class(BaseEntity, BaseObject, [Entity], null);
     BaseEntity.prototype.equals = function (other) {
         if (!other) {
             return false;
@@ -1474,41 +1497,41 @@ if (typeof DIMP !== "object") {
     var User = function () {};
     ns.Interface(User, [Entity]);
     User.prototype.getVisa = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     User.prototype.getContacts = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     User.prototype.verify = function (data, signature) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return false;
     };
     User.prototype.encrypt = function (plaintext) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     User.prototype.sign = function (data) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     User.prototype.decrypt = function (ciphertext) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     User.prototype.signVisa = function (visa) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     User.prototype.verifyVisa = function (visa) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     var UserDataSource = function () {};
     ns.Interface(UserDataSource, [Entity.DataSource]);
     UserDataSource.prototype.getContacts = function (identifier) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     UserDataSource.prototype.getPublicKeyForEncryption = function (identifier) {
@@ -1520,17 +1543,17 @@ if (typeof DIMP !== "object") {
         return null;
     };
     UserDataSource.prototype.getPrivateKeysForDecryption = function (identifier) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     UserDataSource.prototype.getPrivateKeyForSignature = function (identifier) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     UserDataSource.prototype.getPrivateKeyForVisaSignature = function (
         identifier
     ) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     User.DataSource = UserDataSource;
@@ -1545,97 +1568,98 @@ if (typeof DIMP !== "object") {
     var BaseUser = function (identifier) {
         BaseEntity.call(this, identifier);
     };
-    ns.Class(BaseUser, BaseEntity, [User]);
-    BaseUser.prototype.getVisa = function () {
-        var doc = this.getDocument(Document.VISA);
-        if (ns.Interface.conforms(doc, Visa)) {
-            return doc;
-        } else {
-            return null;
-        }
-    };
-    BaseUser.prototype.getContacts = function () {
-        var barrack = this.getDataSource();
-        var uid = this.getIdentifier();
-        return barrack.getContacts(uid);
-    };
-    BaseUser.prototype.verify = function (data, signature) {
-        var barrack = this.getDataSource();
-        var uid = this.getIdentifier();
-        var keys = barrack.getPublicKeysForVerification(uid);
-        if (!keys || keys.length === 0) {
-            throw new Error("failed to get verify keys for user: " + uid);
-        }
-        for (var i = 0; i < keys.length; ++i) {
-            if (keys[i].verify(data, signature)) {
-                return true;
+    ns.Class(BaseUser, BaseEntity, [User], {
+        getVisa: function () {
+            var doc = this.getDocument(Document.VISA);
+            if (ns.Interface.conforms(doc, Visa)) {
+                return doc;
+            } else {
+                return null;
             }
-        }
-        return false;
-    };
-    BaseUser.prototype.encrypt = function (plaintext) {
-        var barrack = this.getDataSource();
-        var uid = this.getIdentifier();
-        var key = barrack.getPublicKeyForEncryption(uid);
-        if (!key) {
-            throw new Error("failed to get encrypt key for user: " + uid);
-        }
-        return key.encrypt(plaintext);
-    };
-    BaseUser.prototype.sign = function (data) {
-        var barrack = this.getDataSource();
-        var uid = this.getIdentifier();
-        var key = barrack.getPrivateKeyForSignature(uid);
-        if (!key) {
-            throw new Error("failed to get sign key for user: " + uid);
-        }
-        return key.sign(data);
-    };
-    BaseUser.prototype.decrypt = function (ciphertext) {
-        var barrack = this.getDataSource();
-        var uid = this.getIdentifier();
-        var keys = barrack.getPrivateKeysForDecryption(uid);
-        if (!keys || keys.length === 0) {
-            throw new Error("failed to get decrypt keys for user: " + uid);
-        }
-        var plaintext;
-        for (var i = 0; i < keys.length; ++i) {
-            try {
-                plaintext = keys[i].decrypt(ciphertext);
-                if (plaintext && plaintext.length > 0) {
-                    return plaintext;
+        },
+        getContacts: function () {
+            var barrack = this.getDataSource();
+            var uid = this.getIdentifier();
+            return barrack.getContacts(uid);
+        },
+        verify: function (data, signature) {
+            var barrack = this.getDataSource();
+            var uid = this.getIdentifier();
+            var keys = barrack.getPublicKeysForVerification(uid);
+            if (!keys || keys.length === 0) {
+                throw new Error("failed to get verify keys for user: " + uid);
+            }
+            for (var i = 0; i < keys.length; ++i) {
+                if (keys[i].verify(data, signature)) {
+                    return true;
                 }
-            } catch (e) {
-                console.log("User::decrypt() error", this, e, keys[i], ciphertext);
             }
-        }
-        return null;
-    };
-    BaseUser.prototype.signVisa = function (visa) {
-        var uid = this.getIdentifier();
-        if (!uid.equals(visa.getIdentifier())) {
+            return false;
+        },
+        encrypt: function (plaintext) {
+            var barrack = this.getDataSource();
+            var uid = this.getIdentifier();
+            var key = barrack.getPublicKeyForEncryption(uid);
+            if (!key) {
+                throw new Error("failed to get encrypt key for user: " + uid);
+            }
+            return key.encrypt(plaintext);
+        },
+        sign: function (data) {
+            var barrack = this.getDataSource();
+            var uid = this.getIdentifier();
+            var key = barrack.getPrivateKeyForSignature(uid);
+            if (!key) {
+                throw new Error("failed to get sign key for user: " + uid);
+            }
+            return key.sign(data);
+        },
+        decrypt: function (ciphertext) {
+            var barrack = this.getDataSource();
+            var uid = this.getIdentifier();
+            var keys = barrack.getPrivateKeysForDecryption(uid);
+            if (!keys || keys.length === 0) {
+                throw new Error("failed to get decrypt keys for user: " + uid);
+            }
+            var plaintext;
+            for (var i = 0; i < keys.length; ++i) {
+                try {
+                    plaintext = keys[i].decrypt(ciphertext);
+                    if (plaintext && plaintext.length > 0) {
+                        return plaintext;
+                    }
+                } catch (e) {
+                    console.log("User::decrypt() error", this, e, keys[i], ciphertext);
+                }
+            }
             return null;
+        },
+        signVisa: function (visa) {
+            var uid = this.getIdentifier();
+            if (!uid.equals(visa.getIdentifier())) {
+                return null;
+            }
+            var barrack = this.getDataSource();
+            var key = barrack.getPrivateKeyForVisaSignature(uid);
+            if (!key) {
+                throw new Error("failed to get sign key for user: " + uid);
+            }
+            visa.sign(key);
+            return visa;
+        },
+        verifyVisa: function (visa) {
+            var uid = this.getIdentifier();
+            if (!uid.equals(visa.getIdentifier())) {
+                return null;
+            }
+            var meta = this.getMeta();
+            var key = meta.getKey();
+            if (!key) {
+                throw new Error("failed to get meta key for user: " + uid);
+            }
+            return visa.verify(key);
         }
-        var barrack = this.getDataSource();
-        var key = barrack.getPrivateKeyForVisaSignature(uid);
-        if (!key) {
-            throw new Error("failed to get sign key for user: " + uid);
-        }
-        visa.sign(key);
-        return visa;
-    };
-    BaseUser.prototype.verifyVisa = function (visa) {
-        var uid = this.getIdentifier();
-        if (!uid.equals(visa.getIdentifier())) {
-            return null;
-        }
-        var meta = this.getMeta();
-        var key = meta.getKey();
-        if (!key) {
-            throw new Error("failed to get meta key for user: " + uid);
-        }
-        return visa.verify(key);
-    };
+    });
     ns.mkm.BaseUser = BaseUser;
     ns.mkm.registers("BaseUser");
 })(DIMP);
@@ -1644,41 +1668,41 @@ if (typeof DIMP !== "object") {
     var Group = function () {};
     ns.Interface(Group, [Entity]);
     Group.prototype.getBulletin = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Group.prototype.getFounder = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Group.prototype.getOwner = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Group.prototype.getMembers = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Group.prototype.getAssistants = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     var GroupDataSource = function () {};
     ns.Interface(GroupDataSource, [Entity.DataSource]);
     GroupDataSource.prototype.getFounder = function (identifier) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     GroupDataSource.prototype.getOwner = function (identifier) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     GroupDataSource.prototype.getMembers = function (identifier) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     GroupDataSource.prototype.getAssistants = function (identifier) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Group.DataSource = GroupDataSource;
@@ -1694,38 +1718,39 @@ if (typeof DIMP !== "object") {
         BaseEntity.call(this, identifier);
         this.__founder = null;
     };
-    ns.Class(BaseGroup, BaseEntity, [Group]);
-    BaseGroup.prototype.getBulletin = function () {
-        var doc = this.getDocument(Document.BULLETIN);
-        if (ns.Interface.conforms(doc, Bulletin)) {
-            return doc;
-        } else {
-            return null;
-        }
-    };
-    BaseGroup.prototype.getFounder = function () {
-        if (!this.__founder) {
+    ns.Class(BaseGroup, BaseEntity, [Group], {
+        getBulletin: function () {
+            var doc = this.getDocument(Document.BULLETIN);
+            if (ns.Interface.conforms(doc, Bulletin)) {
+                return doc;
+            } else {
+                return null;
+            }
+        },
+        getFounder: function () {
+            if (!this.__founder) {
+                var barrack = this.getDataSource();
+                var gid = this.getIdentifier();
+                this.__founder = barrack.getFounder(gid);
+            }
+            return this.__founder;
+        },
+        getOwner: function () {
             var barrack = this.getDataSource();
             var gid = this.getIdentifier();
-            this.__founder = barrack.getFounder(gid);
+            return barrack.getOwner(gid);
+        },
+        getMembers: function () {
+            var barrack = this.getDataSource();
+            var gid = this.getIdentifier();
+            return barrack.getMembers(gid);
+        },
+        getAssistants: function () {
+            var barrack = this.getDataSource();
+            var gid = this.getIdentifier();
+            return barrack.getAssistants(gid);
         }
-        return this.__founder;
-    };
-    BaseGroup.prototype.getOwner = function () {
-        var barrack = this.getDataSource();
-        var gid = this.getIdentifier();
-        return barrack.getOwner(gid);
-    };
-    BaseGroup.prototype.getMembers = function () {
-        var barrack = this.getDataSource();
-        var gid = this.getIdentifier();
-        return barrack.getMembers(gid);
-    };
-    BaseGroup.prototype.getAssistants = function () {
-        var barrack = this.getDataSource();
-        var gid = this.getIdentifier();
-        return barrack.getAssistants(gid);
-    };
+    });
     ns.mkm.BaseGroup = BaseGroup;
     ns.mkm.registers("BaseGroup");
 })(DIMP);
@@ -1744,11 +1769,84 @@ if (typeof DIMP !== "object") {
     var Barrack = function () {
         Object.call(this);
     };
-    ns.Class(Barrack, Object, [
-        Entity.Delegate,
-        User.DataSource,
-        Group.DataSource
-    ]);
+    ns.Class(
+        Barrack,
+        Object,
+        [Entity.Delegate, User.DataSource, Group.DataSource],
+        {
+            getPublicKeyForEncryption: function (identifier) {
+                var key = visa_key.call(this, identifier);
+                if (key) {
+                    return key;
+                }
+                key = meta_key.call(this, identifier);
+                if (ns.Interface.conforms(key, EncryptKey)) {
+                    return key;
+                }
+                return null;
+            },
+            getPublicKeysForVerification: function (identifier) {
+                var keys = [];
+                var key = visa_key.call(this, identifier);
+                if (ns.Interface.conforms(key, VerifyKey)) {
+                    keys.push(key);
+                }
+                key = meta_key.call(this, identifier);
+                if (key) {
+                    keys.push(key);
+                }
+                return keys;
+            },
+            getFounder: function (group) {
+                if (group.isBroadcast()) {
+                    return this.getBroadcastFounder(group);
+                }
+                var gMeta = this.getMeta(group);
+                if (!gMeta) {
+                    return null;
+                }
+                var members = this.getMembers(group);
+                if (members) {
+                    var item, mMeta;
+                    for (var i = 0; i < members.length; ++i) {
+                        item = members[i];
+                        mMeta = this.getMeta(item);
+                        if (!mMeta) {
+                            continue;
+                        }
+                        if (Meta.matches(gMeta, mMeta.getKey())) {
+                            return item;
+                        }
+                    }
+                }
+                return null;
+            },
+            getOwner: function (group) {
+                if (group.isBroadcast()) {
+                    return this.getBroadcastOwner(group);
+                }
+                if (NetworkType.POLYLOGUE.equals(group.getType())) {
+                    return this.getFounder(group);
+                }
+                return null;
+            },
+            getMembers: function (group) {
+                if (group.isBroadcast()) {
+                    return this.getBroadcastMembers(group);
+                }
+                return null;
+            },
+            getAssistants: function (group) {
+                var doc = this.getDocument(group, Document.BULLETIN);
+                if (ns.Interface.conforms(doc, Bulletin)) {
+                    if (doc.isValid()) {
+                        return doc.getAssistants();
+                    }
+                }
+                return null;
+            }
+        }
+    );
     var visa_key = function (user) {
         var doc = this.getDocument(user, Document.VISA);
         if (ns.Interface.conforms(doc, Visa)) {
@@ -1764,29 +1862,6 @@ if (typeof DIMP !== "object") {
             return meta.getKey();
         }
         return null;
-    };
-    Barrack.prototype.getPublicKeyForEncryption = function (identifier) {
-        var key = visa_key.call(this, identifier);
-        if (key) {
-            return key;
-        }
-        key = meta_key.call(this, identifier);
-        if (ns.Interface.conforms(key, EncryptKey)) {
-            return key;
-        }
-        return null;
-    };
-    Barrack.prototype.getPublicKeysForVerification = function (identifier) {
-        var keys = [];
-        var key = visa_key.call(this, identifier);
-        if (ns.Interface.conforms(key, VerifyKey)) {
-            keys.push(key);
-        }
-        key = meta_key.call(this, identifier);
-        if (key) {
-            keys.push(key);
-        }
-        return keys;
     };
     var group_seed = function (gid) {
         var seed = gid.getName();
@@ -1827,54 +1902,6 @@ if (typeof DIMP !== "object") {
         }
         return members;
     };
-    Barrack.prototype.getFounder = function (group) {
-        if (group.isBroadcast()) {
-            return this.getBroadcastFounder(group);
-        }
-        var gMeta = this.getMeta(group);
-        if (!gMeta) {
-            return null;
-        }
-        var members = this.getMembers(group);
-        if (members) {
-            var item, mMeta;
-            for (var i = 0; i < members.length; ++i) {
-                item = members[i];
-                mMeta = this.getMeta(item);
-                if (!mMeta) {
-                    continue;
-                }
-                if (Meta.matches(gMeta, mMeta.getKey())) {
-                    return item;
-                }
-            }
-        }
-        return null;
-    };
-    Barrack.prototype.getOwner = function (group) {
-        if (group.isBroadcast()) {
-            return this.getBroadcastOwner(group);
-        }
-        if (NetworkType.POLYLOGUE.equals(group.getType())) {
-            return this.getFounder(group);
-        }
-        return null;
-    };
-    Barrack.prototype.getMembers = function (group) {
-        if (group.isBroadcast()) {
-            return this.getBroadcastMembers(group);
-        }
-        return null;
-    };
-    Barrack.prototype.getAssistants = function (group) {
-        var doc = this.getDocument(group, Document.BULLETIN);
-        if (ns.Interface.conforms(doc, Bulletin)) {
-            if (doc.isValid()) {
-                return doc.getAssistants();
-            }
-        }
-        return null;
-    };
     ns.core.Barrack = Barrack;
     ns.core.registers("Barrack");
 })(DIMP);
@@ -1882,31 +1909,31 @@ if (typeof DIMP !== "object") {
     var Packer = function () {};
     ns.Interface(Packer, null);
     Packer.prototype.getOvertGroup = function (content) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Packer.prototype.encryptMessage = function (iMsg) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Packer.prototype.signMessage = function (sMsg) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Packer.prototype.serializeMessage = function (rMsg) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Packer.prototype.deserializeMessage = function (data) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Packer.prototype.verifyMessage = function (rMsg) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Packer.prototype.decryptMessage = function (sMsg) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     ns.core.Packer = Packer;
@@ -1916,23 +1943,23 @@ if (typeof DIMP !== "object") {
     var Processor = function () {};
     ns.Interface(Processor, null);
     Processor.prototype.processPackage = function (data) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Processor.prototype.processReliableMessage = function (rMsg) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Processor.prototype.processSecureMessage = function (sMsg, rMsg) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Processor.prototype.processInstantMessage = function (iMsg, rMsg) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     Processor.prototype.processContent = function (content, rMsg) {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     ns.core.Processor = Processor;
@@ -1949,12 +1976,14 @@ if (typeof DIMP !== "object") {
     var Transceiver = function () {
         Object.call(this);
     };
-    ns.Class(Transceiver, Object, [
-        InstantMessage.Delegate,
-        ReliableMessage.Delegate
-    ]);
+    ns.Class(
+        Transceiver,
+        Object,
+        [InstantMessage.Delegate, ReliableMessage.Delegate],
+        null
+    );
     Transceiver.prototype.getEntityDelegate = function () {
-        console.assert(false, "implement me!");
+        ns.assert(false, "implement me!");
         return null;
     };
     var is_broadcast = function (msg) {
@@ -2061,7 +2090,7 @@ if (typeof DIMP !== "object") {
         Object.call(this);
         this.__class = clazz;
     };
-    ns.Class(ContentFactory, Object, [Content.Factory]);
+    ns.Class(ContentFactory, Object, [Content.Factory], null);
     ContentFactory.prototype.parseContent = function (content) {
         return new this.__class(content);
     };
@@ -2069,14 +2098,19 @@ if (typeof DIMP !== "object") {
         Object.call(this);
         this.__class = clazz;
     };
-    ns.Class(CommandFactory, Object, [Command.Factory]);
+    ns.Class(CommandFactory, Object, [Command.Factory], null);
     CommandFactory.prototype.parseCommand = function (content) {
         return new this.__class(content);
     };
     var GeneralCommandFactory = function () {
         Object.call(this);
     };
-    ns.Class(GeneralCommandFactory, Object, [Content.Factory, Command.Factory]);
+    ns.Class(
+        GeneralCommandFactory,
+        Object,
+        [Content.Factory, Command.Factory],
+        null
+    );
     GeneralCommandFactory.prototype.parseContent = function (content) {
         var command = Command.getCommand(content);
         var factory = Command.getFactory(command);
@@ -2096,14 +2130,14 @@ if (typeof DIMP !== "object") {
     var HistoryCommandFactory = function () {
         GeneralCommandFactory.call(this);
     };
-    ns.Class(HistoryCommandFactory, GeneralCommandFactory, null);
+    ns.Class(HistoryCommandFactory, GeneralCommandFactory, null, null);
     HistoryCommandFactory.prototype.parseCommand = function (cmd) {
         return new HistoryCommand(cmd);
     };
     var GroupCommandFactory = function () {
         HistoryCommandFactory.call(this);
     };
-    ns.Class(GroupCommandFactory, HistoryCommandFactory, null);
+    ns.Class(GroupCommandFactory, HistoryCommandFactory, null, null);
     GroupCommandFactory.prototype.parseContent = function (content) {
         var command = Command.getCommand(content);
         var factory = Command.getFactory(command);

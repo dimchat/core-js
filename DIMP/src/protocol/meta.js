@@ -58,10 +58,10 @@
      * @param {ID} identifier
      */
     MetaCommand.prototype.setIdentifier = function (identifier) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     MetaCommand.prototype.getIdentifier = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
     MetaCommand.setIdentifier = function (identifier, cmd) {
@@ -81,10 +81,10 @@
      * @param {Meta} meta
      */
     MetaCommand.prototype.setMeta = function (meta) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     MetaCommand.prototype.getMeta = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
     MetaCommand.setMeta = function (meta, cmd) {

@@ -57,10 +57,10 @@
      * @param {String} url
      */
     PageContent.prototype.setURL = function (url) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     PageContent.prototype.getURL = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
     PageContent.getURL = function (content) {
@@ -80,10 +80,10 @@
      * @param {String} title
      */
     PageContent.prototype.setTitle = function (title) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     PageContent.prototype.getTitle = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
     PageContent.getTitle = function (content) {
@@ -103,10 +103,10 @@
      * @param {String} text
      */
     PageContent.prototype.setDesc = function (text) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     PageContent.prototype.getDesc = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
     PageContent.getDesc = function (content) {
@@ -126,10 +126,10 @@
      * @param {Uint8Array} image
      */
     PageContent.prototype.setIcon = function (image) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     PageContent.prototype.getIcon = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
     PageContent.setIcon = function (image, content) {

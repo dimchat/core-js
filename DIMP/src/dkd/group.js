@@ -74,42 +74,42 @@
             this.__members = null;
         }
     };
-    ns.Class(BaseGroupCommand, BaseHistoryCommand, [GroupCommand]);
-
-    // Override
-    BaseGroupCommand.prototype.setMember = function (identifier) {
-        var dict = this.toMap();
-        GroupCommand.setMembers(null, dict);
-        GroupCommand.setMember(identifier, dict);
-        this.__member = identifier;
-    };
-
-    // Override
-    BaseGroupCommand.prototype.getMember = function () {
-        if (!this.__member) {
+    ns.Class(BaseGroupCommand, BaseHistoryCommand, [GroupCommand], {
+        // Override
+        setMember: function (identifier) {
             var dict = this.toMap();
-            this.__member = GroupCommand.getMember(dict);
-        }
-        return this.__member;
-    };
+            GroupCommand.setMembers(null, dict);
+            GroupCommand.setMember(identifier, dict);
+            this.__member = identifier;
+        },
 
-    // Override
-    BaseGroupCommand.prototype.setMembers = function (members) {
-        var dict = this.toMap();
-        GroupCommand.setMember(null, dict);
-        GroupCommand.setMembers(members, dict);
-        this.__members = members;
-    };
+        // Override
+        getMember: function () {
+            if (!this.__member) {
+                var dict = this.toMap();
+                this.__member = GroupCommand.getMember(dict);
+            }
+            return this.__member;
+        },
 
-    // Override
-    BaseGroupCommand.prototype.getMembers = function () {
-        if (!this.__members) {
+        // Override
+        setMembers: function (members) {
             var dict = this.toMap();
-            this.__members = GroupCommand.getMembers(dict);
-            // TODO: get from 'member'?
+            GroupCommand.setMember(null, dict);
+            GroupCommand.setMembers(members, dict);
+            this.__members = members;
+        },
+
+        // Override
+        getMembers: function () {
+            if (!this.__members) {
+                var dict = this.toMap();
+                this.__members = GroupCommand.getMembers(dict);
+                // TODO: get from 'member'?
+            }
+            return this.__members;
         }
-        return this.__members;
-    };
+    });
 
     //-------- namespace --------
     ns.dkd.BaseGroupCommand = BaseGroupCommand;

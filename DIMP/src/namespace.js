@@ -44,6 +44,10 @@ if (typeof DIMP !== "object") {
     // exports namespace from DaoKeDao
     base.exports(ns);
 
+    if (typeof ns.assert !== 'function') {
+        ns.assert = console.assert;
+    }
+
     //-------- namespace --------
     if (typeof ns.core !== 'object') {
         ns.core = new ns.Namespace();

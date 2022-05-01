@@ -74,10 +74,10 @@
      * @param {ID} identifier - member ID
      */
     GroupCommand.prototype.setMember = function (identifier) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     GroupCommand.prototype.getMember = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
@@ -87,10 +87,10 @@
      * @param {ID[]} members - ID array
      */
     GroupCommand.prototype.setMembers = function (members) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
     };
     GroupCommand.prototype.getMembers = function () {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 

@@ -66,23 +66,23 @@
         }
         this.__thumbnail = null;
     };
-    ns.Class(ImageFileContent, BaseFileContent, [ImageContent]);
+    ns.Class(ImageFileContent, BaseFileContent, [ImageContent], {
+        // Override
+        getThumbnail: function () {
+            if (!this.__thumbnail) {
+                var dict = this.toMap();
+                this.__thumbnail = ImageContent.getThumbnail(dict);
+            }
+            return this.__thumbnail;
+        },
 
-    // Override
-    ImageFileContent.prototype.getThumbnail = function () {
-        if (!this.__thumbnail) {
+        // Override
+        setThumbnail: function (image) {
             var dict = this.toMap();
-            this.__thumbnail = ImageContent.getThumbnail(dict);
+            ImageContent.setThumbnail(image, dict);
+            this.__thumbnail = image;
         }
-        return this.__thumbnail;
-    };
-
-    // Override
-    ImageFileContent.prototype.setThumbnail = function (image) {
-        var dict = this.toMap();
-        ImageContent.setThumbnail(image, dict);
-        this.__thumbnail = image;
-    };
+    });
 
     /**
      *  Create video message content
@@ -107,23 +107,23 @@
         }
         this.__snapshot = null;
     };
-    ns.Class(VideoFileContent, BaseFileContent, [VideoContent]);
+    ns.Class(VideoFileContent, BaseFileContent, [VideoContent], {
+        // Override
+        getSnapshot: function () {
+            if (!this.__snapshot) {
+                var dict = this.toMap();
+                this.__snapshot = VideoContent.getSnapshot(dict);
+            }
+            return this.__snapshot;
+        },
 
-    // Override
-    VideoFileContent.prototype.getSnapshot = function () {
-        if (!this.__snapshot) {
+        // Override
+        setSnapshot: function (image) {
             var dict = this.toMap();
-            this.__snapshot = VideoContent.getSnapshot(dict);
+            VideoContent.setSnapshot(image, dict);
+            this.__snapshot = image;
         }
-        return this.__snapshot;
-    };
-
-    // Override
-    VideoFileContent.prototype.setSnapshot = function (image) {
-        var dict = this.toMap();
-        VideoContent.setSnapshot(image, dict);
-        this.__snapshot = image;
-    };
+    });
 
     /**
      *  Create audio message content
@@ -147,17 +147,17 @@
             throw new SyntaxError('audio content arguments error: ' + arguments);
         }
     };
-    ns.Class(AudioFileContent, BaseFileContent, [AudioContent]);
+    ns.Class(AudioFileContent, BaseFileContent, [AudioContent], {
+        // Override
+        getText: function () {
+            return this.getValue('text');
+        },
 
-    // Override
-    AudioFileContent.prototype.getText = function () {
-        return this.getValue('text');
-    };
-
-    // Override
-    AudioFileContent.prototype.setText = function (asr) {
-        this.setValue('text', asr);
-    };
+        // Override
+        setText: function (asr) {
+            this.setValue('text', asr);
+        }
+    });
 
     //
     //  Factories

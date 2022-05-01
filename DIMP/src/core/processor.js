@@ -43,7 +43,6 @@
     var Processor = function () {};
     ns.Interface(Processor, null);
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Process data package
      *
@@ -51,11 +50,10 @@
      * @return {Uint8Array} response data
      */
     Processor.prototype.processPackage = function (data) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Process network message
      *
@@ -63,11 +61,10 @@
      * @return {ReliableMessage} response message
      */
     Processor.prototype.processReliableMessage = function (rMsg) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Process encrypted message
      *
@@ -76,11 +73,10 @@
      * @return {SecureMessage} response message
      */
     Processor.prototype.processSecureMessage = function (sMsg, rMsg) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Process plain message
      *
@@ -89,11 +85,10 @@
      * @return {InstantMessage} response message
      */
     Processor.prototype.processInstantMessage = function (iMsg, rMsg) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Process message content
      *
@@ -102,7 +97,7 @@
      * @return {Content} response content
      */
     Processor.prototype.processContent = function (content, rMsg) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 

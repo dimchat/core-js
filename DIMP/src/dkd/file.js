@@ -74,63 +74,63 @@
         }
         this.__password = null;  // symmetric key for decrypting file data
     };
-    ns.Class(BaseFileContent, BaseContent, [FileContent]);
-
-    // Override
-    BaseFileContent.prototype.setURL = function (url) {
-        var dict = this.toMap();
-        FileContent.setURL(url, dict);
-    };
-
-    // Override
-    BaseFileContent.prototype.getURL = function () {
-        var dict = this.toMap();
-        return FileContent.getURL(dict);
-    };
-
-    // Override
-    BaseFileContent.prototype.setFilename = function (filename) {
-        var dict = this.toMap();
-        FileContent.setFilename(filename, dict)
-    };
-
-    // Override
-    BaseFileContent.prototype.getFilename = function () {
-        var dict = this.toMap();
-        return FileContent.getFilename(dict);
-    };
-
-    // Override
-    BaseFileContent.prototype.setData = function (data) {
-        var dict = this.toMap();
-        FileContent.setData(data, dict);
-        this.__data = data;
-    };
-
-    // Override
-    BaseFileContent.prototype.getData = function () {
-        if (!this.__data) {
+    ns.Class(BaseFileContent, BaseContent, [FileContent], {
+        // Override
+        setURL: function (url) {
             var dict = this.toMap();
-            this.__data = FileContent.getData(dict);
-        }
-        return this.__data;
-    };
+            FileContent.setURL(url, dict);
+        },
 
-    // Override
-    BaseFileContent.prototype.setPassword = function (key) {
-        var dict = this.toMap();
-        FileContent.setPassword(key, dict);
-        this.__password = key;
-    };
-
-    // Override
-    BaseFileContent.prototype.getPassword = function () {
-        if (!this.__password) {
+        // Override
+        getURL: function () {
             var dict = this.toMap();
-            this.__password = FileContent.getPassword(dict);
+            return FileContent.getURL(dict);
+        },
+
+        // Override
+        setFilename: function (filename) {
+            var dict = this.toMap();
+            FileContent.setFilename(filename, dict)
+        },
+
+        // Override
+        getFilename: function () {
+            var dict = this.toMap();
+            return FileContent.getFilename(dict);
+        },
+
+        // Override
+        setData: function (data) {
+            var dict = this.toMap();
+            FileContent.setData(data, dict);
+            this.__data = data;
+        },
+
+        // Override
+        getData: function () {
+            if (!this.__data) {
+                var dict = this.toMap();
+                this.__data = FileContent.getData(dict);
+            }
+            return this.__data;
+        },
+
+        // Override
+        setPassword: function (key) {
+            var dict = this.toMap();
+            FileContent.setPassword(key, dict);
+            this.__password = key;
+        },
+
+        // Override
+        getPassword: function () {
+            if (!this.__password) {
+                var dict = this.toMap();
+                this.__password = FileContent.getPassword(dict);
+            }
+            return this.__password;
         }
-        return this.__password;
-    };
+    });
 
     //-------- namespace --------
     ns.dkd.BaseFileContent = BaseFileContent;

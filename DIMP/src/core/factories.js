@@ -60,7 +60,7 @@
         Object.call(this);
         this.__class = clazz;
     };
-    ns.Class(ContentFactory, Object, [Content.Factory]);
+    ns.Class(ContentFactory, Object, [Content.Factory], null);
 
     // Override
     ContentFactory.prototype.parseContent = function (content) {
@@ -75,7 +75,7 @@
         Object.call(this);
         this.__class = clazz;
     };
-    ns.Class(CommandFactory, Object, [Command.Factory]);
+    ns.Class(CommandFactory, Object, [Command.Factory], null);
 
     // Override
     CommandFactory.prototype.parseCommand = function (content) {
@@ -89,7 +89,7 @@
     var GeneralCommandFactory = function () {
         Object.call(this);
     };
-    ns.Class(GeneralCommandFactory, Object, [Content.Factory, Command.Factory]);
+    ns.Class(GeneralCommandFactory, Object, [Content.Factory, Command.Factory], null);
 
     // Override
     GeneralCommandFactory.prototype.parseContent = function (content) {
@@ -120,7 +120,7 @@
     var HistoryCommandFactory = function () {
         GeneralCommandFactory.call(this);
     };
-    ns.Class(HistoryCommandFactory, GeneralCommandFactory, null);
+    ns.Class(HistoryCommandFactory, GeneralCommandFactory, null, null);
 
     // Override
     HistoryCommandFactory.prototype.parseCommand = function (cmd) {
@@ -134,7 +134,7 @@
     var GroupCommandFactory = function () {
         HistoryCommandFactory.call(this);
     };
-    ns.Class(GroupCommandFactory, HistoryCommandFactory, null);
+    ns.Class(GroupCommandFactory, HistoryCommandFactory, null, null);
 
     // Override
     GroupCommandFactory.prototype.parseContent = function (content) {

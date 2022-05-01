@@ -69,31 +69,29 @@
             BaseContent.call(arguments[0]);
         }
     };
-    ns.Class(BaseMoneyContent, BaseContent, [MoneyContent]);
+    ns.Class(BaseMoneyContent, BaseContent, [MoneyContent], {
+        // Override
+        setCurrency: function (currency) {
+            var dict = this.toMap();
+            MoneyContent.setCurrency(currency, dict);
+        },
+        // Override
+        getCurrency: function () {
+            var dict = this.toMap();
+            return MoneyContent.getCurrency(dict);
+        },
 
-    // Override
-    BaseMoneyContent.prototype.setCurrency = function (currency) {
-        var dict = this.toMap();
-        MoneyContent.setCurrency(currency, dict);
-    };
-
-    // Override
-    BaseMoneyContent.prototype.getCurrency = function () {
-        var dict = this.toMap();
-        return MoneyContent.getCurrency(dict);
-    };
-
-    // Override
-    BaseMoneyContent.prototype.setAmount = function (amount) {
-        var dict = this.toMap();
-        MoneyContent.setAmount(amount, dict);
-    };
-
-    // Override
-    BaseMoneyContent.prototype.getAmount = function () {
-        var dict = this.toMap();
-        return MoneyContent.getAmount(dict);
-    };
+        // Override
+        setAmount: function (amount) {
+            var dict = this.toMap();
+            MoneyContent.setAmount(amount, dict);
+        },
+        // Override
+        getAmount: function () {
+            var dict = this.toMap();
+            return MoneyContent.getAmount(dict);
+        }
+    });
 
     /**
      *  Create transfer money message content
@@ -115,17 +113,17 @@
             MoneyContent.call(arguments[0]);
         }
     };
-    ns.Class(TransferMoneyContent, BaseMoneyContent, [TransferContent]);
+    ns.Class(TransferMoneyContent, BaseMoneyContent, [TransferContent], {
+        // Override
+        getText: function () {
+            return this.getValue('text');
+        },
 
-    // Override
-    TransferMoneyContent.prototype.getText = function () {
-        return this.getValue('text');
-    };
-
-    // Override
-    TransferMoneyContent.prototype.setText = function (text) {
-        this.setValue('text', text);
-    };
+        // Override
+        setText: function (text) {
+            this.setValue('text', text);
+        }
+    });
 
     //-------- namespace --------
     ns.dkd.BaseMoneyContent = BaseMoneyContent;

@@ -43,7 +43,6 @@
     var Packer = function () {};
     ns.Interface(Packer, null);
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Get group ID which should be exposed to public network
      *
@@ -51,7 +50,7 @@
      * @return {ID} exposed group ID
      */
     Packer.prototype.getOvertGroup = function (content) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
@@ -59,7 +58,6 @@
     //  InstantMessage -> SecureMessage -> ReliableMessage -> Data
     //
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Encrypt message content
      *
@@ -67,11 +65,10 @@
      * @return {SecureMessage} encrypted message
      */
     Packer.prototype.encryptMessage = function (iMsg) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Sign content data
      *
@@ -79,11 +76,10 @@
      * @return {ReliableMessage} network message
      */
     Packer.prototype.signMessage = function (sMsg) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Serialize network message
      *
@@ -91,7 +87,7 @@
      * @return {Uint8Array} data package
      */
     Packer.prototype.serializeMessage = function (rMsg) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
@@ -99,7 +95,6 @@
     //  Data -> ReliableMessage -> SecureMessage -> InstantMessage
     //
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Deserialize network message
      *
@@ -107,11 +102,10 @@
      * @return {ReliableMessage} network message
      */
     Packer.prototype.deserializeMessage = function (data) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Verify encrypted content data
      *
@@ -119,11 +113,10 @@
      * @return {SecureMessage} encrypted message
      */
     Packer.prototype.verifyMessage = function (rMsg) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 
-    // noinspection JSUnusedLocalSymbols
     /**
      *  Decrypt message content
      *
@@ -131,7 +124,7 @@
      * @return {InstantMessage} plain message
      */
     Packer.prototype.decryptMessage = function (sMsg) {
-        console.assert(false, 'implement me!');
+        ns.assert(false, 'implement me!');
         return null;
     };
 

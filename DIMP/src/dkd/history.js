@@ -60,13 +60,13 @@
             BaseCommand.call(this, arguments[0]);
         }
     };
-    ns.Class(BaseHistoryCommand, BaseCommand, [HistoryCommand]);
-
-    // Override
-    BaseHistoryCommand.prototype.getHistoryEvent = function () {
-        var dict = this.toMap();
-        return HistoryCommand.getHistoryEvent(dict);
-    };
+    ns.Class(BaseHistoryCommand, BaseCommand, [HistoryCommand], {
+        // Override
+        getHistoryEvent: function () {
+            var dict = this.toMap();
+            return HistoryCommand.getHistoryEvent(dict);
+        }
+    });
 
     //-------- namespace --------
     ns.dkd.BaseHistoryCommand = BaseHistoryCommand;

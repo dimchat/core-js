@@ -60,17 +60,17 @@
             BaseContent.call(this, arguments[0]);
         }
     };
-    ns.Class(BaseTextContent, BaseContent, [TextContent]);
+    ns.Class(BaseTextContent, BaseContent, [TextContent], {
+        // Override
+        getText: function () {
+            return this.getValue('text');
+        },
 
-    // Override
-    BaseTextContent.prototype.getText = function () {
-        return this.getValue('text');
-    };
-
-    // Override
-    BaseTextContent.prototype.setText = function (text) {
-        this.setValue('text', text);
-    };
+        // Override
+        setText: function (text) {
+            this.setValue('text', text);
+        }
+    });
 
     //-------- namespace --------
     ns.dkd.BaseTextContent = BaseTextContent;
