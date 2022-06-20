@@ -2,7 +2,7 @@
  * DIMP - Decentralized Instant Messaging Protocol (v0.2.0)
  *
  * @author    moKy <albert.moky at gmail.com>
- * @date      Apr. 23, 2022
+ * @date      Jun. 20, 2022
  * @copyright (c) 2022 Albert Moky
  * @license   {@link https://mit-license.org | MIT License}
  */;
@@ -1383,7 +1383,6 @@ if (typeof DIMP !== "object") {
     ns.dkd.registers("QueryGroupCommand");
 })(DIMP);
 (function (ns) {
-    var ID = ns.protocol.ID;
     var Entity = function () {};
     ns.Interface(Entity, [ns.type.Object]);
     Entity.prototype.getIdentifier = function () {

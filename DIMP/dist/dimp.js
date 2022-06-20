@@ -2,7 +2,7 @@
  * DIMP - Decentralized Instant Messaging Protocol (v0.2.0)
  *
  * @author    moKy <albert.moky at gmail.com>
- * @date      Apr. 23, 2022
+ * @date      Jun. 20, 2022
  * @copyright (c) 2022 Albert Moky
  * @license   {@link https://mit-license.org | MIT License}
  */;
@@ -600,6 +600,7 @@ if (typeof MONKEY !== "object") {
     };
     Mapper.prototype.removeValue = function (key) {
         ns.assert(false, "implement me!");
+        return null;
     };
     Mapper.prototype.allKeys = function () {
         ns.assert(false, "implement me!");
@@ -662,9 +663,14 @@ if (typeof MONKEY !== "object") {
         }
     };
     Dictionary.prototype.removeValue = function (key) {
+        var value;
         if (this.__dictionary.hasOwnProperty(key)) {
+            value = this.__dictionary[key];
             delete this.__dictionary[key];
+        } else {
+            value = null;
         }
+        return value;
     };
     Dictionary.prototype.allKeys = function () {
         return Object.keys(this.__dictionary);
@@ -2323,7 +2329,6 @@ if (typeof MingKeMing !== "object") {
             }
             var now = new Date();
             this.setProperty("time", now.getTime() / 1000);
-            this.__status = 1;
             var dict = this.allProperties();
             var json = JsON.encode(dict);
             var data = UTF8.encode(json);
@@ -2333,6 +2338,9 @@ if (typeof MingKeMing !== "object") {
             this.__sig = sig;
             this.setValue("data", json);
             this.setValue("signature", b64);
+            if (sig && sig.length > 0) {
+                this.__status = 1;
+            }
             return this.__sig;
         },
         getTime: function () {
@@ -2474,6 +2482,8 @@ if (typeof DaoKeDao !== "object") {
         SPLIT_BILL: 73,
         COMMAND: 136,
         HISTORY: 137,
+        APPLICATION: 160,
+        CUSTOMIZED: 204,
         FORWARD: 255
     });
     ns.protocol.ContentType = ContentType;
@@ -4990,7 +5000,6 @@ if (typeof DIMP !== "object") {
     ns.dkd.registers("QueryGroupCommand");
 })(DIMP);
 (function (ns) {
-    var ID = ns.protocol.ID;
     var Entity = function () {};
     ns.Interface(Entity, [ns.type.Object]);
     Entity.prototype.getIdentifier = function () {

@@ -48,8 +48,6 @@
 (function (ns) {
     'use strict';
 
-    var ID = ns.protocol.ID;
-
     var Entity = function () {};
     ns.Interface(Entity, [ns.type.Object]);
 
