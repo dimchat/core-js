@@ -35,40 +35,38 @@
 //! require <dkd.js>
 
 if (typeof DIMP !== "object") {
-    DIMP = new MingKeMing.Namespace();
+    DIMP = {};
 }
 
-(function (ns, base) {
+(function (ns) {
     'use strict';
 
-    // exports namespace from DaoKeDao
-    base.exports(ns);
-
-    if (typeof ns.assert !== 'function') {
-        ns.assert = console.assert;
-    }
-
     //-------- namespace --------
-    if (typeof ns.core !== 'object') {
-        ns.core = new ns.Namespace();
+    if (typeof ns.type !== 'object') {
+        ns.type = MONKEY.type;
     }
-    if (typeof ns.dkd !== 'object') {
-        ns.dkd = new ns.Namespace();
+    if (typeof ns.format !== 'object') {
+        ns.format = MONKEY.format;
+    }
+    if (typeof ns.digest !== 'object') {
+        ns.digest = MONKEY.digest;
+    }
+    if (typeof ns.crypto !== 'object') {
+        ns.crypto = MONKEY.crypto;
+    }
+
+    if (typeof ns.protocol !== 'object') {
+        ns.protocol = MingKeMing.protocol;
     }
     if (typeof ns.mkm !== 'object') {
-        ns.mkm = new ns.Namespace();
+        ns.mkm = MingKeMing.mkm;
     }
-    if (typeof ns.protocol !== 'object') {
-        ns.protocol = new ns.Namespace();
-    }
-    if (typeof ns.protocol.group !== 'object') {
-        ns.protocol.group = new ns.Namespace();
+    if (typeof ns.dkd !== 'object') {
+        ns.dkd = DaoKeDao.dkd;
     }
 
-    ns.registers('core');
-    ns.registers('dkd');
-    ns.registers('mkm');
-    ns.registers('protocol');
-    ns.protocol.registers('group');
+    if (typeof ns.dkd.cmd !== 'object') {
+        ns.dkd.cmd = {};
+    }
 
-})(DIMP, DaoKeDao);
+})(DIMP);
