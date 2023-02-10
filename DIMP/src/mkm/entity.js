@@ -42,14 +42,14 @@
  *      document   - entity profile
  */
 
-//! require <mkm.js>
 //! require 'namespace.js'
 
 (function (ns) {
     'use strict';
 
-    var Entity = function () {};
-    ns.Interface(Entity, [ns.type.Object]);
+    var Interface = ns.type.Interface;
+
+    var Entity = Interface(null, [ns.type.Object]);
 
     /**
      *  Get entity ID
@@ -57,8 +57,7 @@
      * @return {ID}
      */
     Entity.prototype.getIdentifier = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -67,8 +66,7 @@
      * @return {uint} ID.type
      */
     Entity.prototype.getType = function () {
-        ns.assert(false, 'implement me!');
-        return 0;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -77,8 +75,7 @@
      * @returns {Meta}
      */
     Entity.prototype.getMeta = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -88,8 +85,7 @@
      * @returns {Document}
      */
     Entity.prototype.getDocument = function (type) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -98,11 +94,10 @@
      * @param {EntityDataSource} barrack
      */
     Entity.prototype.setDataSource = function (barrack) {
-        ns.assert(false, 'implement me!');
+        throw new Error('NotImplemented');
     };
     Entity.prototype.getDataSource = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -110,8 +105,7 @@
      *  ~~~~~~~~~~~~~~~~~~
      *  Barrack
      */
-    var EntityDataSource = function () {};
-    ns.Interface(EntityDataSource, null);
+    var EntityDataSource = Interface(null, null);
 
     /**
      *  Get meta for entity ID
@@ -120,8 +114,7 @@
      * @returns {Meta}
      */
     EntityDataSource.prototype.getMeta = function (identifier) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -132,8 +125,7 @@
      * @returns {Document}
      */
     EntityDataSource.prototype.getDocument = function (identifier, type) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -141,8 +133,7 @@
      *  ~~~~~~~~~~~~~~~
      *  Barrack
      */
-    var EntityDelegate = function () {};
-    ns.Interface(EntityDelegate, null);
+    var EntityDelegate = Interface(null, null);
 
     /**
      *  Create user with ID
@@ -151,8 +142,7 @@
      * @return {User}
      */
     EntityDelegate.prototype.getUser = function (identifier) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -162,8 +152,7 @@
      * @return {Group}
      */
     EntityDelegate.prototype.getGroup = function (identifier) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     Entity.DataSource = EntityDataSource;
@@ -172,14 +161,15 @@
     //-------- namespace --------
     ns.mkm.Entity = Entity;
 
-    ns.mkm.registers('Entity');
-
 })(DIMP);
 
 (function (ns) {
     'use strict';
 
+    var Interface  = ns.type.Interface;
+    var Class      = ns.type.Class;
     var BaseObject = ns.type.BaseObject;
+
     var Entity = ns.mkm.Entity;
 
     var BaseEntity = function (identifier) {
@@ -187,15 +177,15 @@
         this.__identifier = identifier;
         this.__datasource = null;
     };
-    ns.Class(BaseEntity, BaseObject, [Entity], null);
-
-    //-------- IObject
+    Class(BaseEntity, BaseObject, [Entity]);
 
     // Override
     BaseEntity.prototype.equals = function (other) {
-        if (!other) {
+        if (this === other) {
+            return true;
+        } else if (!other) {
             return false;
-        } else if (ns.Interface.conforms(other, Entity)) {
+        } else if (Interface.conforms(other, Entity)) {
             // check with entity ID
             other = other.getIdentifier();
         }
@@ -211,10 +201,10 @@
         return desc.call(this);
     };
     var desc = function () {
-        var clazz = Object.getPrototypeOf(this).constructor;
-        return '<' + clazz.name
-            + '|' + this.__identifier.getType()
-            + ' ' + this.__identifier + '>';
+        var clazz = Object.getPrototypeOf(this).constructor.name;
+        var id = this.__identifier;
+        var network = id.getAddress().getType();
+        return '<' + clazz + ' id="' + id.toString() + '" network="' + network + '" />';
     };
 
     //-------- IEntity
@@ -240,17 +230,17 @@
 
     // Override
     BaseEntity.prototype.getMeta = function () {
-        return this.__datasource.getMeta(this.__identifier);
+        var delegate = this.getDataSource();
+        return delegate.getMeta(this.__identifier);
     };
 
     // Override
     BaseEntity.prototype.getDocument = function (type) {
-        return this.__datasource.getDocument(this.__identifier, type);
+        var delegate = this.getDataSource();
+        return delegate.getDocument(this.__identifier, type);
     };
 
     //-------- namespace --------
     ns.mkm.BaseEntity = BaseEntity;
-
-    ns.mkm.registers('BaseEntity');
 
 })(DIMP);

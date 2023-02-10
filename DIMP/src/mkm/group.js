@@ -35,10 +35,10 @@
 (function (ns) {
     'use strict';
 
+    var Interface = ns.type.Interface;
     var Entity = ns.mkm.Entity;
 
-    var Group = function () {};
-    ns.Interface(Group, [Entity]);
+    var Group = Interface(null, [Entity]);
 
     /**
      *  Get group document
@@ -46,8 +46,7 @@
      * @return {Bulletin}
      */
     Group.prototype.getBulletin = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -56,8 +55,7 @@
      * @return {ID}
      */
     Group.prototype.getFounder = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -66,8 +64,7 @@
      * @return {ID}
      */
     Group.prototype.getOwner = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -77,8 +74,7 @@
      * @return {ID[]}
      */
     Group.prototype.getMembers = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -87,16 +83,14 @@
      * @return {ID[]} bots IDs
      */
     Group.prototype.getAssistants = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
      *  Group Data Source
      *  ~~~~~~~~~~~~~~~~~
      */
-    var GroupDataSource = function () {};
-    ns.Interface(GroupDataSource, [Entity.DataSource]);
+    var GroupDataSource = Interface(null, [Entity.DataSource]);
 
     /**
      *  Get group founder
@@ -105,8 +99,7 @@
      * @returns {ID}
      */
     GroupDataSource.prototype.getFounder = function (identifier) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -116,8 +109,7 @@
      * @returns {ID}
      */
     GroupDataSource.prototype.getOwner = function (identifier) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -127,8 +119,7 @@
      * @returns {ID[]}
      */
     GroupDataSource.prototype.getMembers = function (identifier) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -138,8 +129,7 @@
      * @returns {ID[]} robot ID list
      */
     GroupDataSource.prototype.getAssistants = function (identifier) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     Group.DataSource = GroupDataSource;
@@ -147,68 +137,67 @@
     //-------- namespace --------
     ns.mkm.Group = Group;
 
-    ns.mkm.registers('Group');
-
 })(DIMP);
 
 (function (ns) {
     'use strict';
 
-    var Document = ns.protocol.Document;
-    var Bulletin = ns.protocol.Bulletin;
-    var Group = ns.mkm.Group;
+    var Interface  = ns.type.Interface;
+    var Class      = ns.type.Class;
+
+    var Document   = ns.protocol.Document;
+    var Bulletin   = ns.protocol.Bulletin;
+    var Group      = ns.mkm.Group;
     var BaseEntity = ns.mkm.BaseEntity;
 
     var BaseGroup = function (identifier) {
         BaseEntity.call(this, identifier);
         this.__founder = null;
     };
-    ns.Class(BaseGroup, BaseEntity, [Group], {
-        // Override
-        getBulletin: function () {
-            var doc = this.getDocument(Document.BULLETIN);
-            if (ns.Interface.conforms(doc, Bulletin)) {
-                return doc;
-            } else {
-                return null;
-            }
-        },
+    Class(BaseGroup, BaseEntity, [Group]);
 
-        // Override
-        getFounder: function () {
-            if (!this.__founder) {
-                var barrack = this.getDataSource();
-                var gid = this.getIdentifier();
-                this.__founder = barrack.getFounder(gid);
-            }
-            return this.__founder;
-        },
-
-        // Override
-        getOwner: function () {
-            var barrack = this.getDataSource();
-            var gid = this.getIdentifier();
-            return barrack.getOwner(gid);
-        },
-
-        // Override
-        getMembers: function () {
-            var barrack = this.getDataSource();
-            var gid = this.getIdentifier();
-            return barrack.getMembers(gid);
-        },
-
-        // Override
-        getAssistants: function () {
-            var barrack = this.getDataSource();
-            var gid = this.getIdentifier();
-            return barrack.getAssistants(gid);
+    // Override
+    BaseGroup.prototype.getBulletin = function () {
+        var doc = this.getDocument(Document.BULLETIN);
+        if (Interface.conforms(doc, Bulletin)) {
+            return doc;
+        } else {
+            return null;
         }
-    });
+    };
+
+    // Override
+    BaseGroup.prototype.getFounder = function () {
+        if (this.__founder === null) {
+            var barrack = this.getDataSource();
+            var gid = this.getIdentifier();
+            this.__founder = barrack.getFounder(gid);
+        }
+        return this.__founder;
+    };
+
+    // Override
+    BaseGroup.prototype.getOwner = function () {
+        var barrack = this.getDataSource();
+        var gid = this.getIdentifier();
+        return barrack.getOwner(gid);
+    };
+
+    // Override
+    BaseGroup.prototype.getMembers = function () {
+        var barrack = this.getDataSource();
+        var gid = this.getIdentifier();
+        return barrack.getMembers(gid);
+    };
+
+    // Override
+    BaseGroup.prototype.getAssistants = function () {
+        var barrack = this.getDataSource();
+        var gid = this.getIdentifier();
+        return barrack.getAssistants(gid);
+    };
 
     //-------- namespace --------
     ns.mkm.BaseGroup = BaseGroup;
-
-    ns.mkm.registers('BaseGroup');
 
 })(DIMP);
