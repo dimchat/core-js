@@ -43,7 +43,7 @@
         Object.call(this);
         this.__addresses = {};  // string -> Address
     };
-    Class(AddressFactory, Object, [Address.Factory]);
+    Class(AddressFactory, Object, [Address.Factory], null);
 
     /**
      * Call it when received 'UIApplicationDidReceiveMemoryWarningNotification',

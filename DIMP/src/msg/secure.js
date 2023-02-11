@@ -74,209 +74,210 @@
         this.__key = null;
         this.__keys = null;
     };
-    Class(EncryptedMessage, BaseMessage, [SecureMessage]);
+    Class(EncryptedMessage, BaseMessage, [SecureMessage], {
 
-    // Override
-    EncryptedMessage.prototype.getData = function () {
-        if (this.__data === null) {
-            var base64 = this.getValue('data');
-            var delegate = this.getDelegate();
-            this.__data = delegate.decodeData(base64, this);
-        }
-        return this.__data;
-    };
+        // Override
+        getData: function () {
+            if (this.__data === null) {
+                var base64 = this.getValue('data');
+                var delegate = this.getDelegate();
+                this.__data = delegate.decodeData(base64, this);
+            }
+            return this.__data;
+        },
 
-    // Override
-    EncryptedMessage.prototype.getEncryptedKey = function () {
-        if (this.__key === null) {
-            var base64 = this.getValue('key');
-            if (!base64) {
-                // check 'keys'
-                var keys = this.getEncryptedKeys();
-                if (keys) {
-                    var receiver = this.getReceiver();
-                    base64 = keys[receiver.toString()];
+        // Override
+        getEncryptedKey: function () {
+            if (this.__key === null) {
+                var base64 = this.getValue('key');
+                if (!base64) {
+                    // check 'keys'
+                    var keys = this.getEncryptedKeys();
+                    if (keys) {
+                        var receiver = this.getReceiver();
+                        base64 = keys[receiver.toString()];
+                    }
+                }
+                if (base64) {
+                    var delegate = this.getDelegate();
+                    this.__key = delegate.decodeKey(base64, this);
                 }
             }
-            if (base64) {
-                var delegate = this.getDelegate();
-                this.__key = delegate.decodeKey(base64, this);
+            return this.__key;
+        },
+
+        // Override
+        getEncryptedKeys: function () {
+            if (this.__keys === null) {
+                this.__keys = this.getValue('keys');
             }
-        }
-        return this.__key;
-    };
+            return this.__keys;
+        },
 
-    // Override
-    EncryptedMessage.prototype.getEncryptedKeys = function () {
-        if (this.__keys === null) {
-            this.__keys = this.getValue('keys');
-        }
-        return this.__keys;
-    };
+        /*
+         *  Decrypt the Secure Message to Instant Message
+         *
+         *    +----------+      +----------+
+         *    | sender   |      | sender   |
+         *    | receiver |      | receiver |
+         *    | time     |  ->  | time     |
+         *    |          |      |          |  1. PW      = decrypt(key, receiver.SK)
+         *    | data     |      | content  |  2. content = decrypt(data, PW)
+         *    | key/keys |      +----------+
+         *    +----------+
+         */
 
-    /*
-     *  Decrypt the Secure Message to Instant Message
-     *
-     *    +----------+      +----------+
-     *    | sender   |      | sender   |
-     *    | receiver |      | receiver |
-     *    | time     |  ->  | time     |
-     *    |          |      |          |  1. PW      = decrypt(key, receiver.SK)
-     *    | data     |      | content  |  2. content = decrypt(data, PW)
-     *    | key/keys |      +----------+
-     *    +----------+
-     */
-
-    // Override
-    EncryptedMessage.prototype.decrypt = function () {
-        var sender = this.getSender();
-        var receiver;
-        var group = this.getGroup();
-        if (group) {
-            // group message
-            receiver = group;
-        } else {
-            // personal message
-            // not split group message
-            receiver = this.getReceiver();
-        }
-
-        // 1. decrypt 'message.key' to symmetric key
-        var delegate = this.getDelegate();
-        // 1.1. decode encrypted key data
-        var key = this.getEncryptedKey();
-        // 1.2. decrypt key data
-        if (key) {
-            key = delegate.decryptKey(key, sender, receiver, this);
-            if (!key) {
-                throw new Error('failed to decrypt key in msg: ' + this);
-            }
-        }
-        // 1.3. deserialize key
-        //      if key is empty, means it should be reused, get it from key cache
-        var password = delegate.deserializeKey(key, sender, receiver, this);
-        if (!password) {
-            throw new Error('failed to get msg key: ' + sender + ' -> ' + receiver + ', ' + key);
-        }
-
-        // 2. decrypt 'message.data' to 'message.content'
-        // 2.1. decode encrypted content data
-        var data = this.getData();
-        if (!data) {
-            throw new Error('failed to decode content data: ' + this);
-        }
-        // 2.2. decrypt content data
-        data = delegate.decryptContent(data, password, this);
-        if (!data) {
-            throw new Error('failed to decrypt data with key: ' + password);
-        }
-        // 2.3. deserialize content
-        var content = delegate.deserializeContent(data, password, this);
-        if (!content) {
-            throw new Error('failed to deserialize content: ' + data);
-        }
-        // 2.4. check attachment for File/Image/Audio/Video message content
-        //      if file data not download yet,
-        //          decrypt file data with password;
-        //      else,
-        //          save password to 'message.content.password'.
-        //      (do it in 'core' module)
-
-        // 3. pack message
-        var msg = this.copyMap(false);
-        delete msg['key'];
-        delete msg['keys'];
-        delete msg['data'];
-        msg['content'] = content.toMap();
-        return InstantMessage.parse(msg);
-    };
-
-    // Override
-    EncryptedMessage.prototype.sign = function () {
-        var delegate = this.getDelegate();
-        // 1. sign with sender's private key
-        var signature = delegate.signData(this.getData(), this.getSender(), this);
-        // 2. encode signature
-        var base64 = delegate.encodeSignature(signature, this);
-        // 3. pack message
-        var msg = this.copyMap(false);
-        msg['signature'] = base64;
-        return ReliableMessage.parse(msg);
-    };
-
-    /*
-     *  Split/Trim group message
-     *
-     *  for each members, get key from 'keys' and replace 'receiver' to member ID
-     */
-
-    // Override
-    EncryptedMessage.prototype.split = function (members) {
-        var msg = this.copyMap(false);
-        // check 'keys'
-        var keys = this.getEncryptedKeys();
-        if (keys) {
-            delete msg['keys'];
-        } else {
-            keys = {};
-        }
-
-        // 1. move the receiver(group ID) to 'group'
-        //    this will help the receiver knows the group ID
-        //    when the group message separated to multi-messages;
-        //    if don't want the others know your membership,
-        //    DON'T do this.
-        msg['group'] = this.getReceiver().toString();
-
-        var messages = [];
-        var base64;
-        var item;
-        var receiver;
-        for (var i = 0; i < members.length; ++i) {
-            receiver = members[i].toString();
-            // 2. change 'receiver' for each group member
-            msg['receiver'] = receiver;
-            // 3. get encrypted key
-            base64 = keys[receiver];
-            if (base64) {
-                msg['key'] = base64;
+        // Override
+        decrypt: function () {
+            var sender = this.getSender();
+            var receiver;
+            var group = this.getGroup();
+            if (group) {
+                // group message
+                receiver = group;
             } else {
-                delete msg['key'];
+                // personal message
+                // not split group message
+                receiver = this.getReceiver();
             }
-            // 4. repack message
-            item = SecureMessage.parse(Copier.copyMap(msg))
-            if (item) {
-                messages.push(item);
-            }
-        }
-        return messages;
-    };
 
-    // Override
-    EncryptedMessage.prototype.trim = function (member) {
-        var msg = this.copyMap(false);
-        // check 'keys'
-        var keys = this.getEncryptedKeys();
-        if (keys) {
-            // move key data from 'keys' to 'key'
-            var base64 = keys[member.toString()];
-            if (base64) {
-                msg['key'] = base64;
+            // 1. decrypt 'message.key' to symmetric key
+            var delegate = this.getDelegate();
+            // 1.1. decode encrypted key data
+            var key = this.getEncryptedKey();
+            // 1.2. decrypt key data
+            if (key) {
+                key = delegate.decryptKey(key, sender, receiver, this);
+                if (!key) {
+                    throw new Error('failed to decrypt key in msg: ' + this);
+                }
             }
+            // 1.3. deserialize key
+            //      if key is empty, means it should be reused, get it from key cache
+            var password = delegate.deserializeKey(key, sender, receiver, this);
+            if (!password) {
+                throw new Error('failed to get msg key: ' + sender + ' -> ' + receiver + ', ' + key);
+            }
+
+            // 2. decrypt 'message.data' to 'message.content'
+            // 2.1. decode encrypted content data
+            var data = this.getData();
+            if (!data) {
+                throw new Error('failed to decode content data: ' + this);
+            }
+            // 2.2. decrypt content data
+            data = delegate.decryptContent(data, password, this);
+            if (!data) {
+                throw new Error('failed to decrypt data with key: ' + password);
+            }
+            // 2.3. deserialize content
+            var content = delegate.deserializeContent(data, password, this);
+            if (!content) {
+                throw new Error('failed to deserialize content: ' + data);
+            }
+            // 2.4. check attachment for File/Image/Audio/Video message content
+            //      if file data not download yet,
+            //          decrypt file data with password;
+            //      else,
+            //          save password to 'message.content.password'.
+            //      (do it in 'core' module)
+
+            // 3. pack message
+            var msg = this.copyMap(false);
+            delete msg['key'];
             delete msg['keys'];
-        }
-        // check 'group'
-        var group = this.getGroup();
-        if (!group) {
-            // if 'group' not exists, the 'receiver' must be a group ID here, and
-            // it will not be equal to the member of course,
-            // so move 'receiver' to 'group'
+            delete msg['data'];
+            msg['content'] = content.toMap();
+            return InstantMessage.parse(msg);
+        },
+
+        // Override
+        sign: function () {
+            var delegate = this.getDelegate();
+            // 1. sign with sender's private key
+            var signature = delegate.signData(this.getData(), this.getSender(), this);
+            // 2. encode signature
+            var base64 = delegate.encodeSignature(signature, this);
+            // 3. pack message
+            var msg = this.copyMap(false);
+            msg['signature'] = base64;
+            return ReliableMessage.parse(msg);
+        },
+
+        /*
+         *  Split/Trim group message
+         *
+         *  for each members, get key from 'keys' and replace 'receiver' to member ID
+         */
+
+        // Override
+        split: function (members) {
+            var msg = this.copyMap(false);
+            // check 'keys'
+            var keys = this.getEncryptedKeys();
+            if (keys) {
+                delete msg['keys'];
+            } else {
+                keys = {};
+            }
+
+            // 1. move the receiver(group ID) to 'group'
+            //    this will help the receiver knows the group ID
+            //    when the group message separated to multi-messages;
+            //    if don't want the others know your membership,
+            //    DON'T do this.
             msg['group'] = this.getReceiver().toString();
+
+            var messages = [];
+            var base64;
+            var item;
+            var receiver;
+            for (var i = 0; i < members.length; ++i) {
+                receiver = members[i].toString();
+                // 2. change 'receiver' for each group member
+                msg['receiver'] = receiver;
+                // 3. get encrypted key
+                base64 = keys[receiver];
+                if (base64) {
+                    msg['key'] = base64;
+                } else {
+                    delete msg['key'];
+                }
+                // 4. repack message
+                item = SecureMessage.parse(Copier.copyMap(msg))
+                if (item) {
+                    messages.push(item);
+                }
+            }
+            return messages;
+        },
+
+        // Override
+        trim: function (member) {
+            var msg = this.copyMap(false);
+            // check 'keys'
+            var keys = this.getEncryptedKeys();
+            if (keys) {
+                // move key data from 'keys' to 'key'
+                var base64 = keys[member.toString()];
+                if (base64) {
+                    msg['key'] = base64;
+                }
+                delete msg['keys'];
+            }
+            // check 'group'
+            var group = this.getGroup();
+            if (!group) {
+                // if 'group' not exists, the 'receiver' must be a group ID here, and
+                // it will not be equal to the member of course,
+                // so move 'receiver' to 'group'
+                msg['group'] = this.getReceiver().toString();
+            }
+            msg['receiver'] = member.toString();
+            // repack
+            return SecureMessage.parse(msg);
         }
-        msg['receiver'] = member.toString();
-        // repack
-        return SecureMessage.parse(msg);
-    };
+    });
 
     //-------- namespace --------
     ns.dkd.EncryptedMessage = EncryptedMessage;
@@ -294,7 +295,7 @@
     var SecureMessageFactory = function () {
         Object.call(this);
     };
-    Class(SecureMessageFactory, Object, [SecureMessage.Factory]);
+    Class(SecureMessageFactory, Object, [SecureMessage.Factory], null);
 
     // Override
     SecureMessageFactory.prototype.parseSecureMessage = function (msg) {

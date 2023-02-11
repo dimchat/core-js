@@ -177,7 +177,7 @@
         this.__identifier = identifier;
         this.__datasource = null;
     };
-    Class(BaseEntity, BaseObject, [Entity]);
+    Class(BaseEntity, BaseObject, [Entity], null);
 
     // Override
     BaseEntity.prototype.equals = function (other) {

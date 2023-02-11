@@ -119,41 +119,42 @@
         this.__seed = seed;
         this.__fingerprint = fingerprint;
     };
-    Class(BaseMeta, Dictionary, [Meta]);
+    Class(BaseMeta, Dictionary, [Meta], {
 
-    // Override
-    BaseMeta.prototype.getType = function () {
-        if (this.__type === 0) {
-            this.__type = this.getNumber('type');
-        }
-        return this.__type;
-    };
+        // Override
+        getType: function () {
+            if (this.__type === 0) {
+                this.__type = this.getNumber('type');
+            }
+            return this.__type;
+        },
 
-    // Override
-    BaseMeta.prototype.getKey = function () {
-        if (this.__key === null) {
-            var key = this.getValue('key');
-            this.__key = PublicKey.parse(key);
-        }
-        return this.__key;
-    };
+        // Override
+        getKey: function () {
+            if (this.__key === null) {
+                var key = this.getValue('key');
+                this.__key = PublicKey.parse(key);
+            }
+            return this.__key;
+        },
 
-    // Override
-    BaseMeta.prototype.getSeed = function () {
-        if (this.__seed === null && MetaType.hasSeed(this.getType())) {
-            this.__seed = this.getString('seed');
-        }
-        return this.__seed;
-    };
+        // Override
+        getSeed: function () {
+            if (this.__seed === null && MetaType.hasSeed(this.getType())) {
+                this.__seed = this.getString('seed');
+            }
+            return this.__seed;
+        },
 
-    // Override
-    BaseMeta.prototype.getFingerprint = function () {
-        if (this.__fingerprint === null && MetaType.hasSeed(this.getType())) {
-            var base64 = this.getString('fingerprint');
-            this.__fingerprint = Base64.decode(base64);
+        // Override
+        getFingerprint: function () {
+            if (this.__fingerprint === null && MetaType.hasSeed(this.getType())) {
+                var base64 = this.getString('fingerprint');
+                this.__fingerprint = Base64.decode(base64);
+            }
+            return this.__fingerprint;
         }
-        return this.__fingerprint;
-    };
+    });
 
     //-------- namespace --------
     ns.mkm.BaseMeta = BaseMeta;

@@ -238,135 +238,136 @@
     var BaseUser = function (identifier) {
         BaseEntity.call(this, identifier);
     };
-    Class(BaseUser, BaseEntity, [User]);
+    Class(BaseUser, BaseEntity, [User], {
 
-    // Override
-    BaseUser.prototype.getVisa = function () {
-        var doc = this.getDocument(Document.VISA);
-        if (Interface.conforms(doc, Visa)) {
-            return doc;
-        } else {
-            return null;
-        }
-    };
-
-    // Override
-    BaseUser.prototype.getContacts = function () {
-        var barrack = this.getDataSource();
-        var uid = this.getIdentifier();
-        return barrack.getContacts(uid);
-    };
-
-    // Override
-    BaseUser.prototype.verify = function (data, signature) {
-        // NOTICE: I suggest using the private key paired with meta.key to sign message
-        //         so here should return the meta.key
-        var barrack = this.getDataSource();
-        var uid = this.getIdentifier();
-        var keys = barrack.getPublicKeysForVerification(uid);
-        for (var i = 0; i < keys.length; ++i) {
-            if (keys[i].verify(data, signature)) {
-                // matched!
-                return true;
+        // Override
+        getVisa: function () {
+            var doc = this.getDocument(Document.VISA);
+            if (Interface.conforms(doc, Visa)) {
+                return doc;
+            } else {
+                return null;
             }
-        }
-        return false;
-    };
+        },
 
-    // Override
-    BaseUser.prototype.encrypt = function (plaintext) {
-        // NOTICE: meta.key will never changed, so use visa.key to encrypt
-        //         is the better way
-        var barrack = this.getDataSource();
-        var uid = this.getIdentifier();
-        var key = barrack.getPublicKeyForEncryption(uid);
-        //if (!key) {
-        //    throw new Error('failed to get encrypt key for user: ' + uid);
-        //}
-        return key.encrypt(plaintext);
-    };
+        // Override
+        getContacts: function () {
+            var barrack = this.getDataSource();
+            var uid = this.getIdentifier();
+            return barrack.getContacts(uid);
+        },
 
-    //
-    //  Interfaces for Local User
-    //
-
-    // Override
-    BaseUser.prototype.sign = function (data) {
-        // NOTICE: I suggest use the private key which paired to meta.key
-        //         to sign message
-        var barrack = this.getDataSource();
-        var uid = this.getIdentifier();
-        var key = barrack.getPrivateKeyForSignature(uid);
-        //if (!key) {
-        //    throw new Error('failed to get sign key for user: ' + uid);
-        //}
-        return key.sign(data);
-    };
-
-    // Override
-    BaseUser.prototype.decrypt = function (ciphertext) {
-        // NOTICE: if you provide a public key in profile for encryption
-        //         here you should return the private key paired with profile.key
-        var barrack = this.getDataSource();
-        var uid = this.getIdentifier();
-        var keys = barrack.getPrivateKeysForDecryption(uid);
-        //if (!keys || keys.length === 0) {
-        //    throw new Error('failed to get decrypt keys for user: ' + uid);
-        //}
-        var plaintext;
-        for (var i = 0; i < keys.length; ++i) {
-            try {
-                plaintext = keys[i].decrypt(ciphertext);
-                if (plaintext && plaintext.length > 0) {
-                    // OK!
-                    return plaintext;
+        // Override
+        verify: function (data, signature) {
+            // NOTICE: I suggest using the private key paired with meta.key to sign message
+            //         so here should return the meta.key
+            var barrack = this.getDataSource();
+            var uid = this.getIdentifier();
+            var keys = barrack.getPublicKeysForVerification(uid);
+            for (var i = 0; i < keys.length; ++i) {
+                if (keys[i].verify(data, signature)) {
+                    // matched!
+                    return true;
                 }
-            } catch (e) {
-                // this key not match, try next one
-                //console.log('User::decrypt() error', this, e, keys[i], ciphertext);
             }
-        }
-        // decryption failed
-        return null;
-    };
-
-    //
-    //  Interfaces for Visa
-    //
-
-    // Override
-    BaseUser.prototype.signVisa = function (doc) {
-        // NOTICE: only sign visa with the private key paired with your meta.key
-        var uid = this.getIdentifier();
-        //if (!uid.equals(doc.getIdentifier())) {
-        //    // visa ID not match
-        //    return null;
-        //}
-        var barrack = this.getDataSource();
-        var key = barrack.getPrivateKeyForVisaSignature(uid);
-        //if (!key) {
-        //    throw new Error('failed to get sign key for user: ' + uid);
-        //}
-        doc.sign(key);
-        return doc;
-    };
-
-    // Override
-    BaseUser.prototype.verifyVisa = function (doc) {
-        // NOTICE: only verify visa with meta.key
-        var uid = this.getIdentifier();
-        if (!uid.equals(doc.getIdentifier())) {
-            // visa ID not match
             return false;
+        },
+
+        // Override
+        encrypt: function (plaintext) {
+            // NOTICE: meta.key will never changed, so use visa.key to encrypt
+            //         is the better way
+            var barrack = this.getDataSource();
+            var uid = this.getIdentifier();
+            var key = barrack.getPublicKeyForEncryption(uid);
+            //if (!key) {
+            //    throw new Error('failed to get encrypt key for user: ' + uid);
+            //}
+            return key.encrypt(plaintext);
+        },
+
+        //
+        //  Interfaces for Local User
+        //
+
+        // Override
+        sign: function (data) {
+            // NOTICE: I suggest use the private key which paired to meta.key
+            //         to sign message
+            var barrack = this.getDataSource();
+            var uid = this.getIdentifier();
+            var key = barrack.getPrivateKeyForSignature(uid);
+            //if (!key) {
+            //    throw new Error('failed to get sign key for user: ' + uid);
+            //}
+            return key.sign(data);
+        },
+
+        // Override
+        decrypt: function (ciphertext) {
+            // NOTICE: if you provide a public key in profile for encryption
+            //         here you should return the private key paired with profile.key
+            var barrack = this.getDataSource();
+            var uid = this.getIdentifier();
+            var keys = barrack.getPrivateKeysForDecryption(uid);
+            //if (!keys || keys.length === 0) {
+            //    throw new Error('failed to get decrypt keys for user: ' + uid);
+            //}
+            var plaintext;
+            for (var i = 0; i < keys.length; ++i) {
+                try {
+                    plaintext = keys[i].decrypt(ciphertext);
+                    if (plaintext && plaintext.length > 0) {
+                        // OK!
+                        return plaintext;
+                    }
+                } catch (e) {
+                    // this key not match, try next one
+                    //console.log('User::decrypt() error', this, e, keys[i], ciphertext);
+                }
+            }
+            // decryption failed
+            return null;
+        },
+
+        //
+        //  Interfaces for Visa
+        //
+
+        // Override
+        signVisa: function (doc) {
+            // NOTICE: only sign visa with the private key paired with your meta.key
+            var uid = this.getIdentifier();
+            //if (!uid.equals(doc.getIdentifier())) {
+            //    // visa ID not match
+            //    return null;
+            //}
+            var barrack = this.getDataSource();
+            var key = barrack.getPrivateKeyForVisaSignature(uid);
+            //if (!key) {
+            //    throw new Error('failed to get sign key for user: ' + uid);
+            //}
+            doc.sign(key);
+            return doc;
+        },
+
+        // Override
+        verifyVisa: function (doc) {
+            // NOTICE: only verify visa with meta.key
+            var uid = this.getIdentifier();
+            if (!uid.equals(doc.getIdentifier())) {
+                // visa ID not match
+                return false;
+            }
+            // if meta not exists, user won't be created
+            var meta = this.getMeta();
+            var key = meta.getKey();
+            //if (!key) {
+            //    throw new Error('failed to get meta key for user: ' + uid);
+            //}
+            return doc.verify(key);
         }
-        // if meta not exists, user won't be created
-        var meta = this.getMeta();
-        var key = meta.getKey();
-        //if (!key) {
-        //    throw new Error('failed to get meta key for user: ' + uid);
-        //}
-        return doc.verify(key);
-    };
+    });
 
     //-------- namespace --------
     ns.mkm.BaseUser = BaseUser;

@@ -101,41 +101,42 @@
         // message time
         this.__time = time;
     };
-    Class(BaseContent, Dictionary, [Content]);
+    Class(BaseContent, Dictionary, [Content], {
 
-    // Override
-    BaseContent.prototype.getType = function () {
-        if (this.__type === 0) {
-            this.__type = this.getNumber('type');
+        // Override
+        getType: function () {
+            if (this.__type === 0) {
+                this.__type = this.getNumber('type');
+            }
+            return this.__type;
+        },
+
+        // Override
+        getSerialNumber: function () {
+            if (this.__sn === 0) {
+                this.__sn = this.getNumber('sn');
+            }
+            return this.__sn;
+        },
+
+        // Override
+        getTime: function () {
+            if (this.__time === null) {
+                this.__time = get_time(this, 'time');
+            }
+            return this.__time;
+        },
+
+        // Override
+        getGroup: function () {
+            return get_id(this, 'group');
+        },
+
+        // Override
+        setGroup: function (identifier) {
+            this.setString('group', identifier);
         }
-        return this.__type;
-    };
-
-    // Override
-    BaseContent.prototype.getSerialNumber = function () {
-        if (this.__sn === 0) {
-            this.__sn = this.getNumber('sn');
-        }
-        return this.__sn;
-    };
-
-    // Override
-    BaseContent.prototype.getTime = function () {
-        if (this.__time === null) {
-            this.__time = get_time(this, 'time');
-        }
-        return this.__time;
-    };
-
-    // Override
-    BaseContent.prototype.getGroup = function () {
-        return get_id(this, 'group');
-    };
-
-    // Override
-    BaseContent.prototype.setGroup = function (identifier) {
-        this.setString('group', identifier);
-    };
+    });
 
     var get_id = function (dict, key) {
         return ID.parse(this.getValue(key))

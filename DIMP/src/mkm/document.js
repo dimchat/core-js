@@ -106,177 +106,178 @@
         this.__properties = properties;
         this.__status = status;  // 1 for valid, -1 for invalid
     };
-    Class(BaseDocument, Dictionary, [Document]);
+    Class(BaseDocument, Dictionary, [Document], {
 
-    // Override
-    BaseDocument.prototype.isValid = function () {
-        return this.__status > 0;
-    };
+        // Override
+        isValid: function () {
+            return this.__status > 0;
+        },
 
-    // Override
-    BaseDocument.prototype.getType = function () {
-        var type = this.getProperty('type');
-        if (!type) {
-            type = this.getString('type');
-        }
-        return type;
-    };
-
-    // Override
-    BaseDocument.prototype.getIdentifier = function () {
-        if (this.__identifier === null) {
-            this.__identifier = ID.parse(this.getValue('ID'));
-        }
-        return this.__identifier;
-    };
-
-    // private
-    BaseDocument.prototype.getData = function () {
-        if (this.__json === null) {
-            this.__json = this.getString('data');
-        }
-        return this.__json;
-    };
-
-    // private
-    BaseDocument.prototype.getSignature = function () {
-        if (this.__sig === null) {
-            var base64 = this.getString('signature');
-            if (base64) {
-                this.__sig = Base64.decode(base64);
+        // Override
+        getType: function () {
+            var type = this.getProperty('type');
+            if (!type) {
+                type = this.getString('type');
             }
-        }
-        return this.__sig;
-    };
+            return type;
+        },
 
-    //-------- properties --------
-
-    // Override
-    BaseDocument.prototype.allProperties = function () {
-        if (this.__status < 0) {
-            // invalid
-            return null;
-        }
-        if (this.__properties === null) {
-            var data = this.getData();  // json string
-            if (data) {
-                this.__properties = JsON.decode(data);
-            } else {
-                this.__properties = {};
+        // Override
+        getIdentifier: function () {
+            if (this.__identifier === null) {
+                this.__identifier = ID.parse(this.getValue('ID'));
             }
-        }
-        return this.__properties;
-    };
+            return this.__identifier;
+        },
 
-    // Override
-    BaseDocument.prototype.getProperty = function (name) {
-        var dict = this.allProperties();
-        if (!dict) {
-            return null;
-        }
-        return dict[name];
-    };
+        // private
+        getData: function () {
+            if (this.__json === null) {
+                this.__json = this.getString('data');
+            }
+            return this.__json;
+        },
 
-    // Override
-    BaseDocument.prototype.setProperty = function (name, value) {
-        // 1. reset status
-        this.__status = 0;
-        // 2. update property value with name
-        var dict = this.allProperties();
-        if (value) {
-            dict[name] = value;
-        } else {
-            delete dict[name];
-        }
-        // 3. clear data signature after properties changed
-        this.removeValue('data');
-        this.removeValue('signature');
-        this.__json = null;
-        this.__sig = null;
-    };
+        // private
+        getSignature: function () {
+            if (this.__sig === null) {
+                var base64 = this.getString('signature');
+                if (base64) {
+                    this.__sig = Base64.decode(base64);
+                }
+            }
+            return this.__sig;
+        },
 
-    //-------- signature --------
+        //-------- properties --------
 
-    // Override
-    BaseDocument.prototype.verify = function (publicKey) {
-        if (this.__status > 0) {
-            // already verify OK
-            return true;
-        }
-        var data = this.getData();
-        var signature = this.getSignature();
-        if (!data) {
-            // NOTICE: if data is empty, signature should be empty at the same time
-            //         this happen while document not found
-            if (!signature) {
-                this.__status = 0;
+        // Override
+        allProperties: function () {
+            if (this.__status < 0) {
+                // invalid
+                return null;
+            }
+            if (this.__properties === null) {
+                var data = this.getData();  // json string
+                if (data) {
+                    this.__properties = JsON.decode(data);
+                } else {
+                    this.__properties = {};
+                }
+            }
+            return this.__properties;
+        },
+
+        // Override
+        getProperty: function (name) {
+            var dict = this.allProperties();
+            if (!dict) {
+                return null;
+            }
+            return dict[name];
+        },
+
+        // Override
+        setProperty: function (name, value) {
+            // 1. reset status
+            this.__status = 0;
+            // 2. update property value with name
+            var dict = this.allProperties();
+            if (value) {
+                dict[name] = value;
             } else {
-                // data signature error
+                delete dict[name];
+            }
+            // 3. clear data signature after properties changed
+            this.removeValue('data');
+            this.removeValue('signature');
+            this.__json = null;
+            this.__sig = null;
+        },
+
+        //-------- signature --------
+
+        // Override
+        verify: function (publicKey) {
+            if (this.__status > 0) {
+                // already verify OK
+                return true;
+            }
+            var data = this.getData();
+            var signature = this.getSignature();
+            if (!data) {
+                // NOTICE: if data is empty, signature should be empty at the same time
+                //         this happen while document not found
+                if (!signature) {
+                    this.__status = 0;
+                } else {
+                    // data signature error
+                    this.__status = -1;
+                }
+            } else if (!signature) {
+                // signature error
                 this.__status = -1;
+            } else if (publicKey.verify(UTF8.encode(data), signature)) {
+                // signature matched
+                this.__status = 1;
             }
-        } else if (!signature) {
-            // signature error
-            this.__status = -1;
-        } else if (publicKey.verify(UTF8.encode(data), signature)) {
-            // signature matched
+            // NOTICE: if status is 0, it doesn't mean the entity document is invalid,
+            //         try another key
+            return this.__status === 1;
+        },
+
+        // Override
+        sign: function (privateKey) {
+            if (this.__status > 0) {
+                // already signed/verified
+                return this.getSignature();
+            }
+            // 1. update sign time
+            var now = new Date();
+            this.setProperty('time', now.getTime() / 1000.0);
+            // 2. encode & sign
+            var data = JsON.encode(this.allProperties());
+            if (!data || data.length === 0) {
+                // properties error
+                return null;
+            }
+            var signature = privateKey.sign(UTF8.encode(data));
+            if (!signature || signature.length === 0) {
+                // signature error
+                return null;
+            }
+            // 3. update 'data' & 'signature' fields
+            this.setValue('data', data);
+            this.setValue('signature', Base64.encode(signature));
+            this.__json = data;
+            this.__sig = signature;
+            // 4. update status
             this.__status = 1;
-        }
-        // NOTICE: if status is 0, it doesn't mean the entity document is invalid,
-        //         try another key
-        return this.__status === 1;
-    };
+            return this.__sig;
+        },
 
-    // Override
-    BaseDocument.prototype.sign = function (privateKey) {
-        if (this.__status > 0) {
-            // already signed/verified
-            return this.getSignature();
-        }
-        // 1. update sign time
-        var now = new Date();
-        this.setProperty('time', now.getTime() / 1000.0);
-        // 2. encode & sign
-        var data = JsON.encode(this.allProperties());
-        if (!data || data.length === 0) {
-            // properties error
-            return null;
-        }
-        var signature = privateKey.sign(UTF8.encode(data));
-        if (!signature || signature.length === 0) {
-            // signature error
-            return null;
-        }
-        // 3. update 'data' & 'signature' fields
-        this.setValue('data', data);
-        this.setValue('signature', Base64.encode(signature));
-        this.__json = data;
-        this.__sig = signature;
-        // 4. update status
-        this.__status = 1;
-        return this.__sig;
-    };
+        //-------- extra info --------
 
-    //-------- extra info --------
+        // Override
+        getTime: function () {
+            var timestamp = this.getProperty('time');
+            if (timestamp) {
+                return new Date(timestamp * 1000);
+            } else {
+                return null;
+            }
+        },
 
-    // Override
-    BaseDocument.prototype.getTime = function () {
-        var timestamp = this.getProperty('time');
-        if (timestamp) {
-            return new Date(timestamp * 1000);
-        } else {
-            return null;
+        // Override
+        getName: function () {
+            return this.getProperty('name');
+        },
+
+        // Override
+        setName: function (name) {
+            this.setProperty('name', name);
         }
-    };
-
-    // Override
-    BaseDocument.prototype.getName = function () {
-        return this.getProperty('name');
-    };
-
-    // Override
-    BaseDocument.prototype.setName = function (name) {
-        this.setProperty('name', name);
-    };
+    });
 
     //-------- namespace --------
     ns.mkm.BaseDocument = BaseDocument;

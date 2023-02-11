@@ -79,84 +79,85 @@
         this.__meta = null;
         this.__visa = null;
     };
-    Class(NetworkMessage, EncryptedMessage, [ReliableMessage]);
+    Class(NetworkMessage, EncryptedMessage, [ReliableMessage], {
 
-    // Override
-    NetworkMessage.prototype.getSignature = function () {
-        if (this.__signature === null) {
-            var base64 = this.getValue('signature');
+        // Override
+        getSignature: function () {
+            if (this.__signature === null) {
+                var base64 = this.getValue('signature');
+                var delegate = this.getDelegate();
+                this.__signature = delegate.decodeSignature(base64, this);
+            }
+            return this.__signature;
+        },
+
+        // Override
+        setMeta: function (meta) {
+            this.setMap('meta', meta);
+            this.__meta = meta;
+        },
+
+        // Override
+        getMeta: function () {
+            if (this.__meta === null) {
+                var dict = this.getValue('meta');
+                this.__meta = Meta.parse(dict);
+            }
+            return this.__meta;
+        },
+
+        // Override
+        setVisa: function (visa) {
+            this.setMap('visa', visa);
+            this.__visa = visa;
+        },
+
+        // Override
+        getVisa: function () {
+            if (this.__visa === null) {
+                var dict = this.getValue('visa');
+                this.__visa = Visa.parse(dict);
+            }
+            return this.__visa;
+        },
+
+        /*
+         *  Verify the Reliable Message to Secure Message
+         *
+         *    +----------+      +----------+
+         *    | sender   |      | sender   |
+         *    | receiver |      | receiver |
+         *    | time     |  ->  | time     |
+         *    |          |      |          |
+         *    | data     |      | data     |  1. verify(data, signature, sender.PK)
+         *    | key/keys |      | key/keys |
+         *    | signature|      +----------+
+         *    +----------+
+         */
+
+        // Override
+        verify: function () {
+            var data = this.getData();
+            if (!data) {
+                throw new Error('failed to decode content data: ' + this);
+            }
+            var signature = this.getSignature();
+            if (!signature) {
+                throw new Error('failed to decode message signature: ' + this);
+            }
+            // 1. verify data signature with sender's public key
             var delegate = this.getDelegate();
-            this.__signature = delegate.decodeSignature(base64, this);
+            if (delegate.verifyDataSignature(data, signature, this.getSender(), this)) {
+                // 2. pack message
+                var msg = this.copyMap(false);
+                delete msg['signature'];
+                return SecureMessage.parse(msg);
+            } else {
+                // throw new Error('message signature not match: ' + this);
+                return null;
+            }
         }
-        return this.__signature;
-    };
-
-    // Override
-    NetworkMessage.prototype.setMeta = function (meta) {
-        this.setMap('meta', meta);
-        this.__meta = meta;
-    };
-
-    // Override
-    NetworkMessage.prototype.getMeta = function () {
-        if (this.__meta === null) {
-            var dict = this.getValue('meta');
-            this.__meta = Meta.parse(dict);
-        }
-        return this.__meta;
-    };
-
-    // Override
-    NetworkMessage.prototype.setVisa = function (visa) {
-        this.setMap('visa', visa);
-        this.__visa = visa;
-    };
-
-    // Override
-    NetworkMessage.prototype.getVisa = function () {
-        if (this.__visa === null) {
-            var dict = this.getValue('visa');
-            this.__visa = Visa.parse(dict);
-        }
-        return this.__visa;
-    };
-
-    /*
-     *  Verify the Reliable Message to Secure Message
-     *
-     *    +----------+      +----------+
-     *    | sender   |      | sender   |
-     *    | receiver |      | receiver |
-     *    | time     |  ->  | time     |
-     *    |          |      |          |
-     *    | data     |      | data     |  1. verify(data, signature, sender.PK)
-     *    | key/keys |      | key/keys |
-     *    | signature|      +----------+
-     *    +----------+
-     */
-
-    // Override
-    NetworkMessage.prototype.verify = function () {
-        var data = this.getData();
-        if (!data) {
-            throw new Error('failed to decode content data: ' + this);
-        }
-        var signature = this.getSignature();
-        if (!signature) {
-            throw new Error('failed to decode message signature: ' + this);
-        }
-        // 1. verify data signature with sender's public key
-        var delegate = this.getDelegate();
-        if (delegate.verifyDataSignature(data, signature, this.getSender(), this)) {
-            // 2. pack message
-            var msg = this.copyMap(false);
-            delete msg['signature'];
-            return SecureMessage.parse(msg);
-        } else {
-            // throw new Error('message signature not match: ' + this);
-            return null;
-        }
-    };
+    });
 
     //-------- namespace --------
     ns.dkd.NetworkMessage = NetworkMessage;
@@ -173,7 +174,7 @@
     var ReliableMessageFactory = function () {
         Object.call(this);
     };
-    Class(ReliableMessageFactory, Object, [ReliableMessage.Factory]);
+    Class(ReliableMessageFactory, Object, [ReliableMessage.Factory], null);
 
     // Override
     ReliableMessageFactory.prototype.parseReliableMessage = function (msg) {

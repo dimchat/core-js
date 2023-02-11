@@ -45,7 +45,7 @@
         Object.call(this);
         this.__identifiers = {};  // string -> ID
     };
-    Class(IDFactory, Object, [ID.Factory]);
+    Class(IDFactory, Object, [ID.Factory], null);
 
     /**
      * Call it when received 'UIApplicationDidReceiveMemoryWarningNotification',

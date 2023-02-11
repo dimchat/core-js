@@ -99,55 +99,56 @@
         // delegate to transform messages
         this.__delegate = null;
     };
-    Class(BaseMessage, Dictionary, [Message]);
+    Class(BaseMessage, Dictionary, [Message], {
 
-    // Override
-    BaseMessage.prototype.getDelegate = function () {
-        return this.__delegate;
-    };
+        // Override
+        getDelegate: function () {
+            return this.__delegate;
+        },
 
-    // Override
-    BaseMessage.prototype.setDelegate = function (delegate) {
-        this.__delegate = delegate;
-    };
+        // Override
+        setDelegate: function (delegate) {
+            this.__delegate = delegate;
+        },
 
-    // Override
-    BaseMessage.prototype.getEnvelope = function () {
-        if (this.__envelope === null) {
-            this.__envelope = Envelope.parse(this.toMap());
+        // Override
+        getEnvelope: function () {
+            if (this.__envelope === null) {
+                this.__envelope = Envelope.parse(this.toMap());
+            }
+            return this.__envelope;
+        },
+
+        // Override
+        getSender: function () {
+            var env = this.getEnvelope();
+            return env.getSender();
+        },
+
+        // Override
+        getReceiver: function () {
+            var env = this.getEnvelope();
+            return env.getReceiver()
+        },
+
+        // Override
+        getTime: function () {
+            var env = this.getEnvelope();
+            return env.getTime();
+        },
+
+        // Override
+        getGroup: function () {
+            var env = this.getEnvelope();
+            return env.getGroup();
+        },
+
+        // Override
+        getType: function () {
+            var env = this.getEnvelope();
+            return env.getTime();
         }
-        return this.__envelope;
-    };
-
-    // Override
-    BaseMessage.prototype.getSender = function () {
-        var env = this.getEnvelope();
-        return env.getSender();
-    };
-
-    // Override
-    BaseMessage.prototype.getReceiver = function () {
-        var env = this.getEnvelope();
-        return env.getReceiver()
-    };
-
-    // Override
-    BaseMessage.prototype.getTime = function () {
-        var env = this.getEnvelope();
-        return env.getTime();
-    };
-
-    // Override
-    BaseMessage.prototype.getGroup = function () {
-        var env = this.getEnvelope();
-        return env.getGroup();
-    };
-
-    // Override
-    BaseMessage.prototype.getType = function () {
-        var env = this.getEnvelope();
-        return env.getTime();
-    };
+    });
 
     //-------- namespace --------
     ns.dkd.BaseMessage = BaseMessage;

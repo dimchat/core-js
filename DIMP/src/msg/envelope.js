@@ -106,7 +106,52 @@
         this.__receiver = to;
         this.__time = when;
     };
-    Class(MessageEnvelope, Dictionary, [Envelope]);
+    Class(MessageEnvelope, Dictionary, [Envelope], {
+
+        // Override
+        getSender: function () {
+            if (this.__sender === null) {
+                this.__sender = get_id(this, 'sender');
+            }
+            return this.__sender;
+        },
+
+        // Override
+        getReceiver: function () {
+            if (this.__receiver === null) {
+                this.__receiver = get_id(this, 'receiver');
+            }
+            return this.__receiver;
+        },
+
+        // Override
+        getTime: function () {
+            if (this.__time === null) {
+                this.__time = get_time(this, 'time');
+            }
+            return this.__time;
+        },
+
+        // Override
+        getGroup: function () {
+            return get_id(this, 'group');
+        },
+
+        // Override
+        setGroup: function (identifier) {
+            this.setString('group', identifier);
+        },
+
+        // Override
+        getType: function () {
+            return this.getNumber('type');
+        },
+
+        // Override
+        setType: function (type) {
+            this.setValue('type', type);
+        }
+    });
 
     var get_id = function (dict, key) {
         return ID.parse(this.getValue(key))
@@ -114,50 +159,6 @@
 
     var get_time = function (dict, key) {
         return Dictionary.prototype.getTime.call(dict, key);
-    };
-
-    // Override
-    MessageEnvelope.prototype.getSender = function () {
-        if (this.__sender === null) {
-            this.__sender = get_id(this, 'sender');
-        }
-        return this.__sender;
-    };
-
-    // Override
-    MessageEnvelope.prototype.getReceiver = function () {
-        if (this.__receiver === null) {
-            this.__receiver = get_id(this, 'receiver');
-        }
-        return this.__receiver;
-    };
-
-    // Override
-    MessageEnvelope.prototype.getTime = function () {
-        if (this.__time === null) {
-            this.__time = get_time(this, 'time');
-        }
-        return this.__time;
-    };
-
-    // Override
-    MessageEnvelope.prototype.getGroup = function () {
-        return get_id(this, 'group');
-    };
-
-    // Override
-    MessageEnvelope.prototype.setGroup = function (identifier) {
-        this.setString('group', identifier);
-    };
-
-    // Override
-    MessageEnvelope.prototype.getType = function () {
-        return this.getNumber('type');
-    };
-
-    // Override
-    MessageEnvelope.prototype.setType = function (type) {
-        this.setValue('type', type);
     };
 
     //-------- namespace --------
@@ -175,7 +176,7 @@
     var EnvelopeFactory = function () {
         Object.call(this);
     };
-    Class(EnvelopeFactory, Object, [Envelope.Factory]);
+    Class(EnvelopeFactory, Object, [Envelope.Factory], null);
 
     // Override
     EnvelopeFactory.prototype.createEnvelope = function (from, to, when) {

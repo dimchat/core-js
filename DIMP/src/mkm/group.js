@@ -154,48 +154,49 @@
         BaseEntity.call(this, identifier);
         this.__founder = null;
     };
-    Class(BaseGroup, BaseEntity, [Group]);
+    Class(BaseGroup, BaseEntity, [Group], {
 
-    // Override
-    BaseGroup.prototype.getBulletin = function () {
-        var doc = this.getDocument(Document.BULLETIN);
-        if (Interface.conforms(doc, Bulletin)) {
-            return doc;
-        } else {
-            return null;
-        }
-    };
+        // Override
+        getBulletin: function () {
+            var doc = this.getDocument(Document.BULLETIN);
+            if (Interface.conforms(doc, Bulletin)) {
+                return doc;
+            } else {
+                return null;
+            }
+        },
 
-    // Override
-    BaseGroup.prototype.getFounder = function () {
-        if (this.__founder === null) {
+        // Override
+        getFounder: function () {
+            if (this.__founder === null) {
+                var barrack = this.getDataSource();
+                var gid = this.getIdentifier();
+                this.__founder = barrack.getFounder(gid);
+            }
+            return this.__founder;
+        },
+
+        // Override
+        getOwner: function () {
             var barrack = this.getDataSource();
             var gid = this.getIdentifier();
-            this.__founder = barrack.getFounder(gid);
+            return barrack.getOwner(gid);
+        },
+
+        // Override
+        getMembers: function () {
+            var barrack = this.getDataSource();
+            var gid = this.getIdentifier();
+            return barrack.getMembers(gid);
+        },
+
+        // Override
+        getAssistants: function () {
+            var barrack = this.getDataSource();
+            var gid = this.getIdentifier();
+            return barrack.getAssistants(gid);
         }
-        return this.__founder;
-    };
-
-    // Override
-    BaseGroup.prototype.getOwner = function () {
-        var barrack = this.getDataSource();
-        var gid = this.getIdentifier();
-        return barrack.getOwner(gid);
-    };
-
-    // Override
-    BaseGroup.prototype.getMembers = function () {
-        var barrack = this.getDataSource();
-        var gid = this.getIdentifier();
-        return barrack.getMembers(gid);
-    };
-
-    // Override
-    BaseGroup.prototype.getAssistants = function () {
-        var barrack = this.getDataSource();
-        var gid = this.getIdentifier();
-        return barrack.getAssistants(gid);
-    };
+    });
 
     //-------- namespace --------
     ns.mkm.BaseGroup = BaseGroup;

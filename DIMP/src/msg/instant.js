@@ -82,67 +82,68 @@
         this.__envelope = head;
         this.__content = body;
     };
-    Class(PlainMessage, BaseMessage, [InstantMessage]);
+    Class(PlainMessage, BaseMessage, [InstantMessage], {
 
-    // Override
-    PlainMessage.prototype.getContent = function () {
-        if (this.__content === null) {
-            this.__content = Content.parse(this.getValue('content'));
+        // Override
+        getContent: function () {
+            if (this.__content === null) {
+                this.__content = Content.parse(this.getValue('content'));
+            }
+            return this.__content;
+        },
+
+        // Override
+        getTime: function () {
+            var content = this.getContent();
+            var time = content.getTime();
+            if (time) {
+                return time;
+            } else {
+                var env = this.getEnvelope();
+                return env.getTime();
+            }
+        },
+
+        // Override
+        getGroup: function () {
+            var content = this.getContent();
+            return content.getGroup();
+        },
+
+        // Override
+        getType: function () {
+            var content = this.getContent();
+            return content.getType();
+        },
+
+        /*
+         *  Encrypt the Instant Message to Secure Message
+         *
+         *    +----------+      +----------+
+         *    | sender   |      | sender   |
+         *    | receiver |      | receiver |
+         *    | time     |  ->  | time     |
+         *    |          |      |          |
+         *    | content  |      | data     |  1. data = encrypt(content, PW)
+         *    +----------+      | key/keys |  2. key  = encrypt(PW, receiver.PK)
+         *                      +----------+
+         */
+
+        // Override
+        encrypt: function (password, members) {
+            // 0. check attachment for File/Image/Audio/Video message content
+            //    (do it in 'core' module)
+
+            // 1., 2., 3.
+            if (members && members.length > 0) {
+                // group message
+                return encrypt_group_message.call(this, password, members);
+            } else {
+                // personal message
+                return encrypt_message.call(this, password);
+            }
         }
-        return this.__content;
-    };
-
-    // Override
-    PlainMessage.prototype.getTime = function () {
-        var content = this.getContent();
-        var time = content.getTime();
-        if (time) {
-            return time;
-        } else {
-            var env = this.getEnvelope();
-            return env.getTime();
-        }
-    };
-
-    // Override
-    PlainMessage.prototype.getGroup = function () {
-        var content = this.getContent();
-        return content.getGroup();
-    };
-
-    // Override
-    PlainMessage.prototype.getType = function () {
-        var content = this.getContent();
-        return content.getType();
-    };
-
-    /*
-     *  Encrypt the Instant Message to Secure Message
-     *
-     *    +----------+      +----------+
-     *    | sender   |      | sender   |
-     *    | receiver |      | receiver |
-     *    | time     |  ->  | time     |
-     *    |          |      |          |
-     *    | content  |      | data     |  1. data = encrypt(content, PW)
-     *    +----------+      | key/keys |  2. key  = encrypt(PW, receiver.PK)
-     *                      +----------+
-     */
-
-    // Override
-    PlainMessage.prototype.encrypt = function (password, members) {
-        // 0. check attachment for File/Image/Audio/Video message content
-        //    (do it in 'core' module)
-
-        // 1., 2., 3.
-        if (members && members.length > 0) {
-            // group message
-            return encrypt_group_message.call(this, password, members);
-        } else {
-            // personal message
-            return encrypt_message.call(this, password);
-        }
-    };
+    });
 
     var encrypt_message = function (password) {
         // 1. encrypt 'message.content' to 'message.data'
@@ -242,7 +243,7 @@
         Object.call(this);
         this.__sn = randomPositiveInteger();
     };
-    Class(InstantMessageFactory, Object, [InstantMessage.Factory]);
+    Class(InstantMessageFactory, Object, [InstantMessage.Factory], null);
 
     var MAX_SN = 0x7fffffff;
     var randomPositiveInteger = function () {
