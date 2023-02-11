@@ -35,6 +35,8 @@
 (function (ns) {
     'use strict';
 
+    var Interface = ns.type.Interface;
+    var Class = ns.type.Class;
     var ReliableMessage = ns.protocol.ReliableMessage;
     var ContentType = ns.protocol.ContentType;
     var ForwardContent = ns.protocol.ForwardContent;
@@ -44,46 +46,86 @@
      *  Create top-secret message content
      *
      *  Usages:
-     *      1. new SecretContent();
+     *      1. new SecretContent(map);
      *      2. new SecretContent(msg);
-     *      3. new SecretContent(map);
+     *      3. new SecretContent(messages);
      */
     var SecretContent = function () {
-        if (arguments.length === 0) {
-            // new SecretContent();
+        var info = arguments[0];
+        var forward = null;
+        var secrets = null;
+        if (info instanceof Array) {
+            // new SecretContent(messages);
             BaseContent.call(this, ContentType.FORWARD);
-            this.__forward = null;
-        } else if (ns.Interface.conforms(arguments[0], ReliableMessage)) {
+            secrets = info;
+        } else if (Interface.conforms(info, ReliableMessage)) {
             // new SecretContent(msg);
             BaseContent.call(this, ContentType.FORWARD);
-            this.setMessage(arguments[0]);
+            forward = info;
         } else {
             // new SecretContent(map);
-            BaseContent.call(this, arguments[0]);
-            this.__forward = null;
+            BaseContent.call(this, info);
         }
+        if (forward) {
+            this.setMap('forward', forward);
+        } else if (secrets) {
+            var array = SecretContent.revert(secrets);
+            this.setValue('secrets', array);
+        }
+        this.__forward = forward;
+        this.__secrets = secrets;
     };
-    ns.Class(SecretContent, BaseContent, [ForwardContent], {
+    Class(SecretContent, BaseContent, [ForwardContent], {
+
         // Override
-        getMessage: function () {
-            if (!this.__forward) {
-                var dict = this.toMap();
-                this.__forward = ForwardContent.getMessage(dict);
+        getForward: function () {
+            if (this.__forward === null) {
+                var forward = this.getValue('forward');
+                this.__forward = ReliableMessage.parse(forward);
             }
             return this.__forward;
         },
 
         // Override
-        setMessage: function (secret) {
-            var dict = this.toMap();
-            ForwardContent.setMessage(secret, dict);
-            this.__forward = secret;
+        getSecrets: function () {
+            if (this.__secrets === null) {
+                var array = this.getValue('secrets');
+                if (array) {
+                    // get from 'secrets'
+                    this.__secrets = SecretContent.convert(array);
+                } else {
+                    // get from 'forward'
+                    this.__secrets = [];
+                    var msg = this.getForward();
+                    if (msg) {
+                        this.__secrets.push(msg);
+                    }
+                }
+            }
+            return this.__secrets;
         }
     });
 
+    SecretContent.convert = function (messages) {
+        var array = [];
+        var msg;
+        for (var i = 0; i < messages.length; ++i) {
+            msg = ReliableMessage.parse(messages[i]);
+            if (msg) {
+                array.push(msg);
+            }
+        }
+        return array;
+    };
+    SecretContent.revert = function (messages) {
+        var array = [];
+        for (var i = 0; i < messages.length; ++i) {
+            array.push(messages[i].toMap());
+        }
+        return array;
+    };
+
     //-------- namespace --------
     ns.dkd.SecretContent = SecretContent;
-
-    ns.dkd.registers('SecretContent');
 
 })(DaoKeDao);

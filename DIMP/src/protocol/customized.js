@@ -3,12 +3,12 @@
 //
 //  DIMP : Decentralized Instant Messaging Protocol
 //
-//                               Written in 2020 by Moky <albert.moky@gmail.com>
+//                               Written in 2023 by Moky <albert.moky@gmail.com>
 //
 // =============================================================================
 // The MIT License (MIT)
 //
-// Copyright (c) 2020 Albert Moky
+// Copyright (c) 2023 Albert Moky
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,47 +30,49 @@
 // =============================================================================
 //
 
-//! require 'protocol/history.js'
-//! require 'command.js'
+//! require 'namespace.js'
 
 (function (ns) {
     'use strict';
 
-    var ContentType = ns.protocol.ContentType;
-    var HistoryCommand = ns.protocol.HistoryCommand;
-    var BaseCommand = ns.dkd.BaseCommand;
+    var Interface = ns.type.Interface;
+    var Content = ns.protocol.Content;
 
     /**
-     *  Create history command
+     *  Application Customized message: {
+     *      type : 0xCC,
+     *      sn   : 123,
      *
-     *  Usages:
-     *      1. new BaseHistoryCommand(map);
-     *      2. new BaseHistoryCommand(cmd);
-     *      3. new BaseHistoryCommand(type, cmd);
+     *      app   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
+     *      mod   : "{MODULE}",  // module name (e.g.: "drift_bottle")
+     *      act   : "{ACTION}",  // action name (3.g.: "throw")
+     *      extra : info         // action parameters
+     *  }
      */
-    var BaseHistoryCommand = function () {
-        if (arguments.length === 2) {
-            // new HistoryCommand(type, cmd);
-            BaseCommand.call(this, arguments[0], arguments[1]);
-        } else if (typeof arguments[0] === 'string') {
-            // new HistoryCommand(cmd);
-            BaseCommand.call(this, ContentType.HISTORY, arguments[0]);
-        } else {
-            // new HistoryCommand(map);
-            BaseCommand.call(this, arguments[0]);
-        }
+    var CustomizedContent = Interface(null, [Content]);
+
+    // get App ID
+    CustomizedContent.prototype.getApplication = function () {
+        throw new Error('NotImplemented');
     };
-    ns.Class(BaseHistoryCommand, BaseCommand, [HistoryCommand], {
-        // Override
-        getHistoryEvent: function () {
-            var dict = this.toMap();
-            return HistoryCommand.getHistoryEvent(dict);
-        }
-    });
+
+    // get Module name
+    CustomizedContent.prototype.getModule = function () {
+        throw new Error('NotImplemented');
+    };
+
+    // get Action name
+    CustomizedContent.prototype.getAction = function () {
+        throw new Error('NotImplemented');
+    };
+
+    //-------- factory --------
+
+    CustomizedContent.create = function (contents) {
+        return new ns.dkd.AppCustomizedContent(contents);
+    };
 
     //-------- namespace --------
-    ns.dkd.BaseHistoryCommand = BaseHistoryCommand;
-
-    ns.dkd.registers('BaseHistoryCommand');
+    ns.protocol.CustomizedContent = CustomizedContent;
 
 })(DIMP);

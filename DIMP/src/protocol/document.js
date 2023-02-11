@@ -35,6 +35,7 @@
 (function (ns) {
     'use strict';
 
+    var Interface = ns.type.Interface;
     var ID = ns.protocol.ID;
     var Meta = ns.protocol.Meta;
     var Document = ns.protocol.Document;
@@ -52,50 +53,24 @@
      *      signature : "..."       // old profile's signature for querying
      *  }
      */
-    var DocumentCommand = function () {};
-    ns.Interface(DocumentCommand, [MetaCommand]);
+    var DocumentCommand = Interface(null, [MetaCommand]);
 
     /**
-     *  Set document info
+     *  Get document
      *
-     * @param {Document} doc
+     * @return {Document}
      */
-    DocumentCommand.prototype.setDocument = function (doc) {
-        ns.assert(false, 'implement me!');
-    };
     DocumentCommand.prototype.getDocument = function () {
-        ns.assert(false, 'implement me!');
-        return null;
-    };
-    DocumentCommand.setDocument = function (doc, cmd) {
-        if (doc) {
-            cmd['document'] = doc.toMap();
-        } else {
-            delete cmd['command'];
-        }
-    };
-    DocumentCommand.getDocument = function (cmd) {
-        var doc = cmd['document'];
-        return Document.parse(doc);
+        throw new Error('NotImplemented');
     };
 
     /**
      *  Set signature string for old document
      *
-     * @param {String} base64 - encoded signature
+     * @return {String} encoded signature
      */
-    DocumentCommand.prototype.setSignature = function (base64) {
-        ns.assert(false, 'implement me!');
-    };
     DocumentCommand.prototype.getSignature = function () {
-        ns.assert(false, 'implement me!');
-        return null;
-    };
-    DocumentCommand.setSignature = function (base64, cmd) {
-        cmd['signature'] = base64;
-    };
-    DocumentCommand.getSignature = function (cmd) {
-        return cmd['signature'];
+        throw new Error('NotImplemented');
     };
 
     //-------- factories --------
@@ -104,11 +79,11 @@
      *  Create query command
      *
      * @param {ID} identifier
-     * @param {String} signature - OPTIONAL
+     * @param {string} signature - OPTIONAL
      * @returns {DocumentCommand}
      */
     DocumentCommand.query = function (identifier, signature) {
-        return new DocumentCommand(identifier, signature);
+        return new ns.dkd.cmd.BaseDocumentCommand(identifier, signature);
     };
 
     /**
@@ -120,12 +95,10 @@
      * @returns {DocumentCommand}
      */
     DocumentCommand.response = function (identifier, meta, doc) {
-        return new DocumentCommand(identifier, meta, doc);
+        return new ns.dkd.cmd.BaseDocumentCommand(identifier, meta, doc);
     };
 
     //-------- namespace --------
     ns.protocol.DocumentCommand = DocumentCommand;
-
-    ns.protocol.registers('DocumentCommand');
 
 })(DIMP);

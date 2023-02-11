@@ -35,6 +35,8 @@
 (function (ns) {
     'use strict';
 
+    var Class = ns.type.Class;
+    var Base64 = ns.format.Base64;
     var ContentType = ns.protocol.ContentType;
     var PageContent = ns.protocol.PageContent;
     var BaseContent = ns.dkd.BaseContent;
@@ -54,67 +56,66 @@
         } else if (arguments.length === 4) {
             // new WebPageContent(url, title, desc, icon);
             BaseContent.call(this, ContentType.PAGE);
+            this.__icon = null;
             this.setURL(arguments[0]);
             this.setTitle(arguments[1]);
             this.setDesc(arguments[2]);
             this.setIcon(arguments[3]);
         } else {
-            throw new SyntaxError('web page content arguments error: ' + arguments);
+            throw new SyntaxError('Web page content arguments error: ' + arguments);
         }
     };
-    ns.Class(WebPageContent, BaseContent, [PageContent], {
+    Class(WebPageContent, BaseContent, [PageContent], {
+
         // Override
         getURL: function () {
-            var dict = this.toMap();
-            return PageContent.getURL(dict);
+            return this.getString('URL');
         },
         // Override
         setURL: function (url) {
-            var dict = this.toMap();
-            PageContent.setURL(url, dict);
+            this.setValue('URL', url);
         },
 
         // Override
         getTitle: function () {
-            var dict = this.toMap();
-            return PageContent.getTitle(dict);
+            return this.getString('title');
         },
         // Override
         setTitle: function (title) {
-            var dict = this.toMap();
-            PageContent.setTitle(title, dict);
+            this.setValue('title', title);
         },
 
         // Override
         getDesc: function () {
-            var dict = this.toMap();
-            return PageContent.getDesc(dict);
+            return this.getString('desc');
         },
         // Override
         setDesc: function (text) {
-            var dict = this.toMap();
-            PageContent.setDesc(text, dict);
+            this.setValue('desc', text);
         },
 
         // Override
         getIcon: function () {
-            if (!this.__icon) {
-                var dict = this.toMap();
-                this.__icon = PageContent.getIcon(dict);
+            if (this.__icon === null) {
+                var base64 = this.getString('icon');
+                if (base64) {
+                    this.__icon = Base64.decode(base64);
+                }
             }
             return this.__icon;
         },
         // Override
         setIcon: function (image) {
-            var dict = this.toMap();
-            PageContent.setIcon(image, dict);
+            if (image && image.length > 0) {
+                this.setValue('icon', Base64.encode(image));
+            } else {
+                this.removeValue('icon');
+            }
             this.__icon = image;
         }
     });
 
     //-------- namespace --------
     ns.dkd.WebPageContent = WebPageContent;
-
-    ns.dkd.registers('WebPageContent');
 
 })(DIMP);

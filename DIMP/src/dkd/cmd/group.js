@@ -36,6 +36,9 @@
 (function (ns) {
     'use strict';
 
+    var Interface = ns.type.Interface;
+    var Class = ns.type.Class;
+    var ID = ns.protocol.ID;
     var GroupCommand = ns.protocol.GroupCommand;
     var BaseHistoryCommand = ns.dkd.BaseHistoryCommand;
 
@@ -49,62 +52,77 @@
      *      4. new BaseGroupCommand(cmd, group, member);
      */
     var BaseGroupCommand = function () {
+        var group = null;
+        var member = null;
+        var members = null;
         if (arguments.length === 1) {
             // new BaseGroupCommand(map);
             BaseHistoryCommand.call(this, arguments[0]);
-            this.__member = null;
-            this.__members = null;
         } else if (arguments.length === 2) {
             // new BaseGroupCommand(cmd, group);
             BaseHistoryCommand.call(this, arguments[0]);
-            this.setGroup(arguments[1]);
-            this.__member = null;
-            this.__members = null;
+            group = arguments[1];
         } else if (arguments[2] instanceof Array) {
             // new BaseGroupCommand(cmd, group, members);
             BaseHistoryCommand.call(this, arguments[0]);
-            this.setGroup(arguments[1]);
-            this.__member = null;
-            this.setMembers(arguments[2]);
-        } else {
+            group = arguments[1];
+            members = arguments[2];
+        } else if (Interface.conforms(arguments[2], ID)) {
             // new BaseGroupCommand(cmd, group, member);
             BaseHistoryCommand.call(this, arguments[0]);
-            this.setGroup(arguments[1]);
-            this.setMember(arguments[2]);
-            this.__members = null;
+            group = arguments[1];
+            member = arguments[2];
+        } else {
+            throw new SyntaxError('Group command arguments error: ' + arguments);
         }
+        if (group) {
+            this.setGroup(group);
+        }
+        if (member) {
+            this.setMember(member);
+        } else if (members) {
+            this.setMembers(members);
+        }
+        this.__member = member;
+        this.__members = members;
     };
-    ns.Class(BaseGroupCommand, BaseHistoryCommand, [GroupCommand], {
+    Class(BaseGroupCommand, BaseHistoryCommand, [GroupCommand], {
+
         // Override
         setMember: function (identifier) {
-            var dict = this.toMap();
-            GroupCommand.setMembers(null, dict);
-            GroupCommand.setMember(identifier, dict);
+            this.setString('member', identifier);
+            // TODO: remove 'members'?
             this.__member = identifier;
         },
 
         // Override
         getMember: function () {
-            if (!this.__member) {
-                var dict = this.toMap();
-                this.__member = GroupCommand.getMember(dict);
+            if (this.__member === null) {
+                var member = this.getValue('member');
+                this.__member = ID.parse(member);
             }
             return this.__member;
         },
 
         // Override
         setMembers: function (members) {
-            var dict = this.toMap();
-            GroupCommand.setMember(null, dict);
-            GroupCommand.setMembers(members, dict);
+            if (members) {
+                var array = ID.revert(members);
+                this.setValue('members', array);
+            } else {
+                this.removeValue('members');
+            }
+            // TODO: remove 'member'?
             this.__members = members;
         },
 
         // Override
         getMembers: function () {
-            if (!this.__members) {
-                var dict = this.toMap();
-                this.__members = GroupCommand.getMembers(dict);
+            if (this.__members === null) {
+                var array = this.getValue('members');
+                if (array) {
+                    this.__members = ID.convert(array);
+                }
                 // TODO: get from 'member'?
             }
             return this.__members;
@@ -112,8 +130,6 @@
     });
 
     //-------- namespace --------
-    ns.dkd.BaseGroupCommand = BaseGroupCommand;
-
-    ns.dkd.registers('BaseGroupCommand');
+    ns.dkd.cmd.BaseGroupCommand = BaseGroupCommand;
 
 })(DIMP);

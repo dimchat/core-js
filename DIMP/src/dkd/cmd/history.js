@@ -30,65 +30,36 @@
 // =============================================================================
 //
 
-/**
- *  Group history command: {
- *      type : 0x89,
- *      sn   : 123,
- *
- *      command : "invite",      // expel, ...
- *      group   : "{GROUP_ID}",
- *      member  : "{MEMBER_ID}",
- *      members : ["{MEMBER_ID}", ],
- *  }
- */
-
-//! require 'group.js'
+//! require 'protocol/history.js'
+//! require 'command.js'
 
 (function (ns) {
     'use strict';
 
-    var Interface = ns.type.Interface;
-    var GroupCommand = ns.protocol.GroupCommand;
-
-    //
-    //  Invite group command
-    //
-    var InviteCommand = Interface(null, [GroupCommand]);
-
-    //
-    //  Expel group command
-    //
-    var ExpelCommand = Interface(null, [GroupCommand]);
-
-    //
-    //  Join group command
-    //
-    var JoinCommand = Interface(null, [GroupCommand]);
-
-    //
-    //  Quit group command
-    //
-    var QuitCommand = Interface(null, [GroupCommand]);
-
-    //
-    //  Reset group command
-    //
-    var ResetCommand = Interface(null, [GroupCommand]);
+    var Class = ns.type.Class;
+    var ContentType = ns.protocol.ContentType;
+    var HistoryCommand = ns.protocol.HistoryCommand;
+    var BaseCommand = ns.dkd.BaseCommand;
 
     /**
-     *  NOTICE:
-     *      This command is just for querying group info,
-     *      should not be saved in group history
+     *  Create history command
+     *
+     *  Usages:
+     *      1. new BaseHistoryCommand(map);
+     *      2. new BaseHistoryCommand(cmd);
      */
-    var QueryCommand = Interface(null, [GroupCommand]);
+    var BaseHistoryCommand = function () {
+        if (typeof arguments[0] === 'string') {
+            // new HistoryCommand(cmd);
+            BaseCommand.call(this, ContentType.HISTORY, arguments[0]);
+        } else {
+            // new HistoryCommand(map);
+            BaseCommand.call(this, arguments[0]);
+        }
+    };
+    Class(BaseHistoryCommand, BaseCommand, [HistoryCommand], null);
 
     //-------- namespace --------
-    ns.protocol.group.InviteCommand = InviteCommand;
-    ns.protocol.group.ExpelCommand = ExpelCommand;
-    ns.protocol.group.JoinCommand = JoinCommand;
-    ns.protocol.group.QuitCommand = QuitCommand;
-
-    ns.protocol.group.ResetCommand = ResetCommand;
-    ns.protocol.group.QueryCommand = QueryCommand;
+    ns.dkd.cmd.BaseHistoryCommand = BaseHistoryCommand;
 
 })(DIMP);

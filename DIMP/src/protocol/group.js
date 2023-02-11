@@ -35,6 +35,7 @@
 (function (ns) {
     'use strict';
 
+    var Interface = ns.type.Interface;
     var ID = ns.protocol.ID;
     var HistoryCommand = ns.protocol.HistoryCommand;
 
@@ -43,16 +44,15 @@
      *      type : 0x89,
      *      sn   : 123,
      *
-     *      command : "invite",      // expel, ...
+     *      cmd     : "invite",      // expel, ...
      *      group   : "{GROUP_ID}",
      *      member  : "{MEMBER_ID}",
      *      members : ["{MEMBER_ID}", ],
      *  }
      */
-    var GroupCommand = function () {};
-    ns.Interface(GroupCommand, [HistoryCommand]);
+    var GroupCommand = Interface(null, [HistoryCommand]);
 
-    //-------- group command names --------
+    //-------- group command names begin --------
     // founder/owner
     GroupCommand.FOUND    = 'found';
     GroupCommand.ABDICATE = 'abdicate';
@@ -67,6 +67,7 @@
     GroupCommand.HIRE     = 'hire';
     GroupCommand.FIRE     = 'fire';
     GroupCommand.RESIGN   = 'resign';
+    //-------- group command names end --------
 
     /**
      *  Set member ID
@@ -74,11 +75,10 @@
      * @param {ID} identifier - member ID
      */
     GroupCommand.prototype.setMember = function (identifier) {
-        ns.assert(false, 'implement me!');
+        throw new Error('NotImplemented');
     };
     GroupCommand.prototype.getMember = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -87,43 +87,78 @@
      * @param {ID[]} members - ID array
      */
     GroupCommand.prototype.setMembers = function (members) {
-        ns.assert(false, 'implement me!');
+        throw new Error('NotImplemented');
     };
     GroupCommand.prototype.getMembers = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
-    GroupCommand.setMember = function (member, cmd) {
-        if (member) {
-            cmd['member'] = member.toString();
-        } else {
-            delete cmd['member'];
-        }
-    };
-    GroupCommand.getMember = function (cmd) {
-        return ID.parse(cmd['member']);
+    //-------- factories --------
+
+    /**
+     *  Create invite group command
+     *
+     * @param {ID} group
+     * @param {ID|ID[]} members
+     * @return {InviteCommand}
+     */
+    GroupCommand.invite = function (group, members) {
+        return new ns.dkd.cmd.InviteGroupCommand(group, members);
     };
 
-    GroupCommand.setMembers = function (members, cmd) {
-        if (members/* && members.length > 0*/) {
-            cmd['members'] = ID.revert(members);
-        } else {
-            delete cmd['members'];
-        }
+    /**
+     *  Create expel group command
+     *
+     * @param {ID} group
+     * @param {ID|ID[]} members
+     * @return {ExpelCommand}
+     */
+    GroupCommand.expel = function (group, members) {
+        return new ns.dkd.cmd.ExpelGroupCommand(group, members);
     };
-    GroupCommand.getMembers = function (cmd) {
-        var members = cmd['members'];
-        if (members) {
-            return ID.convert(members);
-        } else {
-            return null;
-        }
+
+    /**
+     *  Create join group command
+     *
+     * @param {ID} group
+     * @return {JoinCommand}
+     */
+    GroupCommand.join = function (group) {
+        return new ns.dkd.cmd.JoinGroupCommand(group);
+    };
+
+    /**
+     *  Create quit group command
+     *
+     * @param {ID} group
+     * @return {QuitCommand}
+     */
+    GroupCommand.quit = function (group) {
+        return new ns.dkd.cmd.QuitGroupCommand(group);
+    };
+
+    /**
+     *  Create reset group command
+     *
+     * @param {ID} group
+     * @param {ID[]} members
+     * @return {ResetCommand}
+     */
+    GroupCommand.reset = function (group, members) {
+        return new ns.dkd.cmd.ResetGroupCommand(group, members);
+    };
+
+    /**
+     *  Create query group command
+     *
+     * @param {ID} group
+     * @return {QueryCommand}
+     */
+    GroupCommand.query = function (group) {
+        return new ns.dkd.cmd.QueryGroupCommand(group);
     };
 
     //-------- namespace --------
     ns.protocol.GroupCommand = GroupCommand;
-
-    ns.protocol.registers('GroupCommand');
 
 })(DIMP);

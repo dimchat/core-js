@@ -35,6 +35,7 @@
 (function (ns) {
     'use strict';
 
+    var Interface = ns.type.Interface;
     var Content = ns.protocol.Content;
 
     /**
@@ -46,26 +47,15 @@
      *      amount   : 100.00
      *  }
      */
-    var MoneyContent = function () {};
-    ns.Interface(MoneyContent, [Content]);
+    var MoneyContent = Interface(null, [Content]);
 
     /**
-     *  Set currency (BTC, ETH, USD, CNY, ...)
+     *  Get currency (BTC, ETH, USD, CNY, ...)
      *
-     * @param {String} currency
+     * @return {string} currency
      */
-    MoneyContent.prototype.setCurrency = function (currency) {
-        ns.assert(false, 'implement me!');
-    };
     MoneyContent.prototype.getCurrency = function () {
-        ns.assert(false, 'implement me!');
-        return null;
-    };
-    MoneyContent.setCurrency = function (currency, content) {
-        content['currency'] = currency;
-    };
-    MoneyContent.getCurrency = function (content) {
-        return content['currency'];
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -74,17 +64,10 @@
      * @param {float} amount
      */
     MoneyContent.prototype.setAmount = function (amount) {
-        ns.assert(false, 'implement me!');
+        throw new Error('NotImplemented');
     };
     MoneyContent.prototype.getAmount = function () {
-        ns.assert(false, 'implement me!');
-        return null;
-    };
-    MoneyContent.setAmount = function (amount, content) {
-        content['amount'] = amount;
-    };
-    MoneyContent.getAmount = function (content) {
-        return content['amount'];
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -92,26 +75,32 @@
      *      type : 0x41,
      *      sn   : 123,
      *
-     *      currency : "RMB", // USD, USDT, ...
-     *      amount   : 100.00
+     *      currency : "RMB",    // USD, USDT, ...
+     *      amount   : 100.00,
+     *      remitter : "{FROM}", // sender ID
+     *      remittee : "{TO}"    // receiver ID
      *  }
      */
-    var TransferContent = function () {};
-    ns.Interface(TransferContent, [MoneyContent]);
+    var TransferContent = Interface(null, [MoneyContent]);
 
-    TransferContent.prototype.setComment = function (text) {
-        ns.assert(false, 'implement me!');
+    // sender
+    TransferContent.prototype.setRemitter = function (sender) {
+        throw new Error('NotImplemented');
     };
-    TransferContent.prototype.getComment = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+    TransferContent.prototype.getRemitter = function () {
+        throw new Error('NotImplemented');
+    };
+
+    // receiver
+    TransferContent.prototype.setRemittee = function (receiver) {
+        throw new Error('NotImplemented');
+    };
+    TransferContent.prototype.getRemittee = function () {
+        throw new Error('NotImplemented');
     };
 
     //-------- namespace --------
     ns.protocol.MoneyContent = MoneyContent;
     ns.protocol.TransferContent = TransferContent;
-
-    ns.protocol.registers('MoneyContent');
-    ns.protocol.registers('TransferContent');
 
 })(DIMP);

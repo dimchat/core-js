@@ -35,7 +35,7 @@
 (function (ns) {
     'use strict';
 
-    var Base64 = ns.format.Base64;
+    var Interface = ns.type.Interface;
     var FileContent = ns.protocol.FileContent;
 
     /**
@@ -48,8 +48,7 @@
      *      thumbnail : "...",         // base64_encode(smallImage)
      *  }
      */
-    var ImageContent = function () {};
-    ns.Interface(ImageContent, [FileContent]);
+    var ImageContent = Interface(null, [FileContent]);
 
     /**
      *  Set small image data
@@ -57,26 +56,10 @@
      * @param {Uint8Array} image data
      */
     ImageContent.prototype.setThumbnail = function (image) {
-        ns.assert(false, 'implement me!');
+        throw new Error('NotImplemented');
     };
     ImageContent.prototype.getThumbnail = function () {
-        ns.assert(false, 'implement me!');
-        return null;
-    };
-    ImageContent.setThumbnail = function (image, content) {
-        if (image/* && image.length > 0*/) {
-            content['thumbnail'] = Base64.encode(image);
-        } else {
-            delete content['thumbnail'];
-        }
-    }
-    ImageContent.getThumbnail = function (content) {
-        var base64 = content['thumbnail'];
-        if (base64) {
-            return Base64.decode(base64);
-        } else {
-            return null;
-        }
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -89,8 +72,7 @@
      *      snapshot : "...",          // base64_encode(smallImage)
      *  }
      */
-    var VideoContent = function () {};
-    ns.Interface(VideoContent, [FileContent]);
+    var VideoContent = Interface(null, [FileContent]);
 
     /**
      *  Set small image data
@@ -98,26 +80,10 @@
      * @param {Uint8Array} image data
      */
     VideoContent.prototype.setSnapshot = function (image) {
-        ns.assert(false, 'implement me!');
+        throw new Error('NotImplemented');
     };
     VideoContent.prototype.getSnapshot = function () {
-        ns.assert(false, 'implement me!');
-        return null;
-    };
-    VideoContent.setSnapshot = function (image, content) {
-        if (image/* && image.length > 0*/) {
-            content['snapshot'] = Base64.encode(image);
-        } else {
-            delete content['snapshot'];
-        }
-    }
-    VideoContent.getSnapshot = function (content) {
-        var base64 = content['snapshot'];
-        if (base64) {
-            return Base64.decode(base64);
-        } else {
-            return null;
-        }
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -131,29 +97,23 @@
      *      text     : "...",          // Automatic Speech Recognition
      *  }
      */
-    var AudioContent = function () {};
-    ns.Interface(AudioContent, [FileContent]);
+    var AudioContent = Interface(null, [FileContent]);
 
     /**
      *  Set ASR text
      *
-     * @param {String} asr
+     * @param {string} asr
      */
     AudioContent.prototype.setText = function (asr) {
-        ns.assert(false, 'implement me!');
+        throw new Error('NotImplemented');
     };
     AudioContent.prototype.getText = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     //-------- namespace --------
     ns.protocol.ImageContent = ImageContent;
     ns.protocol.VideoContent = VideoContent;
     ns.protocol.AudioContent = AudioContent;
-
-    ns.protocol.registers('ImageContent');
-    ns.protocol.registers('VideoContent');
-    ns.protocol.registers('AudioContent');
 
 })(DIMP);

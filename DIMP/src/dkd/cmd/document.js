@@ -36,113 +36,80 @@
 (function (ns) {
     'use strict';
 
+    var Interface = ns.type.Interface;
+    var Class = ns.type.Class;
     var ID = ns.protocol.ID;
-    var Meta = ns.protocol.Meta;
     var Document = ns.protocol.Document;
     var Command = ns.protocol.Command;
     var DocumentCommand = ns.protocol.DocumentCommand;
-    var BaseMetaCommand = ns.dkd.BaseMetaCommand;
+    var BaseMetaCommand = ns.dkd.cmd.BaseMetaCommand;
 
     /**
      *  Create document command
      *
      *  Usages:
      *      1. new BaseDocumentCommand(map);
-     *      2. new BaseDocumentCommand(identifier);
-     *      3. new BaseDocumentCommand(identifier, meta);
-     *      4. new BaseDocumentCommand(identifier, meta, document);
-     *      5. new BaseDocumentCommand(identifier, signature);
+     *      2. new BaseDocumentCommand(identifier);             // query
+     *      3. new BaseDocumentCommand(identifier, signature);  // query
+     *      4. new BaseDocumentCommand(identifier, document);
+     *      5. new BaseDocumentCommand(identifier, meta, document);
      */
     var BaseDocumentCommand = function () {
+        var doc = null;
+        var sig = null;
         if (arguments.length === 1) {
-            if (ns.Interface.conforms(arguments[0], ID)) {
+            if (Interface.conforms(arguments[0], ID)) {
                 // new BaseDocumentCommand(identifier);
-                BaseMetaCommand.call(this, Command.DOCUMENT, arguments[0]);
+                BaseMetaCommand.call(this, Command.DOCUMENT, arguments[0], null);
             } else {
                 // new BaseDocumentCommand(map);
                 BaseMetaCommand.call(this, arguments[0]);
             }
-            this.__document = null;
         } else if (arguments.length === 2) {
-            if (ns.Interface.conforms(arguments[1], Meta)) {
-                // new BaseDocumentCommand(identifier, meta);
-                BaseMetaCommand.call(this, Command.DOCUMENT, arguments[0], arguments[1]);
+            if (Interface.conforms(arguments[1], Document)) {
+                // new BaseDocumentCommand(identifier, document);
+                BaseMetaCommand.call(this, Command.DOCUMENT, arguments[0], null);
+                doc = arguments[1];
             } else if (typeof arguments[1] === 'string') {
                 // new BaseDocumentCommand(identifier, signature);
                 BaseMetaCommand.call(this, Command.DOCUMENT, arguments[0], null);
-                this.setSignature(arguments[1]);
+                sig = arguments[1];
             } else {
                 throw new SyntaxError('document command arguments error: ' + arguments);
             }
-            this.__document = null;
         } else if (arguments.length === 3) {
             // new BaseDocumentCommand(identifier, meta, document);
             BaseMetaCommand.call(this, Command.DOCUMENT, arguments[0], arguments[1]);
-            this.setDocument(arguments[2]);
+            doc = arguments[2];
         } else {
             throw new SyntaxError('document command arguments error: ' + arguments);
         }
+        if (doc) {
+            this.setMap('document', doc);
+        }
+        if (sig) {
+            this.setValue('signature', sig);
+        }
+        this.__document = doc;
     };
-    ns.Class(BaseDocumentCommand, BaseMetaCommand, [DocumentCommand], {
-        // Override
-        setDocument: function (doc) {
-            var dict = this.toMap();
-            DocumentCommand.setDocument(doc, dict);
-            this.__document = doc;
-        },
+    Class(BaseDocumentCommand, BaseMetaCommand, [DocumentCommand], {
 
         // Override
         getDocument: function () {
-            if (!this.__document) {
-                var dict = this.toMap();
-                this.__document = DocumentCommand.getDocument(dict);
+            if (this.__document === null) {
+                var doc = this.getValue('document');
+                this.__document = Document.parse(doc);
             }
             return this.__document;
         },
 
         // Override
-        setSignature: function (base64) {
-            var dict = this.toMap();
-            DocumentCommand.setSignature(base64, dict);
-        },
-
-        // Override
         getSignature: function () {
-            var dict = this.toMap();
-            return DocumentCommand.getSignature(dict);
+            return this.getString('signature');
         }
     });
 
-    //
-    //  Factories
-    //
-
-    /**
-     *  Create query command
-     *
-     * @param {ID} identifier
-     * @param {String} signature - OPTIONAL
-     * @returns {DocumentCommand}
-     */
-    DocumentCommand.query = function (identifier, signature) {
-        return new BaseDocumentCommand(identifier, signature);
-    };
-
-    /**
-     *  Create response command
-     *
-     * @param {ID} identifier
-     * @param {Meta} meta - OPTIONAL
-     * @param {Document} doc
-     * @returns {DocumentCommand}
-     */
-    DocumentCommand.response = function (identifier, meta, doc) {
-        return new BaseDocumentCommand(identifier, meta, doc);
-    };
-
     //-------- namespace --------
-    ns.dkd.BaseDocumentCommand = BaseDocumentCommand;
-
-    ns.dkd.registers('BaseDocumentCommand');
+    ns.dkd.cmd.BaseDocumentCommand = BaseDocumentCommand;
 
 })(DIMP);

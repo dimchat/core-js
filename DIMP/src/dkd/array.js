@@ -3,12 +3,12 @@
 //
 //  DIMP : Decentralized Instant Messaging Protocol
 //
-//                               Written in 2020 by Moky <albert.moky@gmail.com>
+//                               Written in 2023 by Moky <albert.moky@gmail.com>
 //
 // =============================================================================
 // The MIT License (MIT)
 //
-// Copyright (c) 2020 Albert Moky
+// Copyright (c) 2023 Albert Moky
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,47 +30,76 @@
 // =============================================================================
 //
 
-//! require 'protocol/text.js'
+//! require 'protocol/array.js'
 
 (function (ns) {
     'use strict';
 
     var Class = ns.type.Class;
     var ContentType = ns.protocol.ContentType;
-    var TextContent = ns.protocol.TextContent;
+    var Content = ns.protocol.Content;
+    var ArrayContent = ns.protocol.ArrayContent;
     var BaseContent = ns.dkd.BaseContent;
 
     /**
-     *  Create text message content
+     *  Create array list content
      *
      *  Usages:
-     *      1. new BaseTextContent(map);
-     *      2. new BaseTextContent(text);
+     *      1. new ListContent(map);
+     *      2. new ListContent(contents);
      */
-    var BaseTextContent = function () {
-        if (typeof arguments[0] === 'string') {
-            // new BaseTextContent(text);
-            BaseContent.call(this, ContentType.TEXT);
-            this.setText(arguments[0]);
+    var ListContent = function () {
+        var info = arguments[0];
+        var list;
+        if (info instanceof Array) {
+            // new ListContent(contents);
+            BaseContent.call(this, ContentType.ARRAY);
+            list = info;
+            this.setValue('contents', ListContent.revert(list));
         } else {
-            // new BaseTextContent(map);
+            // new ListContent(map);
             BaseContent.call(this, arguments[0]);
+            // lazy load
+            list = null;
         }
+        this.__list = list;
     };
-    Class(BaseTextContent, BaseContent, [TextContent], {
+    Class(ListContent, BaseContent, [ArrayContent], {
 
         // Override
-        getText: function () {
-            return this.getString('text');
-        },
-
-        // Override
-        setText: function (text) {
-            this.setValue('text', text);
+        getContents: function () {
+            if (this.__list === null) {
+                var array = this.getValue('contents');
+                if (array) {
+                    this.__list = ListContent.convert(array);
+                } else {
+                    this.__list = [];
+                }
+            }
+            return this.__list;
         }
     });
 
+    ListContent.convert = function (contents) {
+        var array = [];
+        var item;
+        for (var i = 0; i < contents.length; ++i) {
+            item = Content.parse(contents[i]);
+            if (item) {
+                array.push(item);
+            }
+        }
+        return array;
+    };
+    ListContent.revert = function (contents) {
+        var array = [];
+        for (var i = 0; i < contents.length; ++i) {
+            array.push(contents[i].toMap());
+        }
+        return array;
+    };
+
     //-------- namespace --------
-    ns.dkd.BaseTextContent = BaseTextContent;
+    ns.dkd.ListContent = ListContent;
 
 })(DIMP);

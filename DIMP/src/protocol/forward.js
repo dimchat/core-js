@@ -35,8 +35,9 @@
 (function (ns) {
     'use strict';
 
-    var ReliableMessage = ns.protocol.ReliableMessage;
+    var Interface = ns.type.Interface;
     var Content = ns.protocol.Content;
+    var ReliableMessage = ns.protocol.ReliableMessage;
 
     /**
      *  Top-Secret message: {
@@ -44,38 +45,42 @@
      *      sn   : 456,
      *
      *      forward : {...}  // reliable (secure + certified) message
+     *      secrets : [...]  // reliable (secure + certified) messages
      *  }
      */
-    var ForwardContent = function () {};
-    ns.Interface(ForwardContent, [Content]);
+    var ForwardContent = Interface(null, [Content]);
 
     /**
-     *  Set secret message
+     *  Set forward message
      *
-     * @param {ReliableMessage} secret - message to be forwarded
+     * @return {ReliableMessage} message forwarding
      */
-    ForwardContent.prototype.setMessage = function (secret) {
-        ns.assert(false, 'implement me!');
+    ForwardContent.prototype.getForward = function () {
+        throw new Error('NotImplemented');
     };
-    ForwardContent.prototype.getMessage = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+
+    /**
+     *  Set secret messages
+     *
+     * @return {ReliableMessage[]} messages forwarding
+     */
+    ForwardContent.prototype.getSecrets = function () {
+        throw new Error('NotImplemented');
     };
-    ForwardContent.getMessage = function (content) {
-        var secret = content['forward'];
-        return ReliableMessage.parse(secret);
-    };
-    ForwardContent.setMessage = function (secret, content) {
-        if (secret) {
-            content['forward'] = secret.toMap();
-        } else {
-            delete content['forward'];
-        }
+
+    //-------- factory --------
+
+    /**
+     *  Create forward content
+     *
+     * @param {ReliableMessage|ReliableMessage[]} secrets
+     * @return {ForwardContent}
+     */
+    ForwardContent.create = function (secrets) {
+        return new ns.dkd.SecretContent(secrets);
     };
 
     //-------- namespace --------
     ns.protocol.ForwardContent = ForwardContent;
-
-    ns.protocol.registers('ForwardContent');
 
 })(DaoKeDao);

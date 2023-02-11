@@ -35,6 +35,7 @@
 (function (ns) {
     'use strict';
 
+    var Interface = ns.type.Interface;
     var ID = ns.protocol.ID;
     var Meta = ns.protocol.Meta;
     var Command = ns.protocol.Command;
@@ -49,58 +50,49 @@
      *      meta    : {...}   // when meta is empty, means query meta for ID
      *  }
      */
-    var MetaCommand = function () {};
-    ns.Interface(MetaCommand, [Command]);
+    var MetaCommand = Interface(null, [Command]);
 
     /**
-     *  Set entity ID for meta
+     *  Get entity ID for meta
+     *
+     * @return {ID} identifier
+     */
+    MetaCommand.prototype.getIdentifier = function () {
+        throw new Error('NotImplemented');
+    };
+
+    /**
+     *  Get meta info
+     *
+     * @return {Meta} meta
+     */
+    MetaCommand.prototype.getMeta = function () {
+        throw new Error('NotImplemented');
+    };
+
+    //-------- factories --------
+
+    /**
+     *  Create query command
      *
      * @param {ID} identifier
+     * @returns {MetaCommand}
      */
-    MetaCommand.prototype.setIdentifier = function (identifier) {
-        ns.assert(false, 'implement me!');
+    MetaCommand.query = function (identifier) {
+        return new ns.dkd.cmd.BaseMetaCommand(identifier);
     };
-    MetaCommand.prototype.getIdentifier = function () {
-        ns.assert(false, 'implement me!');
-        return null;
-    };
-    MetaCommand.setIdentifier = function (identifier, cmd) {
-        if (identifier) {
-            cmd['ID'] = identifier.toString();
-        } else {
-            delete cmd['ID'];
-        }
-    };
-    MetaCommand.getIdentifier = function (cmd) {
-        return ID.parse(cmd['ID']);
-    };
-
     /**
-     *  Set meta info
+     *  Create response command
      *
+     * @param {ID} identifier
      * @param {Meta} meta
+     * @returns {MetaCommand}
      */
-    MetaCommand.prototype.setMeta = function (meta) {
-        ns.assert(false, 'implement me!');
-    };
-    MetaCommand.prototype.getMeta = function () {
-        ns.assert(false, 'implement me!');
-        return null;
-    };
-    MetaCommand.setMeta = function (meta, cmd) {
-        if (meta) {
-            cmd['meta'] = meta.toMap();
-        } else {
-            delete cmd['meta'];
-        }
-    };
-    MetaCommand.getMeta = function (cmd) {
-        return Meta.parse(cmd['meta']);
+    MetaCommand.response = function (identifier, meta) {
+        return new ns.dkd.cmd.BaseMetaCommand(identifier, meta);
     };
 
     //-------- namespace --------
     ns.protocol.MetaCommand = MetaCommand;
-
-    ns.protocol.registers('MetaCommand');
 
 })(DIMP);

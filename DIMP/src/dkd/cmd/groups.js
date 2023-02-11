@@ -48,6 +48,8 @@
 (function (ns) {
     'use strict';
 
+    var Interface = ns.type.Interface;
+    var Class = ns.type.Class;
     var ID = ns.protocol.ID;
     var GroupCommand = ns.protocol.GroupCommand;
     var InviteCommand = ns.protocol.group.InviteCommand;
@@ -71,12 +73,7 @@
             BaseGroupCommand.call(this, GroupCommand.INVITE, arguments[0], arguments[1]);
         }
     };
-    ns.Class(InviteGroupCommand, BaseGroupCommand, [InviteCommand], {
-        // Override
-        getInviteMembers: function () {
-            return this.getMembers();
-        }
-    });
+    Class(InviteGroupCommand, BaseGroupCommand, [InviteCommand], null);
 
     //
     //  Expel group command
@@ -91,18 +88,13 @@
             BaseGroupCommand.call(this, GroupCommand.EXPEL, arguments[0], arguments[1]);
         }
     };
-    ns.Class(ExpelGroupCommand, BaseGroupCommand, [ExpelCommand], {
-        // Override
-        getExpelMembers: function () {
-            return this.getMembers();
-        }
-    });
+    Class(ExpelGroupCommand, BaseGroupCommand, [ExpelCommand], null);
 
     //
     //  Join group command
     //
     var JoinGroupCommand = function () {
-        if (ns.Interface.conforms(arguments[0], ID)) {
+        if (Interface.conforms(arguments[0], ID)) {
             // new JoinGroupCommand(group);
             BaseGroupCommand.call(this, GroupCommand.JOIN, arguments[0]);
         } else {
@@ -110,18 +102,13 @@
             BaseGroupCommand.call(this, arguments[0]);
         }
     };
-    ns.Class(JoinGroupCommand, BaseGroupCommand, [JoinCommand], {
-        // Override
-        getAsk: function () {
-            return this.getValue('text');
-        }
-    });
+    Class(JoinGroupCommand, BaseGroupCommand, [JoinCommand], null);
 
     //
     //  Quit group command
     //
     var QuitGroupCommand = function () {
-        if (ns.Interface.conforms(arguments[0], ID)) {
+        if (Interface.conforms(arguments[0], ID)) {
             // new QuitGroupCommand(group);
             BaseGroupCommand.call(this, GroupCommand.QUIT, arguments[0]);
         } else {
@@ -129,12 +116,7 @@
             BaseGroupCommand.call(this, arguments[0]);
         }
     };
-    ns.Class(QuitGroupCommand, BaseGroupCommand, [QuitCommand], {
-        // Override
-        getBye: function () {
-            return this.getValue('text');
-        }
-    });
+    Class(QuitGroupCommand, BaseGroupCommand, [QuitCommand], null);
 
     //
     //  Reset group command
@@ -148,18 +130,13 @@
             BaseGroupCommand.call(this, GroupCommand.RESET, arguments[0], arguments[1]);
         }
     };
-    ns.Class(ResetGroupCommand, BaseGroupCommand, [ResetCommand], {
-        // Override
-        getAllMembers: function () {
-            return this.getMembers();
-        }
-    });
+    Class(ResetGroupCommand, BaseGroupCommand, [ResetCommand], null);
 
     //
     //  Query group command
     //
     var QueryGroupCommand = function () {
-        if (ns.Interface.conforms(arguments[0], ID)) {
+        if (Interface.conforms(arguments[0], ID)) {
             // new QueryGroupCommand(group);
             BaseGroupCommand.call(this, GroupCommand.QUERY, arguments[0]);
         } else {
@@ -167,95 +144,19 @@
             BaseGroupCommand.call(this, arguments[0]);
         }
     };
-    ns.Class(QueryGroupCommand, BaseGroupCommand, [QueryCommand], {
-        // Override
-        getText: function () {
-            return this.getValue('text');
-        }
-    });
+    Class(QueryGroupCommand, BaseGroupCommand, [QueryCommand], null);
 
     //
     //  Factories
     //
 
-    /**
-     *  Create invite group command
-     *
-     * @param {ID} group
-     * @param {ID|ID[]} members
-     * @return {InviteCommand}
-     */
-    GroupCommand.invite = function (group, members) {
-        return new InviteGroupCommand(group, members);
-    };
-
-    /**
-     *  Create expel group command
-     *
-     * @param {ID} group
-     * @param {ID|ID[]} members
-     * @return {ExpelCommand}
-     */
-    GroupCommand.expel = function (group, members) {
-        return new ExpelGroupCommand(group, members);
-    };
-
-    /**
-     *  Create join group command
-     *
-     * @param {ID} group
-     * @return {JoinCommand}
-     */
-    GroupCommand.join = function (group) {
-        return new JoinGroupCommand(group);
-    };
-
-    /**
-     *  Create quit group command
-     *
-     * @param {ID} group
-     * @return {QuitCommand}
-     */
-    GroupCommand.quit = function (group) {
-        return new QuitGroupCommand(group);
-    };
-
-    /**
-     *  Create reset group command
-     *
-     * @param {ID} group
-     * @param {ID[]} members
-     * @return {ResetCommand}
-     */
-    GroupCommand.reset = function (group, members) {
-        return new ResetGroupCommand(group, members);
-    };
-
-    /**
-     *  Create query group command
-     *
-     * @param {ID} group
-     * @return {QueryCommand}
-     */
-    GroupCommand.query = function (group) {
-        return new QueryGroupCommand(group);
-    };
-
     //-------- namespace --------
-    ns.dkd.InviteGroupCommand = InviteGroupCommand;
-    ns.dkd.ExpelGroupCommand = ExpelGroupCommand;
-    ns.dkd.JoinGroupCommand = JoinGroupCommand;
-    ns.dkd.QuitGroupCommand = QuitGroupCommand;
+    ns.dkd.cmd.InviteGroupCommand = InviteGroupCommand;
+    ns.dkd.cmd.ExpelGroupCommand = ExpelGroupCommand;
+    ns.dkd.cmd.JoinGroupCommand = JoinGroupCommand;
+    ns.dkd.cmd.QuitGroupCommand = QuitGroupCommand;
 
-    ns.dkd.ResetGroupCommand = ResetGroupCommand;
-    ns.dkd.QueryGroupCommand = QueryGroupCommand;
-
-    ns.dkd.registers('InviteGroupCommand');
-    ns.dkd.registers('ExpelGroupCommand');
-    ns.dkd.registers('JoinGroupCommand');
-    ns.dkd.registers('QuitGroupCommand');
-
-    ns.dkd.registers('ResetGroupCommand');
-    ns.dkd.registers('QueryGroupCommand');
+    ns.dkd.cmd.ResetGroupCommand = ResetGroupCommand;
+    ns.dkd.cmd.QueryGroupCommand = QueryGroupCommand;
 
 })(DIMP);

@@ -129,7 +129,8 @@
 
         // Override
         getGroup: function () {
-            return get_id(this, 'group');
+            var group = this.getValue('group');
+            return ID.parse(group);
         },
 
         // Override
@@ -137,10 +138,6 @@
             this.setString('group', identifier);
         }
     });
-
-    var get_id = function (dict, key) {
-        return ID.parse(this.getValue(key))
-    };
 
     var get_time = function (dict, key) {
         return Dictionary.prototype.getTime.call(dict, key);

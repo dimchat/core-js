@@ -3,12 +3,12 @@
 //
 //  DIMP : Decentralized Instant Messaging Protocol
 //
-//                               Written in 2020 by Moky <albert.moky@gmail.com>
+//                               Written in 2023 by Moky <albert.moky@gmail.com>
 //
 // =============================================================================
 // The MIT License (MIT)
 //
-// Copyright (c) 2020 Albert Moky
+// Copyright (c) 2023 Albert Moky
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,65 +30,35 @@
 // =============================================================================
 //
 
-/**
- *  Group history command: {
- *      type : 0x89,
- *      sn   : 123,
- *
- *      command : "invite",      // expel, ...
- *      group   : "{GROUP_ID}",
- *      member  : "{MEMBER_ID}",
- *      members : ["{MEMBER_ID}", ],
- *  }
- */
-
-//! require 'group.js'
+//! require 'namespace.js'
 
 (function (ns) {
     'use strict';
 
     var Interface = ns.type.Interface;
-    var GroupCommand = ns.protocol.GroupCommand;
-
-    //
-    //  Invite group command
-    //
-    var InviteCommand = Interface(null, [GroupCommand]);
-
-    //
-    //  Expel group command
-    //
-    var ExpelCommand = Interface(null, [GroupCommand]);
-
-    //
-    //  Join group command
-    //
-    var JoinCommand = Interface(null, [GroupCommand]);
-
-    //
-    //  Quit group command
-    //
-    var QuitCommand = Interface(null, [GroupCommand]);
-
-    //
-    //  Reset group command
-    //
-    var ResetCommand = Interface(null, [GroupCommand]);
+    var Content = ns.protocol.Content;
 
     /**
-     *  NOTICE:
-     *      This command is just for querying group info,
-     *      should not be saved in group history
+     *  Content Array message: {
+     *      type : 0xCA,
+     *      sn   : 123,
+     *
+     *      contents : [...]  // content array
+     *  }
      */
-    var QueryCommand = Interface(null, [GroupCommand]);
+    var ArrayContent = Interface(null, [Content]);
+
+    ArrayContent.prototype.getContents = function () {
+        throw new Error('NotImplemented');
+    };
+
+    //-------- factory --------
+
+    ArrayContent.create = function (contents) {
+        return new ns.dkd.ListContent(contents);
+    };
 
     //-------- namespace --------
-    ns.protocol.group.InviteCommand = InviteCommand;
-    ns.protocol.group.ExpelCommand = ExpelCommand;
-    ns.protocol.group.JoinCommand = JoinCommand;
-    ns.protocol.group.QuitCommand = QuitCommand;
-
-    ns.protocol.group.ResetCommand = ResetCommand;
-    ns.protocol.group.QueryCommand = QueryCommand;
+    ns.protocol.ArrayContent = ArrayContent;
 
 })(DIMP);

@@ -35,6 +35,7 @@
 (function (ns) {
     'use strict';
 
+    var Interface = ns.type.Interface;
     var Content = ns.protocol.Content;
 
     /**
@@ -42,68 +43,64 @@
      *      type : 0x88,
      *      sn   : 123,
      *
-     *      command : "...", // command name
+     *      cmd     : "...", // command name
      *      extra   : info   // command parameters
      *  }
      */
-    var Command = function () {};
-    ns.Interface(Command, [Content]);
+    var Command = Interface(null, [Content]);
 
-    //-------- command names --------
+    //-------- command names begin --------
     Command.META      = 'meta';
     Command.DOCUMENT  = 'document';
-    Command.RECEIPT   = 'receipt';
-    Command.HANDSHAKE = 'handshake';
-    Command.LOGIN     = 'login';
+    //-------- command names end --------
 
     /**
      *  Command name
      *
      * @returns {String}
      */
-    Command.prototype.getCommand = function () {
-        ns.assert(false, 'implement me!');
-        return '';
-    };
-    Command.getCommand = function (cmd) {
-        return cmd['command'];
+    Command.prototype.getCmd = function () {
+        throw new Error('NotImplemented');
     };
 
     /**
      *  Command Factory
      *  ~~~~~~~~~~~~~~~
      */
-    var CommandFactory = function () {};
-    ns.Interface(CommandFactory, null);
+    var CommandFactory = Interface(null, null);
 
     CommandFactory.prototype.parseCommand = function (cmd) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     Command.Factory = CommandFactory;
 
-    //
-    //  Instances of CommandFactory
-    //
-    var s_command_factories = {};  // String -> CommandFactory
+    var general_factory = function () {
+        var man = ns.dkd.cmd.FactoryManager;
+        return man.generalFactory;
+    };
 
     /**
      *  Register command factory with name
      *
-     * @param {String} name
+     * @param {String} cmd
      * @param {CommandFactory} factory
      */
-    Command.setFactory = function (name, factory) {
-        s_command_factories[name] = factory;
+    Command.setFactory = function (cmd, factory) {
+        var gf = general_factory();
+        gf.setCommandFactory(cmd, factory);
     };
-    Command.getFactory = function (name) {
-        return s_command_factories[name];
-    }
+    Command.getFactory = function (cmd) {
+        var gf = general_factory();
+        return gf.getCommandFactory(cmd);
+    };
+
+    Command.parse = function (command) {
+        var gf = general_factory();
+        return gf.parseCommand(command);
+    };
 
     //-------- namespace --------
     ns.protocol.Command = Command;
-
-    ns.protocol.registers('Command');
 
 })(DIMP);

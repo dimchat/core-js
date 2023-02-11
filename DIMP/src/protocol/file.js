@@ -35,8 +35,7 @@
 (function (ns) {
     'use strict';
 
-    var Base64 = ns.format.Base64;
-    var SymmetricKey = ns.crypto.SymmetricKey;
+    var Interface = ns.type.Interface;
     var Content = ns.protocol.Content;
 
     /**
@@ -50,52 +49,29 @@
      *      password : {},             // message.key for decrypting file data
      *  }
      */
-    var FileContent = function () {};
-    ns.Interface(FileContent, [Content]);
+    var FileContent = Interface(null, [Content]);
 
     /**
      *  Set uploaded URL (CDN)
-     * @param {String} url
+     * @param {string} url
      */
     FileContent.prototype.setURL = function (url) {
-        ns.assert(false, 'implement me!');
+        throw new Error('NotImplemented');
     };
     FileContent.prototype.getURL = function () {
-        ns.assert(false, 'implement me!');
-        return null;
-    };
-    FileContent.setURL = function (url, content) {
-        if (url/* && url.indexOf('://') > 0*/) {
-            content['URL'] = url;
-        } else {
-            delete content['URL'];
-        }
-    };
-    FileContent.getURL = function (content) {
-        return content['URL'];
+        throw new Error('NotImplemented');
     };
 
     /**
      *  Set filename
      *
-     * @param {String} filename
+     * @return {string} filename
      */
-    FileContent.prototype.setFilename = function (filename) {
-        ns.assert(false, 'implement me!');
-    };
     FileContent.prototype.getFilename = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
-    FileContent.setFilename = function (filename, content) {
-        if (filename/* && filename.length > 0*/) {
-            content['filename'] = filename;
-        } else {
-            delete content['filename'];
-        }
-    };
-    FileContent.getFilename = function (content) {
-        return content['filename'];
+    FileContent.prototype.setFilename = function (filename) {
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -104,29 +80,13 @@
      *  File data will not include in the message content.
      *  The sender should upload it to CDN before sending message out.
      *
-     * @param {Uint8Array} data
+     * @return {Uint8Array} data
      */
-    FileContent.prototype.setData = function (data) {
-        ns.assert(false, 'implement me!');
-    };
     FileContent.prototype.getData = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
-    FileContent.setData = function (data, content) {
-        if (data/* && data.length > 0*/) {
-            content['data'] = Base64.encode(data);
-        } else {
-            delete content['data'];
-        }
-    };
-    FileContent.getData = function (content) {
-        var base64 = content['data'];
-        if (base64/* && base64.length > 0*/) {
-            return Base64.decode(base64);
-        } else {
-            return null;
-        }
+    FileContent.prototype.setData = function (data) {
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -135,27 +95,59 @@
      * @param {DecryptKey} key - symmetric key to decrypt file data
      */
     FileContent.prototype.setPassword = function (key) {
-        ns.assert(false, 'implement me!');
+        throw new Error('NotImplemented');
     };
     FileContent.prototype.getPassword = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
-    FileContent.setPassword = function (key, content) {
-        if (key) {
-            content['password'] = key.toMap();
-        } else {
-            delete content['password'];
-        }
+
+    //-------- factories --------
+
+    /**
+     *  Create file content
+     *
+     * @param {string} filename
+     * @param {Uint8Array|string} data
+     * @return {FileContent}
+     */
+    FileContent.file = function (filename, data) {
+        return new ns.dkd.BaseFileContent(filename, data);
     };
-    FileContent.getPassword = function (content) {
-        var key = content['password'];
-        return SymmetricKey.parse(key);
+
+    /**
+     *  Create image content
+     *
+     * @param {string} filename
+     * @param {Uint8Array|string} data
+     * @return {ImageContent}
+     */
+    FileContent.image = function (filename, data) {
+        return new ns.dkd.ImageFileContent(filename, data);
+    };
+
+    /**
+     *  Create audio content
+     *
+     * @param {string} filename
+     * @param {Uint8Array|string} data
+     * @return {AudioContent}
+     */
+    FileContent.audio = function (filename, data) {
+        return new ns.dkd.AudioFileContent(filename, data);
+    };
+
+    /**
+     *  Create video content
+     *
+     * @param {string} filename
+     * @param {Uint8Array|string} data
+     * @return {VideoContent}
+     */
+    FileContent.video = function (filename, data) {
+        return new ns.dkd.VideoFileContent(filename, data);
     };
 
     //-------- namespace --------
     ns.protocol.FileContent = FileContent;
-
-    ns.protocol.registers('FileContent');
 
 })(DIMP);

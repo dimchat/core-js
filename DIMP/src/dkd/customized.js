@@ -3,12 +3,12 @@
 //
 //  DIMP : Decentralized Instant Messaging Protocol
 //
-//                               Written in 2020 by Moky <albert.moky@gmail.com>
+//                               Written in 2023 by Moky <albert.moky@gmail.com>
 //
 // =============================================================================
 // The MIT License (MIT)
 //
-// Copyright (c) 2020 Albert Moky
+// Copyright (c) 2023 Albert Moky
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,47 +30,73 @@
 // =============================================================================
 //
 
-//! require 'protocol/text.js'
+//! require 'protocol/customized.js'
 
 (function (ns) {
     'use strict';
 
     var Class = ns.type.Class;
     var ContentType = ns.protocol.ContentType;
-    var TextContent = ns.protocol.TextContent;
+    var CustomizedContent = ns.protocol.CustomizedContent;
     var BaseContent = ns.dkd.BaseContent;
 
     /**
-     *  Create text message content
+     *  Create app customized content
      *
      *  Usages:
-     *      1. new BaseTextContent(map);
-     *      2. new BaseTextContent(text);
+     *      1. new AppCustomizedContent(map);
+     *      2. new AppCustomizedContent(app, mod, act);
+     *      3. new AppCustomizedContent(type, app, mod, act);
      */
-    var BaseTextContent = function () {
-        if (typeof arguments[0] === 'string') {
-            // new BaseTextContent(text);
-            BaseContent.call(this, ContentType.TEXT);
-            this.setText(arguments[0]);
-        } else {
-            // new BaseTextContent(map);
+    var AppCustomizedContent = function () {
+        var app = null;
+        var mod = null;
+        var act = null;
+        if (arguments.length === 1) {
+            // new AppCustomizedContent(map);
             BaseContent.call(this, arguments[0]);
+        } else if (arguments.length === 3) {
+            // new AppCustomizedContent(app, mod, act);
+            BaseContent.call(this, ContentType.CUSTOMIZED);
+            app = arguments[0];
+            mod = arguments[1];
+            act = arguments[2];
+        } else {
+            // new AppCustomizedContent(type, app, mod, act);
+            BaseContent.call(this, arguments[0]);
+            app = arguments[1];
+            mod = arguments[2];
+            act = arguments[3];
+        }
+        if (app) {
+            this.setValue('app', app);
+        }
+        if (mod) {
+            this.setValue('mod', mod);
+        }
+        if (act) {
+            this.setValue('act', act);
         }
     };
-    Class(BaseTextContent, BaseContent, [TextContent], {
+    Class(AppCustomizedContent, BaseContent, [CustomizedContent], {
 
         // Override
-        getText: function () {
-            return this.getString('text');
+        getApplication: function () {
+            return this.getString('app');
         },
 
         // Override
-        setText: function (text) {
-            this.setValue('text', text);
+        getModule: function () {
+            return this.getString('mod');
+        },
+
+        // Override
+        getAction: function () {
+            return this.getString('act');
         }
     });
 
     //-------- namespace --------
-    ns.dkd.BaseTextContent = BaseTextContent;
+    ns.dkd.AppCustomizedContent = AppCustomizedContent;
 
 })(DIMP);

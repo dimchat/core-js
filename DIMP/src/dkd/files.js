@@ -36,8 +36,9 @@
 (function (ns) {
     'use strict';
 
+    var Class = ns.type.Class;
+    var Base64 = ns.format.Base64;
     var ContentType = ns.protocol.ContentType;
-    var FileContent = ns.protocol.FileContent;
     var ImageContent = ns.protocol.ImageContent;
     var VideoContent = ns.protocol.VideoContent;
     var AudioContent = ns.protocol.AudioContent;
@@ -47,39 +48,41 @@
      *  Create image content
      *
      *  Usages:
-     *      1. new ImageFileContent();
-     *      2. new ImageFileContent(map);
-     *      3. new ImageFileContent(filename, data);
+     *      1. new ImageFileContent(map);
+     *      2. new ImageFileContent(filename, data);
      */
     var ImageFileContent = function () {
-        if (arguments.length === 0) {
-            // new ImageFileContent();
-            BaseFileContent.call(this, ContentType.IMAGE);
-        } else if (arguments.length === 1) {
+        if (arguments.length === 1) {
             // new ImageFileContent(map);
             BaseFileContent.call(this, arguments[0]);
         } else if (arguments.length === 2) {
             // new ImageFileContent(filename, data);
             BaseFileContent.call(this, ContentType.IMAGE, arguments[0], arguments[1]);
         } else {
-            throw new SyntaxError('image content arguments error: ' + arguments);
+            throw new SyntaxError('Image content arguments error: ' + arguments);
         }
         this.__thumbnail = null;
     };
-    ns.Class(ImageFileContent, BaseFileContent, [ImageContent], {
+    Class(ImageFileContent, BaseFileContent, [ImageContent], {
+
         // Override
         getThumbnail: function () {
-            if (!this.__thumbnail) {
-                var dict = this.toMap();
-                this.__thumbnail = ImageContent.getThumbnail(dict);
+            if (this.__thumbnail === null) {
+                var base64 = this.getString('thumbnail');
+                if (base64) {
+                    this.__thumbnail = Base64.decode(base64);
+                }
             }
             return this.__thumbnail;
         },
 
         // Override
         setThumbnail: function (image) {
-            var dict = this.toMap();
-            ImageContent.setThumbnail(image, dict);
+            if (image && image.length > 0) {
+                this.setValue('thumbnail', Base64.encode(image));
+            } else {
+                this.removeValue('thumbnail');
+            }
             this.__thumbnail = image;
         }
     });
@@ -88,39 +91,41 @@
      *  Create video message content
      *
      *  Usages:
-     *      1. new VideoFileContent();
-     *      2. new VideoFileContent(map);
-     *      3. new VideoFileContent(filename, data);
+     *      1. new VideoFileContent(map);
+     *      2. new VideoFileContent(filename, data);
      */
     var VideoFileContent = function () {
-        if (arguments.length === 0) {
-            // new VideoFileContent();
-            BaseFileContent.call(this, ContentType.VIDEO);
-        } else if (arguments.length === 1) {
+        if (arguments.length === 1) {
             // new VideoFileContent(map);
             BaseFileContent.call(this, arguments[0]);
         } else if (arguments.length === 2) {
             // new VideoFileContent(filename, data);
             BaseFileContent.call(this, ContentType.VIDEO, arguments[0], arguments[1]);
         } else {
-            throw new SyntaxError('video content arguments error: ' + arguments);
+            throw new SyntaxError('Video content arguments error: ' + arguments);
         }
         this.__snapshot = null;
     };
-    ns.Class(VideoFileContent, BaseFileContent, [VideoContent], {
+    Class(VideoFileContent, BaseFileContent, [VideoContent], {
+
         // Override
         getSnapshot: function () {
-            if (!this.__snapshot) {
-                var dict = this.toMap();
-                this.__snapshot = VideoContent.getSnapshot(dict);
+            if (this.__snapshot === null) {
+                var base64 = this.getString('snapshot');
+                if (base64) {
+                    this.__snapshot = Base64.decode(base64);
+                }
             }
             return this.__snapshot;
         },
 
         // Override
         setSnapshot: function (image) {
-            var dict = this.toMap();
-            VideoContent.setSnapshot(image, dict);
+            if (image && image.length > 0) {
+                this.setValue('snapshot', Base64.encode(image));
+            } else {
+                this.removeValue('snapshot');
+            }
             this.__snapshot = image;
         }
     });
@@ -129,28 +134,25 @@
      *  Create audio message content
      *
      *  Usages:
-     *      1. new AudioFileContent();
-     *      2. new AudioFileContent(map);
-     *      3. new AudioFileContent(filename, data);
+     *      1. new AudioFileContent(map);
+     *      2. new AudioFileContent(filename, data);
      */
     var AudioFileContent = function () {
-        if (arguments.length === 0) {
-            // new AudioFileContent();
-            BaseFileContent.call(this, ContentType.AUDIO);
-        } else if (arguments.length === 1) {
+        if (arguments.length === 1) {
             // new AudioFileContent(map);
             BaseFileContent.call(this, arguments[0]);
         } else if (arguments.length === 2) {
             // new AudioFileContent(filename, data);
             BaseFileContent.call(this, ContentType.AUDIO, arguments[0], arguments[1]);
         } else {
-            throw new SyntaxError('audio content arguments error: ' + arguments);
+            throw new SyntaxError('Audio content arguments error: ' + arguments);
         }
     };
-    ns.Class(AudioFileContent, BaseFileContent, [AudioContent], {
+    Class(AudioFileContent, BaseFileContent, [AudioContent], {
+
         // Override
         getText: function () {
-            return this.getValue('text');
+            return this.getString('text');
         },
 
         // Override
@@ -163,57 +165,9 @@
     //  Factories
     //
 
-    /**
-     *  Create file content
-     *
-     * @param {String} filename
-     * @param {Uint8Array} data
-     * @return {FileContent}
-     */
-    FileContent.file = function (filename, data) {
-        return new BaseFileContent(filename, data);
-    };
-
-    /**
-     *  Create image content
-     *
-     * @param {String} filename
-     * @param {Uint8Array} data
-     * @return {ImageContent}
-     */
-    FileContent.image = function (filename, data) {
-        return new ImageFileContent(filename, data);
-    };
-
-    /**
-     *  Create audio content
-     *
-     * @param {String} filename
-     * @param {Uint8Array} data
-     * @return {AudioContent}
-     */
-    FileContent.audio = function (filename, data) {
-        return new AudioFileContent(filename, data);
-    };
-
-    /**
-     *  Create video content
-     *
-     * @param {String} filename
-     * @param {Uint8Array} data
-     * @return {VideoContent}
-     */
-    FileContent.video = function (filename, data) {
-        return new VideoFileContent(filename, data);
-    };
-
     //-------- namespace --------
     ns.dkd.ImageFileContent = ImageFileContent;
     ns.dkd.VideoFileContent = VideoFileContent;
     ns.dkd.AudioFileContent = AudioFileContent;
-
-    ns.dkd.registers('ImageFileContent');
-    ns.dkd.registers('VideoFileContent');
-    ns.dkd.registers('AudioFileContent');
 
 })(DIMP);

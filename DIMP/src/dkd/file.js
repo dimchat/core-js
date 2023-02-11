@@ -35,6 +35,9 @@
 (function (ns) {
     'use strict';
 
+    var Class = ns.type.Class;
+    var Base64 = ns.format.Base64;
+    var SymmetricKey = ns.crypto.SymmetricKey;
     var ContentType = ns.protocol.ContentType;
     var FileContent = ns.protocol.FileContent;
     var BaseContent = ns.dkd.BaseContent;
@@ -43,90 +46,101 @@
      *  Create file content
      *
      *  Usages:
-     *      1. new BaseFileContent();
-     *      2. new BaseFileContent(map);
-     *      3. new BaseFileContent(type);
-     *      4. new BaseFileContent(filename, data);
-     *      5. new BaseFileContent(type, filename, data);
+     *      1. new BaseFileContent(map);
+     *      2. new BaseFileContent(filename, data);
+     *      3. new BaseFileContent(type, filename, data);
      */
     var BaseFileContent = function () {
-        if (arguments.length === 0) {
-            // new BaseFileContent();
-            BaseContent.call(this, ContentType.FILE);
-            this.__data = null;
-        } else if (arguments.length === 1) {
+        var filename = null;
+        var data = null;
+        if (arguments.length === 1) {
             // new BaseFileContent(map);
-            // new BaseFileContent(type);
             BaseContent.call(this, arguments[0]);
-            this.__data = null;
         } else if (arguments.length === 2) {
             // new BaseFileContent(filename, data);
             BaseContent.call(this, ContentType.FILE);
-            this.setFilename(arguments[0]);
-            this.setData(arguments[1]);
+            filename = arguments[0];
+            data = arguments[1];
         } else if (arguments.length === 3) {
             // new BaseFileContent(type, filename, data);
             BaseContent.call(this, arguments[0]);
-            this.setFilename(arguments[1]);
-            this.setData(arguments[2]);
+            filename = arguments[1];
+            data = arguments[2];
         } else {
-            throw new SyntaxError('file content arguments error: ' + arguments);
+            throw new SyntaxError('File content arguments error: ' + arguments);
         }
+        if (filename) {
+            this.setValue('filename', filename);
+        }
+        if (data) {
+            var base64 = null;
+            if (typeof data === 'string') {
+                base64 = data;
+                data = null;
+            } else if (data instanceof Uint8Array) {
+                base64 = Base64.encode(data);
+            } else {
+                throw TypeError('file data error: ' + (typeof data));
+            }
+            this.setValue('data', base64);
+        }
+        this.__data = data;
         this.__password = null;  // symmetric key for decrypting file data
     };
-    ns.Class(BaseFileContent, BaseContent, [FileContent], {
+    Class(BaseFileContent, BaseContent, [FileContent], {
+
         // Override
         setURL: function (url) {
-            var dict = this.toMap();
-            FileContent.setURL(url, dict);
+            this.setValue('URL', url);
         },
 
         // Override
         getURL: function () {
-            var dict = this.toMap();
-            return FileContent.getURL(dict);
+            return this.getString('URL');
         },
 
         // Override
         setFilename: function (filename) {
-            var dict = this.toMap();
-            FileContent.setFilename(filename, dict)
+            this.setValue('filename');
         },
 
         // Override
         getFilename: function () {
-            var dict = this.toMap();
-            return FileContent.getFilename(dict);
+            return this.getString('filename');
         },
 
         // Override
         setData: function (data) {
-            var dict = this.toMap();
-            FileContent.setData(data, dict);
+            if (data && data.length > 0) {
+                this.setValue('data', Base64.encode(data));
+            } else {
+                this.removeValue('data');
+            }
             this.__data = data;
         },
 
         // Override
         getData: function () {
-            if (!this.__data) {
-                var dict = this.toMap();
-                this.__data = FileContent.getData(dict);
+            if (this.__data === null) {
+                var base64 = this.getString('data');
+                if (base64) {
+                    this.__data = Base64.decode(base64);
+                }
             }
             return this.__data;
         },
 
         // Override
         setPassword: function (key) {
-            var dict = this.toMap();
-            FileContent.setPassword(key, dict);
+            this.setMap('password', key);
             this.__password = key;
         },
 
         // Override
         getPassword: function () {
-            if (!this.__password) {
-                var dict = this.toMap();
-                this.__password = FileContent.getPassword(dict);
+            if (this.__password === null) {
+                var key = this.getValue('password');
+                this.__password = SymmetricKey.parse(key);
             }
             return this.__password;
         }
@@ -134,7 +148,5 @@
 
     //-------- namespace --------
     ns.dkd.BaseFileContent = BaseFileContent;
-
-    ns.dkd.registers('BaseFileContent');
 
 })(DIMP);

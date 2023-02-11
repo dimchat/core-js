@@ -35,7 +35,7 @@
 (function (ns) {
     'use strict';
 
-    var Base64 = ns.format.Base64;
+    var Interface = ns.type.Interface;
     var Content = ns.protocol.Content;
 
     /**
@@ -49,75 +49,42 @@
      *      desc  : "..."
      *  }
      */
-    var PageContent = function () {};
-    ns.Interface(PageContent, [Content]);
+    var PageContent = Interface(null, [Content]);
 
     /**
-     *  Set webpage URL
-     * @param {String} url
+     *  Get Webpage URL
+     *
+     * @return {string} url
      */
-    PageContent.prototype.setURL = function (url) {
-        ns.assert(false, 'implement me!');
-    };
     PageContent.prototype.getURL = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
-    PageContent.getURL = function (content) {
-        return content['URL'];
-    };
-    PageContent.setURL = function (url, content) {
-        if (url/* && url.indexOf('://') > 0*/) {
-            content['URL'] = url;
-        } else {
-            delete content['URL'];
-        }
+    PageContent.prototype.setURL = function (url) {
+        throw new Error('NotImplemented');
     };
 
     /**
      *  Set webpage title
      *
-     * @param {String} title
+     * @param {string} title
      */
     PageContent.prototype.setTitle = function (title) {
-        ns.assert(false, 'implement me!');
+        throw new Error('NotImplemented');
     };
     PageContent.prototype.getTitle = function () {
-        ns.assert(false, 'implement me!');
-        return null;
-    };
-    PageContent.getTitle = function (content) {
-        return content['title'];
-    };
-    PageContent.setTitle = function (title, content) {
-        if (title/* && title.length > 0*/) {
-            content['title'] = title;
-        } else {
-            delete content['title'];
-        }
+        throw new Error('NotImplemented');
     };
 
     /**
      *  Get webpage description
      *
-     * @param {String} text
+     * @param {string} text
      */
     PageContent.prototype.setDesc = function (text) {
-        ns.assert(false, 'implement me!');
+        throw new Error('NotImplemented');
     };
     PageContent.prototype.getDesc = function () {
-        ns.assert(false, 'implement me!');
-        return null;
-    };
-    PageContent.getDesc = function (content) {
-        return content['desc'];
-    };
-    PageContent.setDesc = function (text, content) {
-        if (text/* && text.length > 0*/) {
-            content['desc'] = text;
-        } else {
-            delete content['desc'];
-        }
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -126,31 +93,13 @@
      * @param {Uint8Array} image
      */
     PageContent.prototype.setIcon = function (image) {
-        ns.assert(false, 'implement me!');
+        throw new Error('NotImplemented');
     };
     PageContent.prototype.getIcon = function () {
-        ns.assert(false, 'implement me!');
-        return null;
-    };
-    PageContent.setIcon = function (image, content) {
-        if (image/* && image.length > 0*/) {
-            content['icon'] = Base64.encode(image);
-        } else {
-            delete content['icon'];
-        }
-    };
-    PageContent.getIcon = function (content) {
-        var base64 = content['icon'];
-        if (base64/* && base64.length > 0*/) {
-            return Base64.decode(base64);
-        } else {
-            return null;
-        }
+        throw new Error('NotImplemented');
     };
 
     //-------- namespace --------
     ns.protocol.PageContent = PageContent;
-
-    ns.protocol.registers('PageContent');
 
 })(DIMP);

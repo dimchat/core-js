@@ -35,6 +35,7 @@
 (function (ns) {
     'use strict';
 
+    var Interface = ns.type.Interface;
     var Command = ns.protocol.Command;
 
     /**
@@ -42,30 +43,20 @@
      *      type : 0x89,
      *      sn   : 123,
      *
-     *      command : "...", // command name
+     *      cmd     : "...", // command name
      *      time    : 0,     // command timestamp
      *      extra   : info   // command parameters
      *  }
      */
-    var HistoryCommand = function () {};
-    ns.Interface(HistoryCommand, [Command]);
+    var HistoryCommand = Interface(null, [Command]);
 
-    HistoryCommand.prototype.getHistoryEvent = function () {
-        ns.assert(false, 'implement me!');
-        return null;
-    };
-    HistoryCommand.getHistoryEvent = function (cmd) {
-        return cmd['event'];
-    };
-
-    //-------- history command names --------
+    //-------- history command names begin --------
     // account
     HistoryCommand.REGISTER = 'register';
     HistoryCommand.SUICIDE  = 'suicide';
+    //-------- history command names end --------
 
     //-------- namespace --------
     ns.protocol.HistoryCommand = HistoryCommand;
-
-    ns.protocol.registers('HistoryCommand');
 
 })(DIMP);

@@ -35,6 +35,7 @@
 (function (ns) {
     'use strict';
 
+    var Interface = ns.type.Interface;
     var Content = ns.protocol.Content;
 
     /**
@@ -45,20 +46,22 @@
      *      text : "..."
      *  }
      */
-    var TextContent = function () {};
-    ns.Interface(TextContent, [Content]);
+    var TextContent = Interface(null, [Content]);
 
     TextContent.prototype.setText = function (text) {
-        ns.assert(false, 'implement me!');
+        throw new Error('NotImplemented');
     };
     TextContent.prototype.getText = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
+    };
+
+    //-------- factory --------
+
+    TextContent.create = function (text) {
+        return new ns.dkd.BaseTextContent(text);
     };
 
     //-------- namespace --------
     ns.protocol.TextContent = TextContent;
-
-    ns.protocol.registers('TextContent');
 
 })(DIMP);

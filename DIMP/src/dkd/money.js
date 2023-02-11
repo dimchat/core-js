@@ -35,6 +35,8 @@
 (function (ns) {
     'use strict';
 
+    var Class = ns.type.Class;
+    var ID = ns.protocol.ID;
     var ContentType = ns.protocol.ContentType;
     var MoneyContent = ns.protocol.MoneyContent;
     var TransferContent = ns.protocol.TransferContent;
@@ -45,51 +47,45 @@
      *
      *  Usages:
      *      1. new BaseMoneyContent(map);
-     *      2. new BaseMoneyContent(currency);
-     *      3. new BaseMoneyContent(currency, amount);
-     *      4. new BaseMoneyContent(type, currency, amount);
+     *      2. new BaseMoneyContent(currency, amount);
+     *      3. new BaseMoneyContent(type, currency, amount);
      */
     var BaseMoneyContent = function () {
-        if (arguments.length === 3) {
-            // new BaseMoneyContent(type, currency, amount);
+        if (arguments.length === 1) {
+            // new BaseMoneyContent(map);
             BaseContent.call(arguments[0]);
-            this.setCurrency(arguments[1]);
-            this.setAmount(arguments[2]);
         } else if (arguments.length === 2) {
             // new BaseMoneyContent(currency, amount);
             BaseContent.call(ContentType.MONEY);
             this.setCurrency(arguments[0]);
             this.setAmount(arguments[1]);
-        } else if (typeof arguments[0] === 'string') {
-            // new BaseMoneyContent(currency);
-            BaseContent.call(ContentType.MONEY);
-            this.setCurrency(arguments[0]);
-        } else {
-            // new BaseMoneyContent(map);
+        } else if (arguments.length === 3) {
+            // new BaseMoneyContent(type, currency, amount);
             BaseContent.call(arguments[0]);
+            this.setCurrency(arguments[1]);
+            this.setAmount(arguments[2]);
+        } else {
+            throw new SyntaxError('money content arguments error: ' + arguments);
         }
     };
-    ns.Class(BaseMoneyContent, BaseContent, [MoneyContent], {
+    Class(BaseMoneyContent, BaseContent, [MoneyContent], {
+
         // Override
         setCurrency: function (currency) {
-            var dict = this.toMap();
-            MoneyContent.setCurrency(currency, dict);
+            this.setValue('currency', currency);
         },
         // Override
         getCurrency: function () {
-            var dict = this.toMap();
-            return MoneyContent.getCurrency(dict);
+            return this.getString('currency');
         },
 
         // Override
         setAmount: function (amount) {
-            var dict = this.toMap();
-            MoneyContent.setAmount(amount, dict);
+            this.setValue('amount', amount);
         },
         // Override
         getAmount: function () {
-            var dict = this.toMap();
-            return MoneyContent.getAmount(dict);
+            return this.getNumber('amount');
         }
     });
 
@@ -98,38 +94,46 @@
      *
      *  Usages:
      *      1. new TransferMoneyContent(map);
-     *      2. new TransferMoneyContent(currency);
      *      3. new TransferMoneyContent(currency, amount);
      */
     var TransferMoneyContent = function () {
-        if (arguments.length === 2) {
-            // new TransferMoneyContent(currency, amount);
-            MoneyContent.call(ContentType.TRANSFER, arguments[0], arguments[1]);
-        } else if (typeof arguments[0] === 'string') {
-            // new TransferMoneyContent(currency);
-            MoneyContent.call(ContentType.TRANSFER, arguments[0], 0);
-        } else {
+        if (arguments.length === 1) {
             // new TransferMoneyContent(map);
             MoneyContent.call(arguments[0]);
+        } else if (arguments.length === 2) {
+            // new TransferMoneyContent(currency, amount);
+            MoneyContent.call(ContentType.TRANSFER, arguments[0], arguments[1]);
+        } else {
+            throw new SyntaxError('money content arguments error: ' + arguments);
         }
     };
-    ns.Class(TransferMoneyContent, BaseMoneyContent, [TransferContent], {
+    Class(TransferMoneyContent, BaseMoneyContent, [TransferContent], {
+
         // Override
-        getText: function () {
-            return this.getValue('text');
+        getRemitter: function () {
+            var sender = this.getValue('remitter');
+            return ID.parse(sender);
         },
 
         // Override
-        setText: function (text) {
-            this.setValue('text', text);
+        setRemitter: function (sender) {
+            this.setString('remitter', sender);
+        },
+
+        // Override
+        getRemittee: function () {
+            var receiver = this.getValue('remittee');
+            return ID.parse(receiver);
+        },
+
+        // Override
+        setRemittee: function (receiver) {
+            this.setString('remittee', receiver);
         }
     });
 
     //-------- namespace --------
     ns.dkd.BaseMoneyContent = BaseMoneyContent;
     ns.dkd.TransferMoneyContent = TransferMoneyContent;
-
-    ns.dkd.registers('BaseMoneyContent');
-    ns.dkd.registers('TransferMoneyContent');
 
 })(DIMP);
