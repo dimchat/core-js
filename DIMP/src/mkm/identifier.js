@@ -55,7 +55,7 @@
      */
     IDFactory.prototype.reduceMemory = function () {
         var finger = 0;
-        finger = ns.mkm.AddressFactory.thanos(this.__identifiers, finger);
+        finger = ns.mkm.thanos(this.__identifiers, finger);
         return finger >> 1;
     };
 

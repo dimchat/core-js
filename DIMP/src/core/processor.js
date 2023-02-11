@@ -40,8 +40,9 @@
 (function (ns) {
     'use strict';
 
-    var Processor = function () {};
-    ns.Interface(Processor, null);
+    var Interface = ns.type.Interface;
+
+    var Processor = Interface(null, null);
 
     /**
      *  Process data package
@@ -50,8 +51,7 @@
      * @return {Uint8Array} response data
      */
     Processor.prototype.processPackage = function (data) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -61,8 +61,7 @@
      * @return {ReliableMessage} response message
      */
     Processor.prototype.processReliableMessage = function (rMsg) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -73,8 +72,7 @@
      * @return {SecureMessage} response message
      */
     Processor.prototype.processSecureMessage = function (sMsg, rMsg) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -85,8 +83,7 @@
      * @return {InstantMessage} response message
      */
     Processor.prototype.processInstantMessage = function (iMsg, rMsg) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -97,13 +94,10 @@
      * @return {Content} response content
      */
     Processor.prototype.processContent = function (content, rMsg) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     //-------- namespace --------
-    ns.core.Processor = Processor;
-
-    ns.core.registers('Processor');
+    ns.Processor = Processor;
 
 })(DIMP);

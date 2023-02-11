@@ -53,19 +53,8 @@
      */
     AddressFactory.prototype.reduceMemory = function () {
         var finger = 0;
-        finger = AddressFactory.thanos(this.__addresses, finger);
+        finger = ns.mkm.thanos(this.__addresses, finger);
         return finger >> 1;
-    };
-    AddressFactory.thanos = function (planet, finger) {
-        var keys = Object.keys(planet);
-        for (var i = 0; i < keys.length; ++i) {
-            finger += 1;
-            if ((finger & 1) === 1) {
-                // kill it
-                delete planet[keys[i]];
-            } // else, let it go
-        }
-        return finger;
     };
 
     // Override
@@ -89,7 +78,35 @@
         return address;
     };
 
+    /**
+     *  Remove 1/2 objects from the dictionary
+     *  (Thanos can kill half lives of a world with a snap of the finger)
+     *
+     * @param {{}} planet
+     * @param {Number} finger
+     * @returns {Number} number of survivors
+     */
+    var thanos = function (planet, finger) {
+        var keys = Object.keys(planet);
+        var k, p;
+        for (var i = 0; i < keys.length; ++i) {
+            k = keys[i];
+            p = planet[k];
+            //if (typeof p === 'function') {
+            //    // ignore
+            //    continue;
+            //}
+            finger += 1;
+            if ((finger & 1) === 1) {
+                // kill it
+                delete planet[k];
+            } // else, let it go
+        }
+        return finger;
+    };
+
     //-------- namespace --------
     ns.mkm.AddressFactory = AddressFactory;
+    ns.mkm.thanos = thanos;
 
 })(MingKeMing);

@@ -40,8 +40,9 @@
 (function (ns) {
     'use strict';
 
-    var Packer = function () {};
-    ns.Interface(Packer, null);
+    var Interface = ns.type.Interface;
+
+    var Packer = Interface(null, null);
 
     /**
      *  Get group ID which should be exposed to public network
@@ -50,8 +51,7 @@
      * @return {ID} exposed group ID
      */
     Packer.prototype.getOvertGroup = function (content) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     //
@@ -65,8 +65,7 @@
      * @return {SecureMessage} encrypted message
      */
     Packer.prototype.encryptMessage = function (iMsg) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -76,8 +75,7 @@
      * @return {ReliableMessage} network message
      */
     Packer.prototype.signMessage = function (sMsg) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -87,8 +85,7 @@
      * @return {Uint8Array} data package
      */
     Packer.prototype.serializeMessage = function (rMsg) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     //
@@ -102,8 +99,7 @@
      * @return {ReliableMessage} network message
      */
     Packer.prototype.deserializeMessage = function (data) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -113,8 +109,7 @@
      * @return {SecureMessage} encrypted message
      */
     Packer.prototype.verifyMessage = function (rMsg) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     /**
@@ -124,13 +119,10 @@
      * @return {InstantMessage} plain message
      */
     Packer.prototype.decryptMessage = function (sMsg) {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
     //-------- namespace --------
-    ns.core.Packer = Packer;
-
-    ns.core.registers('Packer');
+    ns.Packer = Packer;
 
 })(DIMP);

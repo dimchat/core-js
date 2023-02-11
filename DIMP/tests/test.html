@@ -19,13 +19,17 @@
             var sources = [
                 'src/namespace.js',
 
-                'src/protocol/forward.js',
+                // contents
+                'src/protocol/text.js',
                 'src/protocol/file.js',
                 'src/protocol/files.js',
-                'src/protocol/text.js',
                 'src/protocol/page.js',
                 'src/protocol/money.js',
+                'src/protocol/forward.js',
+                'src/protocol/array.js',
+                'src/protocol/customized.js',
 
+                // command
                 'src/protocol/command.js',
                 'src/protocol/meta.js',
                 'src/protocol/document.js',
@@ -33,29 +37,46 @@
                 'src/protocol/group.js',
                 'src/protocol/groups.js',
 
-                'src/dkd/forward.js',
+                // dkd content implementations
+                'src/dkd/content.js',
+                'src/dkd/text.js',
                 'src/dkd/file.js',
                 'src/dkd/files.js',
-                'src/dkd/text.js',
                 'src/dkd/page.js',
                 'src/dkd/money.js',
+                'src/dkd/forward.js',
+                'src/dkd/array.js',
+                'src/dkd/customized.js',
+                // dkd command implementations
+                'src/dkd/cmd/command.js',
+                'src/dkd/cmd/meta.js',
+                'src/dkd/cmd/document.js',
+                'src/dkd/cmd/history.js',
+                'src/dkd/cmd/group.js',
+                'src/dkd/cmd/groups.js',
+                'src/dkd/cmd/factory.js',
+                // dkd message implementations
+                'src/msg/envelope.js',
+                'src/msg/message.js',
+                'src/msg/instant.js',
+                'src/msg/secure.js',
+                'src/msg/reliable.js',
 
-                'src/dkd/command.js',
-                'src/dkd/meta.js',
-                'src/dkd/document.js',
-                'src/dkd/history.js',
-                'src/dkd/group.js',
-                'src/dkd/groups.js',
-
+                // mkm extensions
+                'src/mkm/address.js',
+                'src/mkm/identifier.js',
+                'src/mkm/meta.js',
+                'src/mkm/document.js',
+                'src/mkm/docs.js',
                 'src/mkm/entity.js',
                 'src/mkm/user.js',
                 'src/mkm/group.js',
 
+                // core
                 'src/core/barrack.js',
                 'src/core/packer.js',
                 'src/core/processor.js',
                 'src/core/transceiver.js',
-                'src/core/factories.js',
                 null
             ];
 

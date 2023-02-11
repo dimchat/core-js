@@ -42,6 +42,7 @@
 (function (ns) {
     'use strict';
 
+    var Class = ns.type.Class;
     var SymmetricKey = ns.crypto.SymmetricKey;
     var UTF8 = ns.format.UTF8;
     var Base64 = ns.format.Base64;
@@ -53,17 +54,15 @@
     var Transceiver = function () {
         Object.call(this);
     };
-    ns.Class(Transceiver, Object, [InstantMessage.Delegate, ReliableMessage.Delegate], null);
+    Class(Transceiver, Object, [InstantMessage.Delegate, ReliableMessage.Delegate], null);
 
-    /**
-     *  Get entity delegate
-     */
+    // protected
     Transceiver.prototype.getEntityDelegate = function () {
-        ns.assert(false, 'implement me!');
-        return null;
+        throw new Error('NotImplemented');
     };
 
-    var is_broadcast = function (msg) {
+    // protected
+    Transceiver.prototype.isBroadcast = function (msg) {
         var receiver = msg.getGroup();
         if (!receiver) {
             receiver = msg.getReceiver();
@@ -89,7 +88,7 @@
 
     // Override
     Transceiver.prototype.encodeData = function (data, iMsg) {
-        if (is_broadcast(iMsg)) {
+        if (this.isBroadcast(iMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so no need to encode to Base64 here
             return UTF8.decode(data);
@@ -99,7 +98,7 @@
 
     // Override
     Transceiver.prototype.serializeKey = function (pwd, iMsg) {
-        if (is_broadcast(iMsg)) {
+        if (this.isBroadcast(iMsg)) {
             // broadcast message has no key
             return null;
         }
@@ -153,7 +152,7 @@
 
     // Override
     Transceiver.prototype.decodeData = function (data, sMsg) {
-        if (is_broadcast(sMsg)) {
+        if (this.isBroadcast(sMsg)) {
             // broadcast message content will not be encrypted (just encoded to JsON),
             // so return the string data directly
             return UTF8.encode(data);
@@ -173,6 +172,7 @@
         // TODO: translate short keys
         //       'T' -> 'type'
         //       'N' -> 'sn'
+        //       'W' -> 'time'
         //       'G' -> 'group'
         return Content.parse(dict);
     };
@@ -204,8 +204,6 @@
     };
 
     //-------- namespace --------
-    ns.core.Transceiver = Transceiver;
-
-    ns.core.registers('Transceiver');
+    ns.Transceiver = Transceiver;
 
 })(DIMP);
