@@ -60,7 +60,7 @@
     var Class = ns.type.Class;
 
     var Meta = ns.protocol.Meta;
-    var Visa = ns.protocol.Visa;
+    var Document = ns.protocol.Document;
 
     var SecureMessage = ns.protocol.SecureMessage;
     var ReliableMessage = ns.protocol.ReliableMessage;
@@ -116,7 +116,7 @@
         getVisa: function () {
             if (this.__visa === null) {
                 var dict = this.getValue('visa');
-                this.__visa = Visa.parse(dict);
+                this.__visa = Document.parse(dict);
             }
             return this.__visa;
         },

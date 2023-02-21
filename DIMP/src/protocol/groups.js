@@ -35,7 +35,7 @@
  *      type : 0x89,
  *      sn   : 123,
  *
- *      command : "invite",      // expel, ...
+ *      cmd     : "invite",      // expel, ...
  *      group   : "{GROUP_ID}",
  *      member  : "{MEMBER_ID}",
  *      members : ["{MEMBER_ID}", ],

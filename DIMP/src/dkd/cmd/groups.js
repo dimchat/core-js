@@ -35,7 +35,7 @@
  *      type : 0x89,
  *      sn   : 123,
  *
- *      command : "invite",      // expel, ...
+ *      cmd     : "invite",      // expel, ...
  *      group   : "{GROUP_ID}",
  *      member  : "{MEMBER_ID}",
  *      members : ["{MEMBER_ID}", ],
@@ -58,7 +58,7 @@
     var QuitCommand = ns.protocol.group.QuitCommand;
     var ResetCommand = ns.protocol.group.ResetCommand;
     var QueryCommand = ns.protocol.group.QueryCommand;
-    var BaseGroupCommand = ns.dkd.BaseGroupCommand;
+    var BaseGroupCommand = ns.dkd.cmd.BaseGroupCommand;
 
     //
     //  Invite group command

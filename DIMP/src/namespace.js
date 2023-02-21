@@ -65,6 +65,9 @@ if (typeof DIMP !== "object") {
         ns.dkd = DaoKeDao.dkd;
     }
 
+    if (typeof ns.protocol.group !== 'object') {
+        ns.protocol.group = {};
+    }
     if (typeof ns.dkd.cmd !== 'object') {
         ns.dkd.cmd = {};
     }

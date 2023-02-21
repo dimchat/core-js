@@ -31,6 +31,9 @@ if (typeof DIMP !== "object") {
     if (typeof ns.dkd !== "object") {
         ns.dkd = DaoKeDao.dkd;
     }
+    if (typeof ns.protocol.group !== "object") {
+        ns.protocol.group = {};
+    }
     if (typeof ns.dkd.cmd !== "object") {
         ns.dkd.cmd = {};
     }
@@ -992,7 +995,7 @@ if (typeof DIMP !== "object") {
     var Meta = ns.protocol.Meta;
     var Command = ns.protocol.Command;
     var MetaCommand = ns.protocol.MetaCommand;
-    var BaseCommand = ns.dkd.BaseCommand;
+    var BaseCommand = ns.dkd.cmd.BaseCommand;
     var BaseMetaCommand = function () {
         var identifier = null;
         var meta = null;
@@ -1064,14 +1067,8 @@ if (typeof DIMP !== "object") {
                     BaseMetaCommand.call(this, Command.DOCUMENT, arguments[0], null);
                     doc = arguments[1];
                 } else {
-                    if (typeof arguments[1] === "string") {
-                        BaseMetaCommand.call(this, Command.DOCUMENT, arguments[0], null);
-                        sig = arguments[1];
-                    } else {
-                        throw new SyntaxError(
-                            "document command arguments error: " + arguments
-                        );
-                    }
+                    BaseMetaCommand.call(this, Command.DOCUMENT, arguments[0], null);
+                    sig = arguments[1];
                 }
             } else {
                 if (arguments.length === 3) {
@@ -1115,7 +1112,7 @@ if (typeof DIMP !== "object") {
     var Class = ns.type.Class;
     var ContentType = ns.protocol.ContentType;
     var HistoryCommand = ns.protocol.HistoryCommand;
-    var BaseCommand = ns.dkd.BaseCommand;
+    var BaseCommand = ns.dkd.cmd.BaseCommand;
     var BaseHistoryCommand = function () {
         if (typeof arguments[0] === "string") {
             BaseCommand.call(this, ContentType.HISTORY, arguments[0]);
@@ -1131,7 +1128,7 @@ if (typeof DIMP !== "object") {
     var Class = ns.type.Class;
     var ID = ns.protocol.ID;
     var GroupCommand = ns.protocol.GroupCommand;
-    var BaseHistoryCommand = ns.dkd.BaseHistoryCommand;
+    var BaseHistoryCommand = ns.dkd.cmd.BaseHistoryCommand;
     var BaseGroupCommand = function () {
         var group = null;
         var member = null;
@@ -1217,7 +1214,7 @@ if (typeof DIMP !== "object") {
     var QuitCommand = ns.protocol.group.QuitCommand;
     var ResetCommand = ns.protocol.group.ResetCommand;
     var QueryCommand = ns.protocol.group.QueryCommand;
-    var BaseGroupCommand = ns.dkd.BaseGroupCommand;
+    var BaseGroupCommand = ns.dkd.cmd.BaseGroupCommand;
     var InviteGroupCommand = function () {
         if (arguments.length === 1) {
             BaseGroupCommand.call(this, arguments[0]);
@@ -1412,7 +1409,7 @@ if (typeof DIMP !== "object") {
         }
     });
     var get_id = function (dict, key) {
-        return ID.parse(this.getValue(key));
+        return ID.parse(dict.getValue(key));
     };
     var get_time = function (dict, key) {
         return Dictionary.prototype.getTime.call(dict, key);
@@ -1813,7 +1810,7 @@ if (typeof DIMP !== "object") {
 (function (ns) {
     var Class = ns.type.Class;
     var Meta = ns.protocol.Meta;
-    var Visa = ns.protocol.Visa;
+    var Document = ns.protocol.Document;
     var SecureMessage = ns.protocol.SecureMessage;
     var ReliableMessage = ns.protocol.ReliableMessage;
     var EncryptedMessage = ns.dkd.EncryptedMessage;
@@ -1850,7 +1847,7 @@ if (typeof DIMP !== "object") {
         getVisa: function () {
             if (this.__visa === null) {
                 var dict = this.getValue("visa");
-                this.__visa = Visa.parse(dict);
+                this.__visa = Document.parse(dict);
             }
             return this.__visa;
         },

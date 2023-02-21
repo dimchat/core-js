@@ -154,7 +154,7 @@
     });
 
     var get_id = function (dict, key) {
-        return ID.parse(this.getValue(key))
+        return ID.parse(dict.getValue(key))
     };
 
     var get_time = function (dict, key) {

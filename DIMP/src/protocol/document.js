@@ -46,7 +46,7 @@
      *      type : 0x88,
      *      sn   : 123,
      *
-     *      command   : "document", // command name
+     *      cmd       : "document", // command name
      *      ID        : "{ID}",     // entity ID
      *      meta      : {...},      // only for handshaking with new friend
      *      profile   : {...},      // when profile is empty, means query for ID

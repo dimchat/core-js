@@ -70,12 +70,10 @@
                 // new BaseDocumentCommand(identifier, document);
                 BaseMetaCommand.call(this, Command.DOCUMENT, arguments[0], null);
                 doc = arguments[1];
-            } else if (typeof arguments[1] === 'string') {
+            } else {
                 // new BaseDocumentCommand(identifier, signature);
                 BaseMetaCommand.call(this, Command.DOCUMENT, arguments[0], null);
                 sig = arguments[1];
-            } else {
-                throw new SyntaxError('document command arguments error: ' + arguments);
             }
         } else if (arguments.length === 3) {
             // new BaseDocumentCommand(identifier, meta, document);

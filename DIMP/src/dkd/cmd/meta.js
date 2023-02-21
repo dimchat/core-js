@@ -42,7 +42,7 @@
     var Meta = ns.protocol.Meta;
     var Command = ns.protocol.Command;
     var MetaCommand = ns.protocol.MetaCommand;
-    var BaseCommand = ns.dkd.BaseCommand;
+    var BaseCommand = ns.dkd.cmd.BaseCommand;
 
     /**
      *  Create meta command

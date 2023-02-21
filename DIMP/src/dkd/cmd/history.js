@@ -39,7 +39,7 @@
     var Class = ns.type.Class;
     var ContentType = ns.protocol.ContentType;
     var HistoryCommand = ns.protocol.HistoryCommand;
-    var BaseCommand = ns.dkd.BaseCommand;
+    var BaseCommand = ns.dkd.cmd.BaseCommand;
 
     /**
      *  Create history command

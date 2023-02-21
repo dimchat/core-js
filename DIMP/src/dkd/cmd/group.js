@@ -40,7 +40,7 @@
     var Class = ns.type.Class;
     var ID = ns.protocol.ID;
     var GroupCommand = ns.protocol.GroupCommand;
-    var BaseHistoryCommand = ns.dkd.BaseHistoryCommand;
+    var BaseHistoryCommand = ns.dkd.cmd.BaseHistoryCommand;
 
     /**
      *  Create group command
