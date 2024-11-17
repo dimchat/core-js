@@ -52,24 +52,37 @@
     var CustomizedContent = Interface(null, [Content]);
 
     // get App ID
-    CustomizedContent.prototype.getApplication = function () {
-        throw new Error('NotImplemented');
-    };
+    CustomizedContent.prototype.getApplication = function () {};
 
     // get Module name
-    CustomizedContent.prototype.getModule = function () {
-        throw new Error('NotImplemented');
-    };
+    CustomizedContent.prototype.getModule = function () {};
 
     // get Action name
-    CustomizedContent.prototype.getAction = function () {
-        throw new Error('NotImplemented');
-    };
+    CustomizedContent.prototype.getAction = function () {};
 
     //-------- factory --------
 
-    CustomizedContent.create = function (contents) {
-        return new ns.dkd.AppCustomizedContent(contents);
+    CustomizedContent.create = function () {
+        var type, app, mod, act;
+        if (arguments.length === 4) {
+            // create(type, app, mod, act);
+            type = arguments[0];
+            app = arguments[1];
+            mod = arguments[2];
+            act = arguments[3];
+            return new ns.dkd.AppCustomizedContent(type, app, mod, act);
+        } else if (arguments.length === 3) {
+            // create(app, mod, act);
+            app = arguments[0];
+            mod = arguments[1];
+            act = arguments[2];
+            return new ns.dkd.AppCustomizedContent(app, mod, act);
+        // } else if (arguments.length === 0) {
+        //     // create();
+        //     return new ns.dkd.AppCustomizedContent();
+        } else {
+            throw Error('customized content arguments error: ' + arguments);
+        }
     };
 
     //-------- namespace --------

@@ -45,28 +45,35 @@
      *
      *  Usages:
      *      1. new AppCustomizedContent(map);
-     *      2. new AppCustomizedContent(app, mod, act);
+     *      2. new AppCustomizedContent(type);
      *      3. new AppCustomizedContent(type, app, mod, act);
+     *      4. new AppCustomizedContent(app, mod, act);
      */
     var AppCustomizedContent = function () {
         var app = null;
         var mod = null;
         var act = null;
-        if (arguments.length === 1) {
-            // new AppCustomizedContent(map);
+        if (arguments.length === 4) {
+            // new AppCustomizedContent(type, app, mod, act);
             BaseContent.call(this, arguments[0]);
+            app = arguments[1];
+            mod = arguments[2];
+            act = arguments[3];
         } else if (arguments.length === 3) {
             // new AppCustomizedContent(app, mod, act);
             BaseContent.call(this, ContentType.CUSTOMIZED);
             app = arguments[0];
             mod = arguments[1];
             act = arguments[2];
+        // } else if (arguments.length === 0) {
+        //     // new AppCustomizedContent();
+        //     BaseContent.call(this, ContentType.CUSTOMIZED);
+        // } else if (IObject.isNumber(arguments[0])) {
+        //     // new AppCustomizedContent(type);
+        //     BaseContent.call(this, arguments[0]);
         } else {
-            // new AppCustomizedContent(type, app, mod, act);
+            // new AppCustomizedContent(map);
             BaseContent.call(this, arguments[0]);
-            app = arguments[1];
-            mod = arguments[2];
-            act = arguments[3];
         }
         if (app) {
             this.setValue('app', app);

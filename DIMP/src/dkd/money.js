@@ -70,7 +70,6 @@
     };
     Class(BaseMoneyContent, BaseContent, [MoneyContent], {
 
-        // Override
         setCurrency: function (currency) {
             this.setValue('currency', currency);
         },
@@ -85,7 +84,7 @@
         },
         // Override
         getAmount: function () {
-            return this.getNumber('amount');
+            return this.getFloat('amount');
         }
     });
 

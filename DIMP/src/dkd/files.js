@@ -31,14 +31,101 @@
 //
 
 //! require 'protocol/files.js'
-//! require 'file.js'
 
 (function (ns) {
     'use strict';
 
     var Class = ns.type.Class;
-    var Base64 = ns.format.Base64;
+    var BaseFileWrapper = ns.format.BaseFileWrapper;
+
     var ContentType = ns.protocol.ContentType;
+    var FileContent = ns.protocol.FileContent;
+    var BaseContent = ns.dkd.BaseContent;
+
+    /**
+     *  Create file content
+     *
+     *  Usages:
+     *      1. new BaseFileContent(map);
+     *      2. new BaseFileContent(type);
+     *      3. new BaseFileContent();
+     */
+    var BaseFileContent = function (info) {
+        if (!info) {
+            // new BaseFileContent();
+            BaseContent.call(this, ContentType.FIRE.valueOf);
+        } else if (info instanceof ContentType) {
+            // new BaseFileContent(type);
+            BaseContent.call(this, info.valueOf());
+        // } else if (IObject.isNumber(info)) {
+        //     // new BaseFileContent(type);
+        //     BaseContent.call(this, info);
+        } else {
+            // new BaseFileContent(map);
+            BaseContent.call(this, info);
+        }
+        this.__wrapper = new BaseFileWrapper(this.toMap());
+    };
+    Class(BaseFileContent, BaseContent, [FileContent], {
+
+        // Override
+        getData: function () {
+            var ted = this.__wrapper.getData();
+            return !ted ? null : ted.getData();
+        },
+
+        // Override
+        setData: function (data) {
+            this.__wrapper.setBinaryData(data);
+        },
+        setTransportableData: function (ted) {
+            this.__wrapper.setData(ted);
+        },
+
+        // Override
+        getFilename: function () {
+            return this.__wrapper.getFilename();
+        },
+
+        // Override
+        setFilename: function (filename) {
+            this.__wrapper.setFilename(filename);
+        },
+
+        // Override
+        getURL: function () {
+            return this.__wrapper.getURL();
+        },
+
+        // Override
+        setURL: function (url) {
+            this.__wrapper.setURL(url);
+        },
+
+        // Override
+        getPassword: function () {
+            return this.__wrapper.getPassword();
+        },
+
+        // Override
+        setPassword: function (key) {
+            this.__wrapper.setPassword(key);
+        }
+    });
+
+    //-------- namespace --------
+    ns.dkd.BaseFileContent = BaseFileContent;
+
+})(DIMP);
+
+(function (ns) {
+    'use strict';
+
+    var Interface = ns.type.Interface;
+    var Class     = ns.type.Class;
+    var IObject   = ns.type.Object;
+    var PortableNetworkFile = ns.format.PortableNetworkFile;
+    var ContentType  = ns.protocol.ContentType;
     var ImageContent = ns.protocol.ImageContent;
     var VideoContent = ns.protocol.VideoContent;
     var AudioContent = ns.protocol.AudioContent;
@@ -49,17 +136,15 @@
      *
      *  Usages:
      *      1. new ImageFileContent(map);
-     *      2. new ImageFileContent(filename, data);
+     *      2. new ImageFileContent();
      */
-    var ImageFileContent = function () {
-        if (arguments.length === 1) {
-            // new ImageFileContent(map);
-            BaseFileContent.call(this, arguments[0]);
-        } else if (arguments.length === 2) {
-            // new ImageFileContent(filename, data);
-            BaseFileContent.call(this, ContentType.IMAGE, arguments[0], arguments[1]);
+    var ImageFileContent = function (info) {
+        if (!info) {
+            // new ImageFileContent();
+            BaseFileContent.call(this, ContentType.IMAGE);
         } else {
-            throw new SyntaxError('Image content arguments error: ' + arguments);
+            // new ImageFileContent(map);
+            BaseFileContent.call(this, info);
         }
         this.__thumbnail = null;
     };
@@ -67,23 +152,27 @@
 
         // Override
         getThumbnail: function () {
-            if (this.__thumbnail === null) {
-                var base64 = this.getString('thumbnail');
-                if (base64) {
-                    this.__thumbnail = Base64.decode(base64);
-                }
+            var pnf = this.__thumbnail;
+            if (!pnf) {
+                var base64 = this.getString('thumbnail', null);
+                pnf = PortableNetworkFile.parse(base64);
+                this.__thumbnail = pnf;
             }
-            return this.__thumbnail;
+            return pnf;
         },
 
         // Override
         setThumbnail: function (image) {
-            if (image && image.length > 0) {
-                this.setValue('thumbnail', Base64.encode(image));
-            } else {
+            var pnf = null;
+            if (!image) {
                 this.removeValue('thumbnail');
+            } else if (Interface.conforms(image, PortableNetworkFile)) {
+                pnf = image;
+                this.setValue('thumbnail', pnf.toObject());
+            } else if (IObject.isString(image)) {
+                this.setValue('thumbnail', image);
             }
-            this.__thumbnail = image;
+            this.__thumbnail = pnf;
         }
     });
 
@@ -92,17 +181,15 @@
      *
      *  Usages:
      *      1. new VideoFileContent(map);
-     *      2. new VideoFileContent(filename, data);
+     *      2. new VideoFileContent();
      */
-    var VideoFileContent = function () {
-        if (arguments.length === 1) {
-            // new VideoFileContent(map);
-            BaseFileContent.call(this, arguments[0]);
-        } else if (arguments.length === 2) {
-            // new VideoFileContent(filename, data);
-            BaseFileContent.call(this, ContentType.VIDEO, arguments[0], arguments[1]);
+    var VideoFileContent = function (info) {
+        if (!info) {
+            // new VideoFileContent();
+            BaseFileContent.call(this, ContentType.VIDEO);
         } else {
-            throw new SyntaxError('Video content arguments error: ' + arguments);
+            // new VideoFileContent(map);
+            BaseFileContent.call(this, info);
         }
         this.__snapshot = null;
     };
@@ -110,23 +197,27 @@
 
         // Override
         getSnapshot: function () {
-            if (this.__snapshot === null) {
-                var base64 = this.getString('snapshot');
-                if (base64) {
-                    this.__snapshot = Base64.decode(base64);
-                }
+            var pnf = this.__snapshot;
+            if (!pnf) {
+                var base64 = this.getString('snapshot', null);
+                pnf = PortableNetworkFile.parse(base64);
+                this.__snapshot = pnf;
             }
-            return this.__snapshot;
+            return pnf;
         },
 
         // Override
         setSnapshot: function (image) {
-            if (image && image.length > 0) {
-                this.setValue('snapshot', Base64.encode(image));
-            } else {
+            var pnf = null;
+            if (!image) {
                 this.removeValue('snapshot');
+            } else if (Interface.conforms(image, PortableNetworkFile)) {
+                pnf = image;
+                this.setValue('snapshot', pnf.toObject());
+            } else if (IObject.isString(image)) {
+                this.setValue('snapshot', image);
             }
-            this.__snapshot = image;
+            this.__snapshot = pnf;
         }
     });
 
@@ -135,24 +226,22 @@
      *
      *  Usages:
      *      1. new AudioFileContent(map);
-     *      2. new AudioFileContent(filename, data);
+     *      2. new AudioFileContent();
      */
-    var AudioFileContent = function () {
-        if (arguments.length === 1) {
-            // new AudioFileContent(map);
-            BaseFileContent.call(this, arguments[0]);
-        } else if (arguments.length === 2) {
-            // new AudioFileContent(filename, data);
-            BaseFileContent.call(this, ContentType.AUDIO, arguments[0], arguments[1]);
+    var AudioFileContent = function (info) {
+        if (!info) {
+            // new AudioFileContent();
+            BaseFileContent.call(this, ContentType.AUDIO);
         } else {
-            throw new SyntaxError('Audio content arguments error: ' + arguments);
+            // new AudioFileContent(map);
+            BaseFileContent.call(this, info);
         }
     };
     Class(AudioFileContent, BaseFileContent, [AudioContent], {
 
         // Override
         getText: function () {
-            return this.getString('text');
+            return this.getString('text', null);
         },
 
         // Override
@@ -160,10 +249,6 @@
             this.setValue('text', asr);
         }
     });
-
-    //
-    //  Factories
-    //
 
     //-------- namespace --------
     ns.dkd.ImageFileContent = ImageFileContent;

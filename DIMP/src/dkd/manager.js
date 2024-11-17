@@ -38,14 +38,14 @@
     var Interface = ns.type.Interface;
     var Class     = ns.type.Class;
     var Wrapper   = ns.type.Wrapper;
+    var Converter = ns.type.Converter;
 
     var Command = ns.protocol.Command;
-    var GeneralContentFactory = ns.dkd.GeneralFactory;
 
     var GeneralFactory = function () {
         this.__commandFactories = {};  // name => Command.Factory
     };
-    Class(GeneralFactory, GeneralContentFactory, null, {
+    Class(GeneralFactory, null, null, {
 
         setCommandFactory: function (cmd, factory) {
             this.__commandFactories[cmd] = factory;
@@ -54,37 +54,48 @@
             return this.__commandFactories[cmd];
         },
 
-        getCmd: function (command) {
-            return command['cmd'];
+        getCmd: function (content, defaultValue) {
+            return Converter.getString(content['command'], defaultValue);
         },
 
-        parseCommand: function (command) {
-            if (!command) {
+        parseCommand: function (content) {
+            if (!content) {
                 return null;
-            } else {
-                if (Interface.conforms(command, Command)) {
-                    return command;
-                }
+            } else if (Interface.conforms(content, Command)) {
+                return content;
             }
-            command = Wrapper.fetchMap(command);
+            var info = Wrapper.fetchMap(content);
+            if (!info) {
+                return null;
+            }
             // get factory by command name
-            var cmd = this.getCmd(command);
+            var cmd = this.getCmd(info, '');
             var factory = this.getCommandFactory(cmd);
             if (!factory) {
                 // unknown command name, get base command factory
-                var type = this.getContentType(command);
-                factory = this.getContentFactory(type);
+                factory = default_factory(info);
             }
-            return factory.parseContent(command);
+            return factory.parseCommand(info);
         }
     });
+
+    var default_factory = function (info) {
+        var man = ns.dkd.MessageFactoryManager;
+        var gf = man.generalFactory;
+        var type = gf.getContentType(info, 0);
+        var factory = gf.getContentFactory(type);
+        if (Interface.conforms(factory, Command.Factory)) {
+            return factory;
+        }
+        return null;
+    };
 
     var FactoryManager = {
         generalFactory: new GeneralFactory()
     };
 
     //-------- namespace --------
-    ns.dkd.cmd.GeneralFactory = GeneralFactory;
-    ns.dkd.cmd.FactoryManager = FactoryManager;
+    ns.dkd.cmd.CommandGeneralFactory = GeneralFactory;
+    ns.dkd.cmd.CommandFactoryManager = FactoryManager;
 
 })(DIMP);

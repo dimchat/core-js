@@ -19,42 +19,36 @@
             var sources = [
                 'src/namespace.js',
 
-                // contents
-                'src/protocol/text.js',
-                'src/protocol/file.js',
-                'src/protocol/files.js',
-                'src/protocol/page.js',
-                'src/protocol/money.js',
-                'src/protocol/forward.js',
-                'src/protocol/array.js',
-                'src/protocol/customized.js',
+                // crypto
+                'src/crypto/keys.js',
+                'src/crypto/ted.js',
+                'src/crypto/pnf.js',
 
-                // command
+                // dkd content protocol
+                'src/protocol/contents.js',
+                'src/protocol/files.js',
+                'src/protocol/money.js',
+                'src/protocol/customized.js',
+                // dkd command protocol
                 'src/protocol/command.js',
-                'src/protocol/meta.js',
-                'src/protocol/document.js',
-                'src/protocol/history.js',
-                'src/protocol/group.js',
                 'src/protocol/groups.js',
+                'src/protocol/receipt.js',
+                // mkm document protocol
+                'src/protocol/docs.js',
 
                 // dkd content implementations
-                'src/dkd/content.js',
-                'src/dkd/text.js',
-                'src/dkd/file.js',
+                'src/dkd/base.js',
+                'src/dkd/contents.js',
                 'src/dkd/files.js',
-                'src/dkd/page.js',
                 'src/dkd/money.js',
-                'src/dkd/forward.js',
-                'src/dkd/array.js',
                 'src/dkd/customized.js',
                 // dkd command implementations
-                'src/dkd/cmd/command.js',
-                'src/dkd/cmd/meta.js',
-                'src/dkd/cmd/document.js',
-                'src/dkd/cmd/history.js',
-                'src/dkd/cmd/group.js',
-                'src/dkd/cmd/groups.js',
-                'src/dkd/cmd/factory.js',
+                'src/dkd/commands.js',
+                'src/dkd/groups.js',
+                'src/dkd/receipt.js',
+                // dkd command factory manager
+                'src/dkd/manager.js',
+
                 // dkd message implementations
                 'src/msg/envelope.js',
                 'src/msg/message.js',

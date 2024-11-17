@@ -3,12 +3,12 @@
 //
 //  DIMP : Decentralized Instant Messaging Protocol
 //
-//                               Written in 2020 by Moky <albert.moky@gmail.com>
+//                               Written in 2024 by Moky <albert.moky@gmail.com>
 //
 // =============================================================================
 // The MIT License (MIT)
 //
-// Copyright (c) 2020 Albert Moky
+// Copyright (c) 2024 Albert Moky
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,69 +30,79 @@
 // =============================================================================
 //
 
-//! require 'command.js'
+//! require <mkm.js>
 
 (function (ns) {
     'use strict';
 
     var Interface = ns.type.Interface;
-    var ID = ns.protocol.ID;
-    var Meta = ns.protocol.Meta;
-    var Command = ns.protocol.Command;
+    var Document  = ns.protocol.Document;
 
     /**
-     *  Command message: {
-     *      type : 0x88,
-     *      sn   : 123,
-     *
-     *      cmd     : "meta", // command name
-     *      ID      : "{ID}", // contact's ID
-     *      meta    : {...}   // when meta is empty, means query meta for ID
-     *  }
+     *  User Document
+     *  ~~~~~~~~~~~~~
+     *  This interface is defined for authorizing other apps to login,
+     *  which can generate a temporary asymmetric key pair for messaging.
      */
-    var MetaCommand = Interface(null, [Command]);
+    var Visa = Interface(null, [Document]);
 
     /**
-     *  Get entity ID for meta
+     *  Get public key to encrypt message for user
      *
-     * @return {ID} identifier
+     * @returns {EncryptKey} public key as visa.key
      */
-    MetaCommand.prototype.getIdentifier = function () {
-        throw new Error('NotImplemented');
-    };
+    Visa.prototype.getKey = function () {};
 
     /**
-     *  Get meta info
+     *  Set public key for other user to encrypt message
      *
-     * @return {Meta} meta
+     * @param {EncryptKey} publicKey - public key as visa.key
      */
-    MetaCommand.prototype.getMeta = function () {
-        throw new Error('NotImplemented');
-    };
-
-    //-------- factories --------
+    Visa.prototype.setKey = function (publicKey) {};
 
     /**
-     *  Create query command
+     *  Get avatar URL
      *
-     * @param {ID} identifier
-     * @returns {MetaCommand}
+     * @returns {PortableNetworkFile} URL string
      */
-    MetaCommand.query = function (identifier) {
-        return new ns.dkd.cmd.BaseMetaCommand(identifier);
-    };
+    Visa.prototype.getAvatar = function () {};
+
     /**
-     *  Create response command
+     *  Set avatar URL
      *
-     * @param {ID} identifier
-     * @param {Meta} meta
-     * @returns {MetaCommand}
+     * @param {PortableNetworkFile} url - URL string
      */
-    MetaCommand.response = function (identifier, meta) {
-        return new ns.dkd.cmd.BaseMetaCommand(identifier, meta);
-    };
+    Visa.prototype.setAvatar = function (url) {};
+
+    /**
+     *  Group Document
+     *  ~~~~~~~~~~~~~~
+     */
+    var Bulletin = Interface(null, [Document]);
+
+    /**
+     *  Get group founder
+     *
+     * @return {ID} user ID
+     */
+    Bulletin.prototype.getFounder = function () {};
+
+    /**
+     *  Get group assistants
+     *
+     * @return {ID[]} bot ID list
+     */
+    Bulletin.prototype.getAssistants = function () {};
+
+    /**
+     *  Set group assistants
+     *
+     * @param {ID[]} assistants - bot ID list
+     */
+    Bulletin.prototype.setAssistants = function (assistants) {};
 
     //-------- namespace --------
-    ns.protocol.MetaCommand = MetaCommand;
+    ns.protocol.Visa = Visa;
+    ns.protocol.Bulletin = Bulletin;
 
-})(DIMP);
+})(MingKeMing);

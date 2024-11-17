@@ -43,7 +43,7 @@
  *
  *      //-- message info
  *      'text'    : 'text',          // for text message
- *      'cmd'     : 'Command Name',  // for system command
+ *      'command' : 'Command Name',  // for system command
  *      //...
  *  }
  */
@@ -55,11 +55,12 @@
 (function (ns) {
     'use strict';
 
-    var Class = ns.type.Class;
+    var Class      = ns.type.Class;
     var Dictionary = ns.type.Dictionary;
-    var ID = ns.protocol.ID;
-    var ContentType = ns.protocol.ContentType;
-    var Content = ns.protocol.Content;
+
+    var ID             = ns.protocol.ID;
+    var ContentType    = ns.protocol.ContentType;
+    var Content        = ns.protocol.Content;
     var InstantMessage = ns.protocol.InstantMessage;
 
     /**
@@ -106,7 +107,8 @@
         // Override
         getType: function () {
             if (this.__type === 0) {
-                this.__type = this.getNumber('type');
+                var gf = ns.dkd.MessageFactoryManager.generalFactory;
+                this.__type = gf.getContentType(this.toMap(), 0);
             }
             return this.__type;
         },
@@ -114,7 +116,7 @@
         // Override
         getSerialNumber: function () {
             if (this.__sn === 0) {
-                this.__sn = this.getNumber('sn');
+                this.__sn = this.getInt('sn', 0);
             }
             return this.__sn;
         },
@@ -122,7 +124,7 @@
         // Override
         getTime: function () {
             if (this.__time === null) {
-                this.__time = get_time(this, 'time');
+                this.__time = this.getDateTime('time', null);
             }
             return this.__time;
         },
@@ -138,10 +140,6 @@
             this.setString('group', identifier);
         }
     });
-
-    var get_time = function (dict, key) {
-        return Dictionary.prototype.getTime.call(dict, key);
-    };
 
     //-------- namespace --------
     ns.dkd.BaseContent = BaseContent;

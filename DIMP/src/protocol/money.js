@@ -54,20 +54,22 @@
      *
      * @return {string} currency
      */
-    MoneyContent.prototype.getCurrency = function () {
-        throw new Error('NotImplemented');
-    };
+    MoneyContent.prototype.getCurrency = function () {};
 
     /**
      *  Set amount
      *
      * @param {float} amount
      */
-    MoneyContent.prototype.setAmount = function (amount) {
-        throw new Error('NotImplemented');
-    };
-    MoneyContent.prototype.getAmount = function () {
-        throw new Error('NotImplemented');
+    MoneyContent.prototype.setAmount = function (amount) {};
+    MoneyContent.prototype.getAmount = function () {};
+
+    //
+    //  factory method
+    //
+
+    MoneyContent.create = function (type, currency, amount) {
+        return new ns.dkd.BaseMoneyContent(type, currency, amount);
     };
 
     /**
@@ -84,19 +86,19 @@
     var TransferContent = Interface(null, [MoneyContent]);
 
     // sender
-    TransferContent.prototype.setRemitter = function (sender) {
-        throw new Error('NotImplemented');
-    };
-    TransferContent.prototype.getRemitter = function () {
-        throw new Error('NotImplemented');
-    };
+    TransferContent.prototype.setRemitter = function (sender) {};
+    TransferContent.prototype.getRemitter = function () {};
 
     // receiver
-    TransferContent.prototype.setRemittee = function (receiver) {
-        throw new Error('NotImplemented');
-    };
-    TransferContent.prototype.getRemittee = function () {
-        throw new Error('NotImplemented');
+    TransferContent.prototype.setRemittee = function (receiver) {};
+    TransferContent.prototype.getRemittee = function () {};
+
+    //
+    //  factory method
+    //
+
+    TransferContent.create = function (currency, amount) {
+        return new ns.dkd.TransferMoneyContent(currency, amount);
     };
 
     //-------- namespace --------

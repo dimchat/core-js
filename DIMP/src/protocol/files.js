@@ -30,7 +30,143 @@
 // =============================================================================
 //
 
-//! require 'file.js'
+//! require 'namespace.js'
+
+(function (ns) {
+    'use strict';
+
+    var Interface = ns.type.Interface;
+    var Content = ns.protocol.Content;
+
+    /**
+     *  File message: {
+     *      type : 0x10,
+     *      sn   : 123,
+     *
+     *      data     : "...",        // base64_encode(fileContent)
+     *      filename : "filename.ext",
+     *
+     *      URL      : "http://...", // download from CDN
+     *      // before fileContent uploaded to a public CDN,
+     *      // it should be encrypted by a symmetric key
+     *      key      : {             // symmetric key to decrypt file content
+     *          algorithm : "AES",   // "DES", ...
+     *          data      : "{BASE64_ENCODE}",
+     *          ...
+     *      }
+     *  }
+     */
+    var FileContent = Interface(null, [Content]);
+
+    // Uint8Array
+    FileContent.prototype.setData = function (data) {};
+    FileContent.prototype.getData = function () {};
+
+    FileContent.prototype.setFilename = function (filename) {};
+    FileContent.prototype.getFilename = function () {};
+
+    FileContent.prototype.setURL = function (url) {};
+    FileContent.prototype.getURL = function () {};
+
+    // DecryptKey
+    FileContent.prototype.setPassword = function (key) {};
+    FileContent.prototype.getPassword = function () {};
+
+    //
+    //  factory methods
+    //
+
+    var init_content = function (content, data, filename, url, password) {
+        if (data) {
+            content.setTransportableData(data);
+        }
+        if (filename) {
+            content.setFilename(filename);
+        }
+        if (url) {
+            content.setURL(url);
+        }
+        if (password) {
+            content.setPassword(password);
+        }
+        return content;
+    };
+
+    /**
+     *  Create file content with type
+     *
+     * @param {uint} type              - message type
+     * @param {TransportableData} data - file data
+     * @param {string} filename        - file name
+     * @param {string} url             - download URL
+     * @param {DecryptKey} password    - download key
+     * @return {FileContent}
+     */
+    FileContent.create = function (type, data, filename, url, password) {
+        var content = new ns.dkd.BaseFileContent(type);
+        return init_content(content, data, filename, url, password);
+    };
+
+    /**
+     *  Create file content
+     *
+     * @param {TransportableData} data - file data
+     * @param {string} filename        - file name
+     * @param {string} url             - download URL
+     * @param {DecryptKey} password    - download key
+     * @return {FileContent}
+     */
+    FileContent.file = function (data, filename, url, password) {
+        var content = new ns.dkd.BaseFileContent();
+        return init_content(content, data, filename, url, password);
+    };
+
+    /**
+     *  Create image content
+     *
+     * @param {TransportableData} data - file data
+     * @param {string} filename        - file name
+     * @param {string} url             - download URL
+     * @param {DecryptKey} password    - download key
+     * @return {ImageContent}
+     */
+    FileContent.image = function (data, filename, url, password) {
+        var content = new ns.dkd.ImageFileContent();
+        return init_content(content, data, filename, url, password);
+    };
+
+    /**
+     *  Create audio content
+     *
+     * @param {TransportableData} data - file data
+     * @param {string} filename        - file name
+     * @param {string} url             - download URL
+     * @param {DecryptKey} password    - download key
+     * @return {AudioContent}
+     */
+    FileContent.audio = function (data, filename, url, password) {
+        var content = new ns.dkd.AudioFileContent();
+        return init_content(content, data, filename, url, password);
+    };
+
+    /**
+     *  Create video content
+     *
+     * @param {TransportableData} data - file data
+     * @param {string} filename        - file name
+     * @param {string} url             - download URL
+     * @param {DecryptKey} password    - download key
+     * @return {VideoContent}
+     */
+    FileContent.video = function (data, filename, url, password) {
+        var content = new ns.dkd.VideoFileContent();
+        return init_content(content, data, filename, url, password);
+    };
+
+    //-------- namespace --------
+    ns.protocol.FileContent = FileContent;
+
+})(DIMP);
 
 (function (ns) {
     'use strict';
@@ -43,77 +179,78 @@
      *      type : 0x12,
      *      sn   : 123,
      *
-     *      URL      : "http://",      // for encrypted file data from CDN
+     *      data     : "...",        // base64_encode(fileContent)
      *      filename : "photo.png",
-     *      thumbnail : "...",         // base64_encode(smallImage)
+     *
+     *      URL      : "http://...", // download from CDN
+     *      // before fileContent uploaded to a public CDN,
+     *      // it should be encrypted by a symmetric key
+     *      key      : {             // symmetric key to decrypt file content
+     *          algorithm : "AES",   // "DES", ...
+     *          data      : "{BASE64_ENCODE}",
+     *          ...
+     *      },
+     *      thumbnail : "data:image/jpeg;base64,..."
      *  }
      */
     var ImageContent = Interface(null, [FileContent]);
 
-    /**
-     *  Set small image data
-     *
-     * @param {Uint8Array} image data
-     */
-    ImageContent.prototype.setThumbnail = function (image) {
-        throw new Error('NotImplemented');
-    };
-    ImageContent.prototype.getThumbnail = function () {
-        throw new Error('NotImplemented');
-    };
+    // PortableNetworkFile
+    ImageContent.prototype.setThumbnail = function (image) {};
+    ImageContent.prototype.getThumbnail = function () {};
 
     /**
      *  Video message: {
      *      type : 0x16,
      *      sn   : 123,
      *
-     *      URL      : "http://",      // for encrypted file data from CDN
+     *      data     : "...",        // base64_encode(fileContent)
      *      filename : "movie.mp4",
-     *      snapshot : "...",          // base64_encode(smallImage)
+     *
+     *      URL      : "http://...", // download from CDN
+     *      // before fileContent uploaded to a public CDN,
+     *      // it should be encrypted by a symmetric key
+     *      key      : {             // symmetric key to decrypt file content
+     *          algorithm : "AES",   // "DES", ...
+     *          data      : "{BASE64_ENCODE}",
+     *          ...
+     *      },
+     *      snapshot : "data:image/jpeg;base64,..."
      *  }
      */
     var VideoContent = Interface(null, [FileContent]);
 
-    /**
-     *  Set small image data
-     *
-     * @param {Uint8Array} image data
-     */
-    VideoContent.prototype.setSnapshot = function (image) {
-        throw new Error('NotImplemented');
-    };
-    VideoContent.prototype.getSnapshot = function () {
-        throw new Error('NotImplemented');
-    };
+    // PortableNetworkFile
+    VideoContent.prototype.setSnapshot = function (image) {};
+    VideoContent.prototype.getSnapshot = function () {};
 
     /**
      *  Audio message: {
      *      type : 0x14,
      *      sn   : 123,
      *
-     *      URL      : "http://",      // for encrypted file data from CDN
-     *      filename : "voice.mp3",
-     *      data     : "...",          // if (!URL) base64_encode(audio)
+     *      data     : "...",        // base64_encode(fileContent)
+     *      filename : "movie.mp4",
+     *
+     *      URL      : "http://...", // download from CDN
+     *      // before fileContent uploaded to a public CDN,
+     *      // it should be encrypted by a symmetric key
+     *      key      : {             // symmetric key to decrypt file content
+     *          algorithm : "AES",   // "DES", ...
+     *          data      : "{BASE64_ENCODE}",
+     *          ...
+     *      },
      *      text     : "...",          // Automatic Speech Recognition
      *  }
      */
     var AudioContent = Interface(null, [FileContent]);
 
-    /**
-     *  Set ASR text
-     *
-     * @param {string} asr
-     */
-    AudioContent.prototype.setText = function (asr) {
-        throw new Error('NotImplemented');
-    };
-    AudioContent.prototype.getText = function () {
-        throw new Error('NotImplemented');
-    };
+    AudioContent.prototype.setText = function (asr) {};
+    AudioContent.prototype.getText = function () {};
 
     //-------- namespace --------
     ns.protocol.ImageContent = ImageContent;
-    ns.protocol.VideoContent = VideoContent;
     ns.protocol.AudioContent = AudioContent;
+    ns.protocol.VideoContent = VideoContent;
 
 })(DIMP);
