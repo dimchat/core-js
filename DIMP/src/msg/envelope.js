@@ -52,6 +52,7 @@
 
     var Class      = ns.type.Class;
     var Dictionary = ns.type.Dictionary;
+    var Converter  = ns.type.Converter;
 
     var ID       = ns.protocol.ID;
     var Envelope = ns.protocol.Envelope;
@@ -73,25 +74,20 @@
             from = null;
             to = null;
             when = null;
-        } else if (arguments.length === 2) {
+        } else if (arguments.length === 2 || arguments.length === 3) {
             // new MessageEnvelope(sender, receiver);
-            from = arguments[0];
-            to = arguments[1];
-            when = new Date();
-            env = {
-                'sender': from.toString(),
-                'receiver': to.toString(),
-                'time': when.getTime() / 1000.0
-            };
-        } else if (arguments.length === 3) {
             // new MessageEnvelope(sender, receiver, time);
             from = arguments[0];
             to = arguments[1];
-            when = arguments[2];
-            if (!when) {
+            if (arguments.length === 2) {
                 when = new Date();
-            } else if (typeof when === 'number') {
-                when = new Date(when * 1000);
+            } else {
+                when = arguments[2];
+                if (when === null || when === 0) {
+                    when = new Date();
+                } else {
+                    when = Converter.getDateTime(when, null);
+                }
             }
             env = {
                 'sender': from.toString(),
@@ -110,31 +106,40 @@
 
         // Override
         getSender: function () {
-            if (this.__sender === null) {
-                this.__sender = get_id(this, 'sender');
+            var sender = this.__sender;
+            if (!sender) {
+                sender = ID.parse(this.getValue('sender'));
+                this.__sender = sender;
             }
-            return this.__sender;
+            return sender;
         },
 
         // Override
         getReceiver: function () {
-            if (this.__receiver === null) {
-                this.__receiver = get_id(this, 'receiver');
+            var receiver = this.__receiver;
+            if (!receiver) {
+                receiver = ID.parse(this.getValue('receiver'));
+                if (!receiver) {
+                    receiver = ID.ANYONE;
+                }
+                this.__receiver = receiver;
             }
-            return this.__receiver;
+            return receiver;
         },
 
         // Override
         getTime: function () {
-            if (this.__time === null) {
-                this.__time = get_time(this, 'time');
+            var time = this.__time;
+            if (!time) {
+                time = this.getDateTime('time', null);
+                this.__time = time;
             }
-            return this.__time;
+            return time;
         },
 
         // Override
         getGroup: function () {
-            return get_id(this, 'group');
+            return ID.parse(this.getValue('group'));
         },
 
         // Override
@@ -144,7 +149,7 @@
 
         // Override
         getType: function () {
-            return this.getNumber('type');
+            return this.getInt('type', null);
         },
 
         // Override
@@ -153,46 +158,7 @@
         }
     });
 
-    var get_id = function (dict, key) {
-        return ID.parse(dict.getValue(key))
-    };
-
-    var get_time = function (dict, key) {
-        return Dictionary.prototype.getTime.call(dict, key);
-    };
-
     //-------- namespace --------
     ns.dkd.MessageEnvelope = MessageEnvelope;
-
-})(DaoKeDao);
-
-(function (ns) {
-    'use strict';
-
-    var Class = ns.type.Class;
-    var Envelope = ns.protocol.Envelope;
-    var MessageEnvelope = ns.dkd.MessageEnvelope;
-
-    var EnvelopeFactory = function () {
-        Object.call(this);
-    };
-    Class(EnvelopeFactory, Object, [Envelope.Factory], null);
-
-    // Override
-    EnvelopeFactory.prototype.createEnvelope = function (from, to, when) {
-        return new MessageEnvelope(from, to, when);
-    };
-
-    // Override
-    EnvelopeFactory.prototype.parseEnvelope = function (env) {
-        if (!env['sender']) {
-            // env.sender should not empty
-            return null;
-        }
-        return new MessageEnvelope(env);
-    };
-
-    //-------- namespace --------
-    ns.dkd.EnvelopeFactory = EnvelopeFactory;
 
 })(DaoKeDao);

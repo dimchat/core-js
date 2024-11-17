@@ -38,10 +38,11 @@
 
     var Class      = ns.type.Class;
     var Dictionary = ns.type.Dictionary;
+    var Converter  = ns.type.Converter;
 
-    var UTF8   = ns.format.UTF8;
-    var Base64 = ns.format.Base64;
-    var JsON   = ns.format.JSON;
+    var UTF8              = ns.format.UTF8;
+    var JsON              = ns.format.JSON;
+    var TransportableData = ns.format.TransportableData;
 
     var ID       = ns.protocol.ID;
     var Document = ns.protocol.Document;
@@ -78,8 +79,10 @@
             status = 0;
             data = null;
             if (type && type.length > 1) {
+                var now = new Date();
                 properties = {
-                    'type': type
+                    'type': type,  // deprecated
+                    'created_time': (now.getTime() / 1000.0)
                 };
             } else {
                 properties = null;
@@ -115,38 +118,50 @@
 
         // Override
         getType: function () {
-            var type = this.getProperty('type');
+            var type = this.getProperty('type');  // deprecated
             if (!type) {
-                type = this.getString('type');
+                var man = ns.mkm.AccountFactoryManager;
+                var gf = man.generalFactory;
+                type = gf.getDocumentType(this.toMap(), null);
+                // type = this.getString('type');
             }
             return type;
         },
 
         // Override
         getIdentifier: function () {
-            if (this.__identifier === null) {
-                this.__identifier = ID.parse(this.getValue('ID'));
+            var did = this.__identifier;
+            if (!did) {
+                did = ID.parse(this.getValue('ID'))
+                this.__identifier = did;
             }
-            return this.__identifier;
+            return did;
         },
 
         // private
         getData: function () {
-            if (this.__json === null) {
-                this.__json = this.getString('data');
+            var base64 = this.__json;
+            if (!base64) {
+                base64 = this.getString('data', null);
+                this.__json = base64;
             }
-            return this.__json;
+            // return json string
+            return base64;
         },
 
         // private
         getSignature: function () {
-            if (this.__sig === null) {
+            var ted = this.__sig;
+            if (!ted) {
                 var base64 = this.getString('signature');
-                if (base64) {
-                    this.__sig = Base64.decode(base64);
-                }
+                ted = TransportableData.parse(base64);
+                this.__sig = ted;
             }
-            return this.__sig;
+            // return binary data
+            if (!ted) {
+                return null;
+            }
+            return ted.getData();
         },
 
         //-------- properties --------
@@ -157,15 +172,18 @@
                 // invalid
                 return null;
             }
-            if (this.__properties === null) {
-                var data = this.getData();  // json string
-                if (data) {
-                    this.__properties = JsON.decode(data);
+            var dict = this.__properties;
+            if (!dict) {
+                var json = this.getData();
+                if (json) {
+                    dict = JsON.decode(json);
                 } else {
-                    this.__properties = {};
+                    // create new properties
+                    dict = {};
                 }
+                this.__properties = dict;
             }
-            return this.__properties;
+            return dict;
         },
 
         // Override
@@ -236,7 +254,12 @@
             var now = new Date();
             this.setProperty('time', now.getTime() / 1000.0);
             // 2. encode & sign
-            var data = JsON.encode(this.allProperties());
+            var dict = this.allProperties();
+            if (!dict) {
+                // document error
+                return null;
+            }
+            var data = JsON.encode(dict);
             if (!data || data.length === 0) {
                 // properties error
                 return null;
@@ -246,14 +269,15 @@
                 // signature error
                 return null;
             }
+            var ted = TransportableData.create(signature);
             // 3. update 'data' & 'signature' fields
-            this.setValue('data', data);
-            this.setValue('signature', Base64.encode(signature));
+            this.setValue('data', data);                 // JSON string
+            this.setValue('signature', ted.toObject());  // BASE-64
             this.__json = data;
-            this.__sig = signature;
+            this.__sig = ted;
             // 4. update status
             this.__status = 1;
-            return this.__sig;
+            return signature;
         },
 
         //-------- extra info --------
@@ -261,16 +285,13 @@
         // Override
         getTime: function () {
             var timestamp = this.getProperty('time');
-            if (timestamp) {
-                return new Date(timestamp * 1000);
-            } else {
-                return null;
-            }
+            return Converter.getDateTime(timestamp, null);
         },
 
         // Override
         getName: function () {
-            return this.getProperty('name');
+            var name = this.getProperty('name');
+            return Converter.getString(name, null);
         },
 
         // Override

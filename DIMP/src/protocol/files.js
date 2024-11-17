@@ -97,8 +97,8 @@
      *
      * @param {uint} type              - message type
      * @param {TransportableData} data - file data
-     * @param {string} filename        - file name
-     * @param {string} url             - download URL
+     * @param {String} filename        - file name
+     * @param {String} url             - download URL
      * @param {DecryptKey} password    - download key
      * @return {FileContent}
      */
@@ -111,8 +111,8 @@
      *  Create file content
      *
      * @param {TransportableData} data - file data
-     * @param {string} filename        - file name
-     * @param {string} url             - download URL
+     * @param {String} filename        - file name
+     * @param {String} url             - download URL
      * @param {DecryptKey} password    - download key
      * @return {FileContent}
      */
@@ -125,8 +125,8 @@
      *  Create image content
      *
      * @param {TransportableData} data - file data
-     * @param {string} filename        - file name
-     * @param {string} url             - download URL
+     * @param {String} filename        - file name
+     * @param {String} url             - download URL
      * @param {DecryptKey} password    - download key
      * @return {ImageContent}
      */
@@ -139,8 +139,8 @@
      *  Create audio content
      *
      * @param {TransportableData} data - file data
-     * @param {string} filename        - file name
-     * @param {string} url             - download URL
+     * @param {String} filename        - file name
+     * @param {String} url             - download URL
      * @param {DecryptKey} password    - download key
      * @return {AudioContent}
      */
@@ -153,8 +153,8 @@
      *  Create video content
      *
      * @param {TransportableData} data - file data
-     * @param {string} filename        - file name
-     * @param {string} url             - download URL
+     * @param {String} filename        - file name
+     * @param {String} url             - download URL
      * @param {DecryptKey} password    - download key
      * @return {VideoContent}
      */

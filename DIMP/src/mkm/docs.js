@@ -35,14 +35,15 @@
 (function (ns) {
     'use strict';
 
-    var Interface = ns.type.Interface;
-    var Class = ns.type.Class;
+    var Interface  = ns.type.Interface;
+    var Class      = ns.type.Class;
     var EncryptKey = ns.crypto.EncryptKey;
-    var PublicKey = ns.crypto.PublicKey;
+    var PublicKey  = ns.crypto.PublicKey;
+    var PortableNetworkFile = ns.format.PortableNetworkFile;
 
-    var ID = ns.protocol.ID;
+    var ID       = ns.protocol.ID;
     var Document = ns.protocol.Document;
-    var Visa = ns.protocol.Visa;
+    var Visa     = ns.protocol.Visa;
     var BaseDocument = ns.mkm.BaseDocument;
 
     /**
@@ -66,38 +67,62 @@
             // new BaseVisa(map);
             BaseDocument.call(this, arguments[0]);
         }
-        this.__key = null;
+        /// Public Key for encryption
+        /// ~~~~~~~~~~~~~~~~~~~~~~~~~
+        /// For safety considerations, the visa.key which used to encrypt message data
+        /// should be different with meta.key
+        this.__key = null;     // EncryptKey
+        /// Avatar URL
+        this.__avatar = null;  // PortableNetworkFile
     };
     Class(BaseVisa, BaseDocument, [Visa], {
 
         // Override
-        getKey: function () {
-            if (this.__key === null) {
-                var key = this.getProperty('key');
-                key = PublicKey.parse(key);
+        getPublicKey: function () {
+            var key = this.__key;
+            if (!key) {
+                var info = this.getProperty('key');
+                key = PublicKey.parse(info);
                 if (Interface.conforms(key, EncryptKey)) {
                     this.__key = key;
+                } else {
+                    key = null;
                 }
             }
-            return this.__key;
+            return key;
         },
 
         // Override
-        setKey: function (publicKey) {
-            this.setProperty('key', publicKey.toMap());
-            this.__key = publicKey;
+        setPublicKey: function (pKey) {
+            if (!pKey) {
+                this.setProperty('key', null);
+            } else {
+                this.setProperty('key', pKey.toMap());
+            }
+            this.__key = pKey;
         },
 
         //-------- extra info --------
 
         // Override
         getAvatar: function () {
-            return this.getProperty('avatar');
+            var pnf = this.__avatar;
+            if (!pnf) {
+                var url = this.getProperty('avatar');
+                pnf = PortableNetworkFile.parse(url);
+                this.__avatar = pnf;
+            }
+            return pnf;
         },
 
         // Override
-        setAvatar: function (url) {
-            this.setProperty('avatar', url);
+        setAvatar: function (pnf) {
+            if (!pnf) {
+                this.setProperty('avatar', null);
+            } else {
+                this.setProperty('avatar', pnf.toObject());
+            }
+            this.__avatar = pnf;
         }
     });
 
@@ -137,28 +162,41 @@
             // new BaseBulletin(map);
             BaseDocument.call(this, arguments[0]);
         }
-        this.__assistants = null;
+        this.__assistants = null;  // List<ID>
     };
     Class(BaseBulletin, BaseDocument, [Bulletin], {
 
         // Override
-        getAssistants: function () {
-            if (this.__assistants === null) {
-                var assistants = this.getProperty('assistants');
-                if (assistants) {
-                    this.__assistants = ID.convert(assistants);
-                }
-            }
-            return this.__assistants;
+        getFounder: function () {
+            return ID.parse(this.getProperty('founder'));
         },
 
         // Override
-        setAssistants: function (assistants) {
-            if (assistants) {
-                this.setProperty('assistants', ID.revert(assistants));
+        getAssistants: function () {
+            var bots = this.__assistants;
+            if (!bots) {
+                var assistants = this.getProperty('assistants');
+                if (assistants) {
+                    bots = ID.convert(assistants);
+                } else {
+                    // get from 'assistant'
+                    var single = ID.parse(this.getProperty('assistant'));
+                    bots = !single ? [] : [single];
+                }
+                this.__assistants = bots;
+            }
+            return bots;
+        },
+
+        // Override
+        setAssistants: function (bots) {
+            if (bots) {
+                this.setProperty('assistants', ID.revert(bots));
             } else {
                 this.setProperty('assistants', null);
             }
+            this.setProperty('assistant', null);
+            this.__assistants = bots;
         }
     });
 

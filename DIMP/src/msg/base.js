@@ -77,6 +77,7 @@
     var Class      = ns.type.Class;
     var Dictionary = ns.type.Dictionary;
 
+    var ID       = ns.protocol.ID;
     var Envelope = ns.protocol.Envelope;
     var Message  = ns.protocol.Message;
 
@@ -96,27 +97,17 @@
         Dictionary.call(this, msg);
         // envelope, which shared the same dictionary with the message
         this.__envelope = env;
-        // delegate to transform messages
-        this.__delegate = null;
     };
     Class(BaseMessage, Dictionary, [Message], {
 
         // Override
-        getDelegate: function () {
-            return this.__delegate;
-        },
-
-        // Override
-        setDelegate: function (delegate) {
-            this.__delegate = delegate;
-        },
-
-        // Override
         getEnvelope: function () {
-            if (this.__envelope === null) {
-                this.__envelope = Envelope.parse(this.toMap());
+            var env = this.__envelope;
+            if (!env) {
+                env = Envelope.parse(this.toMap());
+                this.__envelope = env;
             }
-            return this.__envelope;
+            return env;
         },
 
         // Override
@@ -149,6 +140,18 @@
             return env.getTime();
         }
     });
+
+    BaseMessage.isBroadcast = function (msg) {
+        if (msg.getReceiver().isBroadcast()) {
+            return true;
+        }
+        // check exposed group
+        var group = ID.parse(msg.getValue('group'));
+        if (!group) {
+            return false;
+        }
+        return group.isBroadcast();
+    };
 
     //-------- namespace --------
     ns.dkd.BaseMessage = BaseMessage;

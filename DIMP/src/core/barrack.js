@@ -30,13 +30,6 @@
 // =============================================================================
 //
 
-/**
- *  Entity Database
- *  ~~~~~~~~~~~~~~~
- *
- *  Manage meta/document for all entities
- */
-
 //! require 'namespace.js'
 
 (function (ns) {
@@ -49,79 +42,149 @@
 
     var EntityType = ns.protocol.EntityType;
     var ID         = ns.protocol.ID;
-    var Meta       = ns.protocol.Meta;
-    var Document   = ns.protocol.Document;
-    var Visa       = ns.protocol.Visa;
-    var Bulletin   = ns.protocol.Bulletin;
 
-    var Entity = ns.mkm.Entity;
-    var User   = ns.mkm.User;
-    var Group  = ns.mkm.Group;
+    var Entity          = ns.mkm.Entity;
+    var User            = ns.mkm.User;
+    var Group           = ns.mkm.Group;
+    var DocumentHelper  = ns.mkm.DocumentHelper;
+    var BroadcastHelper = ns.mkm.BroadcastHelper;
 
+    /**
+     *  Entity Database
+     *  ~~~~~~~~~~~~~~~
+     *  Entity pool to manage User/Contact/Group/Member instances
+     *  Manage meta/document for all entities
+     *
+     *      1st, get instance here to avoid create same instance,
+     *      2nd, if they were updated, we can refresh them immediately here
+     */
     var Barrack = function () {
         Object.call(this);
+        // memory caches
+        this.__users = {};   // ID => User
+        this.__groups = {};  // ID => Group
     };
     Class(Barrack, Object, [Entity.Delegate, User.DataSource, Group.DataSource], {
 
         // protected
-        getBroadcastFounder: function (group) {
-            var name = group_seed(group);
-            if (name) {
-                // DISCUSS: who should be the founder of group 'xxx@everywhere'?
-                //          'anyone@anywhere', or 'xxx.founder@anywhere'
-                return ID.parse(name + ".founder@anywhere");
-            } else {
-                // Consensus: the founder of group 'everyone@everywhere'
-                //            'Albert Moky'
-                return ID.FOUNDER;
+        cacheUser: function (user) {
+            var delegate = user.getDataSource();
+            if (!delegate) {
+                user.setDataSource(this);
             }
+            this.__users[user.getIdentifier()] = user;
         },
 
         // protected
-        getBroadcastOwner: function (group) {
-            var name = group_seed(group);
-            if (name) {
-                // DISCUSS: who should be the owner of group 'xxx@everywhere'?
-                //          'anyone@anywhere', or 'xxx.owner@anywhere'
-                return ID.parse(name + ".owner@anywhere");
-            } else {
-                // Consensus: the owner of group 'everyone@everywhere'
-                //            'anyone@anywhere'
-                return ID.ANYONE;
+        cacheGroup: function (group) {
+            var delegate = group.getDataSource();
+            if (!delegate) {
+                group.setDataSource(this);
             }
+            this.__groups[group.getIdentifier()] = group;
+        },
+
+        /**
+         *  Call it when received 'UIApplicationDidReceiveMemoryWarningNotification',
+         *  this will remove 50% of cached objects
+         *
+         * @return number of survivors
+         */
+        reduceMemory: function () {
+            var finger = 0;
+            finger = thanos(this.__users, finger);
+            finger = thanos(this.__groups, finger);
+            return finger >> 1;
+        },
+
+        /**
+         *  Create user when visa.key exists
+         *
+         * @param {ID} identifier - user ID
+         * @return {User} null on not ready
+         */
+        // protected
+        createUser: function (identifier) {
+            // throw Error('NotImplemented');
+        },
+
+        /**
+         *  Create group when members exist
+         *
+         * @param {ID} identifier - group ID
+         * @return {Group} null on not ready
+         */
+        // protected
+        createGroup: function (identifier) {
+            // throw Error('NotImplemented');
         },
 
         // protected
-        getBroadcastMembers: function (group) {
-            var members = [];
-            var name = group_seed(group);
-            if (name) {
-                // DISCUSS: who should be the member of group 'xxx@everywhere'?
-                //          'anyone@anywhere', or 'xxx.member@anywhere'
-                var owner = ID.parse(name + ".owner@anywhere");
-                var member = ID.parse(name + ".member@anywhere");
-                members.push(owner);
-                members.push(member);
-            } else {
-                // Consensus: the member of group 'everyone@everywhere'
-                //            'anyone@anywhere'
-                members.push(ID.ANYONE);
-            }
-            return members;
+        getVisaKey: function (identifier) {
+            var doc = this.getVisa(identifier);
+            return !doc ? null : doc.getPublicKey();
         },
 
-        //-------- User DataSource --------
+        // protected
+        getMetaKey: function (identifier) {
+            var meta = this.getMeta(identifier);
+            return !meta ? null : meta.getPublicKey();
+        },
+
+        getVisa: function (identifier) {
+            return DocumentHelper.lastVisa(this.getDocuments(identifier));
+        },
+
+        getBulletin: function (identifier) {
+            return DocumentHelper.lastBulletin(this.getDocuments(identifier));
+        },
+
+        //
+        //  Entity Delegate
+        //
+
+        // Override
+        getUser: function (identifier) {
+            // 1. get from user cache
+            var user = this.__users[identifier];
+            if (!user) {
+                // 2. create user and cache it
+                user = this.createUser(identifier);
+                if (user) {
+                    this.cacheUser(user);
+                }
+            }
+            return user;
+        },
+
+        // Override
+        getGroup: function (identifier) {
+            // 1. get from group cache
+            var group = this.__groups[identifier];
+            if (!group) {
+                // 2. create group and cache it
+                group = this.createGroup(identifier);
+                if (group) {
+                    this.cacheGroup(group);
+                }
+            }
+            return group;
+        },
+
+        //
+        //  User Data Source
+        //
 
         // Override
         getPublicKeyForEncryption: function (identifier) {
             // 1. get key from visa
-            var key = visa_key.call(this, identifier);
+            var key = this.getVisaKey(identifier);
             if (key) {
                 // if visa.key exists, use it for encryption
                 return key;
             }
             // 2. get key from meta
-            key = meta_key.call(this, identifier);
+            key = this.getMetaKey(identifier);
             if (Interface.conforms(key, EncryptKey)) {
                 // if visa.key not exists and meta.key is encrypt key,
                 // use it for encryption
@@ -135,56 +198,38 @@
         getPublicKeysForVerification: function (identifier) {
             var keys = [];
             // 1. get key from visa
-            var key = visa_key.call(this, identifier);
+            var key = this.getVisaKey(identifier);
             if (Interface.conforms(key, VerifyKey)) {
-                // the sender may use communication key to sign message.data,
-                // so try to verify it with visa.key here
+                // the sender may use identity key to sign message.data,
+                // try to verify it with meta.key
                 keys.push(key);
             }
             // 2. get key from meta
-            key = meta_key.call(this, identifier);
+            key = this.getMetaKey(identifier);
             if (key) {
-                // the sender may use identity key to sign message.data,
-                // try to verify it with meta.key
+                // the sender may use communication key to sign message.data,
+                // so try to verify it with visa.key here
                 keys.push(key);
             }
             //assert(keys.size() > 0, "failed to get verify key for user: " + identifier);
             return keys;
         },
 
-        //-------- Group DataSource --------
+        //
+        //  Group Data Source
+        //
 
         // Override
         getFounder: function (group) {
             // check for broadcast
             if (group.isBroadcast()) {
                 // founder of broadcast group
-                return this.getBroadcastFounder(group);
+                return BroadcastHelper.getBroadcastFounder(group);
             }
-            // check group meta
-            var gMeta = this.getMeta(group);
-            if (!gMeta) {
-                // FIXME: when group profile was arrived but the meta still on the way,
-                //        here will cause founder not found
-                return null;
-            }
-            // check each member's public key with group meta
-            var members = this.getMembers(group);
-            if (members) {
-                var item, mMeta;
-                for (var i = 0; i < members.length; ++i) {
-                    item = members[i];
-                    mMeta = this.getMeta(item);
-                    if (!mMeta) {
-                        // failed to get member's meta
-                        continue;
-                    }
-                    if (Meta.matchKey(mMeta.getKey(), gMeta)) {
-                        // if the member's public key matches with the group's meta,
-                        // it means this meta was generated by the member's private key
-                        return item;
-                    }
-                }
+            // get from document
+            var doc = this.getBulletin(group);
+            if (doc/* && doc.isValid()*/) {
+                return doc.getFounder();
             }
             // TODO: load founder from database
             return null;
@@ -195,11 +240,11 @@
             // check broadcast group
             if (group.isBroadcast()) {
                 // owner of broadcast group
-                return this.getBroadcastOwner(group);
+                return BroadcastHelper.getBroadcastOwner(group);
             }
             // check group type
             if (EntityType.GROUP.equals(group.getType())) {
-                // Polylogue's owner is its founder
+                // Polylogue owner is its founder
                 return this.getFounder(group);
             }
             // TODO: load owner from database
@@ -211,51 +256,52 @@
             // check broadcast group
             if (group.isBroadcast()) {
                 // members of broadcast group
-                return this.getBroadcastMembers(group);
+                return BroadcastHelper.getBroadcastMembers(group);
             }
             // TODO: load members from database
-            return null;
+            return [];
         },
 
         // Override
         getAssistants: function (group) {
-            var doc = this.getDocument(group, Document.BULLETIN);
-            if (Interface.conforms(doc, Bulletin)) {
-                if (doc.isValid()) {
-                    return doc.getAssistants();
+            // get from document
+            var doc = this.getBulletin(group);
+            if (doc/* && doc.isValid()*/) {
+                var bots = doc.getAssistants();
+                if (bots) {
+                    return bots;
                 }
             }
             // TODO: get group bots from SP configuration
-            return null;
+            return [];
         }
     });
 
-    var visa_key = function (user) {
-        var doc = this.getDocument(user, Document.VISA);
-        if (Interface.conforms(doc, Visa)) {
-            if (doc.isValid()) {
-                return doc.getKey();
-            }
+    /**
+     *  Remove 1/2 objects from the dictionary
+     *  (Thanos can kill half lives of a world with a snap of the finger)
+     *
+     * @param {{}} planet
+     * @param {number} finger
+     * @returns {number} number of survivors
+     */
+    var thanos = function (planet, finger) {
+        var keys = Object.keys(planet);
+        var k, p;
+        for (var i = 0; i < keys.length; ++i) {
+            k = keys[i];
+            p = planet[k];
+            //if (typeof p === 'function') {
+            //    // ignore
+            //    continue;
+            //}
+            finger += 1;
+            if ((finger & 1) === 1) {
+                // kill it
+                delete planet[k];
+            } // else, let it go
         }
-        return null;
-    };
-    var meta_key = function (user) {
-        var meta = this.getMeta(user);
-        if (meta) {
-            return meta.getKey();
-        }
-        return null;
-    };
-
-    var group_seed = function (gid) {
-        var seed = gid.getName();
-        if (seed) {
-            var len = seed.length;
-            if (len === 0 || (len === 8 && seed.toLowerCase() === 'everyone')) {
-                seed = null;
-            }
-        }
-        return seed;
+        return finger;
     };
 
     //-------- namespace --------

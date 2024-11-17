@@ -30,45 +30,39 @@
 // =============================================================================
 //
 
-/**
- *  Message Transceiver
- *  ~~~~~~~~~~~~~~~~~~~
- *
- *  Converting message format between PlainMessage and NetworkMessage
- */
-
 //! require 'namespace.js'
+//! require 'msg/base.js'
 
 (function (ns) {
     'use strict';
 
-    var Class = ns.type.Class;
-    var SymmetricKey = ns.crypto.SymmetricKey;
-    var UTF8 = ns.format.UTF8;
-    var Base64 = ns.format.Base64;
-    var JsON = ns.format.JSON;
-    var Content = ns.protocol.Content;
-    var InstantMessage = ns.protocol.InstantMessage;
+    var Class  = ns.type.Class;
+    var UTF8   = ns.format.UTF8;
+    var JsON   = ns.format.JSON;
+    // var TransportableData = ns.format.TransportableData;
+
+    var SymmetricKey    = ns.crypto.SymmetricKey;
+
+    var Content         = ns.protocol.Content;
+    var InstantMessage  = ns.protocol.InstantMessage;
+    var SecureMessage   = ns.protocol.SecureMessage;
     var ReliableMessage = ns.protocol.ReliableMessage;
 
+    var BaseMessage = ns.dkd.BaseMessage;
+
+    /**
+     *  Message Transceiver
+     *  ~~~~~~~~~~~~~~~~~~~
+     *
+     *  Converting message format between PlainMessage and NetworkMessage
+     */
     var Transceiver = function () {
         Object.call(this);
     };
-    Class(Transceiver, Object, [InstantMessage.Delegate, ReliableMessage.Delegate], null);
+    Class(Transceiver, Object, [InstantMessage.Delegate, SecureMessage.Delegate, ReliableMessage.Delegate], null);
 
     // protected
-    Transceiver.prototype.getEntityDelegate = function () {
-        throw new Error('NotImplemented');
-    };
-
-    // protected
-    Transceiver.prototype.isBroadcast = function (msg) {
-        var receiver = msg.getGroup();
-        if (!receiver) {
-            receiver = msg.getReceiver();
-        }
-        return receiver.isBroadcast();
-    };
+    Transceiver.prototype.getEntityDelegate = function () {};
 
     //-------- InstantMessage Delegate --------
 
@@ -83,22 +77,25 @@
 
     // Override
     Transceiver.prototype.encryptContent = function (data, pwd, iMsg) {
-        return pwd.encrypt(data);
+        // store 'IV' in iMsg for AES decryption
+        return pwd.encrypt(data, iMsg.toMap());
     };
 
-    // Override
-    Transceiver.prototype.encodeData = function (data, iMsg) {
-        if (this.isBroadcast(iMsg)) {
-            // broadcast message content will not be encrypted (just encoded to JsON),
-            // so no need to encode to Base64 here
-            return UTF8.decode(data);
-        }
-        return Base64.encode(data);
-    };
+    // // Override
+    // Transceiver.prototype.encodeData = function (data, iMsg) {
+    //     if (BaseMessage.isBroadcast(iMsg)) {
+    //         // broadcast message content will not be encrypted (just encoded to JsON),
+    //         // so no need to encode to Base64 here
+    //         return UTF8.decode(data);
+    //     }
+    //     // message content had been encrypted by a symmetric key,
+    //     // so the data should be encoded here (with algorithm 'base64' as default).
+    //     return TransportableData.encode(data);
+    // };
 
     // Override
     Transceiver.prototype.serializeKey = function (pwd, iMsg) {
-        if (this.isBroadcast(iMsg)) {
+        if (BaseMessage.isBroadcast(iMsg)) {
             // broadcast message has no key
             return null;
         }
@@ -108,38 +105,58 @@
     };
 
     // Override
-    Transceiver.prototype.encryptKey = function (data, receiver, iMsg) {
+    Transceiver.prototype.encryptKey = function (keyData, receiver, iMsg) {
         var barrack = this.getEntityDelegate();
-        // NOTICE: make sure the receiver's public key exists
+        // TODO: make sure the receiver's public key exists
         var contact = barrack.getUser(receiver);
-        return contact.encrypt(data);
+        if (!contact) {
+            // error
+            return null;
+        }
+        // encrypt with public key of the receiver (or group member)
+        return contact.encrypt(keyData);
     };
 
-    // Override
-    Transceiver.prototype.encodeKey = function (key, iMsg) {
-        return Base64.encode(key);
-    };
+    // // Override
+    // Transceiver.prototype.encodeKey = function (keyData, iMsg) {
+    //     // message key had been encrypted by a public key,
+    //     // so the data should be encode here (with algorithm 'base64' as default).
+    //     return TransportableData.encode(keyData);
+    // };
 
     //-------- SecureMessage Delegate --------
 
-    // Override
-    Transceiver.prototype.decodeKey = function (key, sMsg) {
-        return Base64.decode(key);
-    };
+    // // Override
+    // Transceiver.prototype.decodeKey = function (key, sMsg) {
+    //     return TransportableData.decode(key);
+    // };
 
     // Override
-    Transceiver.prototype.decryptKey = function (data, sender, receiver, sMsg) {
-        // NOTICE: the receiver will be group ID in a group message here
+    Transceiver.prototype.decryptKey = function (keyData, receiver, sMsg) {
+        // NOTICE: the receiver must be a member ID
+        //         if it's a group message
         var barrack = this.getEntityDelegate();
+        var user = barrack.getUser(receiver);
+        if (!user) {
+            // error
+            return null;
+        }
         // decrypt key data with the receiver/group member's private key
-        var identifier = sMsg.getReceiver();
-        var user = barrack.getUser(identifier);
-        return user.decrypt(data);
+        return user.decrypt(keyData);
     };
 
     // Override
-    Transceiver.prototype.deserializeKey = function (data, sender, receiver, sMsg) {
-        var json = UTF8.decode(data);
+    Transceiver.prototype.deserializeKey = function (keyData, sMsg) {
+        if (!keyData) {
+            // key data is empty
+            // reused key? get it from cache
+            return null;
+        }
+        var json = UTF8.decode(keyData);
+        if (!json) {
+            // key data error
+            return null;
+        }
         var dict = JsON.decode(json);
         // TODO: translate short keys
         //       'A' -> 'algorithm'
@@ -150,24 +167,31 @@
         return SymmetricKey.parse(dict);
     };
 
-    // Override
-    Transceiver.prototype.decodeData = function (data, sMsg) {
-        if (this.isBroadcast(sMsg)) {
-            // broadcast message content will not be encrypted (just encoded to JsON),
-            // so return the string data directly
-            return UTF8.encode(data);
-        }
-        return Base64.decode(data);
-    };
+    // // Override
+    // Transceiver.prototype.decodeData = function (data, sMsg) {
+    //     if (BaseMessage.isBroadcast(sMsg)) {
+    //         // broadcast message content will not be encrypted (just encoded to JsON),
+    //         // so return the string data directly
+    //         return UTF8.encode(data);
+    //     }
+    //     // message content had been encrypted by a symmetric key,
+    //     // so the data should be encoded here (with algorithm 'base64' as default).
+    //     return TransportableData.decode(data);
+    // };
 
     // Override
     Transceiver.prototype.decryptContent = function (data, pwd, sMsg) {
-        return pwd.decrypt(data);
+        // check 'IV' in sMsg for AES decryption
+        return pwd.decrypt(data, sMsg.toMap());
     };
 
     // Override
     Transceiver.prototype.deserializeContent = function (data, pwd, sMsg) {
         var json = UTF8.decode(data);
+        if (!json) {
+            // content data error
+            return null;
+        }
         var dict = JsON.decode(json);
         // TODO: translate short keys
         //       'T' -> 'type'
@@ -178,28 +202,34 @@
     };
 
     // Override
-    Transceiver.prototype.signData = function (data, sender, sMsg) {
+    Transceiver.prototype.signData = function (data, sMsg) {
         var barrack = this.getEntityDelegate();
+        var sender = sMsg.getSender();
         var user = barrack.getUser(sender);
         return user.sign(data);
     };
 
-    // Override
-    Transceiver.prototype.encodeSignature = function (signature, sMsg) {
-        return Base64.encode(signature);
-    };
+    // // Override
+    // Transceiver.prototype.encodeSignature = function (signature, sMsg) {
+    //     return TransportableData.encode(signature);
+    // };
 
     //-------- ReliableMessage Delegate --------
 
-    // Override
-    Transceiver.prototype.decodeSignature = function (signature, rMsg) {
-        return Base64.decode(signature);
-    };
+    // // Override
+    // Transceiver.prototype.decodeSignature = function (signature, rMsg) {
+    //     return TransportableData.decode(signature);
+    // };
 
     // Override
-    Transceiver.prototype.verifyDataSignature = function (data, signature, sender, rMsg) {
+    Transceiver.prototype.verifyDataSignature = function (data, signature, rMsg) {
         var barrack = this.getEntityDelegate();
+        var sender = rMsg.getSender();
         var contact = barrack.getUser(sender);
+        if (!contact) {
+            // error
+            return false;
+        }
         return contact.verify(data, signature);
     };
 

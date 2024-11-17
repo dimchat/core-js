@@ -30,75 +30,62 @@
 // =============================================================================
 //
 
-/**
- *  Entity (User/Group)
- *  ~~~~~~~~~~~~~~~~~~~
- *  Base class of User and Group, ...
- *
- *  properties:
- *      identifier - entity ID
- *      type       - entity type
- *      meta       - meta for generate ID
- *      document   - entity profile
- */
-
 //! require 'namespace.js'
 
 (function (ns) {
     'use strict';
 
     var Interface = ns.type.Interface;
+    var IObject   = ns.type.Object;
 
-    var Entity = Interface(null, [ns.type.Object]);
+    /**
+     *  Entity (User/Group)
+     *  ~~~~~~~~~~~~~~~~~~~
+     *  Base class of User and Group, ...
+     *
+     *  properties:
+     *      identifier - entity ID
+     *      type       - entity type
+     *      meta       - meta for generate ID
+     *      document   - entity profile
+     */
+    var Entity = Interface(null, [IObject]);
 
     /**
      *  Get entity ID
      *
      * @return {ID}
      */
-    Entity.prototype.getIdentifier = function () {
-        throw new Error('NotImplemented');
-    };
+    Entity.prototype.getIdentifier = function () {};
 
     /**
      *  Get entity type
      *
      * @return {uint} ID.type
      */
-    Entity.prototype.getType = function () {
-        throw new Error('NotImplemented');
-    };
+    Entity.prototype.getType = function () {};
 
     /**
      *  Get meta for this entity
      *
      * @returns {Meta}
      */
-    Entity.prototype.getMeta = function () {
-        throw new Error('NotImplemented');
-    };
+    Entity.prototype.getMeta = function () {};
 
     /**
-     *  Get profile for this entity
+     *  Get documents for this entity
      *
-     * @param {String} type - document type
-     * @returns {Document}
+     * @returns {Document[]} available documents
      */
-    Entity.prototype.getDocument = function (type) {
-        throw new Error('NotImplemented');
-    };
+    Entity.prototype.getDocuments = function () {};
 
     /**
      *  Set data source for entity
      *
      * @param {EntityDataSource} barrack
      */
-    Entity.prototype.setDataSource = function (barrack) {
-        throw new Error('NotImplemented');
-    };
-    Entity.prototype.getDataSource = function () {
-        throw new Error('NotImplemented');
-    };
+    Entity.prototype.setDataSource = function (barrack) {};
+    Entity.prototype.getDataSource = function () {};
 
     /**
      *  Entity Data Source
@@ -113,20 +100,15 @@
      * @param {ID} identifier - entity ID
      * @returns {Meta}
      */
-    EntityDataSource.prototype.getMeta = function (identifier) {
-        throw new Error('NotImplemented');
-    };
+    EntityDataSource.prototype.getMeta = function (identifier) {};
 
     /**
      *  Get profile for entity ID
      *
      * @param {ID} identifier - entity ID
-     * @param {String} type - document type
-     * @returns {Document}
+     * @returns {Document[]} available documents
      */
-    EntityDataSource.prototype.getDocument = function (identifier, type) {
-        throw new Error('NotImplemented');
-    };
+    EntityDataSource.prototype.getDocuments = function (identifier) {};
 
     /**
      *  Entity Delegate
@@ -141,9 +123,7 @@
      * @param {ID} identifier - user ID
      * @return {User}
      */
-    EntityDelegate.prototype.getUser = function (identifier) {
-        throw new Error('NotImplemented');
-    };
+    EntityDelegate.prototype.getUser = function (identifier) {};
 
     /**
      *  Create group with ID
@@ -151,15 +131,15 @@
      * @param identifier - group ID
      * @return {Group}
      */
-    EntityDelegate.prototype.getGroup = function (identifier) {
-        throw new Error('NotImplemented');
-    };
+    EntityDelegate.prototype.getGroup = function (identifier) {};
 
     Entity.DataSource = EntityDataSource;
     Entity.Delegate = EntityDelegate;
 
     //-------- namespace --------
     ns.mkm.Entity = Entity;
+    ns.mkm.EntityDelegate = EntityDelegate;
+    ns.mkm.EntityDataSource = EntityDataSource;
 
 })(DIMP);
 
@@ -175,13 +155,14 @@
     var BaseEntity = function (identifier) {
         BaseObject.call(this);
         this.__identifier = identifier;
-        this.__datasource = null;
+        this.__barrack = null;
     };
     Class(BaseEntity, BaseObject, [Entity], null);
 
     // Override
     BaseEntity.prototype.equals = function (other) {
         if (this === other) {
+            // same object
             return true;
         } else if (!other) {
             return false;
@@ -210,12 +191,12 @@
     //-------- IEntity
 
     // Override
-    BaseEntity.prototype.setDataSource = function (delegate) {
-        this.__datasource = delegate;
+    BaseEntity.prototype.setDataSource = function (barrack) {
+        this.__barrack = barrack;
     };
     // Override
     BaseEntity.prototype.getDataSource = function () {
-        return this.__datasource;
+        return this.__barrack;
     };
 
     // Override
@@ -235,9 +216,9 @@
     };
 
     // Override
-    BaseEntity.prototype.getDocument = function (type) {
+    BaseEntity.prototype.getDocuments = function () {
         var delegate = this.getDataSource();
-        return delegate.getDocument(this.__identifier, type);
+        return delegate.getDocuments(this.__identifier);
     };
 
     //-------- namespace --------

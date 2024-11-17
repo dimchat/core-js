@@ -8,7 +8,9 @@ core_tests = [];
 !function (ns) {
     'use strict';
 
+    var TransportableData = ns.format.TransportableData;
     var ContentType = ns.protocol.ContentType;
+    var FileContent = ns.protocol.FileContent;
     var BaseTextContent = ns.dkd.BaseTextContent;
     var ImageFileContent = ns.dkd.ImageFileContent;
     var AudioFileContent = ns.dkd.AudioFileContent;
@@ -25,7 +27,9 @@ core_tests = [];
     var test_image_content = function () {
         var filename = 'avatar.jpg';
         var data = 'Base64==';
-        var content = new ImageFileContent(filename, data);
+        var ted = TransportableData.parse(data);
+        var content = FileContent.image(ted, filename, null, null);
+        // var content = new ImageFileContent(filename, data);
         log('content: ', content);
         assert(ContentType.IMAGE.equals(content.getType()) === true, 'image content error');
     };
@@ -34,7 +38,9 @@ core_tests = [];
     var test_audio_content = function () {
         var filename = 'voice.mp3';
         var data = 'Base64==';
-        var content = new AudioFileContent(filename, data);
+        var ted = TransportableData.parse(data);
+        var content = FileContent.audio(ted, filename, null, null);
+        // var content = new AudioFileContent(filename, data);
         log('content: ', content);
         assert(ContentType.AUDIO.equals(content.getType()) === true, 'audio content error');
     };
@@ -43,7 +49,9 @@ core_tests = [];
     var test_video_content = function () {
         var filename = 'movie.mp4';
         var data = 'Base64==';
-        var content = new VideoFileContent(filename, data);
+        var ted = TransportableData.parse(data);
+        var content = FileContent.video(ted, filename, null, null);
+        // var content = new VideoFileContent(filename, data);
         log('content: ', content);
         assert(ContentType.VIDEO.equals(content.getType()) === true, 'video content error');
     };

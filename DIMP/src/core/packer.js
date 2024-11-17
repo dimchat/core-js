@@ -42,17 +42,11 @@
 
     var Interface = ns.type.Interface;
 
-    var Packer = Interface(null, null);
-
     /**
-     *  Get group ID which should be exposed to public network
-     *
-     * @param {Content} content - message content
-     * @return {ID} exposed group ID
+     *  Message Packer
+     *  ~~~~~~~~~~~~~~
      */
-    Packer.prototype.getOvertGroup = function (content) {
-        throw new Error('NotImplemented');
-    };
+    var Packer = Interface(null, null);
 
     //
     //  InstantMessage -> SecureMessage -> ReliableMessage -> Data
@@ -64,9 +58,7 @@
      * @param {InstantMessage} iMsg - plain message
      * @return {SecureMessage} encrypted message
      */
-    Packer.prototype.encryptMessage = function (iMsg) {
-        throw new Error('NotImplemented');
-    };
+    Packer.prototype.encryptMessage = function (iMsg) {};
 
     /**
      *  Sign content data
@@ -74,9 +66,7 @@
      * @param {SecureMessage} sMsg - encrypted message
      * @return {ReliableMessage} network message
      */
-    Packer.prototype.signMessage = function (sMsg) {
-        throw new Error('NotImplemented');
-    };
+    Packer.prototype.signMessage = function (sMsg) {};
 
     /**
      *  Serialize network message
@@ -84,9 +74,7 @@
      * @param {ReliableMessage} rMsg - network message
      * @return {Uint8Array} data package
      */
-    Packer.prototype.serializeMessage = function (rMsg) {
-        throw new Error('NotImplemented');
-    };
+    Packer.prototype.serializeMessage = function (rMsg) {};
 
     //
     //  Data -> ReliableMessage -> SecureMessage -> InstantMessage
@@ -98,9 +86,7 @@
      * @param {Uint8Array} data - data package
      * @return {ReliableMessage} network message
      */
-    Packer.prototype.deserializeMessage = function (data) {
-        throw new Error('NotImplemented');
-    };
+    Packer.prototype.deserializeMessage = function (data) {};
 
     /**
      *  Verify encrypted content data
@@ -108,9 +94,7 @@
      * @param {ReliableMessage} rMsg - network message
      * @return {SecureMessage} encrypted message
      */
-    Packer.prototype.verifyMessage = function (rMsg) {
-        throw new Error('NotImplemented');
-    };
+    Packer.prototype.verifyMessage = function (rMsg) {};
 
     /**
      *  Decrypt message content
@@ -118,9 +102,7 @@
      * @param {SecureMessage} sMsg - encrypted message
      * @return {InstantMessage} plain message
      */
-    Packer.prototype.decryptMessage = function (sMsg) {
-        throw new Error('NotImplemented');
-    };
+    Packer.prototype.decryptMessage = function (sMsg) {};
 
     //-------- namespace --------
     ns.Packer = Packer;

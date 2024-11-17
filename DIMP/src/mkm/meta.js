@@ -44,6 +44,9 @@
  *
  *      algorithm:
  *          fingerprint = sign(seed, SK);
+ *
+ *  abstract method:
+ *      - Address generateAddress(int? network);
  */
 
 //! require <crypto.js>
@@ -124,13 +127,13 @@
         // Override
         getType: function () {
             if (this.__type === 0) {
-                this.__type = this.getNumber('type');
+                this.__type = this.getInt('type');
             }
             return this.__type;
         },
 
         // Override
-        getKey: function () {
+        getPublicKey: function () {
             if (this.__key === null) {
                 var key = this.getValue('key');
                 this.__key = PublicKey.parse(key);

@@ -42,6 +42,10 @@
 
     var Interface = ns.type.Interface;
 
+    /**
+     *  Message Processor
+     *  ~~~~~~~~~~~~~~~~~
+     */
     var Processor = Interface(null, null);
 
     /**
@@ -50,9 +54,7 @@
      * @param {Uint8Array} data - data to be processed
      * @return {Uint8Array} response data
      */
-    Processor.prototype.processPackage = function (data) {
-        throw new Error('NotImplemented');
-    };
+    Processor.prototype.processPackage = function (data) {};
 
     /**
      *  Process network message
@@ -60,9 +62,7 @@
      * @param {ReliableMessage} rMsg - message to be processed
      * @return {ReliableMessage} response message
      */
-    Processor.prototype.processReliableMessage = function (rMsg) {
-        throw new Error('NotImplemented');
-    };
+    Processor.prototype.processReliableMessage = function (rMsg) {};
 
     /**
      *  Process encrypted message
@@ -71,9 +71,7 @@
      * @param {ReliableMessage} rMsg - message received
      * @return {SecureMessage} response message
      */
-    Processor.prototype.processSecureMessage = function (sMsg, rMsg) {
-        throw new Error('NotImplemented');
-    };
+    Processor.prototype.processSecureMessage = function (sMsg, rMsg) {};
 
     /**
      *  Process plain message
@@ -82,9 +80,7 @@
      * @param {ReliableMessage} rMsg - message received
      * @return {InstantMessage} response message
      */
-    Processor.prototype.processInstantMessage = function (iMsg, rMsg) {
-        throw new Error('NotImplemented');
-    };
+    Processor.prototype.processInstantMessage = function (iMsg, rMsg) {};
 
     /**
      *  Process message content
@@ -93,9 +89,7 @@
      * @param {ReliableMessage} rMsg - message received
      * @return {Content} response content
      */
-    Processor.prototype.processContent = function (content, rMsg) {
-        throw new Error('NotImplemented');
-    };
+    Processor.prototype.processContent = function (content, rMsg) {};
 
     //-------- namespace --------
     ns.Processor = Processor;

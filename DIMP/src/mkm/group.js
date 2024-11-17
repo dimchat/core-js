@@ -31,6 +31,7 @@
 //
 
 //! require 'entity.js'
+//! require 'helper.js'
 
 (function (ns) {
     'use strict';
@@ -38,6 +39,16 @@
     var Interface = ns.type.Interface;
     var Entity = ns.mkm.Entity;
 
+    /**
+     *  This class is for creating group
+     *
+     *      roles:
+     *          founder
+     *          owner
+     *          members
+     *          administrators - Optional
+     *          assistants     - group bots
+     */
     var Group = Interface(null, [Entity]);
 
     /**
@@ -45,27 +56,21 @@
      *
      * @return {Bulletin}
      */
-    Group.prototype.getBulletin = function () {
-        throw new Error('NotImplemented');
-    };
+    Group.prototype.getBulletin = function () {};
 
     /**
      *  Get group founder
      *
      * @return {ID}
      */
-    Group.prototype.getFounder = function () {
-        throw new Error('NotImplemented');
-    };
+    Group.prototype.getFounder = function () {};
 
     /**
      *  Get group owner
      *
      * @return {ID}
      */
-    Group.prototype.getOwner = function () {
-        throw new Error('NotImplemented');
-    };
+    Group.prototype.getOwner = function () {};
 
     /**
      *  Get group members
@@ -73,22 +78,21 @@
      *
      * @return {ID[]}
      */
-    Group.prototype.getMembers = function () {
-        throw new Error('NotImplemented');
-    };
+    Group.prototype.getMembers = function () {};
 
     /**
      *  Get group assistants
      *
      * @return {ID[]} bots IDs
      */
-    Group.prototype.getAssistants = function () {
-        throw new Error('NotImplemented');
-    };
+    Group.prototype.getAssistants = function () {};
 
     /**
-     *  Group Data Source
-     *  ~~~~~~~~~~~~~~~~~
+     *  This interface is for getting information for group
+     *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *
+     *  1. founder has the same public key with the group's meta.key
+     *  2. owner and members should be set complying with the consensus algorithm
      */
     var GroupDataSource = Interface(null, [Entity.DataSource]);
 
@@ -98,9 +102,7 @@
      * @param {ID} identifier - group ID
      * @returns {ID}
      */
-    GroupDataSource.prototype.getFounder = function (identifier) {
-        throw new Error('NotImplemented');
-    };
+    GroupDataSource.prototype.getFounder = function (identifier) {};
 
     /**
      *  Get group owner
@@ -108,9 +110,7 @@
      * @param {ID} identifier - group ID
      * @returns {ID}
      */
-    GroupDataSource.prototype.getOwner = function (identifier) {
-        throw new Error('NotImplemented');
-    };
+    GroupDataSource.prototype.getOwner = function (identifier) {};
 
     /**
      *  Get group members list
@@ -118,9 +118,7 @@
      * @param {ID} identifier - group ID
      * @returns {ID[]}
      */
-    GroupDataSource.prototype.getMembers = function (identifier) {
-        throw new Error('NotImplemented');
-    };
+    GroupDataSource.prototype.getMembers = function (identifier) {};
 
     /**
      *  Get assistants for this group
@@ -128,27 +126,23 @@
      * @param {ID} identifier - group ID
      * @returns {ID[]} robot ID list
      */
-    GroupDataSource.prototype.getAssistants = function (identifier) {
-        throw new Error('NotImplemented');
-    };
+    GroupDataSource.prototype.getAssistants = function (identifier) {};
 
     Group.DataSource = GroupDataSource;
 
     //-------- namespace --------
     ns.mkm.Group = Group;
+    // ns.mkm.GroupDataSource = GroupDataSource;
 
 })(DIMP);
 
 (function (ns) {
     'use strict';
 
-    var Interface  = ns.type.Interface;
-    var Class      = ns.type.Class;
-
-    var Document   = ns.protocol.Document;
-    var Bulletin   = ns.protocol.Bulletin;
-    var Group      = ns.mkm.Group;
-    var BaseEntity = ns.mkm.BaseEntity;
+    var Class          = ns.type.Class;
+    var Group          = ns.mkm.Group;
+    var BaseEntity     = ns.mkm.BaseEntity;
+    var DocumentHelper = ns.mkm.DocumentHelper;
 
     var BaseGroup = function (identifier) {
         BaseEntity.call(this, identifier);
@@ -158,43 +152,41 @@
 
         // Override
         getBulletin: function () {
-            var doc = this.getDocument(Document.BULLETIN);
-            if (Interface.conforms(doc, Bulletin)) {
-                return doc;
-            } else {
-                return null;
-            }
+            var docs = this.getDocuments();
+            return DocumentHelper.lastBulletin(docs);
         },
 
         // Override
         getFounder: function () {
-            if (this.__founder === null) {
+            var founder = this.__founder;
+            if (!founder) {
                 var barrack = this.getDataSource();
-                var gid = this.getIdentifier();
-                this.__founder = barrack.getFounder(gid);
+                var group = this.getIdentifier();
+                founder = barrack.getFounder(group);
+                this.__founder = founder;
             }
-            return this.__founder;
+            return founder;
         },
 
         // Override
         getOwner: function () {
             var barrack = this.getDataSource();
-            var gid = this.getIdentifier();
-            return barrack.getOwner(gid);
+            var group = this.getIdentifier();
+            return barrack.getOwner(group);
         },
 
         // Override
         getMembers: function () {
             var barrack = this.getDataSource();
-            var gid = this.getIdentifier();
-            return barrack.getMembers(gid);
+            var group = this.getIdentifier();
+            return barrack.getMembers(group);
         },
 
         // Override
         getAssistants: function () {
             var barrack = this.getDataSource();
-            var gid = this.getIdentifier();
-            return barrack.getAssistants(gid);
+            var group = this.getIdentifier();
+            return barrack.getAssistants(group);
         }
     });
 

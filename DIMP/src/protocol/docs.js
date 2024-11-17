@@ -51,28 +51,28 @@
      *
      * @returns {EncryptKey} public key as visa.key
      */
-    Visa.prototype.getKey = function () {};
+    Visa.prototype.getPublicKey = function () {};
 
     /**
      *  Set public key for other user to encrypt message
      *
-     * @param {EncryptKey} publicKey - public key as visa.key
+     * @param {EncryptKey} pKey - public key as visa.key
      */
-    Visa.prototype.setKey = function (publicKey) {};
+    Visa.prototype.setPublicKey = function (pKey) {};
 
     /**
      *  Get avatar URL
      *
-     * @returns {PortableNetworkFile} URL string
+     * @returns {PortableNetworkFile} image URL
      */
     Visa.prototype.getAvatar = function () {};
 
     /**
      *  Set avatar URL
      *
-     * @param {PortableNetworkFile} url - URL string
+     * @param {PortableNetworkFile} image - image URL
      */
-    Visa.prototype.setAvatar = function (url) {};
+    Visa.prototype.setAvatar = function (image) {};
 
     /**
      *  Group Document

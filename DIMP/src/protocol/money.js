@@ -52,7 +52,7 @@
     /**
      *  Get currency (BTC, ETH, USD, CNY, ...)
      *
-     * @return {string} currency
+     * @return {String} currency
      */
     MoneyContent.prototype.getCurrency = function () {};
 
