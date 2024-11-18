@@ -83,6 +83,7 @@
 
     /**
      *  Base Crypto Key
+     *  ~~~~~~~~~~~~~~~
      */
     var BaseKey = function (dict) {
         Dictionary.call(this, dict);
@@ -106,7 +107,8 @@
     BaseKey.privateKeyEquals = privateKeyEquals;
 
     /**
-     *  Symmetric Key
+     *  Base Symmetric Key
+     *  ~~~~~~~~~~~~~~~~~~
      */
     var BaseSymmetricKey = function (dict) {
         Dictionary.call(this, dict);
@@ -131,7 +133,8 @@
     });
 
     /**
-     *  Asymmetric Key
+     *  Base Asymmetric Key
+     *  ~~~~~~~~~~~~~~~~~~~
      */
     var BaseAsymmetricKey = function (dict) {
         Dictionary.call(this, dict);
@@ -144,6 +147,10 @@
         }
     });
 
+    /**
+     *  Base Private Key
+     *  ~~~~~~~~~~~~~~~~
+     */
     var BasePrivateKey = function (dict) {
         Dictionary.call(this, dict);
     };
@@ -161,6 +168,10 @@
         }
     });
 
+    /**
+     *  Base Public Key
+     *  ~~~~~~~~~~~~~~~
+     */
     var BasePublicKey = function (dict) {
         Dictionary.call(this, dict);
     };

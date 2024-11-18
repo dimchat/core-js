@@ -52,7 +52,8 @@
     var Class          = ns.type.Class;
     var Content        = ns.protocol.Content;
     var InstantMessage = ns.protocol.InstantMessage;
-    var BaseMessage    = ns.dkd.BaseMessage;
+
+    var BaseMessage    = ns.msg.BaseMessage;
 
     /**
      *  Create instant message
@@ -124,6 +125,6 @@
     });
 
     //-------- namespace --------
-    ns.dkd.PlainMessage = PlainMessage;
+    ns.msg.PlainMessage = PlainMessage;
 
-})(DaoKeDao);
+})(DIMP);

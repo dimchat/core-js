@@ -60,7 +60,8 @@
     var Class             = ns.type.Class;
     var TransportableData = ns.format.TransportableData;
     var ReliableMessage   = ns.protocol.ReliableMessage;
-    var EncryptedMessage  = ns.dkd.EncryptedMessage;
+
+    var EncryptedMessage  = ns.msg.EncryptedMessage;
 
     /**
      *  Create reliable message
@@ -88,6 +89,6 @@
     });
 
     //-------- namespace --------
-    ns.dkd.NetworkMessage = NetworkMessage;
+    ns.msg.NetworkMessage = NetworkMessage;
 
-})(DaoKeDao);
+})(DIMP);

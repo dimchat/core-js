@@ -39,9 +39,7 @@
     var Class      = ns.type.Class;
     var EncryptKey = ns.crypto.EncryptKey;
     var VerifyKey  = ns.crypto.VerifyKey;
-
     var EntityType = ns.protocol.EntityType;
-    var ID         = ns.protocol.ID;
 
     var Entity          = ns.mkm.Entity;
     var User            = ns.mkm.User;
@@ -306,5 +304,6 @@
 
     //-------- namespace --------
     ns.Barrack = Barrack;
+    ns.mkm.thanos = thanos;
 
 })(DIMP);

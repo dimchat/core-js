@@ -154,6 +154,6 @@
     };
 
     //-------- namespace --------
-    ns.dkd.BaseMessage = BaseMessage;
+    ns.msg.BaseMessage = BaseMessage;
 
-})(DaoKeDao);
+})(DIMP);

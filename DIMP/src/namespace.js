@@ -71,5 +71,8 @@ if (typeof DIMP !== "object") {
     if (typeof ns.dkd.cmd !== 'object') {
         ns.dkd.cmd = {};
     }
+    if (typeof ns.msg !== 'object') {
+        ns.msg = {};
+    }
 
 })(DIMP);

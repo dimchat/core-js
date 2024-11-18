@@ -59,7 +59,8 @@
     var UTF8              = ns.format.UTF8;
     var TransportableData = ns.format.TransportableData;
     var SecureMessage     = ns.protocol.SecureMessage;
-    var BaseMessage       = ns.dkd.BaseMessage;
+
+    var BaseMessage       = ns.msg.BaseMessage;
 
     /**
      *  Create secure message
@@ -130,6 +131,6 @@
     });
 
     //-------- namespace --------
-    ns.dkd.EncryptedMessage = EncryptedMessage;
+    ns.msg.EncryptedMessage = EncryptedMessage;
 
-})(DaoKeDao);
+})(DIMP);

@@ -57,12 +57,12 @@
 
     var Class      = ns.type.Class;
     var Dictionary = ns.type.Dictionary;
-    var Base64     = ns.format.Base64;
-
-    var PublicKey = ns.crypto.PublicKey;
-
-    var MetaType = ns.protocol.MetaType;
-    var Meta     = ns.protocol.Meta;
+    var Base64            = ns.format.Base64;
+    var TransportableData = ns.format.TransportableData;
+    var PublicKey  = ns.crypto.PublicKey;
+    var MetaType   = ns.protocol.MetaType;
+    var Meta       = ns.protocol.Meta;
+    var MetaHelper = ns.mkm.MetaHelper;
 
     var EnumToUint = function (type) {
         if (typeof type === 'number') {
@@ -82,6 +82,7 @@
      */
     var BaseMeta = function () {
         var type, key, seed, fingerprint;
+        var status = 0;  // 1 for valid, -1 for invalid
         var meta;
         if (arguments.length === 1) {
             // new BaseMeta(map);
@@ -97,6 +98,7 @@
             key = arguments[1];
             seed = null;
             fingerprint = null;
+            status = 1;
             meta = {
                 'type': type,
                 'key': key.toMap()
@@ -107,6 +109,7 @@
             key = arguments[1];
             seed = arguments[2];
             fingerprint = arguments[3];
+            status = 1;
             meta = {
                 'type': type,
                 'key': key.toMap(),
@@ -121,42 +124,83 @@
         this.__key = key;
         this.__seed = seed;
         this.__fingerprint = fingerprint;
+        this.__status = status;
     };
     Class(BaseMeta, Dictionary, [Meta], {
 
         // Override
         getType: function () {
-            if (this.__type === 0) {
-                this.__type = this.getInt('type');
+            var type = this.__type;
+            if (!type) {
+                var man = ns.mkm.AccountFactoryManager;
+                var gf = man.generalFactory;
+                type = gf.getMetaType(this.toMap(), 0);
+                // type = this.getInt('type', 0);
+                this.__type = type;
             }
-            return this.__type;
+            return type;
         },
 
         // Override
         getPublicKey: function () {
-            if (this.__key === null) {
-                var key = this.getValue('key');
-                this.__key = PublicKey.parse(key);
+            var key = this.__key;
+            if (!key) {
+                key = PublicKey.parse(this.getValue('key'));
+                this.__key = key;
             }
-            return this.__key;
+            return key;
         },
 
         // Override
         getSeed: function () {
-            if (this.__seed === null && MetaType.hasSeed(this.getType())) {
-                this.__seed = this.getString('seed');
+            var seed = this.__seed;
+            if (!seed && MetaType.hasSeed(this.getType())) {
+                seed = this.getString('seed', null);
+                this.__seed = seed;
             }
-            return this.__seed;
+            return seed;
         },
 
         // Override
         getFingerprint: function () {
-            if (this.__fingerprint === null && MetaType.hasSeed(this.getType())) {
+            var ted = this.__fingerprint;
+            if (!ted && MetaType.hasSeed(this.getType())) {
                 var base64 = this.getString('fingerprint');
-                this.__fingerprint = Base64.decode(base64);
+                ted = TransportableData.parse(base64);
+                this.__fingerprint = ted;
             }
-            return this.__fingerprint;
+            return !ted ? null : ted.getData();
+        },
+
+        //
+        //  Validation
+        //
+
+        // Override
+        isValid: function () {
+            if (this.__status === 0) {
+                // meta from network, try to verify
+                if (MetaHelper.checkMeta(this)) {
+                    // correct
+                    this.__status = 1;
+                } else {
+                    // error
+                    this.__status = -1;
+                }
+            }
+            return this.__status > 0;
+        },
+
+        // Override
+        matchIdentifier: function (identifier) {
+            return MetaHelper.matchIdentifier(identifier, this);
+        },
+
+        // Override
+        matchPublicKey: function (pKey) {
+            return MetaHelper.matchPublicKey(pKey, this);
         }
+
     });
 
     //-------- namespace --------

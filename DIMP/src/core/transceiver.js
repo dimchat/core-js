@@ -48,7 +48,7 @@
     var SecureMessage   = ns.protocol.SecureMessage;
     var ReliableMessage = ns.protocol.ReliableMessage;
 
-    var BaseMessage = ns.dkd.BaseMessage;
+    var BaseMessage     = ns.msg.BaseMessage;
 
     /**
      *  Message Transceiver

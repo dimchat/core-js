@@ -159,6 +159,6 @@
     });
 
     //-------- namespace --------
-    ns.dkd.MessageEnvelope = MessageEnvelope;
+    ns.msg.MessageEnvelope = MessageEnvelope;
 
-})(DaoKeDao);
+})(DIMP);
