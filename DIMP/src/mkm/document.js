@@ -303,4 +303,4 @@
     //-------- namespace --------
     ns.mkm.BaseDocument = BaseDocument;
 
-})(MingKeMing);
+})(DIMP);

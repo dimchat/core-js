@@ -105,4 +105,4 @@
     ns.protocol.Visa = Visa;
     ns.protocol.Bulletin = Bulletin;
 
-})(MingKeMing);
+})(DIMP);

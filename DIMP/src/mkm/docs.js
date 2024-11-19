@@ -129,7 +129,7 @@
     //-------- namespace --------
     ns.mkm.BaseVisa = BaseVisa;
 
-})(MingKeMing);
+})(DIMP);
 
 (function (ns) {
     'use strict';
@@ -203,4 +203,4 @@
     //-------- namespace --------
     ns.mkm.BaseBulletin = BaseBulletin;
 
-})(MingKeMing);
+})(DIMP);

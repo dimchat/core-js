@@ -108,7 +108,7 @@
         } else if (Interface.conforms(members, ID)) {
             command.setMember(members);
         } else {
-            throw Error('group members error: ' + members);
+            throw new TypeError('group members error: ' + members);
         }
         return command;
     };
@@ -120,7 +120,7 @@
         } else if (Interface.conforms(members, ID)) {
             command.setMember(members);
         } else {
-            throw Error('invite members error: ' + members);
+            throw new TypeError('invite members error: ' + members);
         }
         return command;
     };
@@ -132,7 +132,7 @@
         } else if (Interface.conforms(members, ID)) {
             command.setMember(members);
         } else {
-            throw Error('expel members error: ' + members);
+            throw new TypeError('expel members error: ' + members);
         }
         return command;
     };
@@ -152,7 +152,7 @@
         if (members instanceof Array) {
             command.setMembers(members);
         } else {
-            throw Error('reset members error: ' + members);
+            throw new TypeError('reset members error: ' + members);
         }
         return command;
     };

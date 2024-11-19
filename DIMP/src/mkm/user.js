@@ -248,7 +248,7 @@
             var user = this.getIdentifier();
             var key = barrack.getPublicKeyForEncryption(user);
             //if (!key) {
-            //    throw new Error('failed to get encrypt key for user: ' + user);
+            //    throw new ReferenceError('failed to get encrypt key for user: ' + user);
             //}
             return key.encrypt(plaintext);
         },
@@ -265,7 +265,7 @@
             var user = this.getIdentifier();
             var key = barrack.getPrivateKeyForSignature(user);
             //if (!key) {
-            //    throw new Error('failed to get sign key for user: ' + user);
+            //    throw new ReferenceError('failed to get sign key for user: ' + user);
             //}
             return key.sign(data);
         },
@@ -278,7 +278,7 @@
             var user = this.getIdentifier();
             var keys = barrack.getPrivateKeysForDecryption(user);
             //if (!keys || keys.length === 0) {
-            //    throw new Error('failed to get decrypt keys for user: ' + user);
+            //    throw new ReferenceError('failed to get decrypt keys for user: ' + user);
             //}
             var plaintext;
             for (var i = 0; i < keys.length; ++i) {
@@ -312,7 +312,7 @@
             var barrack = this.getDataSource();
             var key = barrack.getPrivateKeyForVisaSignature(user);
             //if (!key) {
-            //    throw new Error('failed to get sign key for user: ' + user);
+            //    throw new ReferenceError('failed to get sign key for user: ' + user);
             //}
             var sig = doc.sign(key);
             if (!sig) {
@@ -334,7 +334,7 @@
             var meta = this.getMeta();
             var key = meta.getPublicKey();
             //if (!key) {
-            //    throw new Error('failed to get meta key for user: ' + uid);
+            //    throw new ReferenceError('failed to get meta key for user: ' + uid);
             //}
             return doc.verify(key);
         }

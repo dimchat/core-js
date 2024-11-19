@@ -103,7 +103,7 @@
          */
         // protected
         createUser: function (identifier) {
-            // throw Error('NotImplemented');
+            // throw new Error('NotImplemented');
         },
 
         /**
@@ -114,7 +114,7 @@
          */
         // protected
         createGroup: function (identifier) {
-            // throw Error('NotImplemented');
+            // throw new Error('NotImplemented');
         },
 
         // protected
@@ -188,7 +188,7 @@
                 // use it for encryption
                 return key;
             }
-            //throw new Error("failed to get encrypt key for user: " + identifier);
+            //throw new TypeError("failed to get encrypt key for user: " + identifier);
             return null;
         },
 

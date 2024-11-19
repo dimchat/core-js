@@ -83,7 +83,7 @@
             if (!data) {
                 var base64 = this.getValue('data');
                 if (!base64) {
-                    throw Error('message data not found: ' + this);
+                    throw new ReferenceError('message data not found: ' + this);
                 } else if (!BaseMessage.isBroadcast(this)) {
                     // message content had been encrypted by a symmetric key,
                     // so the data should be encoded here (with algorithm 'base64' as default).
@@ -93,7 +93,7 @@
                     // so return the string data directly
                     data = UTF8.encode(base64);  // JsON
                 } else {
-                    throw Error('message data error: ' + base64);
+                    throw new ReferenceError('message data error: ' + base64);
                 }
                 this.__data = data;
             }

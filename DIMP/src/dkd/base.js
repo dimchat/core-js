@@ -144,4 +144,4 @@
     //-------- namespace --------
     ns.dkd.BaseContent = BaseContent;
 
-})(DaoKeDao);
+})(DIMP);

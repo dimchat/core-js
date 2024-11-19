@@ -206,4 +206,4 @@
     //-------- namespace --------
     ns.mkm.BaseMeta = BaseMeta;
 
-})(MingKeMing);
+})(DIMP);

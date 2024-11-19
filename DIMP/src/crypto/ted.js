@@ -133,7 +133,7 @@
                     } else if (alg === TransportableData.HEX) {
                         bin = Hex.decode(encoded);
                     // } else {
-                    //     throw Error('data algorithm not support: ' + alg);
+                    //     throw new Error('data algorithm not support: ' + alg);
                     }
                 }
             }
@@ -152,7 +152,7 @@
                 } else if (alg === TransportableData.HEX) {
                     encoded = Hex.encode(bin);
                 // } else {
-                //     throw Error('data algorithm not support: ' + alg);
+                //     throw new Error('data algorithm not support: ' + alg);
                 }
                 this.setValue('data', encoded);
             }

@@ -81,7 +81,7 @@
         //     // create();
         //     return new ns.dkd.AppCustomizedContent();
         } else {
-            throw Error('customized content arguments error: ' + arguments);
+            throw new SyntaxError('customized content arguments error: ' + arguments);
         }
     };
 
