@@ -56,6 +56,7 @@
     'use strict';
 
     var Class      = ns.type.Class;
+    var Enum       = ns.type.Enum;
     var Dictionary = ns.type.Dictionary;
     var Base64            = ns.format.Base64;
     var TransportableData = ns.format.TransportableData;
@@ -63,14 +64,6 @@
     var MetaType   = ns.protocol.MetaType;
     var Meta       = ns.protocol.Meta;
     var MetaHelper = ns.mkm.MetaHelper;
-
-    var EnumToUint = function (type) {
-        if (typeof type === 'number') {
-            return type;
-        } else {
-            return type.valueOf();
-        }
-    };
 
     /**
      *  Create Meta
@@ -94,7 +87,7 @@
             fingerprint = null;
         } else if (arguments.length === 2) {
             // new BaseMeta(type, key);
-            type = EnumToUint(arguments[0]);
+            type = Enum.getInt(arguments[0]);
             key = arguments[1];
             seed = null;
             fingerprint = null;
@@ -105,7 +98,7 @@
             };
         } else if (arguments.length === 4) {
             // new BaseMeta(type, key, seed, fingerprint);
-            type = EnumToUint(arguments[0]);
+            type = Enum.getInt(arguments[0]);
             key = arguments[1];
             seed = arguments[2];
             fingerprint = arguments[3];

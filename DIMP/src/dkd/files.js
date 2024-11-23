@@ -53,17 +53,9 @@
     var BaseFileContent = function (info) {
         if (!info) {
             // new BaseFileContent();
-            BaseContent.call(this, ContentType.FIRE.valueOf);
-        } else if (info instanceof ContentType) {
-            // new BaseFileContent(type);
-            BaseContent.call(this, info.valueOf());
-        // } else if (IObject.isNumber(info)) {
-        //     // new BaseFileContent(type);
-        //     BaseContent.call(this, info);
-        } else {
-            // new BaseFileContent(map);
-            BaseContent.call(this, info);
+            info = ContentType.FILE;
         }
+        BaseContent.call(this, info);
         this.__wrapper = new BaseFileWrapper(this.toMap());
     };
     Class(BaseFileContent, BaseContent, [FileContent], {

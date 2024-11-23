@@ -56,10 +56,10 @@
     'use strict';
 
     var Class      = ns.type.Class;
+    var Enum       = ns.type.Enum;
     var Dictionary = ns.type.Dictionary;
 
     var ID             = ns.protocol.ID;
-    var ContentType    = ns.protocol.ContentType;
     var Content        = ns.protocol.Content;
     var InstantMessage = ns.protocol.InstantMessage;
 
@@ -71,9 +71,9 @@
      *      2. new BaseContent(type);
      */
     var BaseContent = function (info) {
-        if (info instanceof ContentType) {
+        if (Enum.isEnum(info)) {
             // new BaseContent(type);
-            info = info.valueOf();
+            info = info.getValue();
         }
         var content, type, sn, time;
         if (typeof info === 'number') {
