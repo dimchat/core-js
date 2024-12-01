@@ -52,7 +52,7 @@
      *      2. new BaseMetaCommand(text, origin);
      */
     var BaseReceiptCommand = function () {
-        if (arguments.length === 2) {
+        if (arguments.length === 1) {
             // new BaseReceiptCommand(map);
             BaseCommand.call(this, arguments[0]);
         } else {

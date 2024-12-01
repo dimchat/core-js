@@ -59,7 +59,7 @@
      */
     var BaseDocument = function () {
         var map, status;
-        var identifier, data;
+        var identifier, data, signature;
         var properties;
         if (arguments.length === 1) {
             // new BaseDocument(map);
@@ -68,6 +68,7 @@
             // lazy
             identifier = null;
             data = null;
+            signature = null;
             properties = null;
         } else if (arguments.length === 2) {
             // new BaseDocument(identifier, type);
@@ -78,24 +79,21 @@
             };
             status = 0;
             data = null;
-            if (type && type.length > 1) {
-                var now = new Date();
-                properties = {
-                    'type': type,  // deprecated
-                    'created_time': (now.getTime() / 1000.0)
-                };
-            } else {
-                properties = null;
-            }
+            signature = null;
+            var now = new Date();
+            properties = {
+                'type': type,  // deprecated
+                'created_time': (now.getTime() / 1000.0)
+            };
         } else if (arguments.length === 3) {
             // new BaseDocument(identifier, data, signature);
-            identifier = arguments[0];     // ID
-            data = arguments[1];           // string: JSON
-            var signature = arguments[2];  // string: base64
+            identifier = arguments[0];  // ID
+            data = arguments[1];        // string: JSON
+            signature = arguments[2];   // TransportableData
             map = {
                 'ID': identifier.toString(),
                 'data': data,
-                'signature': signature
+                'signature': signature.toObject()
             }
             status = 1;  // all documents must be verified before saving into local storage
             properties = null;
@@ -105,7 +103,7 @@
         Dictionary.call(this, map);
         this.__identifier = identifier;
         this.__json = data;      // JsON.encode(properties)
-        this.__sig = null;       // LocalUser(identifier).sign(data)
+        this.__sig = signature;  // LocalUser(identifier).sign(data)
         this.__properties = properties;
         this.__status = status;  // 1 for valid, -1 for invalid
     };
@@ -123,7 +121,7 @@
                 var man = ns.mkm.AccountFactoryManager;
                 var gf = man.generalFactory;
                 type = gf.getDocumentType(this.toMap(), null);
-                // type = this.getString('type');
+                // type = this.getString('type', null);
             }
             return type;
         },
@@ -153,7 +151,7 @@
         getSignature: function () {
             var ted = this.__sig;
             if (!ted) {
-                var base64 = this.getString('signature');
+                var base64 = this.getValue('signature');
                 ted = TransportableData.parse(base64);
                 this.__sig = ted;
             }

@@ -89,17 +89,17 @@
 
         // Override
         getApplication: function () {
-            return this.getString('app');
+            return this.getString('app', null);
         },
 
         // Override
         getModule: function () {
-            return this.getString('mod');
+            return this.getString('mod', null);
         },
 
         // Override
         getAction: function () {
-            return this.getString('act');
+            return this.getString('act', null);
         }
     });
 

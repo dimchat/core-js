@@ -54,11 +54,11 @@
         if (arguments.length === 2) {
             // new BaseCommand(type, cmd);
             BaseContent.call(this, arguments[0]);
-            this.setValue('cmd', arguments[1]);
+            this.setValue('command', arguments[1]);
         } else if (IObject.isString(arguments[0])) {
             // new BaseCommand(cmd);
             BaseContent.call(this, ContentType.COMMAND);
-            this.setValue('cmd', arguments[0]);
+            this.setValue('command', arguments[0]);
         } else {
             // new BaseCommand(map);
             BaseContent.call(this, arguments[0]);
@@ -68,7 +68,7 @@
 
         // Override
         getCmd: function () {
-            var gf = ns.dkd.CommandFactoryManager.generalFactory;
+            var gf = ns.dkd.cmd.CommandFactoryManager.generalFactory;
             return gf.getCmd(this.toMap(), '');
         }
     });

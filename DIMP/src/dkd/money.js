@@ -75,7 +75,7 @@
         },
         // Override
         getCurrency: function () {
-            return this.getString('currency');
+            return this.getString('currency', null);
         },
 
         // Override
@@ -84,7 +84,7 @@
         },
         // Override
         getAmount: function () {
-            return this.getFloat('amount');
+            return this.getFloat('amount', 0);
         }
     });
 

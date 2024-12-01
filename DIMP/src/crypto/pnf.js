@@ -95,7 +95,7 @@
          *  file data
          */
         getFilename: function () {
-            return this.getString('filename', '');
+            return this.getString('filename', null);
         },
         setFilename: function (filename) {
             if (!filename) {
@@ -109,7 +109,7 @@
          *  download URL
          */
         getURL: function () {
-            return this.getString('URL', '');
+            return this.getString('URL', null);
         },
         setURL: function (url) {
             if (!url) {

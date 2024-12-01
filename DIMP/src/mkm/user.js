@@ -212,7 +212,7 @@
         // Override
         getVisa: function () {
             var docs = this.getDocuments();
-            return DocumentHelper.lastBulletin(docs);
+            return DocumentHelper.lastVisa(docs);
         },
 
         // Override

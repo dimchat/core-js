@@ -55,15 +55,14 @@
 (function (ns) {
     'use strict';
 
-    var Class      = ns.type.Class;
-    var Enum       = ns.type.Enum;
-    var Dictionary = ns.type.Dictionary;
-    var Base64            = ns.format.Base64;
+    var Class             = ns.type.Class;
+    var Enum              = ns.type.Enum;
+    var Dictionary        = ns.type.Dictionary;
     var TransportableData = ns.format.TransportableData;
-    var PublicKey  = ns.crypto.PublicKey;
-    var MetaType   = ns.protocol.MetaType;
-    var Meta       = ns.protocol.Meta;
-    var MetaHelper = ns.mkm.MetaHelper;
+    var PublicKey         = ns.crypto.PublicKey;
+    var MetaType          = ns.protocol.MetaType;
+    var Meta              = ns.protocol.Meta;
+    var MetaHelper        = ns.mkm.MetaHelper;
 
     /**
      *  Create Meta
@@ -107,7 +106,7 @@
                 'type': type,
                 'key': key.toMap(),
                 'seed': seed,
-                'fingerprint': Base64.encode(fingerprint)
+                'fingerprint': fingerprint.toObject()
             };
         } else {
             throw new SyntaxError('meta arguments error: ' + arguments);
@@ -158,7 +157,7 @@
         getFingerprint: function () {
             var ted = this.__fingerprint;
             if (!ted && MetaType.hasSeed(this.getType())) {
-                var base64 = this.getString('fingerprint');
+                var base64 = this.getValue('fingerprint');
                 ted = TransportableData.parse(base64);
                 this.__fingerprint = ted;
             }
