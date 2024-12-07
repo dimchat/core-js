@@ -117,7 +117,7 @@
             return body;
         },
 
-        // Override
+        // protected
         setContent: function (body) {
             this.setMap('content', body);
             this.__content = body;

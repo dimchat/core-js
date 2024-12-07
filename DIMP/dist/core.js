@@ -877,6 +877,7 @@ if (typeof DIMP !== "object") {
 (function (ns) {
     'use strict';
     var Class = ns.type.Class;
+    var IObject = ns.type.Object;
     var Enum = ns.type.Enum;
     var Dictionary = ns.type.Dictionary;
     var ID = ns.protocol.ID;
@@ -887,7 +888,7 @@ if (typeof DIMP !== "object") {
             info = info.getValue()
         }
         var content, type, sn, time;
-        if (typeof info === 'number') {
+        if (IObject.isNumber(info)) {
             type = info;
             time = new Date();
             sn = InstantMessage.generateSerialNumber(type, time);
@@ -945,7 +946,7 @@ if (typeof DIMP !== "object") {
     var NameCard = ns.protocol.NameCard;
     var BaseContent = ns.dkd.BaseContent;
     var BaseTextContent = function (info) {
-        if (typeof info === 'string') {
+        if (IObject.isString(info)) {
             BaseContent.call(this, ContentType.TEXT);
             this.setText(info)
         } else {
@@ -1963,25 +1964,22 @@ if (typeof DIMP !== "object") {
 (function (ns) {
     'use strict';
     var Interface = ns.type.Interface;
-    var IObject = ns.type.Object;
     var UTF8 = ns.format.UTF8;
     var Address = ns.protocol.Address;
     var ID = ns.protocol.ID;
-    var MetaType = ns.protocol.MetaType;
     var Visa = ns.protocol.Visa;
     var Bulletin = ns.protocol.Bulletin;
     var getGroupSeed = function (group_id) {
         var name = group_id.getName();
-        if (IObject.isString(name)) {
+        if (name) {
             var len = name.length;
             if (len === 0) {
                 return null
             } else if (name === 8 && name.toLowerCase() === 'everyone') {
                 return null
             }
-            return name
         }
-        return null
+        return name
     };
     var getBroadcastFounder = function (group_id) {
         var name = getGroupSeed(group_id);
@@ -2011,13 +2009,14 @@ if (typeof DIMP !== "object") {
     };
     var checkMeta = function (meta) {
         var pKey = meta.getPublicKey();
+        if (!pKey) {
+            return false
+        }
         var seed = meta.getSeed();
         var fingerprint = meta.getFingerprint();
-        var noSeed = !seed || seed.length === 0;
-        var noSig = !fingerprint || fingerprint.length === 0;
-        if (!MetaType.hasSeed(meta.getType())) {
-            return noSeed && noSig
-        } else if (noSeed || noSig) {
+        if (!seed || seed.length === 0) {
+            return !fingerprint || fingerprint.length === 0
+        } else if (!fingerprint || fingerprint.length === 0) {
             return false
         }
         var data = UTF8.encode(seed);
@@ -2037,10 +2036,10 @@ if (typeof DIMP !== "object") {
         if (meta.getPublicKey().equals(pKey)) {
             return true
         }
-        if (MetaType.hasSeed(meta.getType())) {
-            var seed = meta.getSeed();
-            var fingerprint = meta.getFingerprint();
+        var seed = meta.getSeed();
+        if (seed && seed.length > 0) {
             var data = UTF8.encode(seed);
+            var fingerprint = meta.getFingerprint();
             return pKey.verify(data, fingerprint)
         } else {
             return false
@@ -2058,7 +2057,9 @@ if (typeof DIMP !== "object") {
         return isBefore(oldTime, thisTime)
     };
     var lastDocument = function (documents, type) {
-        if (!type || type === '*') {
+        if (!documents || documents.length === 0) {
+            return null
+        } else if (!type || type === '*') {
             type = ''
         }
         var checkType = type.length > 0;
@@ -2081,6 +2082,9 @@ if (typeof DIMP !== "object") {
         return last
     };
     var lastVisa = function (documents) {
+        if (!documents || documents.length === 0) {
+            return null
+        }
         var last = null
         var doc, matched;
         for (var i = 0; i < documents.length; ++i) {
@@ -2097,6 +2101,9 @@ if (typeof DIMP !== "object") {
         return last
     };
     var lastBulletin = function (documents) {
+        if (!documents || documents.length === 0) {
+            return null
+        }
         var last = null
         var doc, matched;
         for (var i = 0; i < documents.length; ++i) {
@@ -2130,32 +2137,31 @@ if (typeof DIMP !== "object") {
 (function (ns) {
     'use strict';
     var Class = ns.type.Class;
-    var Enum = ns.type.Enum;
     var Dictionary = ns.type.Dictionary;
     var TransportableData = ns.format.TransportableData;
     var PublicKey = ns.crypto.PublicKey;
-    var MetaType = ns.protocol.MetaType;
     var Meta = ns.protocol.Meta;
     var MetaHelper = ns.mkm.MetaHelper;
     var BaseMeta = function () {
         var type, key, seed, fingerprint;
-        var status = 0;
+        var status;
         var meta;
         if (arguments.length === 1) {
             meta = arguments[0];
-            type = 0;
+            type = null;
             key = null;
             seed = null;
-            fingerprint = null
+            fingerprint = null;
+            status = 0
         } else if (arguments.length === 2) {
-            type = Enum.getInt(arguments[0]);
+            type = arguments[0];
             key = arguments[1];
             seed = null;
             fingerprint = null;
             status = 1;
             meta = {'type': type, 'key': key.toMap()}
         } else if (arguments.length === 4) {
-            type = Enum.getInt(arguments[0]);
+            type = arguments[0];
             key = arguments[1];
             seed = arguments[2];
             fingerprint = arguments[3];
@@ -2174,30 +2180,32 @@ if (typeof DIMP !== "object") {
     Class(BaseMeta, Dictionary, [Meta], {
         getType: function () {
             var type = this.__type;
-            if (!type) {
+            if (type === null) {
                 var man = ns.mkm.AccountFactoryManager;
-                var gf = man.generalFactory;
-                type = gf.getMetaType(this.toMap(), 0);
+                type = man.generalFactory.getMetaType(this.toMap(), '');
                 this.__type = type
             }
             return type
         }, getPublicKey: function () {
             var key = this.__key;
             if (!key) {
-                key = PublicKey.parse(this.getValue('key'));
+                var info = this.getValue('key');
+                key = PublicKey.parse(info);
                 this.__key = key
             }
             return key
+        }, hasSeed: function () {
+            return this.__seed || this.getValue('seed')
         }, getSeed: function () {
             var seed = this.__seed;
-            if (!seed && MetaType.hasSeed(this.getType())) {
+            if (seed === null && this.hasSeed()) {
                 seed = this.getString('seed', null);
                 this.__seed = seed
             }
             return seed
         }, getFingerprint: function () {
             var ted = this.__fingerprint;
-            if (!ted && MetaType.hasSeed(this.getType())) {
+            if (!ted && this.hasSeed()) {
                 var base64 = this.getValue('fingerprint');
                 ted = TransportableData.parse(base64);
                 this.__fingerprint = ted

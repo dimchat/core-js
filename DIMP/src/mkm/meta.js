@@ -36,10 +36,10 @@
  *  This class is used to generate entity ID
  *
  *      data format: {
- *          version: 1,          // algorithm version
- *          seed: "moKy",        // user/group name
- *          key: "{public key}", // PK = secp256k1(SK);
- *          fingerprint: "..."   // CT = sign(seed, SK);
+ *          type       : 1,              // algorithm version
+ *          key        : "{public key}", // PK = secp256k1(SK);
+ *          seed       : "moKy",         // user/group name
+ *          fingerprint: "..."           // CT = sign(seed, SK);
  *      }
  *
  *      algorithm:
@@ -56,11 +56,9 @@
     'use strict';
 
     var Class             = ns.type.Class;
-    var Enum              = ns.type.Enum;
     var Dictionary        = ns.type.Dictionary;
     var TransportableData = ns.format.TransportableData;
     var PublicKey         = ns.crypto.PublicKey;
-    var MetaType          = ns.protocol.MetaType;
     var Meta              = ns.protocol.Meta;
     var MetaHelper        = ns.mkm.MetaHelper;
 
@@ -74,34 +72,35 @@
      */
     var BaseMeta = function () {
         var type, key, seed, fingerprint;
-        var status = 0;  // 1 for valid, -1 for invalid
+        var status;  // 1 for valid, -1 for invalid
         var meta;
         if (arguments.length === 1) {
             // new BaseMeta(map);
             meta = arguments[0];
             // lazy load
-            type = 0;
-            key = null;
-            seed = null;
+            type        = null;
+            key         = null;
+            seed        = null;
             fingerprint = null;
+            status      = 0;
         } else if (arguments.length === 2) {
             // new BaseMeta(type, key);
-            type = Enum.getInt(arguments[0]);
-            key = arguments[1];
-            seed = null;
+            type        = arguments[0];
+            key         = arguments[1];
+            seed        = null;
             fingerprint = null;
-            status = 1;
+            status      = 1;
             meta = {
                 'type': type,
                 'key': key.toMap()
             };
         } else if (arguments.length === 4) {
             // new BaseMeta(type, key, seed, fingerprint);
-            type = Enum.getInt(arguments[0]);
-            key = arguments[1];
-            seed = arguments[2];
+            type        = arguments[0];
+            key         = arguments[1];
+            seed        = arguments[2];
             fingerprint = arguments[3];
-            status = 1;
+            status      = 1;
             meta = {
                 'type': type,
                 'key': key.toMap(),
@@ -112,21 +111,20 @@
             throw new SyntaxError('meta arguments error: ' + arguments);
         }
         Dictionary.call(this, meta);
-        this.__type = type;
-        this.__key = key;
-        this.__seed = seed;
+        this.__type        = type;
+        this.__key         = key;
+        this.__seed        = seed;
         this.__fingerprint = fingerprint;
-        this.__status = status;
+        this.__status      = status;
     };
     Class(BaseMeta, Dictionary, [Meta], {
 
         // Override
         getType: function () {
             var type = this.__type;
-            if (!type) {
+            if (type === null) {
                 var man = ns.mkm.AccountFactoryManager;
-                var gf = man.generalFactory;
-                type = gf.getMetaType(this.toMap(), 0);
+                type = man.generalFactory.getMetaType(this.toMap(), '');
                 // type = this.getInt('type', 0);
                 this.__type = type;
             }
@@ -137,16 +135,24 @@
         getPublicKey: function () {
             var key = this.__key;
             if (!key) {
-                key = PublicKey.parse(this.getValue('key'));
+                var info = this.getValue('key');
+                key = PublicKey.parse(info);
                 this.__key = key;
             }
             return key;
         },
 
+        // protected
+        hasSeed: function () {
+            //var algorithm = this.getType();
+            //return algorithm === 'mkm' || algorithm === '1';
+            return this.__seed || this.getValue('seed');
+        },
+
         // Override
         getSeed: function () {
             var seed = this.__seed;
-            if (!seed && MetaType.hasSeed(this.getType())) {
+            if (seed === null && this.hasSeed()) {
                 seed = this.getString('seed', null);
                 this.__seed = seed;
             }
@@ -156,7 +162,7 @@
         // Override
         getFingerprint: function () {
             var ted = this.__fingerprint;
-            if (!ted && MetaType.hasSeed(this.getType())) {
+            if (!ted && this.hasSeed()) {
                 var base64 = this.getValue('fingerprint');
                 ted = TransportableData.parse(base64);
                 this.__fingerprint = ted;

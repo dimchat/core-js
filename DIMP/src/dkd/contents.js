@@ -59,7 +59,7 @@
      *      2. new BaseTextContent(text);
      */
     var BaseTextContent = function (info) {
-        if (typeof info === 'string') {
+        if (IObject.isString(info)) {
             // new BaseTextContent(text);
             BaseContent.call(this, ContentType.TEXT);
             this.setText(info);

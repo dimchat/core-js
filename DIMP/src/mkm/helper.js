@@ -36,12 +36,10 @@
     'use strict';
 
     var Interface = ns.type.Interface;
-    var IObject   = ns.type.Object;
     var UTF8      = ns.format.UTF8;
 
     var Address   = ns.protocol.Address;
     var ID        = ns.protocol.ID;
-    var MetaType  = ns.protocol.MetaType;
     var Visa      = ns.protocol.Visa;
     var Bulletin  = ns.protocol.Bulletin;
 
@@ -52,16 +50,15 @@
 
     var getGroupSeed = function (group_id) {
         var name = group_id.getName();
-        if (IObject.isString(name)) {
+        if (name) {
             var len = name.length;
             if (len === 0) {
                 return null;
             } else if (name === 8 && name.toLowerCase() === 'everyone') {
                 return null;
             }
-            return name;
         }
-        return null;
+        return name;
     };
 
     var getBroadcastFounder = function (group_id) {
@@ -112,16 +109,18 @@
 
     var checkMeta = function (meta) {
         var pKey = meta.getPublicKey();
+        if (!pKey) {
+            // meta.key should not be empty
+            return false;
+        }
         var seed = meta.getSeed();
         var fingerprint = meta.getFingerprint();
-        var noSeed = !seed || seed.length === 0;
-        var noSig = !fingerprint || fingerprint.length === 0;
-        // check meta version
-        if (!MetaType.hasSeed(meta.getType())) {
+        // check meta seed & signature
+        if (!seed || seed.length === 0) {
             // this meta has no seed, so no fingerprint too
-            return noSeed && noSig;
-        } else if (noSeed || noSig) {
-            // seed and fingerprint should not be empty
+            return !fingerprint || fingerprint.length === 0;
+        } else if (!fingerprint || fingerprint.length === 0) {
+            // fingerprint should not be empty here
             return false;
         }
         // verify fingerprint
@@ -148,11 +147,11 @@
             return true;
         }
         // check with seed & fingerprint
-        if (MetaType.hasSeed(meta.getType())) {
+        var seed = meta.getSeed();
+        if (seed && seed.length > 0) {
             // check whether keys equal by verifying signature
-            var seed = meta.getSeed();
-            var fingerprint = meta.getFingerprint();
             var data = UTF8.encode(seed);
+            var fingerprint = meta.getFingerprint();
             return pKey.verify(data, fingerprint);
         } else {
             // NOTICE: ID with BTC/ETH address has no username, so
@@ -183,7 +182,9 @@
 
     // Select last document matched the type
     var lastDocument = function (documents, type) {
-        if (!type || type === '*') {
+        if (!documents || documents.length === 0) {
+            return null;
+        } else if (!type || type === '*') {
             type = '';
         }
         var checkType = type.length > 0;
@@ -213,6 +214,9 @@
 
     // Select last visa document
     var lastVisa = function (documents) {
+        if (!documents || documents.length === 0) {
+            return null;
+        }
         var last = null
         var doc, matched;
         for (var i = 0; i < documents.length; ++i) {
@@ -236,6 +240,9 @@
 
     // Select last bulletin document
     var lastBulletin = function (documents) {
+        if (!documents || documents.length === 0) {
+            return null;
+        }
         var last = null
         var doc, matched;
         for (var i = 0; i < documents.length; ++i) {
@@ -262,20 +269,20 @@
         getGroupSeed: getGroupSeed,
 
         getBroadcastFounder: getBroadcastFounder,
-        getBroadcastOwner: getBroadcastOwner,
+        getBroadcastOwner  : getBroadcastOwner,
         getBroadcastMembers: getBroadcastMembers
     };
     ns.mkm.MetaHelper = {
-        checkMeta: checkMeta,
+        checkMeta      : checkMeta,
         matchIdentifier: matchIdentifier,
-        matchPublicKey: matchPublicKey
+        matchPublicKey : matchPublicKey
     }
     ns.mkm.DocumentHelper = {
-        isBefore: isBefore,
+        isBefore : isBefore,
         isExpired: isExpired,
 
         lastDocument: lastDocument,
-        lastVisa: lastVisa,
+        lastVisa    : lastVisa,
         lastBulletin: lastBulletin
     }
 

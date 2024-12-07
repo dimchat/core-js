@@ -56,6 +56,7 @@
     'use strict';
 
     var Class      = ns.type.Class;
+    var IObject    = ns.type.Object;
     var Enum       = ns.type.Enum;
     var Dictionary = ns.type.Dictionary;
 
@@ -76,7 +77,7 @@
             info = info.getValue();
         }
         var content, type, sn, time;
-        if (typeof info === 'number') {
+        if (IObject.isNumber(info)) {
             // new BaseContent(type);
             type = info;
             time = new Date();

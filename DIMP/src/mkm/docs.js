@@ -47,7 +47,7 @@
     var BaseDocument = ns.mkm.BaseDocument;
 
     /**
-     *  Create base visa document
+     *  Create base document for user
      *
      *  1. Create visa with info
      *      new BaseVisa(map);
@@ -142,7 +142,7 @@
     var BaseDocument = ns.mkm.BaseDocument;
 
     /**
-     *  Create base group profile
+     *  Create base document for group
      *
      *  1. Create group profile with info
      *      new BaseBulletin(map);
