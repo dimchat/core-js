@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  DIMP : Decentralized Instant Messaging Protocol
@@ -30,17 +30,8 @@
 // =============================================================================
 //
 
-//! require 'protocol/money.js'
-
-(function (ns) {
-    'use strict';
-
-    var Class = ns.type.Class;
-    var ID = ns.protocol.ID;
-    var ContentType = ns.protocol.ContentType;
-    var MoneyContent = ns.protocol.MoneyContent;
-    var TransferContent = ns.protocol.TransferContent;
-    var BaseContent = ns.dkd.BaseContent;
+//! require 'protocol/assets.js'
+//! require 'base.js'
 
     /**
      *  Create money message content
@@ -50,7 +41,7 @@
      *      2. new BaseMoneyContent(currency, amount);
      *      3. new BaseMoneyContent(type, currency, amount);
      */
-    var BaseMoneyContent = function () {
+    dkd.dkd.BaseMoneyContent = function () {
         if (arguments.length === 1) {
             // new BaseMoneyContent(map);
             BaseContent.call(arguments[0]);
@@ -68,6 +59,8 @@
             throw new SyntaxError('money content arguments error: ' + arguments);
         }
     };
+    var BaseMoneyContent = dkd.dkd.BaseMoneyContent;
+
     Class(BaseMoneyContent, BaseContent, [MoneyContent], {
 
         setCurrency: function (currency) {
@@ -88,6 +81,7 @@
         }
     });
 
+
     /**
      *  Create transfer money message content
      *
@@ -95,7 +89,7 @@
      *      1. new TransferMoneyContent(map);
      *      3. new TransferMoneyContent(currency, amount);
      */
-    var TransferMoneyContent = function () {
+    dkd.dkd.TransferMoneyContent = function () {
         if (arguments.length === 1) {
             // new TransferMoneyContent(map);
             MoneyContent.call(arguments[0]);
@@ -106,6 +100,8 @@
             throw new SyntaxError('money content arguments error: ' + arguments);
         }
     };
+    var TransferMoneyContent = dkd.dkd.TransferMoneyContent;
+
     Class(TransferMoneyContent, BaseMoneyContent, [TransferContent], {
 
         // Override
@@ -130,9 +126,3 @@
             this.setString('remittee', receiver);
         }
     });
-
-    //-------- namespace --------
-    ns.dkd.BaseMoneyContent = BaseMoneyContent;
-    ns.dkd.TransferMoneyContent = TransferMoneyContent;
-
-})(DIMP);

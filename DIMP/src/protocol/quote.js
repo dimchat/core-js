@@ -3,12 +3,12 @@
 //
 //  DIMP : Decentralized Instant Messaging Protocol
 //
-//                               Written in 2024 by Moky <albert.moky@gmail.com>
+//                               Written in 2021 by Moky <albert.moky@gmail.com>
 //
 // =============================================================================
 // The MIT License (MIT)
 //
-// Copyright (c) 2024 Albert Moky
+// Copyright (c) 2021 Albert Moky
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,72 +33,61 @@
 //! require <dkd.js>
 
     /**
-     *  Receipt command message: {
-     *      type : i2s(0x88),
+     *  Quote message: {
+     *      type : i2s(0x37),
      *      sn   : 456,
      *
-     *      command : "receipt",
      *      text    : "...",  // text message
      *      origin  : {       // original message envelope
      *          sender    : "...",
      *          receiver  : "...",
-     *          time      : 0,
      *
+     *          type      : 0x01,
      *          sn        : 123,
-     *          signature : "..."
      *      }
      *  }
      */
-    dkd.protocol.ReceiptCommand = Interface(null, [Command]);
-    var ReceiptCommand = dkd.protocol.ReceiptCommand;
+    dkd.protocol.QuoteContent = Interface(null, [Content]);
+    var QuoteContent = dkd.protocol.QuoteContent;
 
-    ReceiptCommand.prototype.getText = function () {};
+    QuoteContent.prototype.getText = function () {};
 
-    ReceiptCommand.prototype.getOriginalEnvelope     = function () {};
-    ReceiptCommand.prototype.getOriginalSerialNumber = function () {};
-    ReceiptCommand.prototype.getOriginalSignature    = function () {};
+    QuoteContent.prototype.getOriginalEnvelope     = function () {};
+    QuoteContent.prototype.getOriginalSerialNumber = function () {};
 
     //
     //  Factory
     //
 
     /**
-     *  Create base receipt command with text & original message info
+     *  Create quote content with text & original message info
      *
      * @param {String} text
      * @param {dkd.protocol.Envelope} head
      * @param {dkd.protocol.Content} body
-     * @return {ReceiptCommand}
+     * @return {QuoteContent}
      */
-    ReceiptCommand.create = function (text, head, body) {
-        var origin;
-        if (!head) {
-            origin = null;
-        } else if (!body) {
-            origin = ReceiptCommand.purify(head);
-        } else {
-            origin = ReceiptCommand.purify(head);
-            origin['sn'] = body.getSerialNumber();
+    QuoteContent.create = function (text, head, body) {
+        var origin = QuoteContent.purify(head);
+        origin['type'] = body.getType();
+        origin['sn'] = body.getSerialNumber();
+        // update: receiver -> group
+        var group = body.getGroup();
+        if (group) {
+            origin['receiver'] = group.toString();
         }
-        var command = new BaseReceiptCommand(text, origin);
-        if (body) {
-            // check group
-            var group = body.getGroup();
-            if (group) {
-                command.setGroup(group);
-            }
-        }
-        return command;
+        return new BaseQuoteContent(text, origin);
     };
 
-    ReceiptCommand.purify = function (envelope) {
-        var info = envelope.copyMap(false);
-        if (info['data']) {
-            delete info['data'];
-            delete info['key'];
-            delete info['keys'];
-            delete info['meta'];
-            delete info['visa'];
+    QuoteContent.purify = function (envelope) {
+        var from = envelope.getSender();
+        var to = envelope.getGroup();
+        if (!to) {
+            to = envelope.getReceiver();
         }
-        return info;
+        // build origin info
+        return  {
+            'sender': from.toString(),
+            'receiver': to.toString()
+        };
     };

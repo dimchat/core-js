@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  Ming-Ke-Ming : Decentralized User Identity Authentication
@@ -33,20 +33,6 @@
 //! require <crypto.js>
 //! require <mkm.js>
 
-(function (ns) {
-    'use strict';
-
-    var Class      = ns.type.Class;
-    var Dictionary = ns.type.Dictionary;
-    var Converter  = ns.type.Converter;
-
-    var UTF8              = ns.format.UTF8;
-    var JsON              = ns.format.JSON;
-    var TransportableData = ns.format.TransportableData;
-
-    var ID       = ns.protocol.ID;
-    var Document = ns.protocol.Document;
-
     /**
      *  Create base document
      *
@@ -57,7 +43,7 @@
      *  3. Create document with data & signature loaded from local storage
      *      new BaseDocument(identifier, data, signature);
      */
-    var BaseDocument = function () {
+    mkm.mkm.BaseDocument = function () {
         var map, status;
         var identifier, data, signature;
         var properties;
@@ -75,7 +61,7 @@
             identifier = arguments[0];  // ID
             var type = arguments[1];    // string
             map = {
-                'ID': identifier.toString()
+                'did': identifier.toString()
             };
             status = 0;
             data = null;
@@ -91,7 +77,7 @@
             data = arguments[1];        // string: JSON
             signature = arguments[2];   // TransportableData
             map = {
-                'ID': identifier.toString(),
+                'did': identifier.toString(),
                 'data': data,
                 'signature': signature.toObject()
             }
@@ -102,11 +88,13 @@
         }
         Dictionary.call(this, map);
         this.__identifier = identifier;
-        this.__json = data;      // JsON.encode(properties)
+        this.__json = data;      // JSONMap.encode(properties)
         this.__sig = signature;  // LocalUser(identifier).sign(data)
         this.__properties = properties;
         this.__status = status;  // 1 for valid, -1 for invalid
     };
+    var BaseDocument = mkm.mkm.BaseDocument;
+
     Class(BaseDocument, Dictionary, [Document], {
 
         // Override
@@ -115,22 +103,10 @@
         },
 
         // Override
-        getType: function () {
-            var type = this.getProperty('type');  // deprecated
-            if (!type) {
-                var man = ns.mkm.AccountFactoryManager;
-                var gf = man.generalFactory;
-                type = gf.getDocumentType(this.toMap(), null);
-                // type = this.getString('type', null);
-            }
-            return type;
-        },
-
-        // Override
         getIdentifier: function () {
             var did = this.__identifier;
             if (!did) {
-                did = ID.parse(this.getValue('ID'))
+                did = ID.parse(this.getValue('did'))
                 this.__identifier = did;
             }
             return did;
@@ -174,7 +150,7 @@
             if (!dict) {
                 var json = this.getData();
                 if (json) {
-                    dict = JsON.decode(json);
+                    dict = JSONMap.decode(json);
                 } else {
                     // create new properties
                     dict = {};
@@ -199,7 +175,9 @@
             this.__status = 0;
             // 2. update property value with name
             var dict = this.allProperties();
-            if (value) {
+            if (!dict) {
+                // throw new Error('failed to get properties: ' + this.toMap());
+            } else if (value) {
                 dict[name] = value;
             } else {
                 delete dict[name];
@@ -257,7 +235,7 @@
                 // document error
                 return null;
             }
-            var data = JsON.encode(dict);
+            var data = JSONMap.encode(dict);
             if (!data || data.length === 0) {
                 // properties error
                 return null;
@@ -297,8 +275,3 @@
             this.setProperty('name', name);
         }
     });
-
-    //-------- namespace --------
-    ns.mkm.BaseDocument = BaseDocument;
-
-})(DIMP);

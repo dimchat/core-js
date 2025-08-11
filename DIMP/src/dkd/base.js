@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  Dao-Ke-Dao: Universal Message Module
@@ -52,18 +52,6 @@
 //! require <mkm.js>
 //! require <dkd.js>
 
-(function (ns) {
-    'use strict';
-
-    var Class      = ns.type.Class;
-    var IObject    = ns.type.Object;
-    var Enum       = ns.type.Enum;
-    var Dictionary = ns.type.Dictionary;
-
-    var ID             = ns.protocol.ID;
-    var Content        = ns.protocol.Content;
-    var InstantMessage = ns.protocol.InstantMessage;
-
     /**
      *  Create message content
      *
@@ -71,13 +59,9 @@
      *      1. new BaseContent(map);
      *      2. new BaseContent(type);
      */
-    var BaseContent = function (info) {
-        if (Enum.isEnum(info)) {
-            // new BaseContent(type);
-            info = info.getValue();
-        }
+    dkd.dkd.BaseContent = function (info) {
         var content, type, sn, time;
-        if (IObject.isNumber(info)) {
+        if (IObject.isString(info)) {
             // new BaseContent(type);
             type = info;
             time = new Date();
@@ -91,8 +75,8 @@
             // new BaseContent(map);
             content = info;
             // lazy load
-            type = 0;
-            sn = 0;
+            type = null;
+            sn = null;
             time = null;
         }
         Dictionary.call(this, content);
@@ -103,20 +87,23 @@
         // message time
         this.__time = time;
     };
+    var BaseContent = dkd.dkd.BaseContent;
+
     Class(BaseContent, Dictionary, [Content], {
 
         // Override
         getType: function () {
-            if (this.__type === 0) {
-                var gf = ns.dkd.MessageFactoryManager.generalFactory;
-                this.__type = gf.getContentType(this.toMap(), 0);
+            if (this.__type === null) {
+                var helper = SharedMessageExtensions.getHelper();
+                this.__type = helper.getContentType(this.toMap(), '');
+                // this.__type = this.getInt('type', 0);
             }
             return this.__type;
         },
 
         // Override
         getSerialNumber: function () {
-            if (this.__sn === 0) {
+            if (this.__sn === null) {
                 this.__sn = this.getInt('sn', 0);
             }
             return this.__sn;
@@ -142,7 +129,37 @@
         }
     });
 
-    //-------- namespace --------
-    ns.dkd.BaseContent = BaseContent;
 
-})(DIMP);
+    /**
+     *  Create command
+     *
+     *  Usages:
+     *      1. new BaseCommand(map);
+     *      2. new BaseCommand(cmd);
+     *      3. new BaseCommand(type, cmd);
+     */
+    dkd.dkd.BaseCommand = function () {
+        if (arguments.length === 2) {
+            // new BaseCommand(type, cmd);
+            BaseContent.call(this, arguments[0]);
+            this.setValue('command', arguments[1]);
+        } else if (IObject.isString(arguments[0])) {
+            // new BaseCommand(cmd);
+            BaseContent.call(this, ContentType.COMMAND);
+            this.setValue('command', arguments[0]);
+        } else {
+            // new BaseCommand(map);
+            BaseContent.call(this, arguments[0]);
+        }
+    };
+    var BaseCommand = dkd.dkd.BaseCommand;
+
+    Class(BaseCommand, BaseContent, [Command], {
+
+        // Override
+        getCmd: function () {
+            var helper = SharedCommandExtensions.getHelper();
+            return helper.getCmd(this.toMap(), '');
+            // return this.getString('command', '');
+        }
+    });

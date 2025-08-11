@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  DIMP : Decentralized Instant Messaging Protocol
@@ -32,16 +32,9 @@
 
 //! require 'command.js'
 
-(function (ns) {
-    'use strict';
-
-    var Interface = ns.type.Interface;
-    var ID      = ns.protocol.ID;
-    var Command = ns.protocol.Command;
-
     /**
      *  History command: {
-     *      type : 0x89,
+     *      type : i2s(0x89),
      *      sn   : 123,
      *
      *      command : "...", // command name
@@ -49,7 +42,8 @@
      *      extra   : info   // command parameters
      *  }
      */
-    var HistoryCommand = Interface(null, [Command]);
+    dkd.protocol.HistoryCommand = Interface(null, [Command]);
+    var HistoryCommand = dkd.protocol.HistoryCommand;
 
     //-------- history command names begin --------
     // account
@@ -59,7 +53,7 @@
 
     /**
      *  Group history command: {
-     *      type : 0x89,
+     *      type : i2s(0x89),
      *      sn   : 123,
      *
      *      command : "reset",   // "invite", "quit", "query", ...
@@ -70,7 +64,8 @@
      *      members : ["{MEMBER_ID}", ],
      *  }
      */
-    var GroupCommand = Interface(null, [HistoryCommand]);
+    dkd.protocol.GroupCommand = Interface(null, [HistoryCommand]);
+    var GroupCommand = dkd.protocol.GroupCommand;
 
     //-------- group command names begin --------
     // founder/owner
@@ -78,10 +73,10 @@
     GroupCommand.ABDICATE = 'abdicate';
     // member
     GroupCommand.INVITE   = 'invite';
-    GroupCommand.EXPEL    = 'expel';
+    GroupCommand.EXPEL    = 'expel';  // Deprecated (use 'reset' instead)
     GroupCommand.JOIN     = 'join';
     GroupCommand.QUIT     = 'quit';
-    GroupCommand.QUERY    = 'query';
+    //GroupCommand.QUERY  = 'query';  // Deprecated
     GroupCommand.RESET    = 'reset';
     // administrator/assistant
     GroupCommand.HIRE     = 'hire';
@@ -96,171 +91,113 @@
     GroupCommand.prototype.getMembers = function () {};
 
     //
-    //  Factories
+    //  Factory methods
     //
 
-    GroupCommand.create = function (cmd, group, members) {
-        var command = new ns.dkd.cmd.BaseGroupCommand(cmd, group);
-        if (!members) {
-            // join, query, quit
-        } else if (members instanceof Array) {
-            command.setMembers(members);
+    var _command_init_members = function (content, members) {
+        if (members instanceof Array) {
+            content.setMembers(members);
         } else if (Interface.conforms(members, ID)) {
-            command.setMember(members);
+            content.setMember(members);
         } else {
             throw new TypeError('group members error: ' + members);
         }
-        return command;
+        return content;
+    };
+
+    GroupCommand.create = function (cmd, group, members) {
+        var content = new BaseGroupCommand(cmd, group);
+        if (members) {
+            _command_init_members(content, members);
+        }
+        return content;
     };
 
     GroupCommand.invite = function (group, members) {
-        var command = new ns.dkd.cmd.InviteGroupCommand(group);
-        if (members instanceof Array) {
-            command.setMembers(members);
-        } else if (Interface.conforms(members, ID)) {
-            command.setMember(members);
-        } else {
-            throw new TypeError('invite members error: ' + members);
-        }
-        return command;
+        var content = new InviteGroupCommand(group);
+        return _command_init_members(content, members);
     };
     // TODO: Deprecated (use 'reset' instead)
     GroupCommand.expel = function (group, members) {
-        var command = new ns.dkd.cmd.ExpelGroupCommand(group);
-        if (members instanceof Array) {
-            command.setMembers(members);
-        } else if (Interface.conforms(members, ID)) {
-            command.setMember(members);
-        } else {
-            throw new TypeError('expel members error: ' + members);
-        }
-        return command;
+        var content = new ExpelGroupCommand(group);
+        return _command_init_members(content, members);
     };
 
     GroupCommand.join = function (group) {
-        return new ns.dkd.cmd.JoinGroupCommand(group);
+        return new JoinGroupCommand(group);
     };
     GroupCommand.quit = function (group) {
-        return new ns.dkd.cmd.QuitGroupCommand(group);
+        return new QuitGroupCommand(group);
     };
 
-    GroupCommand.query = function (group) {
-        return new ns.dkd.cmd.QueryGroupCommand(group);
-    };
     GroupCommand.reset = function (group, members) {
-        var command = new ns.dkd.cmd.ResetGroupCommand(group, members);
+        var content = new ResetGroupCommand(group, members);
         if (members instanceof Array) {
-            command.setMembers(members);
+            content.setMembers(members);
         } else {
             throw new TypeError('reset members error: ' + members);
         }
-        return command;
+        return content;
     };
 
     // Administrators, Assistants
 
-    var get_targets = function (info, batch, single) {
-        var users = info[batch];
-        if (users) {
-            return ID.convert(users);
+    var _command_init_admins = function (content, administrators, assistants) {
+        if (administrators && administrators.length > 0) {
+            content.setAdministrators(administrators);
         }
-        var usr = ID.parse(info[single]);
-        if (usr) {
-            return [usr];
-        } else {
-            return [];
+        if (assistants && assistants.length > 0) {
+            content.setAssistants(assistants);
         }
+        return content;
     };
 
-    GroupCommand.hire = function (group, targets) {
-        var command = new ns.dkd.cmd.HireGroupCommand(group);
-        // hire administrators
-        var admins = get_targets(targets, 'administrators', 'administrator');
-        if (admins.length > 0) {
-            command.setAdministrators(admins);
-        }
-        // hire assistants
-        var bots = get_targets(targets, 'assistants', 'assistant');
-        if (bots.length > 0) {
-            command.setAssistants(bots);
-        }
-        return command;
+    GroupCommand.hire = function (group, administrators, assistants) {
+        var content = new HireGroupCommand(group);
+        return _command_init_admins(content, administrators, assistants);
     };
 
-    GroupCommand.fire = function (group, targets) {
-        var command = new ns.dkd.cmd.FireGroupCommand(group);
-        // hire administrators
-        var admins = get_targets(targets, 'administrators', 'administrator');
-        if (admins.length > 0) {
-            command.setAdministrators(admins);
-        }
-        // hire assistants
-        var bots = get_targets(targets, 'assistants', 'assistant');
-        if (bots.length > 0) {
-            command.setAssistants(bots);
-        }
-        return command;
+    GroupCommand.fire = function (group, administrators, assistants) {
+        var content = new FireGroupCommand(group);
+        return _command_init_admins(content, administrators, assistants);
     };
 
     GroupCommand.resign = function (group) {
-        return new ns.dkd.cmd.ResignGroupCommand(group);
+        return new ResignGroupCommand(group);
     };
 
-    //-------- namespace --------
-    ns.protocol.HistoryCommand = HistoryCommand;
-    ns.protocol.GroupCommand = GroupCommand;
 
-})(DIMP);
+    dkd.protocol.InviteCommand = Interface(null, [GroupCommand]);
+    var InviteCommand = dkd.protocol.InviteCommand;
 
-(function (ns) {
-    'use strict';
-
-    var Interface = ns.type.Interface;
-    var GroupCommand = ns.protocol.GroupCommand;
-
-    var InviteCommand = Interface(null, [GroupCommand]);
     // TODO: Deprecated (use 'reset' instead)
-    var ExpelCommand = Interface(null, [GroupCommand]);
+    dkd.protocol.ExpelCommand = Interface(null, [GroupCommand]);
+    var ExpelCommand = dkd.protocol.ExpelCommand;
 
-    var JoinCommand = Interface(null, [GroupCommand]);
-    var QuitCommand = Interface(null, [GroupCommand]);
+    dkd.protocol.JoinCommand = Interface(null, [GroupCommand]);
+    var JoinCommand = dkd.protocol.JoinCommand;
 
-    var ResetCommand = Interface(null, [GroupCommand]);
-    /**
-     *  NOTICE:
-     *      This command is just for querying group info,
-     *      should not be saved in group history
-     */
-    var QueryCommand = Interface(null, [GroupCommand]);
+    dkd.protocol.QuitCommand = Interface(null, [GroupCommand]);
+    var QuitCommand = dkd.protocol.QuitCommand;
+
+    dkd.protocol.ResetCommand = Interface(null, [GroupCommand]);
+    var ResetCommand = dkd.protocol.ResetCommand;
 
     //  Administrators, Assistants
 
-    var HireCommand = Interface(null, [GroupCommand]);
+    dkd.protocol.HireCommand = Interface(null, [GroupCommand]);
+    var HireCommand = dkd.protocol.HireCommand;
     HireCommand.prototype.getAdministrators = function () {};
     HireCommand.prototype.setAdministrators = function (members) {};
     HireCommand.prototype.getAssistants = function () {};
     HireCommand.prototype.setAssistants = function (bots) {};
 
-    var FireCommand = Interface(null, [GroupCommand]);
+    dkd.protocol.FireCommand = Interface(null, [GroupCommand]);
+    var FireCommand = dkd.protocol.FireCommand;
     FireCommand.prototype.getAdministrators = function () {};
     FireCommand.prototype.setAdministrators = function (members) {};
     FireCommand.prototype.getAssistants = function () {};
     FireCommand.prototype.setAssistants = function (bots) {};
 
-    var ResignCommand = Interface(null, [GroupCommand]);
-
-    //-------- namespace --------
-    ns.protocol.group.InviteCommand = InviteCommand;
-    ns.protocol.group.ExpelCommand = ExpelCommand;
-
-    ns.protocol.group.JoinCommand = JoinCommand;
-    ns.protocol.group.QuitCommand = QuitCommand;
-
-    ns.protocol.group.ResetCommand = ResetCommand;
-    ns.protocol.group.QueryCommand = QueryCommand;
-
-    ns.protocol.group.HireCommand = HireCommand;
-    ns.protocol.group.FireCommand = FireCommand;
-    ns.protocol.group.ResignCommand = ResignCommand;
-
-})(DIMP);
+    dkd.protocol.ResignCommand = Interface(null, [GroupCommand]);
+    var ResignCommand = dkd.protocol.ResignCommand;

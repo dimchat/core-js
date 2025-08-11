@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  DIMP : Decentralized Instant Messaging Protocol
@@ -30,142 +30,32 @@
 // =============================================================================
 //
 
-//! require 'namespace.js'
-
-(function (ns) {
-    'use strict';
-
-    var Interface = ns.type.Interface;
-
-    var Content         = ns.protocol.Content;
-    var ReliableMessage = ns.protocol.ReliableMessage;
+//! require <dkd.js>
 
     /**
      *  Text message: {
-     *      type : 0x01,
+     *      type : i2s(0x01),
      *      sn   : 123,
      *
      *      text : "..."
      *  }
      */
-    var TextContent = Interface(null, [Content]);
+    dkd.protocol.TextContent = Interface(null, [Content]);
+    var TextContent = dkd.protocol.TextContent;
 
-    TextContent.prototype.setText = function (text) {};
     TextContent.prototype.getText = function () {};
 
     //
-    //  factory method
+    //  Factory
     //
-
     TextContent.create = function (text) {
-        return new ns.dkd.BaseTextContent(text);
+        return new BaseTextContent(text);
     };
 
-    /**
-     *  Content Array message: {
-     *      type : 0xCA,
-     *      sn   : 123,
-     *
-     *      contents : [...]  // content array
-     *  }
-     */
-    var ArrayContent = Interface(null, [Content]);
-
-    ArrayContent.prototype.getContents = function () {};
-
-    //
-    //  conveniences
-    //
-
-    ArrayContent.convert = function (contents) {
-        var array = [];
-        var item;
-        for (var i = 0; i < contents.length; ++i) {
-            item = Content.parse(contents[i]);
-            if (item) {
-                array.push(item);
-            }
-        }
-        return array;
-    };
-    ArrayContent.revert = function (contents) {
-        var array = [];
-        var item;
-        for (var i = 0; i < contents.length; ++i) {
-            item = contents[i];
-            if (Interface.conforms(item, Content)) {
-                array.push(item.toMap());
-            } else {
-                // error
-                array.push(item);
-            }
-        }
-        return array;
-    };
-
-    //
-    //  factory method
-    //
-
-    ArrayContent.create = function (contents) {
-        return new ns.dkd.ListContent(contents);
-    };
-
-    /**
-     *  Top-Secret message: {
-     *      type : 0xFF,
-     *      sn   : 456,
-     *
-     *      forward : {...}  // reliable (secure + certified) message
-     *      secrets : [...]  // reliable (secure + certified) messages
-     *  }
-     */
-    var ForwardContent = Interface(null, [Content]);
-
-    ForwardContent.prototype.getForward = function () {};
-    ForwardContent.prototype.getSecrets = function () {};
-
-    //
-    //  conveniences
-    //
-
-    ForwardContent.convert = function (messages) {
-        var array = [];
-        var msg;
-        for (var i = 0; i < messages.length; ++i) {
-            msg = ReliableMessage.parse(messages[i]);
-            if (msg) {
-                array.push(msg);
-            }
-        }
-        return array;
-    };
-    ForwardContent.revert = function (messages) {
-        var array = [];
-        var item;
-        for (var i = 0; i < messages.length; ++i) {
-            item = messages[i];
-            if (Interface.conforms(item, ReliableMessage)) {
-                array.push(item.toMap());
-            } else {
-                // error
-                array.push(item);
-            }
-        }
-        return array;
-    };
-
-    //
-    //  factory method
-    //
-
-    ForwardContent.create = function (secrets) {
-        return new ns.dkd.SecretContent(secrets);
-    };
 
     /**
      *  Web Page message: {
-     *      type : 0x20,
+     *      type : i2s(0x20),
      *      sn   : 123,
      *
      *      title : "...",                // Web title
@@ -180,12 +70,17 @@
      *      base      : "about:blank"     // Base URL
      *  }
      */
-    var PageContent = Interface(null, [Content]);
+    dkd.protocol.PageContent = Interface(null, [Content]);
+    var PageContent = dkd.protocol.PageContent;
 
     PageContent.prototype.setTitle = function (title) {};
     PageContent.prototype.getTitle = function () {};
 
-    // Base-64 image
+    /**
+     *  Base-64 image
+     *
+     * @param {PortableNetworkFile} pnf
+     */
     PageContent.prototype.setIcon = function (pnf) {};
     PageContent.prototype.getIcon = function () {};
 
@@ -199,11 +94,10 @@
     PageContent.prototype.setHTML = function (url) {};
 
     //
-    //  factory method
+    //  Factory
     //
-
     PageContent.create = function (info) {
-        var content = new ns.dkd.WebPageContent();
+        var content = new WebPageContent();
         var title = info['title'];
         if (title) {
             content.setTitle(title);
@@ -227,38 +121,30 @@
         return content;
     };
 
+
     /**
      *  Name Card content: {
-     *      type : 0xCA,
+     *      type : i2s(0x33),
      *      sn   : 123,
      *
-     *      ID     : "{ID}",        // contact's ID
+     *      did    : "{ID}",        // contact's ID
      *      name   : "{nickname}}", // contact's name
      *      avatar : "{URL}",       // avatar - PNF(URL)
      *  }
      */
-    var NameCard = Interface(null, [Content]);
+    dkd.protocol.NameCard = Interface(null, [Content]);
+    var NameCard = dkd.protocol.NameCard;
 
     NameCard.prototype.getIdentifier = function () {};
     NameCard.prototype.getName = function () {};
     NameCard.prototype.getAvatar = function () {};
 
     //
-    //  factory method
+    //  Factory
     //
-
     NameCard.create = function (identifier, mame, avatar) {
-        var content = new ns.dkd.NameCardContent(identifier);
+        var content = new NameCardContent(identifier);
         content.setName(name);
         content.setAvatar(avatar);
         return content;
     };
-
-    //-------- namespace --------
-    ns.protocol.TextContent = TextContent;
-    ns.protocol.ArrayContent = ArrayContent;
-    ns.protocol.ForwardContent = ForwardContent;
-    ns.protocol.PageContent = PageContent;
-    ns.protocol.NameCard = NameCard;
-
-})(DIMP);

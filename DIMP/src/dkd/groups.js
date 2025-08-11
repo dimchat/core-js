@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  DIMP : Decentralized Instant Messaging Protocol
@@ -30,19 +30,8 @@
 // =============================================================================
 //
 
-//! require 'protocol/history.js'
-//! require 'command.js'
-
-(function (ns) {
-    'use strict';
-
-    var Class   = ns.type.Class;
-    var IObject = ns.type.Object;
-    var ID             = ns.protocol.ID;
-    var ContentType    = ns.protocol.ContentType;
-    var HistoryCommand = ns.protocol.HistoryCommand;
-    var GroupCommand   = ns.protocol.GroupCommand;
-    var BaseCommand = ns.dkd.cmd.BaseCommand;
+//! require 'protocol/groups.js'
+//! require 'base.js'
 
     /**
      *  Create history command
@@ -52,7 +41,7 @@
      *      2. new BaseHistoryCommand(cmd);
      *      3. new BaseHistoryCommand(type, cmd);
      */
-    var BaseHistoryCommand = function () {
+    dkd.dkd.BaseHistoryCommand = function () {
         if (arguments.length === 2) {
             // new BaseCommand(type, cmd);
             BaseCommand.call(this, arguments[0], arguments[1]);
@@ -64,7 +53,9 @@
             BaseCommand.call(this, arguments[0]);
         }
     };
+    var BaseHistoryCommand = dkd.dkd.BaseHistoryCommand;
     Class(BaseHistoryCommand, BaseCommand, [HistoryCommand], null);
+
 
     /**
      *  Create group command
@@ -73,7 +64,7 @@
      *      1. new BaseGroupCommand(map);
      *      2. new BaseGroupCommand(cmd, group);
      */
-    var BaseGroupCommand = function () {
+    dkd.dkd.BaseGroupCommand = function () {
         if (arguments.length === 1) {
             // new BaseGroupCommand(map);
             BaseHistoryCommand.call(this, arguments[0]);
@@ -85,6 +76,7 @@
             throw new SyntaxError('Group command arguments error: ' + arguments);
         }
     };
+    var BaseGroupCommand = dkd.dkd.BaseGroupCommand;
     Class(BaseGroupCommand, BaseHistoryCommand, [GroupCommand], {
 
         // Override
@@ -123,34 +115,11 @@
         }
     });
 
-    //-------- namespace --------
-    ns.dkd.cmd.BaseHistoryCommand = BaseHistoryCommand;
-    ns.dkd.cmd.BaseGroupCommand = BaseGroupCommand;
-
-})(DIMP);
-
-(function (ns) {
-    'use strict';
-
-    var Interface = ns.type.Interface;
-    var Class     = ns.type.Class;
-    var ID            = ns.protocol.ID;
-    var GroupCommand  = ns.protocol.GroupCommand;
-    var InviteCommand = ns.protocol.group.InviteCommand;
-    var ExpelCommand  = ns.protocol.group.ExpelCommand;
-    var JoinCommand   = ns.protocol.group.JoinCommand;
-    var QuitCommand   = ns.protocol.group.QuitCommand;
-    var ResetCommand  = ns.protocol.group.ResetCommand;
-    var QueryCommand  = ns.protocol.group.QueryCommand;
-    var HireCommand   = ns.protocol.group.HireCommand;
-    var FireCommand   = ns.protocol.group.FireCommand;
-    var ResignCommand = ns.protocol.group.ResignCommand;
-    var BaseGroupCommand = ns.dkd.cmd.BaseGroupCommand;
 
     /**
      *  Invite group command
      */
-    var InviteGroupCommand = function (info) {
+    dkd.dkd.InviteGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             // new InviteGroupCommand(group);
             BaseGroupCommand.call(this, GroupCommand.INVITE, info)
@@ -159,12 +128,13 @@
             BaseGroupCommand.call(this, info);
         }
     };
+    var InviteGroupCommand = dkd.dkd.InviteGroupCommand;
     Class(InviteGroupCommand, BaseGroupCommand, [InviteCommand], null);
 
     /**
      *  Expel group command
      */
-    var ExpelGroupCommand = function (info) {
+    dkd.dkd.ExpelGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             // new ExpelGroupCommand(group);
             BaseGroupCommand.call(this, GroupCommand.EXPEL, info)
@@ -173,12 +143,13 @@
             BaseGroupCommand.call(this, info);
         }
     };
+    var ExpelGroupCommand = dkd.dkd.ExpelGroupCommand;
     Class(ExpelGroupCommand, BaseGroupCommand, [ExpelCommand], null);
 
     /**
      *  Join group command
      */
-    var JoinGroupCommand = function (info) {
+    dkd.dkd.JoinGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             // new JoinGroupCommand(group);
             BaseGroupCommand.call(this, GroupCommand.JOIN, info)
@@ -187,12 +158,13 @@
             BaseGroupCommand.call(this, info);
         }
     };
+    var JoinGroupCommand = dkd.dkd.JoinGroupCommand;
     Class(JoinGroupCommand, BaseGroupCommand, [JoinCommand], null);
 
     /**
      *  Quit group command
      */
-    var QuitGroupCommand = function (info) {
+    dkd.dkd.QuitGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             // new QuitGroupCommand(group);
             BaseGroupCommand.call(this, GroupCommand.QUIT, info)
@@ -201,12 +173,13 @@
             BaseGroupCommand.call(this, info);
         }
     };
+    var QuitGroupCommand = dkd.dkd.QuitGroupCommand;
     Class(QuitGroupCommand, BaseGroupCommand, [QuitCommand], null);
 
     /**
      *  Reset group command
      */
-    var ResetGroupCommand = function (info) {
+    dkd.dkd.ResetGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             // new ResetGroupCommand(group);
             BaseGroupCommand.call(this, GroupCommand.RESET, info)
@@ -215,28 +188,15 @@
             BaseGroupCommand.call(this, info);
         }
     };
+    var ResetGroupCommand = dkd.dkd.ResetGroupCommand;
     Class(ResetGroupCommand, BaseGroupCommand, [ResetCommand], null);
-
-    /**
-     *  Query group command
-     */
-    var QueryGroupCommand = function (info) {
-        if (Interface.conforms(info, ID)) {
-            // new QueryGroupCommand(group);
-            BaseGroupCommand.call(this, GroupCommand.QUERY, info)
-        } else {
-            // new QueryGroupCommand(map);
-            BaseGroupCommand.call(this, info);
-        }
-    };
-    Class(QueryGroupCommand, BaseGroupCommand, [QueryCommand], null);
 
     //  Administrators, Assistants
 
     /**
      *  Hire group command
      */
-    var HireGroupCommand = function (info) {
+    dkd.dkd.HireGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             // new HireGroupCommand(group);
             BaseGroupCommand.call(this, GroupCommand.HIRE, info)
@@ -245,12 +205,42 @@
             BaseGroupCommand.call(this, info);
         }
     };
-    Class(HireGroupCommand, BaseGroupCommand, [HireCommand], null);
+    var HireGroupCommand = dkd.dkd.HireGroupCommand;
+    Class(HireGroupCommand, BaseGroupCommand, [HireCommand], {
+        // Override
+        getAdministrators: function () {
+            var array = this.getValue('administrators');
+            return !array ? null : ID.convert(array);
+        },
+        // Override
+        setAdministrators: function (admins) {
+            if (!admins) {
+                this.removeValue('administrators');
+            } else {
+                var array = ID.revert(admins);
+                this.setValue('administrators', array);
+            }
+        },
+        // Override
+        getAssistants: function () {
+            var array = this.getValue('assistants');
+            return !array ? null : ID.convert(array);
+        },
+        // Override
+        setAssistants: function (bots) {
+            if (!bots) {
+                this.removeValue('assistants');
+            } else {
+                var array = ID.revert(bots);
+                this.setValue('assistants', array);
+            }
+        }
+    });
 
     /**
      *  Fire group command
      */
-    var FireGroupCommand = function (info) {
+    dkd.dkd.FireGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             // new FireGroupCommand(group);
             BaseGroupCommand.call(this, GroupCommand.FIRE, info)
@@ -259,12 +249,42 @@
             BaseGroupCommand.call(this, info);
         }
     };
-    Class(FireGroupCommand, BaseGroupCommand, [FireCommand], null);
+    var FireGroupCommand = dkd.dkd.FireGroupCommand;
+    Class(FireGroupCommand, BaseGroupCommand, [FireCommand], {
+        // Override
+        getAssistants: function () {
+            var array = this.getValue('assistants');
+            return !array ? null : ID.convert(array);
+        },
+        // Override
+        setAssistants: function (bots) {
+            if (!bots) {
+                this.removeValue('assistants');
+            } else {
+                var array = ID.revert(bots);
+                this.setValue('assistants', array);
+            }
+        },
+        // Override
+        getAdministrators: function () {
+            var array = this.getValue('administrators');
+            return !array ? null : ID.convert(array);
+        },
+        // Override
+        setAdministrators: function (admins) {
+            if (!admins) {
+                this.removeValue('administrators');
+            } else {
+                var array = ID.revert(admins);
+                this.setValue('administrators', array);
+            }
+        }
+    });
 
     /**
      *  Resign group command
      */
-    var ResignGroupCommand = function (info) {
+    dkd.dkd.ResignGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             // new ResignGroupCommand(group);
             BaseGroupCommand.call(this, GroupCommand.RESIGN, info)
@@ -273,21 +293,5 @@
             BaseGroupCommand.call(this, info);
         }
     };
+    var ResignGroupCommand = dkd.dkd.ResignGroupCommand;
     Class(ResignGroupCommand, BaseGroupCommand, [ResignCommand], null);
-
-
-    //-------- namespace --------
-    ns.dkd.cmd.InviteGroupCommand = InviteGroupCommand;
-    ns.dkd.cmd.ExpelGroupCommand  = ExpelGroupCommand;
-
-    ns.dkd.cmd.JoinGroupCommand = JoinGroupCommand;
-    ns.dkd.cmd.QuitGroupCommand = QuitGroupCommand;
-
-    ns.dkd.cmd.ResetGroupCommand = ResetGroupCommand;
-    ns.dkd.cmd.QueryGroupCommand = QueryGroupCommand;
-
-    ns.dkd.cmd.HireGroupCommand = HireGroupCommand;
-    ns.dkd.cmd.FireGroupCommand = FireGroupCommand;
-    ns.dkd.cmd.ResignGroupCommand = ResignGroupCommand;
-
-})(DIMP);

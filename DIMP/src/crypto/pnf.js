@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  DIMP : Decentralized Instant Messaging Protocol
@@ -32,14 +32,6 @@
 
 //! require <crypto.js>
 
-(function (ns) {
-    'use strict';
-
-    var Class = ns.type.Class;
-    var Dictionary = ns.type.Dictionary;
-    var TransportableData = ns.format.TransportableData;
-    var SymmetricKey = ns.crypto.SymmetricKey;
-
     /**
      *  File Content MixIn: {
      *
@@ -56,11 +48,13 @@
      *      }
      *  }
      */
-    var BaseFileWrapper = function (dict) {
+    mk.format.BaseFileWrapper = function (dict) {
         Dictionary.call(this, dict);
-        this.__attachment = null;
-        this.__password = null;
+        this.__attachment = null;  // file data (not encrypted)
+        this.__password = null;    // key to decrypt data downloaded from CDN
     };
+    var BaseFileWrapper = mk.format.BaseFileWrapper;
+
     Class(BaseFileWrapper, Dictionary, null, {
 
         /**
@@ -84,11 +78,15 @@
             this.__attachment = ted;
         },
         setBinaryData: function (bin) {
+            var ted;
             if (!bin) {
-                this.setData(null);
+                ted = null;
+                this.removeValue('data');
             } else {
-                this.setData(TransportableData.create(bin));
+                ted = TransportableData.create(bin);
+                this.setValue('data', ted.toObject());
             }
+            this.__attachment = ted;
         },
 
         /**
@@ -140,8 +138,3 @@
             this.__password = key;
         }
     });
-
-    //-------- namespace --------
-    ns.format.BaseFileWrapper = BaseFileWrapper;
-
-})(DIMP);

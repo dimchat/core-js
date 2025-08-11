@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  DIMP : Decentralized Instant Messaging Protocol
@@ -32,67 +32,20 @@
 
 //! require <crypto.js>
 
-(function (ns) {
-    'use strict';
-
-    var Interface  = ns.type.Interface;
-    var Class      = ns.type.Class;
-    var Dictionary = ns.type.Dictionary;
-
-    var CryptographyKey = ns.crypto.CryptographyKey;
-    var SymmetricKey    = ns.crypto.SymmetricKey;
-    var AsymmetricKey   = ns.crypto.AsymmetricKey;
-    var PrivateKey      = ns.crypto.PrivateKey;
-    var PublicKey      = ns.crypto.PublicKey;
-
-    var general_factory = function () {
-        var man = ns.crypto.CryptographyKeyFactoryManager;
-        return man.generalFactory;
-    };
-
-    var getKeyAlgorithm = function (key) {
-        var gf = general_factory();
-        return gf.getAlgorithm(key, '');
-    };
-
-    var matchSymmetricKeys = function (pKey, sKey) {
-        var gf = general_factory();
-        return gf.matchEncryptKey(pKey, sKey);
-    };
-    var matchAsymmetricKeys = function (sKey, pKey) {
-        var gf = general_factory();
-        return gf.matchSignKey(sKey, pKey);
-    };
-
-    var symmetricKeyEquals = function (a, b) {
-        if (a === b) {
-            // same object
-            return true;
-        }
-        // compare by encryption
-        return matchSymmetricKeys(a, b);
-    };
-    var privateKeyEquals = function (a, b) {
-        if (a === b) {
-            // same object
-            return true;
-        }
-        // compare by signature
-        return matchAsymmetricKeys(a, b.publicKey);
-    };
-
     /**
      *  Base Crypto Key
      *  ~~~~~~~~~~~~~~~
      */
-    var BaseKey = function (dict) {
+    mk.crypto.BaseKey = function (dict) {
         Dictionary.call(this, dict);
     };
+    var BaseKey = mk.crypto.BaseKey;
+
     Class(BaseKey, Dictionary, [CryptographyKey], {
 
         // Override
         getAlgorithm: function () {
-            return getKeyAlgorithm(this.toMap());
+            return BaseKey.getKeyAlgorithm(this.toMap());
         }
     });
 
@@ -100,50 +53,82 @@
     //  Conveniences
     //
 
-    BaseKey.getKeyAlgorithm = getKeyAlgorithm;
-    BaseKey.matchEncryptKey = matchSymmetricKeys;
-    BaseKey.matchSignKey = matchAsymmetricKeys;
-    BaseKey.symmetricKeyEquals = symmetricKeyEquals;
-    BaseKey.privateKeyEquals = privateKeyEquals;
+    BaseKey.getKeyAlgorithm = function (key) {
+        var helper = SharedCryptoExtensions.getHelper();
+        var algorithm = helper.getKeyAlgorithm(key);
+        return algorithm ? algorithm : '';
+    };
+
+    BaseKey.matchEncryptKey = function (pKey, sKey) {
+        return GeneralCryptoHelper.matchSymmetricKeys(pKey, sKey);
+    };
+
+    BaseKey.matchSignKey = function (sKey, pKey) {
+        return GeneralCryptoHelper.matchAsymmetricKeys(sKey, pKey);
+    };
+
+    BaseKey.symmetricKeyEquals = function (key1, key2) {
+        if (key1 === key2) {
+            // same object
+            return true;
+        }
+        // compare by encryption
+        return BaseKey.matchEncryptKey(key1, key2);
+    };
+
+    BaseKey.privateKeyEquals = function (key1, key2) {
+        if (key1 === key2) {
+            // same object
+            return true;
+        }
+        // compare by signature
+        return BaseKey.matchSignKey(key1, key2);
+    };
+
 
     /**
      *  Base Symmetric Key
      *  ~~~~~~~~~~~~~~~~~~
      */
-    var BaseSymmetricKey = function (dict) {
+    mk.crypto.BaseSymmetricKey = function (dict) {
         Dictionary.call(this, dict);
     };
+    var BaseSymmetricKey = mk.crypto.BaseSymmetricKey;
+
     Class(BaseSymmetricKey, Dictionary, [SymmetricKey], {
 
         // Override
         equals: function (other) {
             return Interface.conforms(other, SymmetricKey)
-                && symmetricKeyEquals(other, this);
+                && BaseKey.symmetricKeyEquals(other, this);
         },
 
         // Override
         matchEncryptKey: function (pKey) {
-            return matchSymmetricKeys(pKey, this);
+            return BaseKey.matchEncryptKey(pKey, this);
         },
 
         // Override
         getAlgorithm: function () {
-            return getKeyAlgorithm(this.toMap());
+            return BaseKey.getKeyAlgorithm(this.toMap());
         }
     });
+
 
     /**
      *  Base Asymmetric Key
      *  ~~~~~~~~~~~~~~~~~~~
      */
-    var BaseAsymmetricKey = function (dict) {
+    mk.crypto.BaseAsymmetricKey = function (dict) {
         Dictionary.call(this, dict);
     };
+    var BaseAsymmetricKey = mk.crypto.BaseAsymmetricKey;
+
     Class(BaseAsymmetricKey, Dictionary, [AsymmetricKey], {
 
         // Override
         getAlgorithm: function () {
-            return getKeyAlgorithm(this.toMap());
+            return BaseKey.getKeyAlgorithm(this.toMap());
         }
     });
 
@@ -151,20 +136,22 @@
      *  Base Private Key
      *  ~~~~~~~~~~~~~~~~
      */
-    var BasePrivateKey = function (dict) {
+    mk.crypto.BasePrivateKey = function (dict) {
         Dictionary.call(this, dict);
     };
+    var BasePrivateKey = mk.crypto.BasePrivateKey;
+
     Class(BasePrivateKey, Dictionary, [PrivateKey], {
 
         // Override
         equals: function (other) {
             return Interface.conforms(other, PrivateKey)
-                && privateKeyEquals(other, this);
+                && BaseKey.privateKeyEquals(other, this);
         },
 
         // Override
         getAlgorithm: function () {
-            return getKeyAlgorithm(this.toMap());
+            return BaseKey.getKeyAlgorithm(this.toMap());
         }
     });
 
@@ -172,27 +159,20 @@
      *  Base Public Key
      *  ~~~~~~~~~~~~~~~
      */
-    var BasePublicKey = function (dict) {
+    mk.crypto.BasePublicKey = function (dict) {
         Dictionary.call(this, dict);
     };
+    var BasePublicKey = mk.crypto.BasePublicKey;
+
     Class(BasePublicKey, Dictionary, [PublicKey], {
 
         // Override
         matchSignKey: function (sKey) {
-            return matchAsymmetricKeys(sKey, this);
+            return BaseKey.matchSignKey(sKey, this);
         },
 
         // Override
         getAlgorithm: function () {
-            return getKeyAlgorithm(this.toMap());
+            return BaseKey.getKeyAlgorithm(this.toMap());
         }
     });
-
-    //-------- namespace --------
-    ns.crypto.BaseKey = BaseKey;
-    ns.crypto.BaseSymmetricKey = BaseSymmetricKey;
-    ns.crypto.BaseAsymmetricKey = BaseAsymmetricKey;
-    ns.crypto.BasePrivateKey = BasePrivateKey;
-    ns.crypto.BasePublicKey = BasePublicKey;
-
-})(DIMP);

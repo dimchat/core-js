@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  Dao-Ke-Dao: Universal Message Module
@@ -47,16 +47,6 @@
 //! require <mkm.js>
 //! require <dkd.js>
 
-(function (ns) {
-    'use strict';
-
-    var Class      = ns.type.Class;
-    var Dictionary = ns.type.Dictionary;
-    var Converter  = ns.type.Converter;
-
-    var ID       = ns.protocol.ID;
-    var Envelope = ns.protocol.Envelope;
-
     /**
      *  Create envelope
      *
@@ -65,7 +55,7 @@
      *      2. new MessageEnvelope(sender, receiver);
      *      3. new MessageEnvelope(sender, receiver, time);
      */
-    var MessageEnvelope = function () {
+    dkd.msg.MessageEnvelope = function () {
         var from, to, when;
         var env;
         if (arguments.length === 1) {
@@ -102,6 +92,8 @@
         this.__receiver = to;
         this.__time = when;
     };
+    var MessageEnvelope = dkd.msg.MessageEnvelope;
+
     Class(MessageEnvelope, Dictionary, [Envelope], {
 
         // Override
@@ -157,8 +149,3 @@
             this.setValue('type', type);
         }
     });
-
-    //-------- namespace --------
-    ns.msg.MessageEnvelope = MessageEnvelope;
-
-})(DIMP);

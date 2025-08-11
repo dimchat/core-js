@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  DIMP : Decentralized Instant Messaging Protocol
@@ -30,26 +30,8 @@
 // =============================================================================
 //
 
-//! require 'protocol/text.js'
-
-(function (ns) {
-    'use strict';
-
-    var Class               = ns.type.Class;
-    var Interface           = ns.type.Interface;
-    var IObject             = ns.type.Object;
-    var PortableNetworkFile = ns.format.PortableNetworkFile;
-
-    var ID              = ns.protocol.ID;
-    var ReliableMessage = ns.protocol.ReliableMessage;
-    var ContentType     = ns.protocol.ContentType;
-    var TextContent     = ns.protocol.TextContent;
-    var ArrayContent    = ns.protocol.ArrayContent;
-    var ForwardContent  = ns.protocol.ForwardContent;
-    var PageContent     = ns.protocol.PageContent;
-    var NameCard        = ns.protocol.NameCard;
-
-    var BaseContent = ns.dkd.BaseContent;
+//! require 'protocol/contents.js'
+//! require 'base.js'
 
     /**
      *  Create text message content
@@ -58,7 +40,7 @@
      *      1. new BaseTextContent(map);
      *      2. new BaseTextContent(text);
      */
-    var BaseTextContent = function (info) {
+    dkd.dkd.BaseTextContent = function (info) {
         if (IObject.isString(info)) {
             // new BaseTextContent(text);
             BaseContent.call(this, ContentType.TEXT);
@@ -68,6 +50,8 @@
             BaseContent.call(this, info);
         }
     };
+    var BaseTextContent = dkd.dkd.BaseTextContent;
+
     Class(BaseTextContent, BaseContent, [TextContent], {
 
         // Override
@@ -81,106 +65,6 @@
         }
     });
 
-    /**
-     *  Create array list content
-     *
-     *  Usages:
-     *      1. new ListContent(map);
-     *      2. new ListContent(contents);
-     */
-    var ListContent = function (info) {
-        var list;
-        if (info instanceof Array) {
-            // new ListContent(contents);
-            BaseContent.call(this, ContentType.ARRAY);
-            list = info;
-            this.setValue('contents', ArrayContent.revert(list));
-        } else {
-            // new ListContent(map);
-            BaseContent.call(this, info);
-            // lazy load
-            list = null;
-        }
-        this.__list = list;
-    };
-    Class(ListContent, BaseContent, [ArrayContent], {
-
-        // Override
-        getContents: function () {
-            if (this.__list === null) {
-                var array = this.getValue('contents');
-                if (array) {
-                    this.__list = ArrayContent.convert(array);
-                } else {
-                    this.__list = [];
-                }
-            }
-            return this.__list;
-        }
-    });
-
-    /**
-     *  Create top-secret message content
-     *
-     *  Usages:
-     *      1. new SecretContent(map);
-     *      2. new SecretContent(msg);
-     *      3. new SecretContent(messages);
-     */
-    var SecretContent = function (info) {
-        var forward = null;
-        var secrets = null;
-        if (info instanceof Array) {
-            // new SecretContent(messages);
-            BaseContent.call(this, ContentType.FORWARD);
-            secrets = info;
-        } else if (Interface.conforms(info, ReliableMessage)) {
-            // new SecretContent(msg);
-            BaseContent.call(this, ContentType.FORWARD);
-            forward = info;
-        } else {
-            // new SecretContent(map);
-            BaseContent.call(this, info);
-        }
-        if (forward) {
-            this.setMap('forward', forward);
-        } else if (secrets) {
-            var array = ForwardContent.revert(secrets);
-            this.setValue('secrets', array);
-        }
-        this.__forward = forward;
-        this.__secrets = secrets;
-    };
-    Class(SecretContent, BaseContent, [ForwardContent], {
-
-        // Override
-        getForward: function () {
-            if (this.__forward === null) {
-                var forward = this.getValue('forward');
-                this.__forward = ReliableMessage.parse(forward);
-            }
-            return this.__forward;
-        },
-
-        // Override
-        getSecrets: function () {
-            if (this.__secrets === null) {
-                var array = this.getValue('secrets');
-                if (array) {
-                    // get from 'secrets'
-                    this.__secrets = ForwardContent.convert(array);
-                } else {
-                    // get from 'forward'
-                    this.__secrets = [];
-                    var msg = this.getForward();
-                    if (msg) {
-                        this.__secrets.push(msg);
-                    }
-                }
-            }
-            return this.__secrets;
-        }
-    });
 
     /**
      *  Create web page message content
@@ -189,7 +73,7 @@
      *      1. new WebPageContent(map);
      *      2. new WebPageContent();
      */
-    var WebPageContent = function (info) {
+    dkd.dkd.WebPageContent = function (info) {
         if (info) {
             // new WebPageContent(map);
             BaseContent.call(this, info);
@@ -199,6 +83,8 @@
         }
         this.__icon = null;
     };
+    var WebPageContent = dkd.dkd.WebPageContent;
+
     Class(WebPageContent, BaseContent, [PageContent], {
 
         // Override
@@ -267,24 +153,26 @@
      *
      *  Usages:
      *      1. new NameCardContent(map);
-     *      2. new NameCardContent(id);
+     *      2. new NameCardContent(did);
      */
-    var NameCardContent = function (info) {
+    dkd.dkd.NameCardContent = function (info) {
         if (Interface.conforms(info, ID)) {
-            // new NameCardContent(id);
+            // new NameCardContent(did);
             BaseContent.call(this, ContentType.NAME_CARD);
-            this.setString('ID', info);
+            this.setString('did', info);
         } else {
             // new NameCardContent(map);
             BaseContent.call(this, info);
         }
         this.__image = null;
     };
+    var NameCardContent = dkd.dkd.NameCardContent;
+
     Class(NameCardContent, BaseContent, [NameCard], {
 
         // Override
         getIdentifier: function () {
-            var id = this.getValue('ID');
+            var id = this.getValue('did');
             return ID.parse(id);
         },
 
@@ -319,12 +207,3 @@
             this.__image = pnf;
         }
     });
-
-    //-------- namespace --------
-    ns.dkd.BaseTextContent = BaseTextContent;
-    ns.dkd.ListContent = ListContent;
-    ns.dkd.SecretContent = SecretContent;
-    ns.dkd.WebPageContent = WebPageContent;
-    ns.dkd.NameCardContent = NameCardContent;
-
-})(DIMP);

@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  Dao-Ke-Dao: Universal Message Module
@@ -46,15 +46,6 @@
 
 //! require 'message.js'
 
-(function (ns) {
-    'use strict';
-
-    var Class          = ns.type.Class;
-    var Content        = ns.protocol.Content;
-    var InstantMessage = ns.protocol.InstantMessage;
-
-    var BaseMessage    = ns.msg.BaseMessage;
-
     /**
      *  Create instant message
      *
@@ -62,7 +53,7 @@
      *      1. new PlainMessage(map);
      *      2. new PlainMessage(envelope, content);
      */
-    var PlainMessage = function () {
+    dkd.msg.PlainMessage = function () {
         var msg, head, body;
         if (arguments.length === 1) {
             // new PlainMessage(map);
@@ -82,6 +73,8 @@
         this.__envelope = head;
         this.__content = body;
     };
+    var PlainMessage = dkd.msg.PlainMessage;
+
     Class(PlainMessage, BaseMessage, [InstantMessage], {
 
         // Override
@@ -123,8 +116,3 @@
             this.__content = body;
         }
     });
-
-    //-------- namespace --------
-    ns.msg.PlainMessage = PlainMessage;
-
-})(DIMP);

@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  DIMP : Decentralized Instant Messaging Protocol
@@ -32,17 +32,6 @@
 
 //! require <crypto.js>
 
-(function (ns) {
-    'use strict';
-
-    var Class      = ns.type.Class;
-    var Dictionary = ns.type.Dictionary;
-
-    var TransportableData = ns.format.TransportableData;
-    var Base64            = ns.format.Base64;
-    var Base58            = ns.format.Base58;
-    var Hex               = ns.format.Hex;
-
     /**
      *  Transportable Data Mixin: {
      *
@@ -56,29 +45,31 @@
      *      1. "base64,{BASE64_ENCODE}"
      *      2. "data:image/png;base64,{BASE64_ENCODE}"
      */
-    var BaseDataWrapper = function (dict) {
+    mk.format.BaseDataWrapper = function (dict) {
         Dictionary.call(this, dict);
         this.__data = null;
     };
+    var BaseDataWrapper = mk.format.BaseDataWrapper;
+
     Class(BaseDataWrapper, Dictionary, null, {
 
-        // Override
-        isEmpty: function () {
-            if (Dictionary.prototype.isEmpty.call(this)) {
-                return true;
-            }
-            var bin = this.__data;
-            return bin === null || bin.length === 0;
-        },
+        // // Override
+        // isEmpty: function () {
+        //     if (Dictionary.prototype.isEmpty.call(this)) {
+        //         return true;
+        //     }
+        //     var bin = this.__data;
+        //     return bin === null || bin.length === 0;
+        // },
 
         // Override
         toString: function () {
-            var encoded = this.getString('data', '');
-            if (encoded.length === 0) {
-                return encoded;
+            var encoded = this.getString('data', null);
+            if (!encoded/* || encoded.length === 0*/) {
+                return '';
             }
-            var alg = this.getString('algorithm', '');
-            if (alg === TransportableData.DEFAULT) {
+            var alg = this.getString('algorithm', null);
+            if (!alg || alg === TransportableData.DEFAULT) {
                 alg = '';
             }
             if (alg === '') {
@@ -92,9 +83,9 @@
 
         // toString(mimeType)
         encode: function (mimeType) {
-            var encoded = this.getString('data', '');
-            if (encoded.length === 0) {
-                return encoded;
+            var encoded = this.getString('data', null);
+            if (!encoded/* || encoded.length === 0*/) {
+                return '';
             }
             var alg = this.getAlgorithm();
             // "data:image/png;base64,{BASE64_ENCODE}"
@@ -103,8 +94,8 @@
 
         // encode algorithm
         getAlgorithm: function () {
-            var alg = this.getString('algorithm', '');
-            if (alg === '') {
+            var alg = this.getString('algorithm', null);
+            if (!alg) {
                 alg = TransportableData.DEFAULT;
             }
             return alg;
@@ -123,19 +114,22 @@
         getData: function () {
             var bin = this.__data;
             if (!bin) {
-                var encoded = this.getString('data', '');
-                if (encoded.length > 0) {
+                var encoded = this.getString('data', null);
+                if (!encoded/* || encoded.length === 0*/) {
+                    return null;
+                } else {
                     var alg = this.getAlgorithm();
-                    if (alg === TransportableData.BASE64) {
+                    if (alg === EncodeAlgorithms.BASE_64) {
                         bin = Base64.decode(encoded);
-                    } else if (alg === TransportableData.BASE58) {
+                    } else if (alg === EncodeAlgorithms.BASE_58) {
                         bin = Base58.decode(encoded);
-                    } else if (alg === TransportableData.HEX) {
+                    } else if (alg === EncodeAlgorithms.HEX) {
                         bin = Hex.decode(encoded);
-                    // } else {
-                    //     throw new Error('data algorithm not support: ' + alg);
+                    } else {
+                        throw new Error('data algorithm not support: ' + alg);
                     }
                 }
+                this.__data = bin;
             }
             return bin;
         },
@@ -143,24 +137,19 @@
             if (!bin) {
                 this.removeValue('data');
             } else {
-                var encoded = '';
+                var encoded = null;
                 var alg = this.getAlgorithm();
-                if (alg === TransportableData.BASE64) {
+                if (alg === EncodeAlgorithms.BASE_64) {
                     encoded = Base64.encode(bin);
-                } else if (alg === TransportableData.BASE58) {
+                } else if (alg === EncodeAlgorithms.BASE_58) {
                     encoded = Base58.encode(bin);
-                } else if (alg === TransportableData.HEX) {
+                } else if (alg === EncodeAlgorithms.HEX) {
                     encoded = Hex.encode(bin);
-                // } else {
-                //     throw new Error('data algorithm not support: ' + alg);
+                } else {
+                    throw new Error('data algorithm not support: ' + alg);
                 }
                 this.setValue('data', encoded);
             }
             this.__data = bin;
         }
     });
-
-    //-------- namespace --------
-    ns.format.BaseDataWrapper = BaseDataWrapper;
-
-})(DIMP);

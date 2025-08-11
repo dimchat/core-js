@@ -5,80 +5,36 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DIMP Test Cases</title>
-    <link href="/Crypto/tests/test.css" type="text/css" rel="stylesheet" />
-    <script src="/Crypto/libs/loader.js"></script>
-    <script src="/Crypto/libs/runner.js"></script>
-    <script src="/Crypto/libs/utils.js"></script>
+    <link href="../../Crypto/tests/test.css" type="text/css" rel="stylesheet" />
+    <script src="../../Crypto/libs/loader.js"></script>
+    <script src="../../Crypto/libs/runner.js"></script>
+    <script src="../../Crypto/libs/utils.js"></script>
 
-    <script src="/Crypto/dist/crypto.js"></script>
-    <script src="/MingKeMing/dist/mkm.js"></script>
-    <script src="/DaoKeDao/dist/dkd.js"></script>
+    <script src="../../Crypto/dist/crypto.js"></script>
+    <script src="../../MingKeMing/dist/mkm.js"></script>
+    <script src="../../DaoKeDao/dist/dkd.js"></script>
 
+    <script src="../src/sources.js"></script>
     <script>
         !function (ns) {
             var sources = [
-                'src/namespace.js',
-
-                // crypto
-                'src/crypto/keys.js',
-                'src/crypto/ted.js',
-                'src/crypto/pnf.js',
-
-                // dkd content protocol
-                'src/protocol/contents.js',
-                'src/protocol/files.js',
-                'src/protocol/money.js',
-                'src/protocol/customized.js',
-                // dkd command protocol
-                'src/protocol/commands.js',
-                'src/protocol/groups.js',
-                'src/protocol/receipt.js',
-                // mkm document protocol
-                'src/protocol/docs.js',
-
-                // dkd content implementations
-                'src/dkd/base.js',
-                'src/dkd/contents.js',
-                'src/dkd/files.js',
-                'src/dkd/money.js',
-                'src/dkd/customized.js',
-                // dkd command implementations
-                'src/dkd/commands.js',
-                'src/dkd/groups.js',
-                'src/dkd/receipt.js',
-                // dkd command factory manager
-                'src/dkd/factory.js',
-
-                // dkd message implementations
-                'src/msg/envelope.js',
-                'src/msg/base.js',
-                'src/msg/instant.js',
-                'src/msg/secure.js',
-                'src/msg/reliable.js',
-
-                // mkm extensions
-                'src/mkm/helper.js',
-                'src/mkm/meta.js',
-                'src/mkm/document.js',
-                'src/mkm/docs.js',
-                'src/mkm/entity.js',
-                'src/mkm/user.js',
-                'src/mkm/group.js',
-
-                // core
-                'src/core/barrack.js',
-                'src/core/packer.js',
-                'src/core/processor.js',
-                'src/core/transceiver.js',
-                null
-            ];
-
+                'src/requires.js'
+            ].concat(core_sources);
             var dist = 'dist/core.js';
 
             var tests = [
+                '../../Crypto/tests/format/utf8.js',
+                '../../Crypto/tests/format/json.js',
+                '../../Crypto/tests/format/hex.js',
+                '../../Crypto/tests/format/base58.js',
+                '../../Crypto/tests/format/base64.js',
+                '../../Crypto/tests/crypto_tests.js',
                 '../Crypto/tests/crypto_tests.js',
+
                 '../MingKeMing/tests/mkm_tests.js',
+
                 '../DaoKeDao/tests/dkd_tests.js',
+
                 'tests/core_tests.js',
                 null
             ];
@@ -86,6 +42,7 @@
             var base = window.location.href;
             base = base.substring(0, base.indexOf('tests/test.html'));
             var loader = new Loader(base);
+            loader.importJS('src/namespace.js');
 
             for (var i = 0; i < sources.length; ++i) {
                 loader.importJS(sources[i]);
@@ -141,16 +98,19 @@
 <p class="console">
     <script>
         !(function () {
-            var text = 'cat';
-            var file;
+            var targets = [
+                'src/ns_begin.closure'
+            ];
             for (var i = 0; i < sources.length; ++i) {
-                file = sources[i];
-                if (!file) {
-                    continue;
+                var file = sources[i];
+                if (file) {
+                    targets.push(file);
                 }
-                text += ' ' + file;
             }
-            text += ' >> ' + dist;
+            targets.push('src/ns_end.closure');
+
+            var text = targets.join(' ');
+            text = 'cat ' + text + ' > ' + dist;
             document.writeln(text);
         }());
     </script>
@@ -158,12 +118,19 @@
 <p class="console">
     <script>
         !(function () {
-            var text = 'cat' +
-                ' ../../mkm-js/Crypto/dist/crypto.js' +
-                ' ../../mkm-js/MingKeMing/dist/mkm.js' +
-                ' ../../dkd-js/DaoKeDao/dist/dkd.js' +
-                ' dist/core.js';
-            text += ' >> dist/dimp.js';
+            var targets = [
+                'src/all_begin.closure',
+
+                '../../mkm-js/Crypto/dist/crypto.js',
+                '../../mkm-js/MingKeMing/dist/mkm.js',
+                '../../dkd-js/DaoKeDao/dist/dkd.js',
+                dist,
+
+                'src/all_end.closure'
+            ];
+
+            var text = targets.join(' ');
+            text = 'cat ' + text + ' > dist/dimp.js';
             document.writeln(text);
         }());
     </script>

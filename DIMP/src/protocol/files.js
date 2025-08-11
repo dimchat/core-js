@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  DIMP : Decentralized Instant Messaging Protocol
@@ -30,17 +30,11 @@
 // =============================================================================
 //
 
-//! require 'namespace.js'
-
-(function (ns) {
-    'use strict';
-
-    var Interface = ns.type.Interface;
-    var Content = ns.protocol.Content;
+//! require <dkd.js>
 
     /**
      *  File message: {
-     *      type : 0x10,
+     *      type : i2s(0x10),
      *      sn   : 123,
      *
      *      data     : "...",        // base64_encode(fileContent)
@@ -56,7 +50,8 @@
      *      }
      *  }
      */
-    var FileContent = Interface(null, [Content]);
+    dkd.protocol.FileContent = Interface(null, [Content]);
+    var FileContent = dkd.protocol.FileContent;
 
     // Uint8Array
     FileContent.prototype.setData = function (data) {};
@@ -73,10 +68,10 @@
     FileContent.prototype.getPassword = function () {};
 
     //
-    //  factory methods
+    //  Factory methods
     //
 
-    var init_content = function (content, data, filename, url, password) {
+    var _init_file_content = function (content, data, filename, url, password) {
         if (data) {
             content.setTransportableData(data);
         }
@@ -95,7 +90,7 @@
     /**
      *  Create file content with type
      *
-     * @param {uint} type              - message type
+     * @param {String} type            - message type
      * @param {TransportableData} data - file data
      * @param {String} filename        - file name
      * @param {String} url             - download URL
@@ -103,8 +98,17 @@
      * @return {FileContent}
      */
     FileContent.create = function (type, data, filename, url, password) {
-        var content = new ns.dkd.BaseFileContent(type);
-        return init_content(content, data, filename, url, password);
+        var content;
+        if (type === ContentType.IMAGE) {
+            content = new ImageFileContent();
+        } else if (type === ContentType.AUDIO) {
+            content = new AudioFileContent();
+        } else if (type === ContentType.VIDEO) {
+            content = new VideoFileContent();
+        } else {
+            content = new BaseFileContent(type);
+        }
+        return _init_file_content(content, data, filename, url, password);
     };
 
     /**
@@ -117,8 +121,8 @@
      * @return {FileContent}
      */
     FileContent.file = function (data, filename, url, password) {
-        var content = new ns.dkd.BaseFileContent();
-        return init_content(content, data, filename, url, password);
+        var content = new BaseFileContent();
+        return _init_file_content(content, data, filename, url, password);
     };
 
     /**
@@ -131,8 +135,8 @@
      * @return {ImageContent}
      */
     FileContent.image = function (data, filename, url, password) {
-        var content = new ns.dkd.ImageFileContent();
-        return init_content(content, data, filename, url, password);
+        var content = new ImageFileContent();
+        return _init_file_content(content, data, filename, url, password);
     };
 
     /**
@@ -145,8 +149,8 @@
      * @return {AudioContent}
      */
     FileContent.audio = function (data, filename, url, password) {
-        var content = new ns.dkd.AudioFileContent();
-        return init_content(content, data, filename, url, password);
+        var content = new AudioFileContent();
+        return _init_file_content(content, data, filename, url, password);
     };
 
     /**
@@ -159,24 +163,14 @@
      * @return {VideoContent}
      */
     FileContent.video = function (data, filename, url, password) {
-        var content = new ns.dkd.VideoFileContent();
-        return init_content(content, data, filename, url, password);
+        var content = new VideoFileContent();
+        return _init_file_content(content, data, filename, url, password);
     };
 
-    //-------- namespace --------
-    ns.protocol.FileContent = FileContent;
-
-})(DIMP);
-
-(function (ns) {
-    'use strict';
-
-    var Interface = ns.type.Interface;
-    var FileContent = ns.protocol.FileContent;
 
     /**
      *  Image message: {
-     *      type : 0x12,
+     *      type : i2s(0x12),
      *      sn   : 123,
      *
      *      data     : "...",        // base64_encode(fileContent)
@@ -193,15 +187,17 @@
      *      thumbnail : "data:image/jpeg;base64,..."
      *  }
      */
-    var ImageContent = Interface(null, [FileContent]);
+    dkd.protocol.ImageContent = Interface(null, [FileContent]);
+    var ImageContent = dkd.protocol.ImageContent;
 
     // PortableNetworkFile
     ImageContent.prototype.setThumbnail = function (image) {};
     ImageContent.prototype.getThumbnail = function () {};
 
+
     /**
      *  Video message: {
-     *      type : 0x16,
+     *      type : i2s(0x16),
      *      sn   : 123,
      *
      *      data     : "...",        // base64_encode(fileContent)
@@ -218,15 +214,17 @@
      *      snapshot : "data:image/jpeg;base64,..."
      *  }
      */
-    var VideoContent = Interface(null, [FileContent]);
+    dkd.protocol.VideoContent = Interface(null, [FileContent]);
+    var VideoContent = dkd.protocol.VideoContent;
 
     // PortableNetworkFile
     VideoContent.prototype.setSnapshot = function (image) {};
     VideoContent.prototype.getSnapshot = function () {};
 
+
     /**
      *  Audio message: {
-     *      type : 0x14,
+     *      type : i2s(0x14),
      *      sn   : 123,
      *
      *      data     : "...",        // base64_encode(fileContent)
@@ -243,14 +241,8 @@
      *      text     : "...",          // Automatic Speech Recognition
      *  }
      */
-    var AudioContent = Interface(null, [FileContent]);
+    dkd.protocol.AudioContent = Interface(null, [FileContent]);
+    var AudioContent = dkd.protocol.AudioContent;
 
     AudioContent.prototype.setText = function (asr) {};
     AudioContent.prototype.getText = function () {};
-
-    //-------- namespace --------
-    ns.protocol.ImageContent = ImageContent;
-    ns.protocol.AudioContent = AudioContent;
-    ns.protocol.VideoContent = VideoContent;
-
-})(DIMP);

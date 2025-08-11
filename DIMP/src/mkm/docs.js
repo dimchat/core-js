@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  Ming-Ke-Ming : Decentralized User Identity Authentication
@@ -32,20 +32,6 @@
 
 //! require 'document.js'
 
-(function (ns) {
-    'use strict';
-
-    var Interface  = ns.type.Interface;
-    var Class      = ns.type.Class;
-    var EncryptKey = ns.crypto.EncryptKey;
-    var PublicKey  = ns.crypto.PublicKey;
-    var PortableNetworkFile = ns.format.PortableNetworkFile;
-
-    var ID       = ns.protocol.ID;
-    var Document = ns.protocol.Document;
-    var Visa     = ns.protocol.Visa;
-    var BaseDocument = ns.mkm.BaseDocument;
-
     /**
      *  Create base document for user
      *
@@ -56,16 +42,18 @@
      *  3. Create visa with data & signature loaded from local storage
      *      new BaseVisa(identifier, data, signature);
      */
-    var BaseVisa = function () {
+    mkm.mkm.BaseVisa = function () {
         if (arguments.length === 3) {
             // new BaseVisa(identifier, data, signature);
             BaseDocument.call(this, arguments[0], arguments[1], arguments[2]);
         } else if (Interface.conforms(arguments[0], ID)) {
             // new BaseVisa(identifier);
-            BaseDocument.call(this, arguments[0], Document.VISA);
+            BaseDocument.call(this, arguments[0], DocumentType.VISA);
         } else if (arguments.length === 1) {
             // new BaseVisa(map);
             BaseDocument.call(this, arguments[0]);
+        } else {
+            throw new SyntaxError('visa params error: ' + arguments);
         }
         /// Public Key for encryption
         /// ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -75,6 +63,8 @@
         /// Avatar URL
         this.__avatar = null;  // PortableNetworkFile
     };
+    var BaseVisa = mkm.mkm.BaseVisa;
+
     Class(BaseVisa, BaseDocument, [Visa], {
 
         // Override
@@ -109,8 +99,12 @@
             var pnf = this.__avatar;
             if (!pnf) {
                 var url = this.getProperty('avatar');
-                pnf = PortableNetworkFile.parse(url);
-                this.__avatar = pnf;
+                if (typeof url === 'string' && url.length === 0) {
+                    // ignore empty URL
+                } else {
+                    pnf = PortableNetworkFile.parse(url);
+                    this.__avatar = pnf;
+                }
             }
             return pnf;
         },
@@ -126,20 +120,6 @@
         }
     });
 
-    //-------- namespace --------
-    ns.mkm.BaseVisa = BaseVisa;
-
-})(DIMP);
-
-(function (ns) {
-    'use strict';
-
-    var Interface = ns.type.Interface;
-    var Class = ns.type.Class;
-    var ID = ns.protocol.ID;
-    var Document = ns.protocol.Document;
-    var Bulletin = ns.protocol.Bulletin;
-    var BaseDocument = ns.mkm.BaseDocument;
 
     /**
      *  Create base document for group
@@ -151,19 +131,23 @@
      *  3. Create group profile with data & signature loaded from local storage
      *      new BaseBulletin(identifier, data, signature);
      */
-    var BaseBulletin = function () {
+    mkm.mkm.BaseBulletin = function () {
         if (arguments.length === 3) {
             // new BaseBulletin(identifier, data, signature);
             BaseDocument.call(this, arguments[0], arguments[1], arguments[2]);
         } else if (Interface.conforms(arguments[0], ID)) {
             // new BaseBulletin(identifier);
-            BaseDocument.call(this, arguments[0], Document.BULLETIN);
+            BaseDocument.call(this, arguments[0], DocumentType.BULLETIN);
         } else if (arguments.length === 1) {
             // new BaseBulletin(map);
             BaseDocument.call(this, arguments[0]);
+        } else {
+            throw new SyntaxError('bulletin params error: ' + arguments);
         }
         this.__assistants = null;  // List<ID>
     };
+    var BaseBulletin = mkm.mkm.BaseBulletin;
+
     Class(BaseBulletin, BaseDocument, [Bulletin], {
 
         // Override
@@ -199,8 +183,3 @@
             this.__assistants = bots;
         }
     });
-
-    //-------- namespace --------
-    ns.mkm.BaseBulletin = BaseBulletin;
-
-})(DIMP);

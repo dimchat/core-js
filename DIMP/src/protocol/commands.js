@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  DIMP : Decentralized Instant Messaging Protocol
@@ -30,156 +30,74 @@
 // =============================================================================
 //
 
-//! require <dkd.js>
-
-(function (ns) {
-    'use strict';
-
-    var Interface = ns.type.Interface;
-    var Content = ns.protocol.Content;
-
-    /**
-     *  Command message: {
-     *      type : 0x88,
-     *      sn   : 123,
-     *
-     *      command : "...", // command name
-     *      extra   : info   // command parameters
-     *  }
-     */
-    var Command = Interface(null, [Content]);
-
-    //-------- command names begin --------
-    Command.META      = 'meta';
-    Command.DOCUMENT  = 'document';
-    Command.RECEIPT   = 'receipt';
-    //-------- command names end --------
-
-    /**
-     *  Command name
-     *
-     * @returns {String}
-     */
-    Command.prototype.getCmd = function () {};
-
-    //
-    //  Factory method
-    //
-
-    var general_factory = function () {
-        var man = ns.dkd.cmd.CommandFactoryManager;
-        return man.generalFactory;
-    };
-
-    Command.parse = function (command) {
-        var gf = general_factory();
-        return gf.parseCommand(command);
-    };
-
-    Command.setFactory = function (cmd, factory) {
-        var gf = general_factory();
-        gf.setCommandFactory(cmd, factory);
-    };
-    Command.getFactory = function (cmd) {
-        var gf = general_factory();
-        return gf.getCommandFactory(cmd);
-    };
-
-    /**
-     *  Command Factory
-     *  ~~~~~~~~~~~~~~~
-     */
-    var CommandFactory = Interface(null, null);
-
-    /**
-     *  Parse map object to command
-     *
-     * @param {*} content - command content
-     * @return {Command}
-     */
-    CommandFactory.prototype.parseCommand = function (content) {};
-
-    Command.Factory = CommandFactory;
-
-    //-------- namespace --------
-    ns.protocol.Command = Command;
-    // ns.protocol.CommandFactory = CommandFactory;
-
-})(DIMP);
-
-(function (ns) {
-    'use strict';
-
-    var Interface = ns.type.Interface;
-    var Command = ns.protocol.Command;
+//! require 'base.js'
 
     /**
      *  Meta command message: {
-     *      type : 0x88,
+     *      type : i2s(0x88),
      *      sn   : 123,
      *
      *      command : "meta", // command name
-     *      ID      : "{ID}", // contact's ID
+     *      did     : "{ID}", // contact's ID
      *      meta    : {...}   // when meta is empty, means query meta for ID
      *  }
      */
-    var MetaCommand = Interface(null, [Command]);
+    dkd.protocol.MetaCommand = Interface(null, [Command]);
+    var MetaCommand = dkd.protocol.MetaCommand;
 
     MetaCommand.prototype.getIdentifier = function () {};
     MetaCommand.prototype.getMeta = function () {};
 
     //
-    //  factory method
+    //  Factory methods
     //
 
     MetaCommand.query = function (identifier) {
-        return new ns.dkd.cmd.BaseMetaCommand(identifier);
+        return new BaseMetaCommand(identifier);
     };
 
     MetaCommand.response = function (identifier, meta) {
-        var command = new ns.dkd.cmd.BaseMetaCommand(identifier);
+        var command = new BaseMetaCommand(identifier);
         command.setMeta(meta);
         return command;
     };
 
+
     /**
      *  Document command message: {
-     *      type : 0x88,
+     *      type : i2s(0x88),
      *      sn   : 123,
      *
-     *      command   : "document", // command name
-     *      ID        : "{ID}",     // entity ID
-     *      meta      : {...},      // only for handshaking with new friend
-     *      document  : {...},      // when document is empty, means query for ID
-     *      last_time : 12345       // old document time for querying
+     *      command   : "documents", // command name
+     *      did       : "{ID}",      // entity ID
+     *      meta      : {...},       // only for handshaking with new friend
+     *      documents : [...],       // when this is null, means to query
+     *      last_time : 12345        // old document time for querying
      *  }
      */
-    var DocumentCommand = Interface(null, [MetaCommand]);
+    dkd.protocol.DocumentCommand = Interface(null, [MetaCommand]);
+    var DocumentCommand = dkd.protocol.DocumentCommand;
 
-    DocumentCommand.prototype.getDocument = function () {};
+    // Entity documents
+    DocumentCommand.prototype.getDocuments = function () {};
+    // Last document time for querying
     DocumentCommand.prototype.getLastTime = function () {};
 
     //
-    //  factory method
+    //  Factory methods
     //
 
     DocumentCommand.query = function (identifier, lastTime) {
-        var command = new ns.dkd.cmd.BaseDocumentCommand(identifier);
+        var command = new BaseDocumentCommand(identifier);
         if (lastTime) {
             command.setLastTime(lastTime);
         }
         return command;
     };
 
-    DocumentCommand.response = function (identifier, meta, doc) {
-        var command = new ns.dkd.cmd.BaseDocumentCommand(identifier);
+    DocumentCommand.response = function (identifier, meta, docs) {
+        var command = new BaseDocumentCommand(identifier);
         command.setMeta(meta);
-        command.setDocument(doc);
+        command.setDocuments(docs);
         return command;
     };
-
-    //-------- namespace --------
-    ns.protocol.MetaCommand = MetaCommand;
-    ns.protocol.DocumentCommand = DocumentCommand;
-
-})(DIMP);

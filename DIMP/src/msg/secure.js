@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  Dao-Ke-Dao: Universal Message Module
@@ -51,53 +51,44 @@
 
 //! require 'message.js'
 
-(function (ns) {
-    'use strict';
-
-    var Class             = ns.type.Class;
-    var IObject           = ns.type.Object;
-    var UTF8              = ns.format.UTF8;
-    var TransportableData = ns.format.TransportableData;
-    var SecureMessage     = ns.protocol.SecureMessage;
-
-    var BaseMessage       = ns.msg.BaseMessage;
-
     /**
      *  Create secure message
      *
      * @param {{String:Object}} msg - message info with envelope, data, key/keys
      * @constructor
      */
-    var EncryptedMessage = function (msg) {
+    dkd.msg.EncryptedMessage = function (msg) {
         BaseMessage.call(this, msg);
         // lazy load
         this.__data = null;  // Uint8Array
         this.__key = null;   // TransportableData
         this.__keys = null;  // String => String
     };
+    var EncryptedMessage = dkd.msg.EncryptedMessage;
+
     Class(EncryptedMessage, BaseMessage, [SecureMessage], {
 
         // Override
         getData: function () {
-            var data = this.__data;
-            if (!data) {
+            var binary = this.__data;
+            if (!binary) {
                 var base64 = this.getValue('data');
                 if (!base64) {
                     throw new ReferenceError('message data not found: ' + this);
                 } else if (!BaseMessage.isBroadcast(this)) {
                     // message content had been encrypted by a symmetric key,
                     // so the data should be encoded here (with algorithm 'base64' as default).
-                    data = TransportableData.decode(base64);
+                    binary = TransportableData.decode(base64);
                 } else if (IObject.isString(base64)) {
                     // broadcast message content will not be encrypted (just encoded to JsON),
                     // so return the string data directly
-                    data = UTF8.encode(base64);  // JsON
+                    binary = UTF8.encode(base64);  // JsON
                 } else {
                     throw new ReferenceError('message data error: ' + base64);
                 }
-                this.__data = data;
+                this.__data = binary;
             }
-            return data;
+            return binary;
         },
 
         // Override
@@ -129,8 +120,3 @@
             return keys;
         }
     });
-
-    //-------- namespace --------
-    ns.msg.EncryptedMessage = EncryptedMessage;
-
-})(DIMP);

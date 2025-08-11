@@ -1,0 +1,22 @@
+/**
+ * DIMP - Decentralized Instant Messaging Protocol (v2.0.0)
+ *
+ * @author    moKy <albert.moky at gmail.com>
+ * @date      Aug. 12, 2025
+ * @copyright (c) 2020-2025 Albert Moky
+ * @license   {@link https://mit-license.org | MIT License}
+ */;
+
+if (typeof DIMP !== 'object') {
+    DIMP = {};
+}
+
+(function (dkd, mkm, mk) {
+
+    var DaoKeDao = dkd;
+    var MingKeMing = mkm;
+    var MONKEY = mk;
+
+    // ...
+
+// })(DIMP, DIMP, DIMP);

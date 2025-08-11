@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  Ming-Ke-Ming : Decentralized User Identity Authentication
@@ -52,16 +52,6 @@
 //! require <crypto.js>
 //! require <mkm.js>
 
-(function (ns) {
-    'use strict';
-
-    var Class             = ns.type.Class;
-    var Dictionary        = ns.type.Dictionary;
-    var TransportableData = ns.format.TransportableData;
-    var PublicKey         = ns.crypto.PublicKey;
-    var Meta              = ns.protocol.Meta;
-    var MetaHelper        = ns.mkm.MetaHelper;
-
     /**
      *  Create Meta
      *
@@ -70,7 +60,7 @@
      *      2. new BaseMeta(type, key);
      *      3. new BaseMeta(type, key, seed, fingerprint);
      */
-    var BaseMeta = function () {
+    mkm.mkm.BaseMeta = function () {
         var type, key, seed, fingerprint;
         var status;  // 1 for valid, -1 for invalid
         var meta;
@@ -117,14 +107,16 @@
         this.__fingerprint = fingerprint;
         this.__status      = status;
     };
+    var BaseMeta = mkm.mkm.BaseMeta;
+
     Class(BaseMeta, Dictionary, [Meta], {
 
         // Override
         getType: function () {
             var type = this.__type;
             if (type === null) {
-                var man = ns.mkm.AccountFactoryManager;
-                type = man.generalFactory.getMetaType(this.toMap(), '');
+                var helper = SharedAccountExtensions.getHelper();
+                type = helper.getMetaType(this.toMap(), '');
                 // type = this.getInt('type', 0);
                 this.__type = type;
             }
@@ -178,7 +170,7 @@
         isValid: function () {
             if (this.__status === 0) {
                 // meta from network, try to verify
-                if (MetaHelper.checkMeta(this)) {
+                if (this.checkValid()) {
                     // correct
                     this.__status = 1;
                 } else {
@@ -189,19 +181,30 @@
             return this.__status > 0;
         },
 
-        // Override
-        matchIdentifier: function (identifier) {
-            return MetaHelper.matchIdentifier(identifier, this);
-        },
-
-        // Override
-        matchPublicKey: function (pKey) {
-            return MetaHelper.matchPublicKey(pKey, this);
+        // private
+        checkValid: function () {
+            var key = this.getPublicKey();
+            if (this.hasSeed()) {
+                // check 'seed' & 'fingerprint'
+            } else if (this.getValue('seed') || this.getValue('fingerprint')) {
+                // this meta has no seed, so
+                // it should not contains 'seed' or 'fingerprint'
+                return false;
+            } else {
+                // this meta has no seed, so it's always valid
+                // when the public key exists
+                return true;
+            }
+            var name = this.getSeed();
+            var signature = this.getFingerprint();
+            // check meta seed & signature
+            if (!signature || !name) {
+                // throw new Error('mea error: ' + this.toMap());
+                return false;
+            }
+            // verify fingerprint
+            var data = UTF8.encode(name);
+            return key.verify(data, signature);
         }
 
     });
-
-    //-------- namespace --------
-    ns.mkm.BaseMeta = BaseMeta;
-
-})(DIMP);

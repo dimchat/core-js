@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  DIMP : Decentralized Instant Messaging Protocol
@@ -30,24 +30,19 @@
 // =============================================================================
 //
 
-//! require 'namespace.js'
-
-(function (ns) {
-    'use strict';
-
-    var Interface = ns.type.Interface;
-    var Content = ns.protocol.Content;
+//! require <dkd.js>
 
     /**
      *  Money message: {
-     *      type : 0x40,
+     *      type : i2s(0x40),
      *      sn   : 123,
      *
      *      currency : "RMB", // USD, USDT, ...
      *      amount   : 100.00
      *  }
      */
-    var MoneyContent = Interface(null, [Content]);
+    dkd.protocol.MoneyContent = Interface(null, [Content]);
+    var MoneyContent = dkd.protocol.MoneyContent;
 
     /**
      *  Get currency (BTC, ETH, USD, CNY, ...)
@@ -65,16 +60,16 @@
     MoneyContent.prototype.getAmount = function () {};
 
     //
-    //  factory method
+    //  Factory
     //
-
     MoneyContent.create = function (type, currency, amount) {
-        return new ns.dkd.BaseMoneyContent(type, currency, amount);
+        return new BaseMoneyContent(type, currency, amount);
     };
+
 
     /**
      *  Transfer money message: {
-     *      type : 0x41,
+     *      type : i2s(0x41),
      *      sn   : 123,
      *
      *      currency : "RMB",    // USD, USDT, ...
@@ -83,7 +78,8 @@
      *      remittee : "{TO}"    // receiver ID
      *  }
      */
-    var TransferContent = Interface(null, [MoneyContent]);
+    dkd.protocol.TransferContent = Interface(null, [MoneyContent]);
+    var TransferContent = dkd.protocol.TransferContent;
 
     // sender
     TransferContent.prototype.setRemitter = function (sender) {};
@@ -94,15 +90,8 @@
     TransferContent.prototype.getRemittee = function () {};
 
     //
-    //  factory method
+    //  Factory
     //
-
     TransferContent.create = function (currency, amount) {
-        return new ns.dkd.TransferMoneyContent(currency, amount);
+        return new TransferMoneyContent(currency, amount);
     };
-
-    //-------- namespace --------
-    ns.protocol.MoneyContent = MoneyContent;
-    ns.protocol.TransferContent = TransferContent;
-
-})(DIMP);

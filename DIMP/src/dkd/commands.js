@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  DIMP : Decentralized Instant Messaging Protocol
@@ -31,84 +31,24 @@
 //
 
 //! require 'protocol/commands.js'
-
-(function (ns) {
-    'use strict';
-
-    var Class   = ns.type.Class;
-    var IObject = ns.type.Object;
-
-    var ContentType = ns.protocol.ContentType;
-    var Command     = ns.protocol.Command;
-    var BaseContent = ns.dkd.BaseContent;
-
-    /**
-     *  Create command
-     *
-     *  Usages:
-     *      1. new BaseCommand(map);
-     *      2. new BaseCommand(cmd);
-     *      3. new BaseCommand(type, cmd);
-     */
-    var BaseCommand = function () {
-        if (arguments.length === 2) {
-            // new BaseCommand(type, cmd);
-            BaseContent.call(this, arguments[0]);
-            this.setValue('command', arguments[1]);
-        } else if (IObject.isString(arguments[0])) {
-            // new BaseCommand(cmd);
-            BaseContent.call(this, ContentType.COMMAND);
-            this.setValue('command', arguments[0]);
-        } else {
-            // new BaseCommand(map);
-            BaseContent.call(this, arguments[0]);
-        }
-    };
-    Class(BaseCommand, BaseContent, [Command], {
-
-        // Override
-        getCmd: function () {
-            var gf = ns.dkd.cmd.CommandFactoryManager.generalFactory;
-            return gf.getCmd(this.toMap(), '');
-        }
-    });
-
-    //-------- namespace --------
-    ns.dkd.cmd.BaseCommand = BaseCommand;
-
-})(DIMP);
-
-(function (ns) {
-    'use strict';
-
-    var Interface = ns.type.Interface;
-    var Class     = ns.type.Class;
-
-    var ID              = ns.protocol.ID;
-    var Meta            = ns.protocol.Meta;
-    var Document        = ns.protocol.Document;
-    var Command         = ns.protocol.Command;
-    var MetaCommand     = ns.protocol.MetaCommand;
-    var DocumentCommand = ns.protocol.DocumentCommand;
-
-    var BaseCommand = ns.dkd.cmd.BaseCommand;
+//! require 'base.js'
 
     /**
      *  Create meta command
      *
      *  Usages:
      *      1. new BaseMetaCommand(map);
-     *      2. new BaseMetaCommand(identifier);
-     *      3. new BaseMetaCommand(identifier, command);
+     *      2. new BaseMetaCommand(did);
+     *      3. new BaseMetaCommand(did, command);
      */
-    var BaseMetaCommand = function () {
+    dkd.dkd.BaseMetaCommand = function () {
         var identifier = null;
         if (arguments.length === 2) {
-            // new BaseMetaCommand(identifier, command);
+            // new BaseMetaCommand(did, command);
             BaseCommand.call(this, arguments[1]);
             identifier = arguments[0];
         } else if (Interface.conforms(arguments[0], ID)) {
-            // new BaseMetaCommand(identifier);
+            // new BaseMetaCommand(did);
             BaseCommand.call(this, Command.META);
             identifier = arguments[0];
         } else {
@@ -116,17 +56,19 @@
             BaseCommand.call(this, arguments[0]);
         }
         if (identifier) {
-            this.setString('ID', identifier);
+            this.setString('did', identifier);
         }
         this.__identifier = identifier;
         this.__meta = null;
     };
+    var BaseMetaCommand = dkd.dkd.BaseMetaCommand;
+
     Class(BaseMetaCommand, BaseCommand, [MetaCommand], {
 
         // Override
         getIdentifier: function () {
             if (this.__identifier == null) {
-                var identifier = this.getValue("ID");
+                var identifier = this.getValue("did");
                 this.__identifier = ID.parse(identifier);
             }
             return this.__identifier;
@@ -146,36 +88,43 @@
         }
     });
 
+
     /**
      *  Create document command
      *
      *  Usages:
      *      1. new BaseDocumentCommand(map);
-     *      2. new BaseDocumentCommand(identifier);
+     *      2. new BaseDocumentCommand(did);
      */
-    var BaseDocumentCommand = function (info) {
+    dkd.dkd.BaseDocumentCommand = function (info) {
         if (Interface.conforms(info, ID)) {
-            // new BaseDocumentCommand(identifier);
-            BaseMetaCommand.call(this, info, Command.DOCUMENT);
+            // new BaseDocumentCommand(did);
+            BaseMetaCommand.call(this, info, Command.DOCUMENTS);
         } else {
             // new BaseDocumentCommand(map);
             BaseMetaCommand.call(this, info);
         }
-        this.__document = null;
+        this.__docs = null;
     };
+    var BaseDocumentCommand = dkd.dkd.BaseDocumentCommand;
+
     Class(BaseDocumentCommand, BaseMetaCommand, [DocumentCommand], {
 
         // Override
-        getDocument: function () {
-            if (this.__document === null) {
-                var doc = this.getValue('document');
-                this.__document = Document.parse(doc);
+        getDocuments: function () {
+            if (this.__docs === null) {
+                var docs = this.getValue('documents');
+                this.__docs = Document.convert(docs);
             }
-            return this.__document;
+            return this.__docs;
         },
-        setDocument: function (doc) {
-            this.setMap('document', doc);
-            this.__document = doc;
+        setDocuments: function (docs) {
+            if (!docs) {
+                this.removeValue('documents');
+            } else {
+                this.setValue('documents', Document.revert(docs));
+            }
+            this.__docs = docs;
         },
 
         // Override
@@ -186,9 +135,3 @@
             this.setDateTime('last_time', when);
         }
     });
-
-    //-------- namespace --------
-    ns.dkd.cmd.BaseMetaCommand = BaseMetaCommand;
-    ns.dkd.cmd.BaseDocumentCommand = BaseDocumentCommand;
-
-})(DIMP);

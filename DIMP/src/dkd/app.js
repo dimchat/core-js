@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  DIMP : Decentralized Instant Messaging Protocol
@@ -30,62 +30,65 @@
 // =============================================================================
 //
 
-//! require 'namespace.js'
-
-(function (ns) {
-    'use strict';
-
-    var Interface = ns.type.Interface;
-    var Content = ns.protocol.Content;
+//! require 'protocol/app.js'
+//! require 'base.js'
 
     /**
-     *  Application Customized message: {
-     *      type : 0xCC,
-     *      sn   : 123,
+     *  Create app customized content
      *
-     *      app   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
-     *      mod   : "{MODULE}",  // module name (e.g.: "drift_bottle")
-     *      act   : "{ACTION}",  // action name (e.g.: "throw")
-     *      extra : info         // action parameters
-     *  }
+     *  Usages:
+     *      1. new AppCustomizedContent(map);
+     *      2. new AppCustomizedContent(type);
+     *      3. new AppCustomizedContent(type, app, mod, act);
+     *      4. new AppCustomizedContent(app, mod, act);
      */
-    var CustomizedContent = Interface(null, [Content]);
-
-    // get App ID
-    CustomizedContent.prototype.getApplication = function () {};
-
-    // get Module name
-    CustomizedContent.prototype.getModule = function () {};
-
-    // get Action name
-    CustomizedContent.prototype.getAction = function () {};
-
-    //-------- factory --------
-
-    CustomizedContent.create = function () {
-        var type, app, mod, act;
+    dkd.dkd.AppCustomizedContent = function () {
+        var app = null;
+        var mod = null;
+        var act = null;
         if (arguments.length === 4) {
-            // create(type, app, mod, act);
-            type = arguments[0];
+            // new AppCustomizedContent(type, app, mod, act);
+            BaseContent.call(this, arguments[0]);
             app = arguments[1];
             mod = arguments[2];
             act = arguments[3];
-            return new ns.dkd.AppCustomizedContent(type, app, mod, act);
         } else if (arguments.length === 3) {
-            // create(app, mod, act);
+            // new AppCustomizedContent(app, mod, act);
+            BaseContent.call(this, ContentType.CUSTOMIZED);
             app = arguments[0];
             mod = arguments[1];
             act = arguments[2];
-            return new ns.dkd.AppCustomizedContent(app, mod, act);
-        // } else if (arguments.length === 0) {
-        //     // create();
-        //     return new ns.dkd.AppCustomizedContent();
         } else {
-            throw new SyntaxError('customized content arguments error: ' + arguments);
+            // new AppCustomizedContent(type);
+            // new AppCustomizedContent(map);
+            BaseContent.call(this, arguments[0]);
+        }
+        if (app) {
+            this.setValue('app', app);
+        }
+        if (mod) {
+            this.setValue('mod', mod);
+        }
+        if (act) {
+            this.setValue('act', act);
         }
     };
+    var AppCustomizedContent = dkd.dkd.AppCustomizedContent;
 
-    //-------- namespace --------
-    ns.protocol.CustomizedContent = CustomizedContent;
+    Class(AppCustomizedContent, BaseContent, [CustomizedContent], {
 
-})(DIMP);
+        // Override
+        getApplication: function () {
+            return this.getString('app', '');
+        },
+
+        // Override
+        getModule: function () {
+            return this.getString('mod', '');
+        },
+
+        // Override
+        getAction: function () {
+            return this.getString('act', '');
+        }
+    });

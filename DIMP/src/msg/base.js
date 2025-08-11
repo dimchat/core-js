@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  Dao-Ke-Dao: Universal Message Module
@@ -70,17 +70,6 @@
 //! require <crypto.js>
 //! require <dkd.js>
 
-(function (ns) {
-    'use strict';
-
-    var Interface  = ns.type.Interface;
-    var Class      = ns.type.Class;
-    var Dictionary = ns.type.Dictionary;
-
-    var ID       = ns.protocol.ID;
-    var Envelope = ns.protocol.Envelope;
-    var Message  = ns.protocol.Message;
-
     /**
      *  Create message
      *
@@ -88,7 +77,7 @@
      *      1. new BaseMessage(map);
      *      2. new BaseMessage(envelope);
      */
-    var BaseMessage = function (msg) {
+    dkd.msg.BaseMessage = function (msg) {
         var env = null;
         if (Interface.conforms(msg, Envelope)) {
             env = msg;
@@ -98,6 +87,8 @@
         // envelope, which shared the same dictionary with the message
         this.__envelope = env;
     };
+    var BaseMessage = dkd.msg.BaseMessage;
+
     Class(BaseMessage, Dictionary, [Message], {
 
         // Override
@@ -152,8 +143,3 @@
         }
         return group.isBroadcast();
     };
-
-    //-------- namespace --------
-    ns.msg.BaseMessage = BaseMessage;
-
-})(DIMP);

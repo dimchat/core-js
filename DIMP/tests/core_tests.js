@@ -5,16 +5,16 @@
 //
 core_tests = [];
 
-!function (ns) {
+!function (dkd, mkm, mk) {
     'use strict';
 
-    var TransportableData = ns.format.TransportableData;
-    var ContentType = ns.protocol.ContentType;
-    var FileContent = ns.protocol.FileContent;
-    var BaseTextContent = ns.dkd.BaseTextContent;
-    var ImageFileContent = ns.dkd.ImageFileContent;
-    var AudioFileContent = ns.dkd.AudioFileContent;
-    var VideoFileContent = ns.dkd.VideoFileContent;
+    var TransportableData = mk.format.TransportableData;
+    var ContentType = dkd.protocol.ContentType;
+    var FileContent = dkd.protocol.FileContent;
+    var BaseTextContent  = dkd.dkd.BaseTextContent;
+    var ImageFileContent = dkd.dkd.ImageFileContent;
+    var AudioFileContent = dkd.dkd.AudioFileContent;
+    var VideoFileContent = dkd.dkd.VideoFileContent;
 
     var test_text_content = function () {
         var text = 'Hello world!';
@@ -57,20 +57,19 @@ core_tests = [];
     };
     core_tests.push(test_video_content);
 
-}(DIMP);
+}(DaoKeDao, MingKeMing, MONKEY);
 
-!function (ns) {
+!function (dkd, mkm, mk) {
     'use strict';
 
-    var Interface = ns.type.Interface;
-    var ID = ns.protocol.ID;
-    var GroupCommand = ns.protocol.GroupCommand;
-    var InviteCommand = ns.protocol.group.InviteCommand;
-    var ExpelCommand = ns.protocol.group.ExpelCommand;
-    var JoinCommand = ns.protocol.group.JoinCommand;
-    var QuitCommand = ns.protocol.group.QuitCommand;
-    var QueryCommand = ns.protocol.group.QueryCommand;
-    var ResetCommand = ns.protocol.group.ResetCommand;
+    var Interface = mk.type.Interface;
+    var ID = mkm.protocol.ID;
+    var GroupCommand  = dkd.protocol.GroupCommand;
+    var InviteCommand = dkd.protocol.InviteCommand;
+    var ExpelCommand  = dkd.protocol.ExpelCommand;
+    var JoinCommand   = dkd.protocol.JoinCommand;
+    var QuitCommand   = dkd.protocol.QuitCommand;
+    var ResetCommand  = dkd.protocol.ResetCommand;
 
     var group = 'group id';
     var member = ID.ANYONE;
@@ -104,12 +103,12 @@ core_tests = [];
     };
     core_tests.push(test_quit_group);
 
-    var test_query_group = function () {
-        var cmd = GroupCommand.query(group);
-        log('query command: ', cmd);
-        assert(Interface.conforms(cmd, QueryCommand), 'query command error');
-    };
-    core_tests.push(test_query_group);
+    // var test_query_group = function () {
+    //     var cmd = GroupCommand.query(group);
+    //     log('query command: ', cmd);
+    //     assert(Interface.conforms(cmd, QueryCommand), 'query command error');
+    // };
+    // core_tests.push(test_query_group);
 
     var test_reset_group = function () {
         var cmd = GroupCommand.reset(group, members);
@@ -118,4 +117,4 @@ core_tests = [];
     };
     core_tests.push(test_reset_group);
 
-}(DIMP);
+}(DaoKeDao, MingKeMing, MONKEY);

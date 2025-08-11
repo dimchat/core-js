@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  Dao-Ke-Dao: Universal Message Module
@@ -54,26 +54,19 @@
 
 //! require 'secure.js'
 
-(function (ns) {
-    'use strict';
-
-    var Class             = ns.type.Class;
-    var TransportableData = ns.format.TransportableData;
-    var ReliableMessage   = ns.protocol.ReliableMessage;
-
-    var EncryptedMessage  = ns.msg.EncryptedMessage;
-
     /**
      *  Create reliable message
      *
      * @param {{String:Object}} msg - message info with envelope, data, key/keys, signature
      * @constructor
      */
-    var NetworkMessage = function (msg) {
+    dkd.msg.NetworkMessage = function (msg) {
         EncryptedMessage.call(this, msg);
         // lazy load
         this.__signature = null;  // TransportableData
     };
+    var NetworkMessage = dkd.msg.NetworkMessage;
+
     Class(NetworkMessage, EncryptedMessage, [ReliableMessage], {
 
         // Override
@@ -87,8 +80,3 @@
             return !ted ? null : ted.getData();
         }
     });
-
-    //-------- namespace --------
-    ns.msg.NetworkMessage = NetworkMessage;
-
-})(DIMP);

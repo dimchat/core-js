@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  DIMP : Decentralized Instant Messaging Protocol
@@ -31,16 +31,7 @@
 //
 
 //! require 'protocol/files.js'
-
-(function (ns) {
-    'use strict';
-
-    var Class = ns.type.Class;
-    var BaseFileWrapper = ns.format.BaseFileWrapper;
-
-    var ContentType = ns.protocol.ContentType;
-    var FileContent = ns.protocol.FileContent;
-    var BaseContent = ns.dkd.BaseContent;
+//! require 'base.js'
 
     /**
      *  Create file content
@@ -50,7 +41,7 @@
      *      2. new BaseFileContent(type);
      *      3. new BaseFileContent();
      */
-    var BaseFileContent = function (info) {
+    dkd.dkd.BaseFileContent = function (info) {
         if (!info) {
             // new BaseFileContent();
             info = ContentType.FILE;
@@ -58,6 +49,8 @@
         BaseContent.call(this, info);
         this.__wrapper = new BaseFileWrapper(this.toMap());
     };
+    var BaseFileContent = dkd.dkd.BaseFileContent;
+
     Class(BaseFileContent, BaseContent, [FileContent], {
 
         // Override
@@ -105,23 +98,6 @@
         }
     });
 
-    //-------- namespace --------
-    ns.dkd.BaseFileContent = BaseFileContent;
-
-})(DIMP);
-
-(function (ns) {
-    'use strict';
-
-    var Interface = ns.type.Interface;
-    var Class     = ns.type.Class;
-    var IObject   = ns.type.Object;
-    var PortableNetworkFile = ns.format.PortableNetworkFile;
-    var ContentType  = ns.protocol.ContentType;
-    var ImageContent = ns.protocol.ImageContent;
-    var VideoContent = ns.protocol.VideoContent;
-    var AudioContent = ns.protocol.AudioContent;
-    var BaseFileContent = ns.dkd.BaseFileContent;
 
     /**
      *  Create image content
@@ -130,7 +106,7 @@
      *      1. new ImageFileContent(map);
      *      2. new ImageFileContent();
      */
-    var ImageFileContent = function (info) {
+    dkd.dkd.ImageFileContent = function (info) {
         if (!info) {
             // new ImageFileContent();
             BaseFileContent.call(this, ContentType.IMAGE);
@@ -140,6 +116,8 @@
         }
         this.__thumbnail = null;
     };
+    var ImageFileContent = dkd.dkd.ImageFileContent;
+
     Class(ImageFileContent, BaseFileContent, [ImageContent], {
 
         // Override
@@ -168,6 +146,7 @@
         }
     });
 
+
     /**
      *  Create video message content
      *
@@ -175,7 +154,7 @@
      *      1. new VideoFileContent(map);
      *      2. new VideoFileContent();
      */
-    var VideoFileContent = function (info) {
+    dkd.dkd.VideoFileContent = function (info) {
         if (!info) {
             // new VideoFileContent();
             BaseFileContent.call(this, ContentType.VIDEO);
@@ -185,6 +164,8 @@
         }
         this.__snapshot = null;
     };
+    var VideoFileContent = dkd.dkd.VideoFileContent;
+
     Class(VideoFileContent, BaseFileContent, [VideoContent], {
 
         // Override
@@ -213,6 +194,7 @@
         }
     });
 
+
     /**
      *  Create audio message content
      *
@@ -220,7 +202,7 @@
      *      1. new AudioFileContent(map);
      *      2. new AudioFileContent();
      */
-    var AudioFileContent = function (info) {
+    dkd.dkd.AudioFileContent = function (info) {
         if (!info) {
             // new AudioFileContent();
             BaseFileContent.call(this, ContentType.AUDIO);
@@ -229,6 +211,8 @@
             BaseFileContent.call(this, info);
         }
     };
+    var AudioFileContent = dkd.dkd.AudioFileContent;
+
     Class(AudioFileContent, BaseFileContent, [AudioContent], {
 
         // Override
@@ -241,10 +225,3 @@
             this.setValue('text', asr);
         }
     });
-
-    //-------- namespace --------
-    ns.dkd.ImageFileContent = ImageFileContent;
-    ns.dkd.VideoFileContent = VideoFileContent;
-    ns.dkd.AudioFileContent = AudioFileContent;
-
-})(DIMP);

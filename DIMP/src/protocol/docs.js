@@ -1,4 +1,4 @@
-;
+'use strict';
 // license: https://mit-license.org
 //
 //  DIMP : Decentralized Instant Messaging Protocol
@@ -32,19 +32,14 @@
 
 //! require <mkm.js>
 
-(function (ns) {
-    'use strict';
-
-    var Interface = ns.type.Interface;
-    var Document  = ns.protocol.Document;
-
     /**
      *  User Document
      *  ~~~~~~~~~~~~~
      *  This interface is defined for authorizing other apps to login,
      *  which can generate a temporary asymmetric key pair for messaging.
      */
-    var Visa = Interface(null, [Document]);
+    mkm.protocol.Visa = Interface(null, [Document]);
+    var Visa = mkm.protocol.Visa;
 
     /**
      *  Get public key to encrypt message for user
@@ -74,11 +69,13 @@
      */
     Visa.prototype.setAvatar = function (image) {};
 
+
     /**
      *  Group Document
      *  ~~~~~~~~~~~~~~
      */
-    var Bulletin = Interface(null, [Document]);
+    mkm.protocol.Bulletin = Interface(null, [Document]);
+    var Bulletin = mkm.protocol.Bulletin;
 
     /**
      *  Get group founder
@@ -97,12 +94,6 @@
     /**
      *  Set group assistants
      *
-     * @param {ID[]} assistants - bot ID list
+     * @param {ID[]} bots - group bot ID list
      */
-    Bulletin.prototype.setAssistants = function (assistants) {};
-
-    //-------- namespace --------
-    ns.protocol.Visa = Visa;
-    ns.protocol.Bulletin = Bulletin;
-
-})(DIMP);
+    Bulletin.prototype.setAssistants = function (bots) {};

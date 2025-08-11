@@ -1,170 +1,148 @@
 /**
- * DIMP - Decentralized Instant Messaging Protocol (v1.0.0)
+ * DIMP - Decentralized Instant Messaging Protocol (v2.0.0)
  *
  * @author    moKy <albert.moky at gmail.com>
- * @date      Nov. 17, 2024
- * @copyright (c) 2024 Albert Moky
+ * @date      Aug. 12, 2025
+ * @copyright (c) 2020-2025 Albert Moky
  * @license   {@link https://mit-license.org | MIT License}
  */;
-if (typeof DIMP !== "object") {
-    DIMP = {}
-}
-(function (ns) {
+(function (dkd, mkm, mk) {
     'use strict';
-    if (typeof ns.type !== 'object') {
-        ns.type = MONKEY.type
+    if (typeof dkd.dkd !== 'object') {
+        dkd.dkd = {}
     }
-    if (typeof ns.format !== 'object') {
-        ns.format = MONKEY.format
+    if (typeof dkd.msg !== 'object') {
+        dkd.msg = {}
     }
-    if (typeof ns.digest !== 'object') {
-        ns.digest = MONKEY.digest
-    }
-    if (typeof ns.crypto !== 'object') {
-        ns.crypto = MONKEY.crypto
-    }
-    if (typeof ns.protocol !== 'object') {
-        ns.protocol = MingKeMing.protocol
-    }
-    if (typeof ns.mkm !== 'object') {
-        ns.mkm = MingKeMing.mkm
-    }
-    if (typeof ns.dkd !== 'object') {
-        ns.dkd = DaoKeDao.dkd
-    }
-    if (typeof ns.protocol.group !== 'object') {
-        ns.protocol.group = {}
-    }
-    if (typeof ns.dkd.cmd !== 'object') {
-        ns.dkd.cmd = {}
-    }
-    if (typeof ns.msg !== 'object') {
-        ns.msg = {}
-    }
-})(DIMP);
-(function (ns) {
+    var Interface = mk.type.Interface;
+    var Class = mk.type.Class;
+    var IObject = mk.type.Object;
+    var Dictionary = mk.type.Dictionary;
+    var Converter = mk.type.Converter;
+    var CryptographyKey = mk.crypto.CryptographyKey;
+    var EncryptKey = mk.crypto.EncryptKey;
+    var SymmetricKey = mk.crypto.SymmetricKey;
+    var AsymmetricKey = mk.crypto.AsymmetricKey;
+    var PrivateKey = mk.crypto.PrivateKey;
+    var PublicKey = mk.crypto.PublicKey;
+    var Base64 = mk.format.Base64;
+    var Base58 = mk.format.Base58;
+    var Hex = mk.format.Hex;
+    var UTF8 = mk.format.UTF8;
+    var JSONMap = mk.format.JSONMap;
+    var TransportableData = mk.format.TransportableData;
+    var PortableNetworkFile = mk.format.PortableNetworkFile;
+    var GeneralCryptoHelper = mk.plugins.GeneralCryptoHelper;
+    var SharedCryptoExtensions = mk.plugins.SharedCryptoExtensions;
+    var ID = mkm.protocol.ID;
+    var Meta = mkm.protocol.Meta;
+    var Document = mkm.protocol.Document;
+    var SharedAccountExtensions = mkm.plugins.SharedAccountExtensions;
+    var Envelope = dkd.protocol.Envelope;
+    var Content = dkd.protocol.Content;
+    var Message = dkd.protocol.Message;
+    var InstantMessage = dkd.protocol.InstantMessage;
+    var SecureMessage = dkd.protocol.SecureMessage;
+    var ReliableMessage = dkd.protocol.ReliableMessage;
+    var SharedMessageExtensions = dkd.plugins.SharedMessageExtensions;
     'use strict';
-    var Interface = ns.type.Interface;
-    var Class = ns.type.Class;
-    var Dictionary = ns.type.Dictionary;
-    var CryptographyKey = ns.crypto.CryptographyKey;
-    var SymmetricKey = ns.crypto.SymmetricKey;
-    var AsymmetricKey = ns.crypto.AsymmetricKey;
-    var PrivateKey = ns.crypto.PrivateKey;
-    var PublicKey = ns.crypto.PublicKey;
-    var general_factory = function () {
-        var man = ns.crypto.CryptographyKeyFactoryManager;
-        return man.generalFactory
-    };
-    var getKeyAlgorithm = function (key) {
-        var gf = general_factory();
-        return gf.getAlgorithm(key, '')
-    };
-    var matchSymmetricKeys = function (pKey, sKey) {
-        var gf = general_factory();
-        return gf.matchEncryptKey(pKey, sKey)
-    };
-    var matchAsymmetricKeys = function (sKey, pKey) {
-        var gf = general_factory();
-        return gf.matchSignKey(sKey, pKey)
-    };
-    var symmetricKeyEquals = function (a, b) {
-        if (a === b) {
-            return true
-        }
-        return matchSymmetricKeys(a, b)
-    };
-    var privateKeyEquals = function (a, b) {
-        if (a === b) {
-            return true
-        }
-        return matchAsymmetricKeys(a, b.publicKey)
-    };
-    var BaseKey = function (dict) {
+    mk.crypto.AsymmetricAlgorithms = {RSA: 'RSA', ECC: 'ECC'};
+    var AsymmetricAlgorithms = mk.crypto.AsymmetricAlgorithms;
+    mk.crypto.SymmetricAlgorithms = {AES: 'AES', DES: 'DES', PLAIN: 'PLAIN'};
+    var SymmetricAlgorithms = mk.crypto.SymmetricAlgorithms;
+    mk.format.EncodeAlgorithms = {DEFAULT: 'base64', BASE_64: 'base64', BASE_58: 'base58', HEX: 'hex'};
+    var EncodeAlgorithms = mk.format.EncodeAlgorithms;
+    'use strict';
+    mk.crypto.BaseKey = function (dict) {
         Dictionary.call(this, dict)
     };
+    var BaseKey = mk.crypto.BaseKey;
     Class(BaseKey, Dictionary, [CryptographyKey], {
         getAlgorithm: function () {
-            return getKeyAlgorithm(this.toMap())
+            return BaseKey.getKeyAlgorithm(this.toMap())
         }
     });
-    BaseKey.getKeyAlgorithm = getKeyAlgorithm;
-    BaseKey.matchEncryptKey = matchSymmetricKeys;
-    BaseKey.matchSignKey = matchAsymmetricKeys;
-    BaseKey.symmetricKeyEquals = symmetricKeyEquals;
-    BaseKey.privateKeyEquals = privateKeyEquals;
-    var BaseSymmetricKey = function (dict) {
+    BaseKey.getKeyAlgorithm = function (key) {
+        var helper = SharedCryptoExtensions.getHelper();
+        var algorithm = helper.getKeyAlgorithm(key);
+        return algorithm ? algorithm : ''
+    };
+    BaseKey.matchEncryptKey = function (pKey, sKey) {
+        return GeneralCryptoHelper.matchSymmetricKeys(pKey, sKey)
+    };
+    BaseKey.matchSignKey = function (sKey, pKey) {
+        return GeneralCryptoHelper.matchAsymmetricKeys(sKey, pKey)
+    };
+    BaseKey.symmetricKeyEquals = function (key1, key2) {
+        if (key1 === key2) {
+            return true
+        }
+        return BaseKey.matchEncryptKey(key1, key2)
+    };
+    BaseKey.privateKeyEquals = function (key1, key2) {
+        if (key1 === key2) {
+            return true
+        }
+        return BaseKey.matchSignKey(key1, key2)
+    };
+    mk.crypto.BaseSymmetricKey = function (dict) {
         Dictionary.call(this, dict)
     };
+    var BaseSymmetricKey = mk.crypto.BaseSymmetricKey;
     Class(BaseSymmetricKey, Dictionary, [SymmetricKey], {
         equals: function (other) {
-            return Interface.conforms(other, SymmetricKey) && symmetricKeyEquals(other, this)
+            return Interface.conforms(other, SymmetricKey) && BaseKey.symmetricKeyEquals(other, this)
         }, matchEncryptKey: function (pKey) {
-            return matchSymmetricKeys(pKey, this)
+            return BaseKey.matchEncryptKey(pKey, this)
         }, getAlgorithm: function () {
-            return getKeyAlgorithm(this.toMap())
+            return BaseKey.getKeyAlgorithm(this.toMap())
         }
     });
-    var BaseAsymmetricKey = function (dict) {
+    mk.crypto.BaseAsymmetricKey = function (dict) {
         Dictionary.call(this, dict)
     };
+    var BaseAsymmetricKey = mk.crypto.BaseAsymmetricKey;
     Class(BaseAsymmetricKey, Dictionary, [AsymmetricKey], {
         getAlgorithm: function () {
-            return getKeyAlgorithm(this.toMap())
+            return BaseKey.getKeyAlgorithm(this.toMap())
         }
     });
-    var BasePrivateKey = function (dict) {
+    mk.crypto.BasePrivateKey = function (dict) {
         Dictionary.call(this, dict)
     };
+    var BasePrivateKey = mk.crypto.BasePrivateKey;
     Class(BasePrivateKey, Dictionary, [PrivateKey], {
         equals: function (other) {
-            return Interface.conforms(other, PrivateKey) && privateKeyEquals(other, this)
+            return Interface.conforms(other, PrivateKey) && BaseKey.privateKeyEquals(other, this)
         }, getAlgorithm: function () {
-            return getKeyAlgorithm(this.toMap())
+            return BaseKey.getKeyAlgorithm(this.toMap())
         }
     });
-    var BasePublicKey = function (dict) {
+    mk.crypto.BasePublicKey = function (dict) {
         Dictionary.call(this, dict)
     };
+    var BasePublicKey = mk.crypto.BasePublicKey;
     Class(BasePublicKey, Dictionary, [PublicKey], {
         matchSignKey: function (sKey) {
-            return matchAsymmetricKeys(sKey, this)
+            return BaseKey.matchSignKey(sKey, this)
         }, getAlgorithm: function () {
-            return getKeyAlgorithm(this.toMap())
+            return BaseKey.getKeyAlgorithm(this.toMap())
         }
     });
-    ns.crypto.BaseKey = BaseKey;
-    ns.crypto.BaseSymmetricKey = BaseSymmetricKey;
-    ns.crypto.BaseAsymmetricKey = BaseAsymmetricKey;
-    ns.crypto.BasePrivateKey = BasePrivateKey;
-    ns.crypto.BasePublicKey = BasePublicKey
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Class = ns.type.Class;
-    var Dictionary = ns.type.Dictionary;
-    var TransportableData = ns.format.TransportableData;
-    var Base64 = ns.format.Base64;
-    var Base58 = ns.format.Base58;
-    var Hex = ns.format.Hex;
-    var BaseDataWrapper = function (dict) {
+    mk.format.BaseDataWrapper = function (dict) {
         Dictionary.call(this, dict);
         this.__data = null
     };
+    var BaseDataWrapper = mk.format.BaseDataWrapper;
     Class(BaseDataWrapper, Dictionary, null, {
-        isEmpty: function () {
-            if (Dictionary.prototype.isEmpty.call(this)) {
-                return true
+        toString: function () {
+            var encoded = this.getString('data', null);
+            if (!encoded) {
+                return ''
             }
-            var bin = this.__data;
-            return bin === null || bin.length === 0
-        }, toString: function () {
-            var encoded = this.getString('data', '');
-            if (encoded.length === 0) {
-                return encoded
-            }
-            var alg = this.getString('algorithm', '');
-            if (alg === TransportableData.DEFAULT) {
+            var alg = this.getString('algorithm', null);
+            if (!alg || alg === TransportableData.DEFAULT) {
                 alg = ''
             }
             if (alg === '') {
@@ -173,15 +151,15 @@ if (typeof DIMP !== "object") {
                 return alg + ',' + encoded
             }
         }, encode: function (mimeType) {
-            var encoded = this.getString('data', '');
-            if (encoded.length === 0) {
-                return encoded
+            var encoded = this.getString('data', null);
+            if (!encoded) {
+                return ''
             }
             var alg = this.getAlgorithm();
             return 'data:' + mimeType + ';' + alg + ',' + encoded
         }, getAlgorithm: function () {
-            var alg = this.getString('algorithm', '');
-            if (alg === '') {
+            var alg = this.getString('algorithm', null);
+            if (!alg) {
                 alg = TransportableData.DEFAULT
             }
             return alg
@@ -194,50 +172,51 @@ if (typeof DIMP !== "object") {
         }, getData: function () {
             var bin = this.__data;
             if (!bin) {
-                var encoded = this.getString('data', '');
-                if (encoded.length > 0) {
+                var encoded = this.getString('data', null);
+                if (!encoded) {
+                    return null
+                } else {
                     var alg = this.getAlgorithm();
-                    if (alg === TransportableData.BASE64) {
+                    if (alg === EncodeAlgorithms.BASE_64) {
                         bin = Base64.decode(encoded)
-                    } else if (alg === TransportableData.BASE58) {
+                    } else if (alg === EncodeAlgorithms.BASE_58) {
                         bin = Base58.decode(encoded)
-                    } else if (alg === TransportableData.HEX) {
+                    } else if (alg === EncodeAlgorithms.HEX) {
                         bin = Hex.decode(encoded)
+                    } else {
+                        throw new Error('data algorithm not support: ' + alg);
                     }
                 }
+                this.__data = bin
             }
             return bin
         }, setData: function (bin) {
             if (!bin) {
                 this.removeValue('data')
             } else {
-                var encoded = '';
+                var encoded = null;
                 var alg = this.getAlgorithm();
-                if (alg === TransportableData.BASE64) {
+                if (alg === EncodeAlgorithms.BASE_64) {
                     encoded = Base64.encode(bin)
-                } else if (alg === TransportableData.BASE58) {
+                } else if (alg === EncodeAlgorithms.BASE_58) {
                     encoded = Base58.encode(bin)
-                } else if (alg === TransportableData.HEX) {
+                } else if (alg === EncodeAlgorithms.HEX) {
                     encoded = Hex.encode(bin)
+                } else {
+                    throw new Error('data algorithm not support: ' + alg);
                 }
                 this.setValue('data', encoded)
             }
             this.__data = bin
         }
     });
-    ns.format.BaseDataWrapper = BaseDataWrapper
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Class = ns.type.Class;
-    var Dictionary = ns.type.Dictionary;
-    var TransportableData = ns.format.TransportableData;
-    var SymmetricKey = ns.crypto.SymmetricKey;
-    var BaseFileWrapper = function (dict) {
+    mk.format.BaseFileWrapper = function (dict) {
         Dictionary.call(this, dict);
         this.__attachment = null;
         this.__password = null
     };
+    var BaseFileWrapper = mk.format.BaseFileWrapper;
     Class(BaseFileWrapper, Dictionary, null, {
         getData: function () {
             var ted = this.__attachment;
@@ -255,11 +234,15 @@ if (typeof DIMP !== "object") {
             }
             this.__attachment = ted
         }, setBinaryData: function (bin) {
+            var ted;
             if (!bin) {
-                this.setData(null)
+                ted = null;
+                this.removeValue('data')
             } else {
-                this.setData(TransportableData.create(bin))
+                ted = TransportableData.create(bin);
+                this.setValue('data', ted.toObject())
             }
+            this.__attachment = ted
         }, getFilename: function () {
             return this.getString('filename', null)
         }, setFilename: function (filename) {
@@ -293,84 +276,41 @@ if (typeof DIMP !== "object") {
             this.__password = key
         }
     });
-    ns.format.BaseFileWrapper = BaseFileWrapper
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Interface = ns.type.Interface;
-    var Content = ns.protocol.Content;
-    var ReliableMessage = ns.protocol.ReliableMessage;
-    var TextContent = Interface(null, [Content]);
-    TextContent.prototype.setText = function (text) {
+    dkd.protocol.ContentType = {
+        ANY: '' + (0x00),
+        TEXT: '' + (0x01),
+        FILE: '' + (0x10),
+        IMAGE: '' + (0x12),
+        AUDIO: '' + (0x14),
+        VIDEO: '' + (0x16),
+        PAGE: '' + (0x20),
+        NAME_CARD: '' + (0x33),
+        QUOTE: '' + (0x37),
+        MONEY: '' + (0x40),
+        TRANSFER: '' + (0x41),
+        LUCKY_MONEY: '' + (0x42),
+        CLAIM_PAYMENT: '' + (0x48),
+        SPLIT_BILL: '' + (0x49),
+        COMMAND: '' + (0x88),
+        HISTORY: '' + (0x89),
+        APPLICATION: '' + (0xA0),
+        ARRAY: '' + (0xCA),
+        CUSTOMIZED: '' + (0xCC),
+        COMBINE_FORWARD: '' + (0xCF),
+        FORWARD: '' + (0xFF)
     };
+    var ContentType = dkd.protocol.ContentType;
+    'use strict';
+    dkd.protocol.TextContent = Interface(null, [Content]);
+    var TextContent = dkd.protocol.TextContent;
     TextContent.prototype.getText = function () {
     };
     TextContent.create = function (text) {
-        return new ns.dkd.BaseTextContent(text)
+        return new BaseTextContent(text)
     };
-    var ArrayContent = Interface(null, [Content]);
-    ArrayContent.prototype.getContents = function () {
-    };
-    ArrayContent.convert = function (contents) {
-        var array = [];
-        var item;
-        for (var i = 0; i < contents.length; ++i) {
-            item = Content.parse(contents[i]);
-            if (item) {
-                array.push(item)
-            }
-        }
-        return array
-    };
-    ArrayContent.revert = function (contents) {
-        var array = [];
-        var item;
-        for (var i = 0; i < contents.length; ++i) {
-            item = contents[i];
-            if (Interface.conforms(item, Content)) {
-                array.push(item.toMap())
-            } else {
-                array.push(item)
-            }
-        }
-        return array
-    };
-    ArrayContent.create = function (contents) {
-        return new ns.dkd.ListContent(contents)
-    };
-    var ForwardContent = Interface(null, [Content]);
-    ForwardContent.prototype.getForward = function () {
-    };
-    ForwardContent.prototype.getSecrets = function () {
-    };
-    ForwardContent.convert = function (messages) {
-        var array = [];
-        var msg;
-        for (var i = 0; i < messages.length; ++i) {
-            msg = ReliableMessage.parse(messages[i]);
-            if (msg) {
-                array.push(msg)
-            }
-        }
-        return array
-    };
-    ForwardContent.revert = function (messages) {
-        var array = [];
-        var item;
-        for (var i = 0; i < messages.length; ++i) {
-            item = messages[i];
-            if (Interface.conforms(item, ReliableMessage)) {
-                array.push(item.toMap())
-            } else {
-                array.push(item)
-            }
-        }
-        return array
-    };
-    ForwardContent.create = function (secrets) {
-        return new ns.dkd.SecretContent(secrets)
-    };
-    var PageContent = Interface(null, [Content]);
+    dkd.protocol.PageContent = Interface(null, [Content]);
+    var PageContent = dkd.protocol.PageContent;
     PageContent.prototype.setTitle = function (title) {
     };
     PageContent.prototype.getTitle = function () {
@@ -392,7 +332,7 @@ if (typeof DIMP !== "object") {
     PageContent.prototype.setHTML = function (url) {
     };
     PageContent.create = function (info) {
-        var content = new ns.dkd.WebPageContent();
+        var content = new WebPageContent();
         var title = info['title'];
         if (title) {
             content.setTitle(title)
@@ -415,7 +355,8 @@ if (typeof DIMP !== "object") {
         }
         return content
     };
-    var NameCard = Interface(null, [Content]);
+    dkd.protocol.NameCard = Interface(null, [Content]);
+    var NameCard = dkd.protocol.NameCard;
     NameCard.prototype.getIdentifier = function () {
     };
     NameCard.prototype.getName = function () {
@@ -423,22 +364,14 @@ if (typeof DIMP !== "object") {
     NameCard.prototype.getAvatar = function () {
     };
     NameCard.create = function (identifier, mame, avatar) {
-        var content = new ns.dkd.NameCardContent(identifier);
+        var content = new NameCardContent(identifier);
         content.setName(name);
         content.setAvatar(avatar);
         return content
     };
-    ns.protocol.TextContent = TextContent;
-    ns.protocol.ArrayContent = ArrayContent;
-    ns.protocol.ForwardContent = ForwardContent;
-    ns.protocol.PageContent = PageContent;
-    ns.protocol.NameCard = NameCard
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Interface = ns.type.Interface;
-    var Content = ns.protocol.Content;
-    var FileContent = Interface(null, [Content]);
+    dkd.protocol.FileContent = Interface(null, [Content]);
+    var FileContent = dkd.protocol.FileContent;
     FileContent.prototype.setData = function (data) {
     };
     FileContent.prototype.getData = function () {
@@ -455,7 +388,7 @@ if (typeof DIMP !== "object") {
     };
     FileContent.prototype.getPassword = function () {
     };
-    var init_content = function (content, data, filename, url, password) {
+    var _init_file_content = function (content, data, filename, url, password) {
         if (data) {
             content.setTransportableData(data)
         }
@@ -471,55 +404,108 @@ if (typeof DIMP !== "object") {
         return content
     };
     FileContent.create = function (type, data, filename, url, password) {
-        var content = new ns.dkd.BaseFileContent(type);
-        return init_content(content, data, filename, url, password)
+        var content;
+        if (type === ContentType.IMAGE) {
+            content = new ImageFileContent()
+        } else if (type === ContentType.AUDIO) {
+            content = new AudioFileContent()
+        } else if (type === ContentType.VIDEO) {
+            content = new VideoFileContent()
+        } else {
+            content = new BaseFileContent(type)
+        }
+        return _init_file_content(content, data, filename, url, password)
     };
     FileContent.file = function (data, filename, url, password) {
-        var content = new ns.dkd.BaseFileContent();
-        return init_content(content, data, filename, url, password)
+        var content = new BaseFileContent();
+        return _init_file_content(content, data, filename, url, password)
     };
     FileContent.image = function (data, filename, url, password) {
-        var content = new ns.dkd.ImageFileContent();
-        return init_content(content, data, filename, url, password)
+        var content = new ImageFileContent();
+        return _init_file_content(content, data, filename, url, password)
     };
     FileContent.audio = function (data, filename, url, password) {
-        var content = new ns.dkd.AudioFileContent();
-        return init_content(content, data, filename, url, password)
+        var content = new AudioFileContent();
+        return _init_file_content(content, data, filename, url, password)
     };
     FileContent.video = function (data, filename, url, password) {
-        var content = new ns.dkd.VideoFileContent();
-        return init_content(content, data, filename, url, password)
+        var content = new VideoFileContent();
+        return _init_file_content(content, data, filename, url, password)
     };
-    ns.protocol.FileContent = FileContent
-})(DIMP);
-(function (ns) {
-    'use strict';
-    var Interface = ns.type.Interface;
-    var FileContent = ns.protocol.FileContent;
-    var ImageContent = Interface(null, [FileContent]);
+    dkd.protocol.ImageContent = Interface(null, [FileContent]);
+    var ImageContent = dkd.protocol.ImageContent;
     ImageContent.prototype.setThumbnail = function (image) {
     };
     ImageContent.prototype.getThumbnail = function () {
     };
-    var VideoContent = Interface(null, [FileContent]);
+    dkd.protocol.VideoContent = Interface(null, [FileContent]);
+    var VideoContent = dkd.protocol.VideoContent;
     VideoContent.prototype.setSnapshot = function (image) {
     };
     VideoContent.prototype.getSnapshot = function () {
     };
-    var AudioContent = Interface(null, [FileContent]);
+    dkd.protocol.AudioContent = Interface(null, [FileContent]);
+    var AudioContent = dkd.protocol.AudioContent;
     AudioContent.prototype.setText = function (asr) {
     };
     AudioContent.prototype.getText = function () {
     };
-    ns.protocol.ImageContent = ImageContent;
-    ns.protocol.AudioContent = AudioContent;
-    ns.protocol.VideoContent = VideoContent
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Interface = ns.type.Interface;
-    var Content = ns.protocol.Content;
-    var MoneyContent = Interface(null, [Content]);
+    dkd.protocol.ForwardContent = Interface(null, [Content]);
+    var ForwardContent = dkd.protocol.ForwardContent;
+    ForwardContent.prototype.getForward = function () {
+    };
+    ForwardContent.prototype.getSecrets = function () {
+    };
+    ForwardContent.create = function (secrets) {
+        return new SecretContent(secrets)
+    };
+    dkd.protocol.CombineContent = Interface(null, [Content]);
+    var CombineContent = dkd.protocol.CombineContent;
+    CombineContent.prototype.getTitle = function () {
+    };
+    CombineContent.prototype.getMessages = function () {
+    };
+    ForwardContent.create = function (title, messages) {
+        return new CombineForwardContent(title, messages)
+    };
+    dkd.protocol.ArrayContent = Interface(null, [Content]);
+    var ArrayContent = dkd.protocol.ArrayContent;
+    ArrayContent.prototype.getContents = function () {
+    };
+    ArrayContent.create = function (contents) {
+        return new ListContent(contents)
+    };
+    'use strict';
+    dkd.protocol.QuoteContent = Interface(null, [Content]);
+    var QuoteContent = dkd.protocol.QuoteContent;
+    QuoteContent.prototype.getText = function () {
+    };
+    QuoteContent.prototype.getOriginalEnvelope = function () {
+    };
+    QuoteContent.prototype.getOriginalSerialNumber = function () {
+    };
+    QuoteContent.create = function (text, head, body) {
+        var origin = QuoteContent.purify(head);
+        origin['type'] = body.getType();
+        origin['sn'] = body.getSerialNumber();
+        var group = body.getGroup();
+        if (group) {
+            origin['receiver'] = group.toString()
+        }
+        return new BaseQuoteContent(text, origin)
+    };
+    QuoteContent.purify = function (envelope) {
+        var from = envelope.getSender();
+        var to = envelope.getGroup();
+        if (!to) {
+            to = envelope.getReceiver()
+        }
+        return {'sender': from.toString(), 'receiver': to.toString()}
+    };
+    'use strict';
+    dkd.protocol.MoneyContent = Interface(null, [Content]);
+    var MoneyContent = dkd.protocol.MoneyContent;
     MoneyContent.prototype.getCurrency = function () {
     };
     MoneyContent.prototype.setAmount = function (amount) {
@@ -527,9 +513,10 @@ if (typeof DIMP !== "object") {
     MoneyContent.prototype.getAmount = function () {
     };
     MoneyContent.create = function (type, currency, amount) {
-        return new ns.dkd.BaseMoneyContent(type, currency, amount)
+        return new BaseMoneyContent(type, currency, amount)
     };
-    var TransferContent = Interface(null, [MoneyContent]);
+    dkd.protocol.TransferContent = Interface(null, [MoneyContent]);
+    var TransferContent = dkd.protocol.TransferContent;
     TransferContent.prototype.setRemitter = function (sender) {
     };
     TransferContent.prototype.getRemitter = function () {
@@ -539,22 +526,19 @@ if (typeof DIMP !== "object") {
     TransferContent.prototype.getRemittee = function () {
     };
     TransferContent.create = function (currency, amount) {
-        return new ns.dkd.TransferMoneyContent(currency, amount)
+        return new TransferMoneyContent(currency, amount)
     };
-    ns.protocol.MoneyContent = MoneyContent;
-    ns.protocol.TransferContent = TransferContent
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Interface = ns.type.Interface;
-    var Content = ns.protocol.Content;
-    var CustomizedContent = Interface(null, [Content]);
-    CustomizedContent.prototype.getApplication = function () {
+    dkd.protocol.ApplicationContent = Interface(null, [Content]);
+    var ApplicationContent = dkd.protocol.ApplicationContent;
+    ApplicationContent.prototype.getApplication = function () {
     };
-    CustomizedContent.prototype.getModule = function () {
+    ApplicationContent.prototype.getModule = function () {
     };
-    CustomizedContent.prototype.getAction = function () {
+    ApplicationContent.prototype.getAction = function () {
     };
+    dkd.protocol.CustomizedContent = Interface(null, [ApplicationContent]);
+    var CustomizedContent = dkd.protocol.CustomizedContent;
     CustomizedContent.create = function () {
         var type, app, mod, act;
         if (arguments.length === 4) {
@@ -562,104 +546,87 @@ if (typeof DIMP !== "object") {
             app = arguments[1];
             mod = arguments[2];
             act = arguments[3];
-            return new ns.dkd.AppCustomizedContent(type, app, mod, act)
+            return new AppCustomizedContent(type, app, mod, act)
         } else if (arguments.length === 3) {
             app = arguments[0];
             mod = arguments[1];
             act = arguments[2];
-            return new ns.dkd.AppCustomizedContent(app, mod, act)
+            return new AppCustomizedContent(app, mod, act)
         } else {
             throw new SyntaxError('customized content arguments error: ' + arguments);
         }
     };
-    ns.protocol.CustomizedContent = CustomizedContent
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Interface = ns.type.Interface;
-    var Content = ns.protocol.Content;
-    var Command = Interface(null, [Content]);
+    dkd.protocol.Command = Interface(null, [Content]);
+    var Command = dkd.protocol.Command;
     Command.META = 'meta';
-    Command.DOCUMENT = 'document';
+    Command.DOCUMENTS = 'documents';
     Command.RECEIPT = 'receipt';
     Command.prototype.getCmd = function () {
     };
-    var general_factory = function () {
-        var man = ns.dkd.cmd.CommandFactoryManager;
-        return man.generalFactory
-    };
     Command.parse = function (command) {
-        var gf = general_factory();
-        return gf.parseCommand(command)
+        var helper = CommandExtensions.getCommandHelper();
+        return helper.parseCommand(command)
     };
     Command.setFactory = function (cmd, factory) {
-        var gf = general_factory();
-        gf.setCommandFactory(cmd, factory)
+        var helper = CommandExtensions.getCommandHelper();
+        helper.setCommandFactory(cmd, factory)
     };
     Command.getFactory = function (cmd) {
-        var gf = general_factory();
-        return gf.getCommandFactory(cmd)
+        var helper = CommandExtensions.getCommandHelper();
+        return helper.getCommandFactory(cmd)
     };
-    var CommandFactory = Interface(null, null);
+    Command.Factory = Interface(null, null);
+    var CommandFactory = Command.Factory;
     CommandFactory.prototype.parseCommand = function (content) {
     };
-    Command.Factory = CommandFactory;
-    ns.protocol.Command = Command
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Interface = ns.type.Interface;
-    var Command = ns.protocol.Command;
-    var MetaCommand = Interface(null, [Command]);
+    dkd.protocol.MetaCommand = Interface(null, [Command]);
+    var MetaCommand = dkd.protocol.MetaCommand;
     MetaCommand.prototype.getIdentifier = function () {
     };
     MetaCommand.prototype.getMeta = function () {
     };
     MetaCommand.query = function (identifier) {
-        return new ns.dkd.cmd.BaseMetaCommand(identifier)
+        return new BaseMetaCommand(identifier)
     };
     MetaCommand.response = function (identifier, meta) {
-        var command = new ns.dkd.cmd.BaseMetaCommand(identifier);
+        var command = new BaseMetaCommand(identifier);
         command.setMeta(meta);
         return command
     };
-    var DocumentCommand = Interface(null, [MetaCommand]);
-    DocumentCommand.prototype.getDocument = function () {
+    dkd.protocol.DocumentCommand = Interface(null, [MetaCommand]);
+    var DocumentCommand = dkd.protocol.DocumentCommand;
+    DocumentCommand.prototype.getDocuments = function () {
     };
     DocumentCommand.prototype.getLastTime = function () {
     };
     DocumentCommand.query = function (identifier, lastTime) {
-        var command = new ns.dkd.cmd.BaseDocumentCommand(identifier);
+        var command = new BaseDocumentCommand(identifier);
         if (lastTime) {
             command.setLastTime(lastTime)
         }
         return command
     };
-    DocumentCommand.response = function (identifier, meta, doc) {
-        var command = new ns.dkd.cmd.BaseDocumentCommand(identifier);
+    DocumentCommand.response = function (identifier, meta, docs) {
+        var command = new BaseDocumentCommand(identifier);
         command.setMeta(meta);
-        command.setDocument(doc);
+        command.setDocuments(docs);
         return command
     };
-    ns.protocol.MetaCommand = MetaCommand;
-    ns.protocol.DocumentCommand = DocumentCommand
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Interface = ns.type.Interface;
-    var ID = ns.protocol.ID;
-    var Command = ns.protocol.Command;
-    var HistoryCommand = Interface(null, [Command]);
+    dkd.protocol.HistoryCommand = Interface(null, [Command]);
+    var HistoryCommand = dkd.protocol.HistoryCommand;
     HistoryCommand.REGISTER = 'register';
     HistoryCommand.SUICIDE = 'suicide';
-    var GroupCommand = Interface(null, [HistoryCommand]);
+    dkd.protocol.GroupCommand = Interface(null, [HistoryCommand]);
+    var GroupCommand = dkd.protocol.GroupCommand;
     GroupCommand.FOUND = 'found';
     GroupCommand.ABDICATE = 'abdicate';
     GroupCommand.INVITE = 'invite';
     GroupCommand.EXPEL = 'expel';
     GroupCommand.JOIN = 'join';
     GroupCommand.QUIT = 'quit';
-    GroupCommand.QUERY = 'query';
     GroupCommand.RESET = 'reset';
     GroupCommand.HIRE = 'hire';
     GroupCommand.FIRE = 'fire';
@@ -672,111 +639,78 @@ if (typeof DIMP !== "object") {
     };
     GroupCommand.prototype.getMembers = function () {
     };
-    GroupCommand.create = function (cmd, group, members) {
-        var command = new ns.dkd.cmd.BaseGroupCommand(cmd, group);
-        if (!members) {
-        } else if (members instanceof Array) {
-            command.setMembers(members)
+    var _command_init_members = function (content, members) {
+        if (members instanceof Array) {
+            content.setMembers(members)
         } else if (Interface.conforms(members, ID)) {
-            command.setMember(members)
+            content.setMember(members)
         } else {
             throw new TypeError('group members error: ' + members);
         }
-        return command
+        return content
+    };
+    GroupCommand.create = function (cmd, group, members) {
+        var content = new BaseGroupCommand(cmd, group);
+        if (members) {
+            _command_init_members(content, members)
+        }
+        return content
     };
     GroupCommand.invite = function (group, members) {
-        var command = new ns.dkd.cmd.InviteGroupCommand(group);
-        if (members instanceof Array) {
-            command.setMembers(members)
-        } else if (Interface.conforms(members, ID)) {
-            command.setMember(members)
-        } else {
-            throw new TypeError('invite members error: ' + members);
-        }
-        return command
+        var content = new InviteGroupCommand(group);
+        return _command_init_members(content, members)
     };
     GroupCommand.expel = function (group, members) {
-        var command = new ns.dkd.cmd.ExpelGroupCommand(group);
-        if (members instanceof Array) {
-            command.setMembers(members)
-        } else if (Interface.conforms(members, ID)) {
-            command.setMember(members)
-        } else {
-            throw new TypeError('expel members error: ' + members);
-        }
-        return command
+        var content = new ExpelGroupCommand(group);
+        return _command_init_members(content, members)
     };
     GroupCommand.join = function (group) {
-        return new ns.dkd.cmd.JoinGroupCommand(group)
+        return new JoinGroupCommand(group)
     };
     GroupCommand.quit = function (group) {
-        return new ns.dkd.cmd.QuitGroupCommand(group)
-    };
-    GroupCommand.query = function (group) {
-        return new ns.dkd.cmd.QueryGroupCommand(group)
+        return new QuitGroupCommand(group)
     };
     GroupCommand.reset = function (group, members) {
-        var command = new ns.dkd.cmd.ResetGroupCommand(group, members);
+        var content = new ResetGroupCommand(group, members);
         if (members instanceof Array) {
-            command.setMembers(members)
+            content.setMembers(members)
         } else {
             throw new TypeError('reset members error: ' + members);
         }
-        return command
+        return content
     };
-    var get_targets = function (info, batch, single) {
-        var users = info[batch];
-        if (users) {
-            return ID.convert(users)
+    var _command_init_admins = function (content, administrators, assistants) {
+        if (administrators && administrators.length > 0) {
+            content.setAdministrators(administrators)
         }
-        var usr = ID.parse(info[single]);
-        if (usr) {
-            return [usr]
-        } else {
-            return []
+        if (assistants && assistants.length > 0) {
+            content.setAssistants(assistants)
         }
+        return content
     };
-    GroupCommand.hire = function (group, targets) {
-        var command = new ns.dkd.cmd.HireGroupCommand(group);
-        var admins = get_targets(targets, 'administrators', 'administrator');
-        if (admins.length > 0) {
-            command.setAdministrators(admins)
-        }
-        var bots = get_targets(targets, 'assistants', 'assistant');
-        if (bots.length > 0) {
-            command.setAssistants(bots)
-        }
-        return command
+    GroupCommand.hire = function (group, administrators, assistants) {
+        var content = new HireGroupCommand(group);
+        return _command_init_admins(content, administrators, assistants)
     };
-    GroupCommand.fire = function (group, targets) {
-        var command = new ns.dkd.cmd.FireGroupCommand(group);
-        var admins = get_targets(targets, 'administrators', 'administrator');
-        if (admins.length > 0) {
-            command.setAdministrators(admins)
-        }
-        var bots = get_targets(targets, 'assistants', 'assistant');
-        if (bots.length > 0) {
-            command.setAssistants(bots)
-        }
-        return command
+    GroupCommand.fire = function (group, administrators, assistants) {
+        var content = new FireGroupCommand(group);
+        return _command_init_admins(content, administrators, assistants)
     };
     GroupCommand.resign = function (group) {
-        return new ns.dkd.cmd.ResignGroupCommand(group)
+        return new ResignGroupCommand(group)
     };
-    ns.protocol.HistoryCommand = HistoryCommand;
-    ns.protocol.GroupCommand = GroupCommand
-})(DIMP);
-(function (ns) {
-    'use strict';
-    var Interface = ns.type.Interface;
-    var GroupCommand = ns.protocol.GroupCommand;
-    var InviteCommand = Interface(null, [GroupCommand]);
-    var ExpelCommand = Interface(null, [GroupCommand]);
-    var JoinCommand = Interface(null, [GroupCommand]);
-    var QuitCommand = Interface(null, [GroupCommand]);
-    var ResetCommand = Interface(null, [GroupCommand]);
-    var QueryCommand = Interface(null, [GroupCommand]);
-    var HireCommand = Interface(null, [GroupCommand]);
+    dkd.protocol.InviteCommand = Interface(null, [GroupCommand]);
+    var InviteCommand = dkd.protocol.InviteCommand;
+    dkd.protocol.ExpelCommand = Interface(null, [GroupCommand]);
+    var ExpelCommand = dkd.protocol.ExpelCommand;
+    dkd.protocol.JoinCommand = Interface(null, [GroupCommand]);
+    var JoinCommand = dkd.protocol.JoinCommand;
+    dkd.protocol.QuitCommand = Interface(null, [GroupCommand]);
+    var QuitCommand = dkd.protocol.QuitCommand;
+    dkd.protocol.ResetCommand = Interface(null, [GroupCommand]);
+    var ResetCommand = dkd.protocol.ResetCommand;
+    dkd.protocol.HireCommand = Interface(null, [GroupCommand]);
+    var HireCommand = dkd.protocol.HireCommand;
     HireCommand.prototype.getAdministrators = function () {
     };
     HireCommand.prototype.setAdministrators = function (members) {
@@ -785,7 +719,8 @@ if (typeof DIMP !== "object") {
     };
     HireCommand.prototype.setAssistants = function (bots) {
     };
-    var FireCommand = Interface(null, [GroupCommand]);
+    dkd.protocol.FireCommand = Interface(null, [GroupCommand]);
+    var FireCommand = dkd.protocol.FireCommand;
     FireCommand.prototype.getAdministrators = function () {
     };
     FireCommand.prototype.setAdministrators = function (members) {
@@ -794,22 +729,11 @@ if (typeof DIMP !== "object") {
     };
     FireCommand.prototype.setAssistants = function (bots) {
     };
-    var ResignCommand = Interface(null, [GroupCommand]);
-    ns.protocol.group.InviteCommand = InviteCommand;
-    ns.protocol.group.ExpelCommand = ExpelCommand;
-    ns.protocol.group.JoinCommand = JoinCommand;
-    ns.protocol.group.QuitCommand = QuitCommand;
-    ns.protocol.group.ResetCommand = ResetCommand;
-    ns.protocol.group.QueryCommand = QueryCommand;
-    ns.protocol.group.HireCommand = HireCommand;
-    ns.protocol.group.FireCommand = FireCommand;
-    ns.protocol.group.ResignCommand = ResignCommand
-})(DIMP);
-(function (ns) {
+    dkd.protocol.ResignCommand = Interface(null, [GroupCommand]);
+    var ResignCommand = dkd.protocol.ResignCommand;
     'use strict';
-    var Interface = ns.type.Interface;
-    var Command = ns.protocol.Command;
-    var ReceiptCommand = Interface(null, [Command]);
+    dkd.protocol.ReceiptCommand = Interface(null, [Command]);
+    var ReceiptCommand = dkd.protocol.ReceiptCommand;
     ReceiptCommand.prototype.getText = function () {
     };
     ReceiptCommand.prototype.getOriginalEnvelope = function () {
@@ -818,7 +742,26 @@ if (typeof DIMP !== "object") {
     };
     ReceiptCommand.prototype.getOriginalSignature = function () {
     };
-    var purify = function (envelope) {
+    ReceiptCommand.create = function (text, head, body) {
+        var origin;
+        if (!head) {
+            origin = null
+        } else if (!body) {
+            origin = ReceiptCommand.purify(head)
+        } else {
+            origin = ReceiptCommand.purify(head);
+            origin['sn'] = body.getSerialNumber()
+        }
+        var command = new BaseReceiptCommand(text, origin);
+        if (body) {
+            var group = body.getGroup();
+            if (group) {
+                command.setGroup(group)
+            }
+        }
+        return command
+    };
+    ReceiptCommand.purify = function (envelope) {
         var info = envelope.copyMap(false);
         if (info['data']) {
             delete info['data'];
@@ -829,33 +772,21 @@ if (typeof DIMP !== "object") {
         }
         return info
     };
-    ReceiptCommand.create = function (text, head, body) {
-        var info;
-        if (!head) {
-            info = null
-        } else if (!body) {
-            info = purify(head)
-        } else {
-            info = purify(head);
-            info['sn'] = body.getSerialNumber()
-        }
-        var command = new ns.dkd.cmd.BaseReceiptCommand(text, info);
-        if (body) {
-            var group = body.getGroup();
-            if (group) {
-                command.setGroup(group)
-            }
-        }
-        return command
-    };
-    ReceiptCommand.purify = purify;
-    ns.protocol.ReceiptCommand = ReceiptCommand
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Interface = ns.type.Interface;
-    var Document = ns.protocol.Document;
-    var Visa = Interface(null, [Document]);
+    mkm.protocol.MetaType = {
+        DEFAULT: '' + (1),
+        MKM: '' + (1),
+        BTC: '' + (2),
+        ExBTC: '' + (3),
+        ETH: '' + (4),
+        ExETH: '' + (5)
+    };
+    var MetaType = mkm.protocol.MetaType;
+    mkm.protocol.DocumentType = {VISA: 'visa', PROFILE: 'profile', BULLETIN: 'bulletin'};
+    var DocumentType = mkm.protocol.DocumentType;
+    'use strict';
+    mkm.protocol.Visa = Interface(null, [Document]);
+    var Visa = mkm.protocol.Visa;
     Visa.prototype.getPublicKey = function () {
     };
     Visa.prototype.setPublicKey = function (pKey) {
@@ -864,39 +795,26 @@ if (typeof DIMP !== "object") {
     };
     Visa.prototype.setAvatar = function (image) {
     };
-    var Bulletin = Interface(null, [Document]);
+    mkm.protocol.Bulletin = Interface(null, [Document]);
+    var Bulletin = mkm.protocol.Bulletin;
     Bulletin.prototype.getFounder = function () {
     };
     Bulletin.prototype.getAssistants = function () {
     };
-    Bulletin.prototype.setAssistants = function (assistants) {
+    Bulletin.prototype.setAssistants = function (bots) {
     };
-    ns.protocol.Visa = Visa;
-    ns.protocol.Bulletin = Bulletin
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Class = ns.type.Class;
-    var IObject = ns.type.Object;
-    var Enum = ns.type.Enum;
-    var Dictionary = ns.type.Dictionary;
-    var ID = ns.protocol.ID;
-    var Content = ns.protocol.Content;
-    var InstantMessage = ns.protocol.InstantMessage;
-    var BaseContent = function (info) {
-        if (Enum.isEnum(info)) {
-            info = info.getValue()
-        }
+    dkd.dkd.BaseContent = function (info) {
         var content, type, sn, time;
-        if (IObject.isNumber(info)) {
+        if (IObject.isString(info)) {
             type = info;
             time = new Date();
             sn = InstantMessage.generateSerialNumber(type, time);
             content = {'type': type, 'sn': sn, 'time': time.getTime() / 1000.0}
         } else {
             content = info;
-            type = 0;
-            sn = 0;
+            type = null;
+            sn = null;
             time = null
         }
         Dictionary.call(this, content);
@@ -904,15 +822,16 @@ if (typeof DIMP !== "object") {
         this.__sn = sn;
         this.__time = time
     };
+    var BaseContent = dkd.dkd.BaseContent;
     Class(BaseContent, Dictionary, [Content], {
         getType: function () {
-            if (this.__type === 0) {
-                var gf = ns.dkd.MessageFactoryManager.generalFactory;
-                this.__type = gf.getContentType(this.toMap(), 0)
+            if (this.__type === null) {
+                var helper = SharedMessageExtensions.getHelper();
+                this.__type = helper.getContentType(this.toMap(), '')
             }
             return this.__type
         }, getSerialNumber: function () {
-            if (this.__sn === 0) {
+            if (this.__sn === null) {
                 this.__sn = this.getInt('sn', 0)
             }
             return this.__sn
@@ -928,24 +847,26 @@ if (typeof DIMP !== "object") {
             this.setString('group', identifier)
         }
     });
-    ns.dkd.BaseContent = BaseContent
-})(DIMP);
-(function (ns) {
+    dkd.dkd.BaseCommand = function () {
+        if (arguments.length === 2) {
+            BaseContent.call(this, arguments[0]);
+            this.setValue('command', arguments[1])
+        } else if (IObject.isString(arguments[0])) {
+            BaseContent.call(this, ContentType.COMMAND);
+            this.setValue('command', arguments[0])
+        } else {
+            BaseContent.call(this, arguments[0])
+        }
+    };
+    var BaseCommand = dkd.dkd.BaseCommand;
+    Class(BaseCommand, BaseContent, [Command], {
+        getCmd: function () {
+            var helper = SharedCommandExtensions.getHelper();
+            return helper.getCmd(this.toMap(), '')
+        }
+    });
     'use strict';
-    var Class = ns.type.Class;
-    var Interface = ns.type.Interface;
-    var IObject = ns.type.Object;
-    var PortableNetworkFile = ns.format.PortableNetworkFile;
-    var ID = ns.protocol.ID;
-    var ReliableMessage = ns.protocol.ReliableMessage;
-    var ContentType = ns.protocol.ContentType;
-    var TextContent = ns.protocol.TextContent;
-    var ArrayContent = ns.protocol.ArrayContent;
-    var ForwardContent = ns.protocol.ForwardContent;
-    var PageContent = ns.protocol.PageContent;
-    var NameCard = ns.protocol.NameCard;
-    var BaseContent = ns.dkd.BaseContent;
-    var BaseTextContent = function (info) {
+    dkd.dkd.BaseTextContent = function (info) {
         if (IObject.isString(info)) {
             BaseContent.call(this, ContentType.TEXT);
             this.setText(info)
@@ -953,6 +874,7 @@ if (typeof DIMP !== "object") {
             BaseContent.call(this, info)
         }
     };
+    var BaseTextContent = dkd.dkd.BaseTextContent;
     Class(BaseTextContent, BaseContent, [TextContent], {
         getText: function () {
             return this.getString('text', '')
@@ -960,76 +882,7 @@ if (typeof DIMP !== "object") {
             this.setValue('text', text)
         }
     });
-    var ListContent = function (info) {
-        var list;
-        if (info instanceof Array) {
-            BaseContent.call(this, ContentType.ARRAY);
-            list = info;
-            this.setValue('contents', ArrayContent.revert(list))
-        } else {
-            BaseContent.call(this, info);
-            list = null
-        }
-        this.__list = list
-    };
-    Class(ListContent, BaseContent, [ArrayContent], {
-        getContents: function () {
-            if (this.__list === null) {
-                var array = this.getValue('contents');
-                if (array) {
-                    this.__list = ArrayContent.convert(array)
-                } else {
-                    this.__list = []
-                }
-            }
-            return this.__list
-        }
-    });
-    var SecretContent = function (info) {
-        var forward = null;
-        var secrets = null;
-        if (info instanceof Array) {
-            BaseContent.call(this, ContentType.FORWARD);
-            secrets = info
-        } else if (Interface.conforms(info, ReliableMessage)) {
-            BaseContent.call(this, ContentType.FORWARD);
-            forward = info
-        } else {
-            BaseContent.call(this, info)
-        }
-        if (forward) {
-            this.setMap('forward', forward)
-        } else if (secrets) {
-            var array = ForwardContent.revert(secrets);
-            this.setValue('secrets', array)
-        }
-        this.__forward = forward;
-        this.__secrets = secrets
-    };
-    Class(SecretContent, BaseContent, [ForwardContent], {
-        getForward: function () {
-            if (this.__forward === null) {
-                var forward = this.getValue('forward');
-                this.__forward = ReliableMessage.parse(forward)
-            }
-            return this.__forward
-        }, getSecrets: function () {
-            if (this.__secrets === null) {
-                var array = this.getValue('secrets');
-                if (array) {
-                    this.__secrets = ForwardContent.convert(array)
-                } else {
-                    this.__secrets = [];
-                    var msg = this.getForward();
-                    if (msg) {
-                        this.__secrets.push(msg)
-                    }
-                }
-            }
-            return this.__secrets
-        }
-    });
-    var WebPageContent = function (info) {
+    dkd.dkd.WebPageContent = function (info) {
         if (info) {
             BaseContent.call(this, info)
         } else {
@@ -1037,6 +890,7 @@ if (typeof DIMP !== "object") {
         }
         this.__icon = null
     };
+    var WebPageContent = dkd.dkd.WebPageContent;
     Class(WebPageContent, BaseContent, [PageContent], {
         getTitle: function () {
             return this.getString('title', '')
@@ -1075,18 +929,19 @@ if (typeof DIMP !== "object") {
             this.__icon = pnf
         }
     });
-    var NameCardContent = function (info) {
+    dkd.dkd.NameCardContent = function (info) {
         if (Interface.conforms(info, ID)) {
             BaseContent.call(this, ContentType.NAME_CARD);
-            this.setString('ID', info)
+            this.setString('did', info)
         } else {
             BaseContent.call(this, info)
         }
         this.__image = null
     };
+    var NameCardContent = dkd.dkd.NameCardContent;
     Class(NameCardContent, BaseContent, [NameCard], {
         getIdentifier: function () {
-            var id = this.getValue('ID');
+            var id = this.getValue('did');
             return ID.parse(id)
         }, getName: function () {
             return this.getString('name', '')
@@ -1113,26 +968,15 @@ if (typeof DIMP !== "object") {
             this.__image = pnf
         }
     });
-    ns.dkd.BaseTextContent = BaseTextContent;
-    ns.dkd.ListContent = ListContent;
-    ns.dkd.SecretContent = SecretContent;
-    ns.dkd.WebPageContent = WebPageContent;
-    ns.dkd.NameCardContent = NameCardContent
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Class = ns.type.Class;
-    var BaseFileWrapper = ns.format.BaseFileWrapper;
-    var ContentType = ns.protocol.ContentType;
-    var FileContent = ns.protocol.FileContent;
-    var BaseContent = ns.dkd.BaseContent;
-    var BaseFileContent = function (info) {
+    dkd.dkd.BaseFileContent = function (info) {
         if (!info) {
             info = ContentType.FILE
         }
         BaseContent.call(this, info);
         this.__wrapper = new BaseFileWrapper(this.toMap())
     };
+    var BaseFileContent = dkd.dkd.BaseFileContent;
     Class(BaseFileContent, BaseContent, [FileContent], {
         getData: function () {
             var ted = this.__wrapper.getData();
@@ -1155,20 +999,7 @@ if (typeof DIMP !== "object") {
             this.__wrapper.setPassword(key)
         }
     });
-    ns.dkd.BaseFileContent = BaseFileContent
-})(DIMP);
-(function (ns) {
-    'use strict';
-    var Interface = ns.type.Interface;
-    var Class = ns.type.Class;
-    var IObject = ns.type.Object;
-    var PortableNetworkFile = ns.format.PortableNetworkFile;
-    var ContentType = ns.protocol.ContentType;
-    var ImageContent = ns.protocol.ImageContent;
-    var VideoContent = ns.protocol.VideoContent;
-    var AudioContent = ns.protocol.AudioContent;
-    var BaseFileContent = ns.dkd.BaseFileContent;
-    var ImageFileContent = function (info) {
+    dkd.dkd.ImageFileContent = function (info) {
         if (!info) {
             BaseFileContent.call(this, ContentType.IMAGE)
         } else {
@@ -1176,6 +1007,7 @@ if (typeof DIMP !== "object") {
         }
         this.__thumbnail = null
     };
+    var ImageFileContent = dkd.dkd.ImageFileContent;
     Class(ImageFileContent, BaseFileContent, [ImageContent], {
         getThumbnail: function () {
             var pnf = this.__thumbnail;
@@ -1198,7 +1030,7 @@ if (typeof DIMP !== "object") {
             this.__thumbnail = pnf
         }
     });
-    var VideoFileContent = function (info) {
+    dkd.dkd.VideoFileContent = function (info) {
         if (!info) {
             BaseFileContent.call(this, ContentType.VIDEO)
         } else {
@@ -1206,6 +1038,7 @@ if (typeof DIMP !== "object") {
         }
         this.__snapshot = null
     };
+    var VideoFileContent = dkd.dkd.VideoFileContent;
     Class(VideoFileContent, BaseFileContent, [VideoContent], {
         getSnapshot: function () {
             var pnf = this.__snapshot;
@@ -1228,13 +1061,14 @@ if (typeof DIMP !== "object") {
             this.__snapshot = pnf
         }
     });
-    var AudioFileContent = function (info) {
+    dkd.dkd.AudioFileContent = function (info) {
         if (!info) {
             BaseFileContent.call(this, ContentType.AUDIO)
         } else {
             BaseFileContent.call(this, info)
         }
     };
+    var AudioFileContent = dkd.dkd.AudioFileContent;
     Class(AudioFileContent, BaseFileContent, [AudioContent], {
         getText: function () {
             return this.getString('text', null)
@@ -1242,19 +1076,155 @@ if (typeof DIMP !== "object") {
             this.setValue('text', asr)
         }
     });
-    ns.dkd.ImageFileContent = ImageFileContent;
-    ns.dkd.VideoFileContent = VideoFileContent;
-    ns.dkd.AudioFileContent = AudioFileContent
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Class = ns.type.Class;
-    var ID = ns.protocol.ID;
-    var ContentType = ns.protocol.ContentType;
-    var MoneyContent = ns.protocol.MoneyContent;
-    var TransferContent = ns.protocol.TransferContent;
-    var BaseContent = ns.dkd.BaseContent;
-    var BaseMoneyContent = function () {
+    dkd.dkd.SecretContent = function (info) {
+        var forward = null;
+        var secrets = null;
+        if (info instanceof Array) {
+            BaseContent.call(this, ContentType.FORWARD);
+            secrets = info
+        } else if (Interface.conforms(info, ReliableMessage)) {
+            BaseContent.call(this, ContentType.FORWARD);
+            forward = info
+        } else {
+            BaseContent.call(this, info)
+        }
+        if (forward) {
+            this.setMap('forward', forward)
+        } else if (secrets) {
+            var array = ReliableMessage.revert(secrets);
+            this.setValue('secrets', array)
+        }
+        this.__forward = forward;
+        this.__secrets = secrets
+    };
+    var SecretContent = dkd.dkd.SecretContent;
+    Class(SecretContent, BaseContent, [ForwardContent], {
+        getForward: function () {
+            if (this.__forward === null) {
+                var forward = this.getValue('forward');
+                this.__forward = ReliableMessage.parse(forward)
+            }
+            return this.__forward
+        }, getSecrets: function () {
+            var messages = this.__secrets;
+            if (!messages) {
+                var array = this.getValue('secrets');
+                if (array) {
+                    messages = ReliableMessage.convert(array)
+                } else {
+                    var msg = this.getForward();
+                    messages = !msg ? [] : [msg]
+                }
+                this.__secrets = messages
+            }
+            return messages
+        }
+    });
+    dkd.dkd.CombineForwardContent = function () {
+        var title;
+        var messages;
+        if (arguments.length === 2) {
+            BaseContent.call(this, ContentType.COMBINE_FORWARD);
+            title = arguments[0];
+            messages = arguments[1]
+        } else {
+            BaseContent.call(this, arguments[0]);
+            title = null;
+            messages = null
+        }
+        if (title) {
+            this.setValue('title', title)
+        }
+        if (messages) {
+            var array = InstantMessage.revert(messages);
+            this.setValue('messages', array)
+        }
+        this.__history = messages
+    };
+    var CombineForwardContent = dkd.dkd.CombineForwardContent;
+    Class(CombineForwardContent, BaseContent, [CombineContent], {
+        getTitle: function () {
+            return this.getString('title', '')
+        }, getMessages: function () {
+            var messages = this.__history;
+            if (!messages) {
+                var array = this.getValue('messages');
+                if (array) {
+                    messages = InstantMessage.convert(array)
+                } else {
+                    messages = []
+                }
+                this.__history = messages
+            }
+            return messages
+        }
+    });
+    dkd.dkd.ListContent = function (info) {
+        var list;
+        if (info instanceof Array) {
+            BaseContent.call(this, ContentType.ARRAY);
+            list = info;
+            this.setValue('contents', Content.revert(list))
+        } else {
+            BaseContent.call(this, info);
+            list = null
+        }
+        this.__list = list
+    };
+    var ListContent = dkd.dkd.ListContent;
+    Class(ListContent, BaseContent, [ArrayContent], {
+        getContents: function () {
+            var contents = this.__list;
+            if (!contents) {
+                var array = this.getValue('contents');
+                if (array) {
+                    contents = Content.convert(array)
+                } else {
+                    contents = []
+                }
+                this.__list = contents
+            }
+            return contents
+        }
+    });
+    'use strict';
+    dkd.dkd.BaseQuoteContent = function () {
+        if (arguments.length === 1) {
+            BaseContent.call(this, arguments[0])
+        } else {
+            BaseContent.call(this, Command.RECEIPT);
+            this.setValue('text', arguments[0]);
+            var origin = arguments[1];
+            if (origin) {
+                this.setValue('origin', origin)
+            }
+        }
+        this.__env = null
+    };
+    var BaseQuoteContent = dkd.dkd.BaseQuoteContent;
+    Class(BaseQuoteContent, BaseContent, [QuoteContent], {
+        getText: function () {
+            return this.getString('text', '')
+        }, getOrigin: function () {
+            return this.getValue('origin')
+        }, getOriginalEnvelope: function () {
+            var env = this.__env;
+            if (!env) {
+                env = Envelope.parse(this.getOrigin());
+                this.__env = env
+            }
+            return env
+        }, getOriginalSerialNumber: function () {
+            var origin = this.getOrigin();
+            if (!origin) {
+                return null
+            }
+            return Converter.getInt(origin['sn'], null)
+        }
+    });
+    'use strict';
+    dkd.dkd.BaseMoneyContent = function () {
         if (arguments.length === 1) {
             BaseContent.call(arguments[0])
         } else if (arguments.length === 2) {
@@ -1269,6 +1239,7 @@ if (typeof DIMP !== "object") {
             throw new SyntaxError('money content arguments error: ' + arguments);
         }
     };
+    var BaseMoneyContent = dkd.dkd.BaseMoneyContent;
     Class(BaseMoneyContent, BaseContent, [MoneyContent], {
         setCurrency: function (currency) {
             this.setValue('currency', currency)
@@ -1280,7 +1251,7 @@ if (typeof DIMP !== "object") {
             return this.getFloat('amount', 0)
         }
     });
-    var TransferMoneyContent = function () {
+    dkd.dkd.TransferMoneyContent = function () {
         if (arguments.length === 1) {
             MoneyContent.call(arguments[0])
         } else if (arguments.length === 2) {
@@ -1289,6 +1260,7 @@ if (typeof DIMP !== "object") {
             throw new SyntaxError('money content arguments error: ' + arguments);
         }
     };
+    var TransferMoneyContent = dkd.dkd.TransferMoneyContent;
     Class(TransferMoneyContent, BaseMoneyContent, [TransferContent], {
         getRemitter: function () {
             var sender = this.getValue('remitter');
@@ -1302,16 +1274,8 @@ if (typeof DIMP !== "object") {
             this.setString('remittee', receiver)
         }
     });
-    ns.dkd.BaseMoneyContent = BaseMoneyContent;
-    ns.dkd.TransferMoneyContent = TransferMoneyContent
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Class = ns.type.Class;
-    var ContentType = ns.protocol.ContentType;
-    var CustomizedContent = ns.protocol.CustomizedContent;
-    var BaseContent = ns.dkd.BaseContent;
-    var AppCustomizedContent = function () {
+    dkd.dkd.AppCustomizedContent = function () {
         var app = null;
         var mod = null;
         var act = null;
@@ -1338,55 +1302,18 @@ if (typeof DIMP !== "object") {
             this.setValue('act', act)
         }
     };
+    var AppCustomizedContent = dkd.dkd.AppCustomizedContent;
     Class(AppCustomizedContent, BaseContent, [CustomizedContent], {
         getApplication: function () {
-            return this.getString('app', null)
+            return this.getString('app', '')
         }, getModule: function () {
-            return this.getString('mod', null)
+            return this.getString('mod', '')
         }, getAction: function () {
-            return this.getString('act', null)
+            return this.getString('act', '')
         }
     });
-    ns.dkd.AppCustomizedContent = AppCustomizedContent
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Class = ns.type.Class;
-    var IObject = ns.type.Object;
-    var ContentType = ns.protocol.ContentType;
-    var Command = ns.protocol.Command;
-    var BaseContent = ns.dkd.BaseContent;
-    var BaseCommand = function () {
-        if (arguments.length === 2) {
-            BaseContent.call(this, arguments[0]);
-            this.setValue('command', arguments[1])
-        } else if (IObject.isString(arguments[0])) {
-            BaseContent.call(this, ContentType.COMMAND);
-            this.setValue('command', arguments[0])
-        } else {
-            BaseContent.call(this, arguments[0])
-        }
-    };
-    Class(BaseCommand, BaseContent, [Command], {
-        getCmd: function () {
-            var gf = ns.dkd.cmd.CommandFactoryManager.generalFactory;
-            return gf.getCmd(this.toMap(), '')
-        }
-    });
-    ns.dkd.cmd.BaseCommand = BaseCommand
-})(DIMP);
-(function (ns) {
-    'use strict';
-    var Interface = ns.type.Interface;
-    var Class = ns.type.Class;
-    var ID = ns.protocol.ID;
-    var Meta = ns.protocol.Meta;
-    var Document = ns.protocol.Document;
-    var Command = ns.protocol.Command;
-    var MetaCommand = ns.protocol.MetaCommand;
-    var DocumentCommand = ns.protocol.DocumentCommand;
-    var BaseCommand = ns.dkd.cmd.BaseCommand;
-    var BaseMetaCommand = function () {
+    dkd.dkd.BaseMetaCommand = function () {
         var identifier = null;
         if (arguments.length === 2) {
             BaseCommand.call(this, arguments[1]);
@@ -1398,15 +1325,16 @@ if (typeof DIMP !== "object") {
             BaseCommand.call(this, arguments[0])
         }
         if (identifier) {
-            this.setString('ID', identifier)
+            this.setString('did', identifier)
         }
         this.__identifier = identifier;
         this.__meta = null
     };
+    var BaseMetaCommand = dkd.dkd.BaseMetaCommand;
     Class(BaseMetaCommand, BaseCommand, [MetaCommand], {
         getIdentifier: function () {
             if (this.__identifier == null) {
-                var identifier = this.getValue("ID");
+                var identifier = this.getValue("did");
                 this.__identifier = ID.parse(identifier)
             }
             return this.__identifier
@@ -1421,43 +1349,37 @@ if (typeof DIMP !== "object") {
             this.__meta = meta
         }
     });
-    var BaseDocumentCommand = function (info) {
+    dkd.dkd.BaseDocumentCommand = function (info) {
         if (Interface.conforms(info, ID)) {
-            BaseMetaCommand.call(this, info, Command.DOCUMENT)
+            BaseMetaCommand.call(this, info, Command.DOCUMENTS)
         } else {
             BaseMetaCommand.call(this, info)
         }
-        this.__document = null
+        this.__docs = null
     };
+    var BaseDocumentCommand = dkd.dkd.BaseDocumentCommand;
     Class(BaseDocumentCommand, BaseMetaCommand, [DocumentCommand], {
-        getDocument: function () {
-            if (this.__document === null) {
-                var doc = this.getValue('document');
-                this.__document = Document.parse(doc)
+        getDocuments: function () {
+            if (this.__docs === null) {
+                var docs = this.getValue('documents');
+                this.__docs = Document.convert(docs)
             }
-            return this.__document
-        }, setDocument: function (doc) {
-            this.setMap('document', doc);
-            this.__document = doc
+            return this.__docs
+        }, setDocuments: function (docs) {
+            if (!docs) {
+                this.removeValue('documents')
+            } else {
+                this.setValue('documents', Document.revert(docs))
+            }
+            this.__docs = docs
         }, getLastTime: function () {
             return this.getDateTime('last_time', null)
         }, setLastTime: function (when) {
             this.setDateTime('last_time', when)
         }
     });
-    ns.dkd.cmd.BaseMetaCommand = BaseMetaCommand;
-    ns.dkd.cmd.BaseDocumentCommand = BaseDocumentCommand
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Class = ns.type.Class;
-    var IObject = ns.type.Object;
-    var ID = ns.protocol.ID;
-    var ContentType = ns.protocol.ContentType;
-    var HistoryCommand = ns.protocol.HistoryCommand;
-    var GroupCommand = ns.protocol.GroupCommand;
-    var BaseCommand = ns.dkd.cmd.BaseCommand;
-    var BaseHistoryCommand = function () {
+    dkd.dkd.BaseHistoryCommand = function () {
         if (arguments.length === 2) {
             BaseCommand.call(this, arguments[0], arguments[1])
         } else if (IObject.isString(arguments[0])) {
@@ -1466,8 +1388,9 @@ if (typeof DIMP !== "object") {
             BaseCommand.call(this, arguments[0])
         }
     };
+    var BaseHistoryCommand = dkd.dkd.BaseHistoryCommand;
     Class(BaseHistoryCommand, BaseCommand, [HistoryCommand], null);
-    var BaseGroupCommand = function () {
+    dkd.dkd.BaseGroupCommand = function () {
         if (arguments.length === 1) {
             BaseHistoryCommand.call(this, arguments[0])
         } else if (arguments.length === 2) {
@@ -1477,6 +1400,7 @@ if (typeof DIMP !== "object") {
             throw new SyntaxError('Group command arguments error: ' + arguments);
         }
     };
+    var BaseGroupCommand = dkd.dkd.BaseGroupCommand;
     Class(BaseGroupCommand, BaseHistoryCommand, [GroupCommand], {
         setMember: function (identifier) {
             this.setString('member', identifier);
@@ -1501,116 +1425,124 @@ if (typeof DIMP !== "object") {
             return !single ? [] : [single]
         }
     });
-    ns.dkd.cmd.BaseHistoryCommand = BaseHistoryCommand;
-    ns.dkd.cmd.BaseGroupCommand = BaseGroupCommand
-})(DIMP);
-(function (ns) {
-    'use strict';
-    var Interface = ns.type.Interface;
-    var Class = ns.type.Class;
-    var ID = ns.protocol.ID;
-    var GroupCommand = ns.protocol.GroupCommand;
-    var InviteCommand = ns.protocol.group.InviteCommand;
-    var ExpelCommand = ns.protocol.group.ExpelCommand;
-    var JoinCommand = ns.protocol.group.JoinCommand;
-    var QuitCommand = ns.protocol.group.QuitCommand;
-    var ResetCommand = ns.protocol.group.ResetCommand;
-    var QueryCommand = ns.protocol.group.QueryCommand;
-    var HireCommand = ns.protocol.group.HireCommand;
-    var FireCommand = ns.protocol.group.FireCommand;
-    var ResignCommand = ns.protocol.group.ResignCommand;
-    var BaseGroupCommand = ns.dkd.cmd.BaseGroupCommand;
-    var InviteGroupCommand = function (info) {
+    dkd.dkd.InviteGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             BaseGroupCommand.call(this, GroupCommand.INVITE, info)
         } else {
             BaseGroupCommand.call(this, info)
         }
     };
+    var InviteGroupCommand = dkd.dkd.InviteGroupCommand;
     Class(InviteGroupCommand, BaseGroupCommand, [InviteCommand], null);
-    var ExpelGroupCommand = function (info) {
+    dkd.dkd.ExpelGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             BaseGroupCommand.call(this, GroupCommand.EXPEL, info)
         } else {
             BaseGroupCommand.call(this, info)
         }
     };
+    var ExpelGroupCommand = dkd.dkd.ExpelGroupCommand;
     Class(ExpelGroupCommand, BaseGroupCommand, [ExpelCommand], null);
-    var JoinGroupCommand = function (info) {
+    dkd.dkd.JoinGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             BaseGroupCommand.call(this, GroupCommand.JOIN, info)
         } else {
             BaseGroupCommand.call(this, info)
         }
     };
+    var JoinGroupCommand = dkd.dkd.JoinGroupCommand;
     Class(JoinGroupCommand, BaseGroupCommand, [JoinCommand], null);
-    var QuitGroupCommand = function (info) {
+    dkd.dkd.QuitGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             BaseGroupCommand.call(this, GroupCommand.QUIT, info)
         } else {
             BaseGroupCommand.call(this, info)
         }
     };
+    var QuitGroupCommand = dkd.dkd.QuitGroupCommand;
     Class(QuitGroupCommand, BaseGroupCommand, [QuitCommand], null);
-    var ResetGroupCommand = function (info) {
+    dkd.dkd.ResetGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             BaseGroupCommand.call(this, GroupCommand.RESET, info)
         } else {
             BaseGroupCommand.call(this, info)
         }
     };
+    var ResetGroupCommand = dkd.dkd.ResetGroupCommand;
     Class(ResetGroupCommand, BaseGroupCommand, [ResetCommand], null);
-    var QueryGroupCommand = function (info) {
-        if (Interface.conforms(info, ID)) {
-            BaseGroupCommand.call(this, GroupCommand.QUERY, info)
-        } else {
-            BaseGroupCommand.call(this, info)
-        }
-    };
-    Class(QueryGroupCommand, BaseGroupCommand, [QueryCommand], null);
-    var HireGroupCommand = function (info) {
+    dkd.dkd.HireGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             BaseGroupCommand.call(this, GroupCommand.HIRE, info)
         } else {
             BaseGroupCommand.call(this, info)
         }
     };
-    Class(HireGroupCommand, BaseGroupCommand, [HireCommand], null);
-    var FireGroupCommand = function (info) {
+    var HireGroupCommand = dkd.dkd.HireGroupCommand;
+    Class(HireGroupCommand, BaseGroupCommand, [HireCommand], {
+        getAdministrators: function () {
+            var array = this.getValue('administrators');
+            return !array ? null : ID.convert(array)
+        }, setAdministrators: function (admins) {
+            if (!admins) {
+                this.removeValue('administrators')
+            } else {
+                var array = ID.revert(admins);
+                this.setValue('administrators', array)
+            }
+        }, getAssistants: function () {
+            var array = this.getValue('assistants');
+            return !array ? null : ID.convert(array)
+        }, setAssistants: function (bots) {
+            if (!bots) {
+                this.removeValue('assistants')
+            } else {
+                var array = ID.revert(bots);
+                this.setValue('assistants', array)
+            }
+        }
+    });
+    dkd.dkd.FireGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             BaseGroupCommand.call(this, GroupCommand.FIRE, info)
         } else {
             BaseGroupCommand.call(this, info)
         }
     };
-    Class(FireGroupCommand, BaseGroupCommand, [FireCommand], null);
-    var ResignGroupCommand = function (info) {
+    var FireGroupCommand = dkd.dkd.FireGroupCommand;
+    Class(FireGroupCommand, BaseGroupCommand, [FireCommand], {
+        getAssistants: function () {
+            var array = this.getValue('assistants');
+            return !array ? null : ID.convert(array)
+        }, setAssistants: function (bots) {
+            if (!bots) {
+                this.removeValue('assistants')
+            } else {
+                var array = ID.revert(bots);
+                this.setValue('assistants', array)
+            }
+        }, getAdministrators: function () {
+            var array = this.getValue('administrators');
+            return !array ? null : ID.convert(array)
+        }, setAdministrators: function (admins) {
+            if (!admins) {
+                this.removeValue('administrators')
+            } else {
+                var array = ID.revert(admins);
+                this.setValue('administrators', array)
+            }
+        }
+    });
+    dkd.dkd.ResignGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             BaseGroupCommand.call(this, GroupCommand.RESIGN, info)
         } else {
             BaseGroupCommand.call(this, info)
         }
     };
+    var ResignGroupCommand = dkd.dkd.ResignGroupCommand;
     Class(ResignGroupCommand, BaseGroupCommand, [ResignCommand], null);
-    ns.dkd.cmd.InviteGroupCommand = InviteGroupCommand;
-    ns.dkd.cmd.ExpelGroupCommand = ExpelGroupCommand;
-    ns.dkd.cmd.JoinGroupCommand = JoinGroupCommand;
-    ns.dkd.cmd.QuitGroupCommand = QuitGroupCommand;
-    ns.dkd.cmd.ResetGroupCommand = ResetGroupCommand;
-    ns.dkd.cmd.QueryGroupCommand = QueryGroupCommand;
-    ns.dkd.cmd.HireGroupCommand = HireGroupCommand;
-    ns.dkd.cmd.FireGroupCommand = FireGroupCommand;
-    ns.dkd.cmd.ResignGroupCommand = ResignGroupCommand
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Class = ns.type.Class;
-    var Converter = ns.type.Converter;
-    var Envelope = ns.protocol.Envelope;
-    var Command = ns.protocol.Command;
-    var ReceiptCommand = ns.protocol.ReceiptCommand;
-    var BaseCommand = ns.dkd.cmd.BaseCommand;
-    var BaseReceiptCommand = function () {
+    dkd.dkd.BaseReceiptCommand = function () {
         if (arguments.length === 1) {
             BaseCommand.call(this, arguments[0])
         } else {
@@ -1623,6 +1555,7 @@ if (typeof DIMP !== "object") {
         }
         this.__env = null
     };
+    var BaseReceiptCommand = dkd.dkd.BaseReceiptCommand;
     Class(BaseReceiptCommand, BaseCommand, [ReceiptCommand], {
         getText: function () {
             return this.getString('text', '')
@@ -1649,65 +1582,8 @@ if (typeof DIMP !== "object") {
             return Converter.getString(origin['signature'], null)
         }
     });
-    ns.dkd.cmd.BaseReceiptCommand = BaseReceiptCommand
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Interface = ns.type.Interface;
-    var Class = ns.type.Class;
-    var Wrapper = ns.type.Wrapper;
-    var Converter = ns.type.Converter;
-    var Command = ns.protocol.Command;
-    var GeneralFactory = function () {
-        this.__commandFactories = {}
-    };
-    Class(GeneralFactory, null, null, {
-        setCommandFactory: function (cmd, factory) {
-            this.__commandFactories[cmd] = factory
-        }, getCommandFactory: function (cmd) {
-            return this.__commandFactories[cmd]
-        }, getCmd: function (content, defaultValue) {
-            return Converter.getString(content['command'], defaultValue)
-        }, parseCommand: function (content) {
-            if (!content) {
-                return null
-            } else if (Interface.conforms(content, Command)) {
-                return content
-            }
-            var info = Wrapper.fetchMap(content);
-            if (!info) {
-                return null
-            }
-            var cmd = this.getCmd(info, '');
-            var factory = this.getCommandFactory(cmd);
-            if (!factory) {
-                factory = default_factory(info)
-            }
-            return factory.parseCommand(info)
-        }
-    });
-    var default_factory = function (info) {
-        var man = ns.dkd.MessageFactoryManager;
-        var gf = man.generalFactory;
-        var type = gf.getContentType(info, 0);
-        var factory = gf.getContentFactory(type);
-        if (Interface.conforms(factory, Command.Factory)) {
-            return factory
-        }
-        return null
-    };
-    var FactoryManager = {generalFactory: new GeneralFactory()};
-    ns.dkd.cmd.CommandGeneralFactory = GeneralFactory;
-    ns.dkd.cmd.CommandFactoryManager = FactoryManager
-})(DIMP);
-(function (ns) {
-    'use strict';
-    var Class = ns.type.Class;
-    var Dictionary = ns.type.Dictionary;
-    var Converter = ns.type.Converter;
-    var ID = ns.protocol.ID;
-    var Envelope = ns.protocol.Envelope;
-    var MessageEnvelope = function () {
+    dkd.msg.MessageEnvelope = function () {
         var from, to, when;
         var env;
         if (arguments.length === 1) {
@@ -1737,6 +1613,7 @@ if (typeof DIMP !== "object") {
         this.__receiver = to;
         this.__time = when
     };
+    var MessageEnvelope = dkd.msg.MessageEnvelope;
     Class(MessageEnvelope, Dictionary, [Envelope], {
         getSender: function () {
             var sender = this.__sender;
@@ -1772,17 +1649,8 @@ if (typeof DIMP !== "object") {
             this.setValue('type', type)
         }
     });
-    ns.msg.MessageEnvelope = MessageEnvelope
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Interface = ns.type.Interface;
-    var Class = ns.type.Class;
-    var Dictionary = ns.type.Dictionary;
-    var ID = ns.protocol.ID;
-    var Envelope = ns.protocol.Envelope;
-    var Message = ns.protocol.Message;
-    var BaseMessage = function (msg) {
+    dkd.msg.BaseMessage = function (msg) {
         var env = null;
         if (Interface.conforms(msg, Envelope)) {
             env = msg;
@@ -1791,6 +1659,7 @@ if (typeof DIMP !== "object") {
         Dictionary.call(this, msg);
         this.__envelope = env
     };
+    var BaseMessage = dkd.msg.BaseMessage;
     Class(BaseMessage, Dictionary, [Message], {
         getEnvelope: function () {
             var env = this.__envelope;
@@ -1826,15 +1695,8 @@ if (typeof DIMP !== "object") {
         }
         return group.isBroadcast()
     };
-    ns.msg.BaseMessage = BaseMessage
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Class = ns.type.Class;
-    var Content = ns.protocol.Content;
-    var InstantMessage = ns.protocol.InstantMessage;
-    var BaseMessage = ns.msg.BaseMessage;
-    var PlainMessage = function () {
+    dkd.msg.PlainMessage = function () {
         var msg, head, body;
         if (arguments.length === 1) {
             msg = arguments[0];
@@ -1852,6 +1714,7 @@ if (typeof DIMP !== "object") {
         this.__envelope = head;
         this.__content = body
     };
+    var PlainMessage = dkd.msg.PlainMessage;
     Class(PlainMessage, BaseMessage, [InstantMessage], {
         getTime: function () {
             var body = this.getContent();
@@ -1879,39 +1742,31 @@ if (typeof DIMP !== "object") {
             this.__content = body
         }
     });
-    ns.msg.PlainMessage = PlainMessage
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Class = ns.type.Class;
-    var IObject = ns.type.Object;
-    var UTF8 = ns.format.UTF8;
-    var TransportableData = ns.format.TransportableData;
-    var SecureMessage = ns.protocol.SecureMessage;
-    var BaseMessage = ns.msg.BaseMessage;
-    var EncryptedMessage = function (msg) {
+    dkd.msg.EncryptedMessage = function (msg) {
         BaseMessage.call(this, msg);
         this.__data = null;
         this.__key = null;
         this.__keys = null
     };
+    var EncryptedMessage = dkd.msg.EncryptedMessage;
     Class(EncryptedMessage, BaseMessage, [SecureMessage], {
         getData: function () {
-            var data = this.__data;
-            if (!data) {
+            var binary = this.__data;
+            if (!binary) {
                 var base64 = this.getValue('data');
                 if (!base64) {
                     throw new ReferenceError('message data not found: ' + this);
                 } else if (!BaseMessage.isBroadcast(this)) {
-                    data = TransportableData.decode(base64)
+                    binary = TransportableData.decode(base64)
                 } else if (IObject.isString(base64)) {
-                    data = UTF8.encode(base64)
+                    binary = UTF8.encode(base64)
                 } else {
                     throw new ReferenceError('message data error: ' + base64);
                 }
-                this.__data = data
+                this.__data = binary
             }
-            return data
+            return binary
         }, getEncryptedKey: function () {
             var ted = this.__key;
             if (!ted) {
@@ -1936,18 +1791,12 @@ if (typeof DIMP !== "object") {
             return keys
         }
     });
-    ns.msg.EncryptedMessage = EncryptedMessage
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Class = ns.type.Class;
-    var TransportableData = ns.format.TransportableData;
-    var ReliableMessage = ns.protocol.ReliableMessage;
-    var EncryptedMessage = ns.msg.EncryptedMessage;
-    var NetworkMessage = function (msg) {
+    dkd.msg.NetworkMessage = function (msg) {
         EncryptedMessage.call(this, msg);
         this.__signature = null
     };
+    var NetworkMessage = dkd.msg.NetworkMessage;
     Class(NetworkMessage, EncryptedMessage, [ReliableMessage], {
         getSignature: function () {
             var ted = this.__signature;
@@ -1959,190 +1808,8 @@ if (typeof DIMP !== "object") {
             return !ted ? null : ted.getData()
         }
     });
-    ns.msg.NetworkMessage = NetworkMessage
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Interface = ns.type.Interface;
-    var UTF8 = ns.format.UTF8;
-    var Address = ns.protocol.Address;
-    var ID = ns.protocol.ID;
-    var Visa = ns.protocol.Visa;
-    var Bulletin = ns.protocol.Bulletin;
-    var getGroupSeed = function (group_id) {
-        var name = group_id.getName();
-        if (name) {
-            var len = name.length;
-            if (len === 0) {
-                return null
-            } else if (name === 8 && name.toLowerCase() === 'everyone') {
-                return null
-            }
-        }
-        return name
-    };
-    var getBroadcastFounder = function (group_id) {
-        var name = getGroupSeed(group_id);
-        if (!name) {
-            return ID.FOUNDER
-        } else {
-            return ID.parse(name + '.founder@anywhere')
-        }
-    };
-    var getBroadcastOwner = function (group_id) {
-        var name = getGroupSeed(group_id);
-        if (!name) {
-            return ID.ANYONE
-        } else {
-            return ID.parse(name + '.owner@anywhere')
-        }
-    };
-    var getBroadcastMembers = function (group_id) {
-        var name = getGroupSeed(group_id);
-        if (!name) {
-            return [ID.ANYONE]
-        } else {
-            var owner = ID.parse(name + '.owner@anywhere');
-            var member = ID.parse(name + '.member@anywhere');
-            return [owner, member]
-        }
-    };
-    var checkMeta = function (meta) {
-        var pKey = meta.getPublicKey();
-        if (!pKey) {
-            return false
-        }
-        var seed = meta.getSeed();
-        var fingerprint = meta.getFingerprint();
-        if (!seed || seed.length === 0) {
-            return !fingerprint || fingerprint.length === 0
-        } else if (!fingerprint || fingerprint.length === 0) {
-            return false
-        }
-        var data = UTF8.encode(seed);
-        return pKey.verify(data, fingerprint)
-    };
-    var matchIdentifier = function (identifier, meta) {
-        var seed = meta.getSeed();
-        var name = identifier.getName();
-        if (seed !== name) {
-            return false
-        }
-        var old = identifier.getAddress();
-        var gen = Address.generate(meta, old.getType());
-        return old.equals(gen)
-    };
-    var matchPublicKey = function (pKey, meta) {
-        if (meta.getPublicKey().equals(pKey)) {
-            return true
-        }
-        var seed = meta.getSeed();
-        if (seed && seed.length > 0) {
-            var data = UTF8.encode(seed);
-            var fingerprint = meta.getFingerprint();
-            return pKey.verify(data, fingerprint)
-        } else {
-            return false
-        }
-    };
-    var isBefore = function (oldTime, thisTime) {
-        if (!oldTime || !thisTime) {
-            return false
-        }
-        return thisTime.getTime() < oldTime.getTime()
-    };
-    var isExpired = function (thisDoc, oldDoc) {
-        var thisTime = thisDoc.getTime();
-        var oldTime = oldDoc.getTime();
-        return isBefore(oldTime, thisTime)
-    };
-    var lastDocument = function (documents, type) {
-        if (!documents || documents.length === 0) {
-            return null
-        } else if (!type || type === '*') {
-            type = ''
-        }
-        var checkType = type.length > 0;
-        var last = null;
-        var doc, docType, matched;
-        for (var i = 0; i < documents.length; ++i) {
-            doc = documents[i];
-            if (checkType) {
-                docType = doc.getType();
-                matched = !docType || docType.length === 0 || docType === type;
-                if (!matched) {
-                    continue
-                }
-            }
-            if (last != null && isExpired(doc, last)) {
-                continue
-            }
-            last = doc
-        }
-        return last
-    };
-    var lastVisa = function (documents) {
-        if (!documents || documents.length === 0) {
-            return null
-        }
-        var last = null
-        var doc, matched;
-        for (var i = 0; i < documents.length; ++i) {
-            doc = documents[i];
-            matched = Interface.conforms(doc, Visa);
-            if (!matched) {
-                continue
-            }
-            if (last != null && isExpired(doc, last)) {
-                continue
-            }
-            last = doc
-        }
-        return last
-    };
-    var lastBulletin = function (documents) {
-        if (!documents || documents.length === 0) {
-            return null
-        }
-        var last = null
-        var doc, matched;
-        for (var i = 0; i < documents.length; ++i) {
-            doc = documents[i];
-            matched = Interface.conforms(doc, Bulletin);
-            if (!matched) {
-                continue
-            }
-            if (last != null && isExpired(doc, last)) {
-                continue
-            }
-            last = doc
-        }
-        return last
-    };
-    ns.mkm.BroadcastHelper = {
-        getGroupSeed: getGroupSeed,
-        getBroadcastFounder: getBroadcastFounder,
-        getBroadcastOwner: getBroadcastOwner,
-        getBroadcastMembers: getBroadcastMembers
-    };
-    ns.mkm.MetaHelper = {checkMeta: checkMeta, matchIdentifier: matchIdentifier, matchPublicKey: matchPublicKey}
-    ns.mkm.DocumentHelper = {
-        isBefore: isBefore,
-        isExpired: isExpired,
-        lastDocument: lastDocument,
-        lastVisa: lastVisa,
-        lastBulletin: lastBulletin
-    }
-})(DIMP);
-(function (ns) {
-    'use strict';
-    var Class = ns.type.Class;
-    var Dictionary = ns.type.Dictionary;
-    var TransportableData = ns.format.TransportableData;
-    var PublicKey = ns.crypto.PublicKey;
-    var Meta = ns.protocol.Meta;
-    var MetaHelper = ns.mkm.MetaHelper;
-    var BaseMeta = function () {
+    mkm.mkm.BaseMeta = function () {
         var type, key, seed, fingerprint;
         var status;
         var meta;
@@ -2177,12 +1844,13 @@ if (typeof DIMP !== "object") {
         this.__fingerprint = fingerprint;
         this.__status = status
     };
+    var BaseMeta = mkm.mkm.BaseMeta;
     Class(BaseMeta, Dictionary, [Meta], {
         getType: function () {
             var type = this.__type;
             if (type === null) {
-                var man = ns.mkm.AccountFactoryManager;
-                type = man.generalFactory.getMetaType(this.toMap(), '');
+                var helper = SharedAccountExtensions.getHelper();
+                type = helper.getMetaType(this.toMap(), '');
                 this.__type = type
             }
             return type
@@ -2213,32 +1881,32 @@ if (typeof DIMP !== "object") {
             return !ted ? null : ted.getData()
         }, isValid: function () {
             if (this.__status === 0) {
-                if (MetaHelper.checkMeta(this)) {
+                if (this.checkValid()) {
                     this.__status = 1
                 } else {
                     this.__status = -1
                 }
             }
             return this.__status > 0
-        }, matchIdentifier: function (identifier) {
-            return MetaHelper.matchIdentifier(identifier, this)
-        }, matchPublicKey: function (pKey) {
-            return MetaHelper.matchPublicKey(pKey, this)
+        }, checkValid: function () {
+            var key = this.getPublicKey();
+            if (this.hasSeed()) {
+            } else if (this.getValue('seed') || this.getValue('fingerprint')) {
+                return false
+            } else {
+                return true
+            }
+            var name = this.getSeed();
+            var signature = this.getFingerprint();
+            if (!signature || !name) {
+                return false
+            }
+            var data = UTF8.encode(name);
+            return key.verify(data, signature)
         }
     });
-    ns.mkm.BaseMeta = BaseMeta
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Class = ns.type.Class;
-    var Dictionary = ns.type.Dictionary;
-    var Converter = ns.type.Converter;
-    var UTF8 = ns.format.UTF8;
-    var JsON = ns.format.JSON;
-    var TransportableData = ns.format.TransportableData;
-    var ID = ns.protocol.ID;
-    var Document = ns.protocol.Document;
-    var BaseDocument = function () {
+    mkm.mkm.BaseDocument = function () {
         var map, status;
         var identifier, data, signature;
         var properties;
@@ -2252,7 +1920,7 @@ if (typeof DIMP !== "object") {
         } else if (arguments.length === 2) {
             identifier = arguments[0];
             var type = arguments[1];
-            map = {'ID': identifier.toString()};
+            map = {'did': identifier.toString()};
             status = 0;
             data = null;
             signature = null;
@@ -2262,7 +1930,7 @@ if (typeof DIMP !== "object") {
             identifier = arguments[0];
             data = arguments[1];
             signature = arguments[2];
-            map = {'ID': identifier.toString(), 'data': data, 'signature': signature.toObject()}
+            map = {'did': identifier.toString(), 'data': data, 'signature': signature.toObject()}
             status = 1;
             properties = null
         } else {
@@ -2275,21 +1943,14 @@ if (typeof DIMP !== "object") {
         this.__properties = properties;
         this.__status = status
     };
+    var BaseDocument = mkm.mkm.BaseDocument;
     Class(BaseDocument, Dictionary, [Document], {
         isValid: function () {
             return this.__status > 0
-        }, getType: function () {
-            var type = this.getProperty('type');
-            if (!type) {
-                var man = ns.mkm.AccountFactoryManager;
-                var gf = man.generalFactory;
-                type = gf.getDocumentType(this.toMap(), null)
-            }
-            return type
         }, getIdentifier: function () {
             var did = this.__identifier;
             if (!did) {
-                did = ID.parse(this.getValue('ID'))
+                did = ID.parse(this.getValue('did'))
                 this.__identifier = did
             }
             return did
@@ -2319,7 +1980,7 @@ if (typeof DIMP !== "object") {
             if (!dict) {
                 var json = this.getData();
                 if (json) {
-                    dict = JsON.decode(json)
+                    dict = JSONMap.decode(json)
                 } else {
                     dict = {}
                 }
@@ -2335,7 +1996,8 @@ if (typeof DIMP !== "object") {
         }, setProperty: function (name, value) {
             this.__status = 0;
             var dict = this.allProperties();
-            if (value) {
+            if (!dict) {
+            } else if (value) {
                 dict[name] = value
             } else {
                 delete dict[name]
@@ -2372,7 +2034,7 @@ if (typeof DIMP !== "object") {
             if (!dict) {
                 return null
             }
-            var data = JsON.encode(dict);
+            var data = JSONMap.encode(dict);
             if (!data || data.length === 0) {
                 return null
             }
@@ -2397,30 +2059,21 @@ if (typeof DIMP !== "object") {
             this.setProperty('name', name)
         }
     });
-    ns.mkm.BaseDocument = BaseDocument
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Interface = ns.type.Interface;
-    var Class = ns.type.Class;
-    var EncryptKey = ns.crypto.EncryptKey;
-    var PublicKey = ns.crypto.PublicKey;
-    var PortableNetworkFile = ns.format.PortableNetworkFile;
-    var ID = ns.protocol.ID;
-    var Document = ns.protocol.Document;
-    var Visa = ns.protocol.Visa;
-    var BaseDocument = ns.mkm.BaseDocument;
-    var BaseVisa = function () {
+    mkm.mkm.BaseVisa = function () {
         if (arguments.length === 3) {
             BaseDocument.call(this, arguments[0], arguments[1], arguments[2])
         } else if (Interface.conforms(arguments[0], ID)) {
-            BaseDocument.call(this, arguments[0], Document.VISA)
+            BaseDocument.call(this, arguments[0], DocumentType.VISA)
         } else if (arguments.length === 1) {
             BaseDocument.call(this, arguments[0])
+        } else {
+            throw new SyntaxError('visa params error: ' + arguments);
         }
         this.__key = null;
         this.__avatar = null
     };
+    var BaseVisa = mkm.mkm.BaseVisa;
     Class(BaseVisa, BaseDocument, [Visa], {
         getPublicKey: function () {
             var key = this.__key;
@@ -2445,8 +2098,11 @@ if (typeof DIMP !== "object") {
             var pnf = this.__avatar;
             if (!pnf) {
                 var url = this.getProperty('avatar');
-                pnf = PortableNetworkFile.parse(url);
-                this.__avatar = pnf
+                if (typeof url === 'string' && url.length === 0) {
+                } else {
+                    pnf = PortableNetworkFile.parse(url);
+                    this.__avatar = pnf
+                }
             }
             return pnf
         }, setAvatar: function (pnf) {
@@ -2458,26 +2114,19 @@ if (typeof DIMP !== "object") {
             this.__avatar = pnf
         }
     });
-    ns.mkm.BaseVisa = BaseVisa
-})(DIMP);
-(function (ns) {
-    'use strict';
-    var Interface = ns.type.Interface;
-    var Class = ns.type.Class;
-    var ID = ns.protocol.ID;
-    var Document = ns.protocol.Document;
-    var Bulletin = ns.protocol.Bulletin;
-    var BaseDocument = ns.mkm.BaseDocument;
-    var BaseBulletin = function () {
+    mkm.mkm.BaseBulletin = function () {
         if (arguments.length === 3) {
             BaseDocument.call(this, arguments[0], arguments[1], arguments[2])
         } else if (Interface.conforms(arguments[0], ID)) {
-            BaseDocument.call(this, arguments[0], Document.BULLETIN)
+            BaseDocument.call(this, arguments[0], DocumentType.BULLETIN)
         } else if (arguments.length === 1) {
             BaseDocument.call(this, arguments[0])
+        } else {
+            throw new SyntaxError('bulletin params error: ' + arguments);
         }
         this.__assistants = null
     };
+    var BaseBulletin = mkm.mkm.BaseBulletin;
     Class(BaseBulletin, BaseDocument, [Bulletin], {
         getFounder: function () {
             return ID.parse(this.getProperty('founder'))
@@ -2504,527 +2153,42 @@ if (typeof DIMP !== "object") {
             this.__assistants = bots
         }
     });
-    ns.mkm.BaseBulletin = BaseBulletin
-})(DIMP);
-(function (ns) {
     'use strict';
-    var Interface = ns.type.Interface;
-    var IObject = ns.type.Object;
-    var Entity = Interface(null, [IObject]);
-    Entity.prototype.getIdentifier = function () {
+    dkd.plugins.CommandHelper = Interface(null, null);
+    var CommandHelper = dkd.plugins.CommandHelper;
+    CommandHelper.prototype = {
+        setCommandFactory: function (cmd, factory) {
+        }, getCommandFactory: function (cmd) {
+        }, parseCommand: function (content) {
+        }
     };
-    Entity.prototype.getType = function () {
+    dkd.plugins.CommandExtensions = {
+        setCommandHelper: function (helper) {
+            cmdHelper = helper
+        }, getCommandHelper: function () {
+            return cmdHelper
+        }
     };
-    Entity.prototype.getMeta = function () {
-    };
-    Entity.prototype.getDocuments = function () {
-    };
-    Entity.prototype.setDataSource = function (barrack) {
-    };
-    Entity.prototype.getDataSource = function () {
-    };
-    var EntityDataSource = Interface(null, null);
-    EntityDataSource.prototype.getMeta = function (identifier) {
-    };
-    EntityDataSource.prototype.getDocuments = function (identifier) {
-    };
-    var EntityDelegate = Interface(null, null);
-    EntityDelegate.prototype.getUser = function (identifier) {
-    };
-    EntityDelegate.prototype.getGroup = function (identifier) {
-    };
-    Entity.DataSource = EntityDataSource;
-    Entity.Delegate = EntityDelegate;
-    ns.mkm.Entity = Entity;
-    ns.mkm.EntityDelegate = EntityDelegate;
-    ns.mkm.EntityDataSource = EntityDataSource
-})(DIMP);
-(function (ns) {
+    var CommandExtensions = dkd.plugins.CommandExtensions;
+    var cmdHelper = null;
     'use strict';
-    var Interface = ns.type.Interface;
-    var Class = ns.type.Class;
-    var BaseObject = ns.type.BaseObject;
-    var Entity = ns.mkm.Entity;
-    var BaseEntity = function (identifier) {
-        BaseObject.call(this);
-        this.__identifier = identifier;
-        this.__barrack = null
-    };
-    Class(BaseEntity, BaseObject, [Entity], null);
-    BaseEntity.prototype.equals = function (other) {
-        if (this === other) {
-            return true
-        } else if (!other) {
-            return false
-        } else if (Interface.conforms(other, Entity)) {
-            other = other.getIdentifier()
+    dkd.plugins.GeneralCommandHelper = Interface(null, null);
+    var GeneralCommandHelper = dkd.plugins.GeneralCommandHelper;
+    GeneralCommandHelper.prototype = {
+        getCmd: function (content, defaultValue) {
         }
-        return this.__identifier.equals(other)
     };
-    BaseEntity.prototype.valueOf = function () {
-        return desc.call(this)
-    };
-    BaseEntity.prototype.toString = function () {
-        return desc.call(this)
-    };
-    var desc = function () {
-        var clazz = Object.getPrototypeOf(this).constructor.name;
-        var id = this.__identifier;
-        var network = id.getAddress().getType();
-        return '<' + clazz + ' id="' + id.toString() + '" network="' + network + '" />'
-    };
-    BaseEntity.prototype.setDataSource = function (barrack) {
-        this.__barrack = barrack
-    };
-    BaseEntity.prototype.getDataSource = function () {
-        return this.__barrack
-    };
-    BaseEntity.prototype.getIdentifier = function () {
-        return this.__identifier
-    };
-    BaseEntity.prototype.getType = function () {
-        return this.__identifier.getType()
-    };
-    BaseEntity.prototype.getMeta = function () {
-        var delegate = this.getDataSource();
-        return delegate.getMeta(this.__identifier)
-    };
-    BaseEntity.prototype.getDocuments = function () {
-        var delegate = this.getDataSource();
-        return delegate.getDocuments(this.__identifier)
-    };
-    ns.mkm.BaseEntity = BaseEntity
-})(DIMP);
-(function (ns) {
-    'use strict';
-    var Interface = ns.type.Interface;
-    var Entity = ns.mkm.Entity;
-    var User = Interface(null, [Entity]);
-    User.prototype.getVisa = function () {
-    };
-    User.prototype.getContacts = function () {
-    };
-    User.prototype.verify = function (data, signature) {
-    };
-    User.prototype.encrypt = function (plaintext) {
-    };
-    User.prototype.sign = function (data) {
-    };
-    User.prototype.decrypt = function (ciphertext) {
-    };
-    User.prototype.signVisa = function (doc) {
-    };
-    User.prototype.verifyVisa = function (doc) {
-    };
-    var UserDataSource = Interface(null, [Entity.DataSource]);
-    UserDataSource.prototype.getContacts = function (identifier) {
-    };
-    UserDataSource.prototype.getPublicKeyForEncryption = function (identifier) {
-    };
-    UserDataSource.prototype.getPublicKeysForVerification = function (identifier) {
-    };
-    UserDataSource.prototype.getPrivateKeysForDecryption = function (identifier) {
-    };
-    UserDataSource.prototype.getPrivateKeyForSignature = function (identifier) {
-    };
-    UserDataSource.prototype.getPrivateKeyForVisaSignature = function (identifier) {
-    };
-    User.DataSource = UserDataSource;
-    ns.mkm.User = User
-})(DIMP);
-(function (ns) {
-    'use strict';
-    var Class = ns.type.Class;
-    var User = ns.mkm.User;
-    var BaseEntity = ns.mkm.BaseEntity;
-    var DocumentHelper = ns.mkm.DocumentHelper;
-    var BaseUser = function (identifier) {
-        BaseEntity.call(this, identifier)
-    };
-    Class(BaseUser, BaseEntity, [User], {
-        getVisa: function () {
-            var docs = this.getDocuments();
-            return DocumentHelper.lastVisa(docs)
-        }, getContacts: function () {
-            var barrack = this.getDataSource();
-            var user = this.getIdentifier();
-            return barrack.getContacts(user)
-        }, verify: function (data, signature) {
-            var barrack = this.getDataSource();
-            var user = this.getIdentifier();
-            var keys = barrack.getPublicKeysForVerification(user);
-            for (var i = 0; i < keys.length; ++i) {
-                if (keys[i].verify(data, signature)) {
-                    return true
-                }
-            }
-            return false
-        }, encrypt: function (plaintext) {
-            var barrack = this.getDataSource();
-            var user = this.getIdentifier();
-            var key = barrack.getPublicKeyForEncryption(user);
-            return key.encrypt(plaintext)
-        }, sign: function (data) {
-            var barrack = this.getDataSource();
-            var user = this.getIdentifier();
-            var key = barrack.getPrivateKeyForSignature(user);
-            return key.sign(data)
-        }, decrypt: function (ciphertext) {
-            var barrack = this.getDataSource();
-            var user = this.getIdentifier();
-            var keys = barrack.getPrivateKeysForDecryption(user);
-            var plaintext;
-            for (var i = 0; i < keys.length; ++i) {
-                try {
-                    plaintext = keys[i].decrypt(ciphertext);
-                    if (plaintext && plaintext.length > 0) {
-                        return plaintext
-                    }
-                } catch (e) {
-                }
-            }
-            return null
-        }, signVisa: function (doc) {
-            var user = this.getIdentifier();
-            var barrack = this.getDataSource();
-            var key = barrack.getPrivateKeyForVisaSignature(user);
-            var sig = doc.sign(key);
-            if (!sig) {
-                return null
-            }
-            return doc
-        }, verifyVisa: function (doc) {
-            var uid = this.getIdentifier();
-            if (!uid.equals(doc.getIdentifier())) {
-                return false
-            }
-            var meta = this.getMeta();
-            var key = meta.getPublicKey();
-            return doc.verify(key)
+    dkd.plugins.SharedCommandExtensions = {
+        setCommandHelper: function (helper) {
+            CommandExtensions.setCommandHelper(helper)
+        }, getCommandHelper: function () {
+            return CommandExtensions.getCommandHelper()
+        }, setHelper: function (helper) {
+            generalCommandHelper = helper
+        }, getHelper: function () {
+            return generalCommandHelper
         }
-    });
-    ns.mkm.BaseUser = BaseUser
-})(DIMP);
-(function (ns) {
-    'use strict';
-    var Interface = ns.type.Interface;
-    var Entity = ns.mkm.Entity;
-    var Group = Interface(null, [Entity]);
-    Group.prototype.getBulletin = function () {
     };
-    Group.prototype.getFounder = function () {
-    };
-    Group.prototype.getOwner = function () {
-    };
-    Group.prototype.getMembers = function () {
-    };
-    Group.prototype.getAssistants = function () {
-    };
-    var GroupDataSource = Interface(null, [Entity.DataSource]);
-    GroupDataSource.prototype.getFounder = function (identifier) {
-    };
-    GroupDataSource.prototype.getOwner = function (identifier) {
-    };
-    GroupDataSource.prototype.getMembers = function (identifier) {
-    };
-    GroupDataSource.prototype.getAssistants = function (identifier) {
-    };
-    Group.DataSource = GroupDataSource;
-    ns.mkm.Group = Group
-})(DIMP);
-(function (ns) {
-    'use strict';
-    var Class = ns.type.Class;
-    var Group = ns.mkm.Group;
-    var BaseEntity = ns.mkm.BaseEntity;
-    var DocumentHelper = ns.mkm.DocumentHelper;
-    var BaseGroup = function (identifier) {
-        BaseEntity.call(this, identifier);
-        this.__founder = null
-    };
-    Class(BaseGroup, BaseEntity, [Group], {
-        getBulletin: function () {
-            var docs = this.getDocuments();
-            return DocumentHelper.lastBulletin(docs)
-        }, getFounder: function () {
-            var founder = this.__founder;
-            if (!founder) {
-                var barrack = this.getDataSource();
-                var group = this.getIdentifier();
-                founder = barrack.getFounder(group);
-                this.__founder = founder
-            }
-            return founder
-        }, getOwner: function () {
-            var barrack = this.getDataSource();
-            var group = this.getIdentifier();
-            return barrack.getOwner(group)
-        }, getMembers: function () {
-            var barrack = this.getDataSource();
-            var group = this.getIdentifier();
-            return barrack.getMembers(group)
-        }, getAssistants: function () {
-            var barrack = this.getDataSource();
-            var group = this.getIdentifier();
-            return barrack.getAssistants(group)
-        }
-    });
-    ns.mkm.BaseGroup = BaseGroup
-})(DIMP);
-(function (ns) {
-    'use strict';
-    var Interface = ns.type.Interface;
-    var Class = ns.type.Class;
-    var EncryptKey = ns.crypto.EncryptKey;
-    var VerifyKey = ns.crypto.VerifyKey;
-    var EntityType = ns.protocol.EntityType;
-    var Entity = ns.mkm.Entity;
-    var User = ns.mkm.User;
-    var Group = ns.mkm.Group;
-    var DocumentHelper = ns.mkm.DocumentHelper;
-    var BroadcastHelper = ns.mkm.BroadcastHelper;
-    var Barrack = function () {
-        Object.call(this);
-        this.__users = {};
-        this.__groups = {}
-    };
-    Class(Barrack, Object, [Entity.Delegate, User.DataSource, Group.DataSource], {
-        cacheUser: function (user) {
-            var delegate = user.getDataSource();
-            if (!delegate) {
-                user.setDataSource(this)
-            }
-            this.__users[user.getIdentifier()] = user
-        }, cacheGroup: function (group) {
-            var delegate = group.getDataSource();
-            if (!delegate) {
-                group.setDataSource(this)
-            }
-            this.__groups[group.getIdentifier()] = group
-        }, reduceMemory: function () {
-            var finger = 0;
-            finger = thanos(this.__users, finger);
-            finger = thanos(this.__groups, finger);
-            return finger >> 1
-        }, createUser: function (identifier) {
-        }, createGroup: function (identifier) {
-        }, getVisaKey: function (identifier) {
-            var doc = this.getVisa(identifier);
-            return !doc ? null : doc.getPublicKey()
-        }, getMetaKey: function (identifier) {
-            var meta = this.getMeta(identifier);
-            return !meta ? null : meta.getPublicKey()
-        }, getVisa: function (identifier) {
-            return DocumentHelper.lastVisa(this.getDocuments(identifier))
-        }, getBulletin: function (identifier) {
-            return DocumentHelper.lastBulletin(this.getDocuments(identifier))
-        }, getUser: function (identifier) {
-            var user = this.__users[identifier];
-            if (!user) {
-                user = this.createUser(identifier);
-                if (user) {
-                    this.cacheUser(user)
-                }
-            }
-            return user
-        }, getGroup: function (identifier) {
-            var group = this.__groups[identifier];
-            if (!group) {
-                group = this.createGroup(identifier);
-                if (group) {
-                    this.cacheGroup(group)
-                }
-            }
-            return group
-        }, getPublicKeyForEncryption: function (identifier) {
-            var key = this.getVisaKey(identifier);
-            if (key) {
-                return key
-            }
-            key = this.getMetaKey(identifier);
-            if (Interface.conforms(key, EncryptKey)) {
-                return key
-            }
-            return null
-        }, getPublicKeysForVerification: function (identifier) {
-            var keys = [];
-            var key = this.getVisaKey(identifier);
-            if (Interface.conforms(key, VerifyKey)) {
-                keys.push(key)
-            }
-            key = this.getMetaKey(identifier);
-            if (key) {
-                keys.push(key)
-            }
-            return keys
-        }, getFounder: function (group) {
-            if (group.isBroadcast()) {
-                return BroadcastHelper.getBroadcastFounder(group)
-            }
-            var doc = this.getBulletin(group);
-            if (doc) {
-                return doc.getFounder()
-            }
-            return null
-        }, getOwner: function (group) {
-            if (group.isBroadcast()) {
-                return BroadcastHelper.getBroadcastOwner(group)
-            }
-            if (EntityType.GROUP.equals(group.getType())) {
-                return this.getFounder(group)
-            }
-            return null
-        }, getMembers: function (group) {
-            if (group.isBroadcast()) {
-                return BroadcastHelper.getBroadcastMembers(group)
-            }
-            return []
-        }, getAssistants: function (group) {
-            var doc = this.getBulletin(group);
-            if (doc) {
-                var bots = doc.getAssistants();
-                if (bots) {
-                    return bots
-                }
-            }
-            return []
-        }
-    });
-    var thanos = function (planet, finger) {
-        var keys = Object.keys(planet);
-        var k, p;
-        for (var i = 0; i < keys.length; ++i) {
-            k = keys[i];
-            p = planet[k];
-            finger += 1;
-            if ((finger & 1) === 1) {
-                delete planet[k]
-            }
-        }
-        return finger
-    };
-    ns.Barrack = Barrack;
-    ns.mkm.thanos = thanos
-})(DIMP);
-(function (ns) {
-    'use strict';
-    var Interface = ns.type.Interface;
-    var Packer = Interface(null, null);
-    Packer.prototype.encryptMessage = function (iMsg) {
-    };
-    Packer.prototype.signMessage = function (sMsg) {
-    };
-    Packer.prototype.serializeMessage = function (rMsg) {
-    };
-    Packer.prototype.deserializeMessage = function (data) {
-    };
-    Packer.prototype.verifyMessage = function (rMsg) {
-    };
-    Packer.prototype.decryptMessage = function (sMsg) {
-    };
-    ns.Packer = Packer
-})(DIMP);
-(function (ns) {
-    'use strict';
-    var Interface = ns.type.Interface;
-    var Processor = Interface(null, null);
-    Processor.prototype.processPackage = function (data) {
-    };
-    Processor.prototype.processReliableMessage = function (rMsg) {
-    };
-    Processor.prototype.processSecureMessage = function (sMsg, rMsg) {
-    };
-    Processor.prototype.processInstantMessage = function (iMsg, rMsg) {
-    };
-    Processor.prototype.processContent = function (content, rMsg) {
-    };
-    ns.Processor = Processor
-})(DIMP);
-(function (ns) {
-    'use strict';
-    var Class = ns.type.Class;
-    var UTF8 = ns.format.UTF8;
-    var JsON = ns.format.JSON;
-    var SymmetricKey = ns.crypto.SymmetricKey;
-    var Content = ns.protocol.Content;
-    var InstantMessage = ns.protocol.InstantMessage;
-    var SecureMessage = ns.protocol.SecureMessage;
-    var ReliableMessage = ns.protocol.ReliableMessage;
-    var BaseMessage = ns.msg.BaseMessage;
-    var Transceiver = function () {
-        Object.call(this)
-    };
-    Class(Transceiver, Object, [InstantMessage.Delegate, SecureMessage.Delegate, ReliableMessage.Delegate], null);
-    Transceiver.prototype.getEntityDelegate = function () {
-    };
-    Transceiver.prototype.serializeContent = function (content, pwd, iMsg) {
-        var dict = content.toMap();
-        var json = JsON.encode(dict);
-        return UTF8.encode(json)
-    };
-    Transceiver.prototype.encryptContent = function (data, pwd, iMsg) {
-        return pwd.encrypt(data, iMsg.toMap())
-    };
-    Transceiver.prototype.serializeKey = function (pwd, iMsg) {
-        if (BaseMessage.isBroadcast(iMsg)) {
-            return null
-        }
-        var dict = pwd.toMap();
-        var json = JsON.encode(dict);
-        return UTF8.encode(json)
-    };
-    Transceiver.prototype.encryptKey = function (keyData, receiver, iMsg) {
-        var barrack = this.getEntityDelegate();
-        var contact = barrack.getUser(receiver);
-        if (!contact) {
-            return null
-        }
-        return contact.encrypt(keyData)
-    };
-    Transceiver.prototype.decryptKey = function (keyData, receiver, sMsg) {
-        var barrack = this.getEntityDelegate();
-        var user = barrack.getUser(receiver);
-        if (!user) {
-            return null
-        }
-        return user.decrypt(keyData)
-    };
-    Transceiver.prototype.deserializeKey = function (keyData, sMsg) {
-        if (!keyData) {
-            return null
-        }
-        var json = UTF8.decode(keyData);
-        if (!json) {
-            return null
-        }
-        var dict = JsON.decode(json);
-        return SymmetricKey.parse(dict)
-    };
-    Transceiver.prototype.decryptContent = function (data, pwd, sMsg) {
-        return pwd.decrypt(data, sMsg.toMap())
-    };
-    Transceiver.prototype.deserializeContent = function (data, pwd, sMsg) {
-        var json = UTF8.decode(data);
-        if (!json) {
-            return null
-        }
-        var dict = JsON.decode(json);
-        return Content.parse(dict)
-    };
-    Transceiver.prototype.signData = function (data, sMsg) {
-        var barrack = this.getEntityDelegate();
-        var sender = sMsg.getSender();
-        var user = barrack.getUser(sender);
-        return user.sign(data)
-    };
-    Transceiver.prototype.verifyDataSignature = function (data, signature, rMsg) {
-        var barrack = this.getEntityDelegate();
-        var sender = rMsg.getSender();
-        var contact = barrack.getUser(sender);
-        if (!contact) {
-            return false
-        }
-        return contact.verify(data, signature)
-    };
-    ns.Transceiver = Transceiver
-})(DIMP);
+    var SharedCommandExtensions = dkd.plugins.SharedCommandExtensions;
+    var generalCommandHelper = null
+})(DaoKeDao, MingKeMing, MONKEY);

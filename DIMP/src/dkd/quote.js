@@ -30,26 +30,26 @@
 // =============================================================================
 //
 
-//! require 'protocol/receipt.js'
+//! require 'protocol/quote.js'
 //! require 'base.js'
 
     /**
      *  Create receipt command
      *
      *  Usages:
-     *      1. new BaseMetaCommand(map);
-     *      2. new BaseMetaCommand(text, origin);
+     *      1. new BaseQuoteContent(map);
+     *      2. new BaseQuoteContent(text, origin);
      */
-    dkd.dkd.BaseReceiptCommand = function () {
+    dkd.dkd.BaseQuoteContent = function () {
         if (arguments.length === 1) {
-            // new BaseReceiptCommand(map);
-            BaseCommand.call(this, arguments[0]);
+            // new BaseQuoteContent(map);
+            BaseContent.call(this, arguments[0]);
         } else {
-            // new BaseReceiptCommand(text, origin);
-            BaseCommand.call(this, Command.RECEIPT);
+            // new BaseQuoteContent(text, origin);
+            BaseContent.call(this, Command.RECEIPT);
             this.setValue('text', arguments[0]);
-            // original envelope of message responding to,
-            // includes 'sn' and 'signature'
+            // original envelope of message quote with,
+            // includes 'sender', 'receiver', 'type' and 'sn'
             var origin = arguments[1];
             if (origin) {
                 this.setValue('origin', origin);
@@ -57,9 +57,9 @@
         }
         this.__env = null;
     };
-    var BaseReceiptCommand = dkd.dkd.BaseReceiptCommand;
+    var BaseQuoteContent = dkd.dkd.BaseQuoteContent;
 
-    Class(BaseReceiptCommand, BaseCommand, [ReceiptCommand], {
+    Class(BaseQuoteContent, BaseContent, [QuoteContent], {
 
         // Override
         getText: function () {
@@ -89,14 +89,5 @@
                 return null;
             }
             return Converter.getInt(origin['sn'], null);
-        },
-
-        // Override
-        getOriginalSignature: function () {
-            var origin = this.getOrigin();
-            if (!origin) {
-                return null;
-            }
-            return Converter.getString(origin['signature'], null);
         }
     });
