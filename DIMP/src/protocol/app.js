@@ -38,22 +38,14 @@
      *      sn   : 123,
      *
      *      app   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
-     *      mod   : "{MODULE}",  // module name (e.g.: "drift_bottle")
-     *      act   : "{ACTION}",  // action name (e.g.: "throw")
-     *      extra : info         // action parameters
+     *      extra : info         // others
      *  }
      */
-    dkd.protocol.ApplicationContent = Interface(null, [Content]);
-    var ApplicationContent = dkd.protocol.ApplicationContent;
+    dkd.protocol.AppContent = Interface(null, [Content]);
+    var AppContent = dkd.protocol.AppContent;
 
     // get App ID
-    ApplicationContent.prototype.getApplication = function () {};
-
-    // get Module name
-    ApplicationContent.prototype.getModule = function () {};
-
-    // get Action name
-    ApplicationContent.prototype.getAction = function () {};
+    AppContent.prototype.getApplication = function () {};
 
 
     /**
@@ -67,8 +59,14 @@
      *      extra : info         // action parameters
      *  }
      */
-    dkd.protocol.CustomizedContent = Interface(null, [ApplicationContent]);
+    dkd.protocol.CustomizedContent = Interface(null, [AppContent]);
     var CustomizedContent = dkd.protocol.CustomizedContent;
+
+    // get Module name
+    CustomizedContent.prototype.getModule = function () {};
+
+    // get Action name
+    CustomizedContent.prototype.getAction = function () {};
 
     //
     //  Factory

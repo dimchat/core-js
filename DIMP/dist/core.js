@@ -2,12 +2,15 @@
  * DIMP - Decentralized Instant Messaging Protocol (v2.0.0)
  *
  * @author    moKy <albert.moky at gmail.com>
- * @date      Aug. 12, 2025
+ * @date      Aug. 17, 2025
  * @copyright (c) 2020-2025 Albert Moky
  * @license   {@link https://mit-license.org | MIT License}
  */;
 (function (dkd, mkm, mk) {
     'use strict';
+    if (typeof mk.crypto !== 'object') {
+        mk.crypto = {}
+    }
     if (typeof dkd.dkd !== 'object') {
         dkd.dkd = {}
     }
@@ -19,263 +22,70 @@
     var IObject = mk.type.Object;
     var Dictionary = mk.type.Dictionary;
     var Converter = mk.type.Converter;
-    var CryptographyKey = mk.crypto.CryptographyKey;
-    var EncryptKey = mk.crypto.EncryptKey;
-    var SymmetricKey = mk.crypto.SymmetricKey;
-    var AsymmetricKey = mk.crypto.AsymmetricKey;
-    var PrivateKey = mk.crypto.PrivateKey;
-    var PublicKey = mk.crypto.PublicKey;
     var Base64 = mk.format.Base64;
     var Base58 = mk.format.Base58;
     var Hex = mk.format.Hex;
     var UTF8 = mk.format.UTF8;
     var JSONMap = mk.format.JSONMap;
-    var TransportableData = mk.format.TransportableData;
-    var PortableNetworkFile = mk.format.PortableNetworkFile;
-    var GeneralCryptoHelper = mk.plugins.GeneralCryptoHelper;
-    var SharedCryptoExtensions = mk.plugins.SharedCryptoExtensions;
+    var TransportableData = mk.protocol.TransportableData;
+    var PortableNetworkFile = mk.protocol.PortableNetworkFile;
+    var CryptographyKey = mk.protocol.CryptographyKey;
+    var EncryptKey = mk.protocol.EncryptKey;
+    var SymmetricKey = mk.protocol.SymmetricKey;
+    var AsymmetricKey = mk.protocol.AsymmetricKey;
+    var PrivateKey = mk.protocol.PrivateKey;
+    var PublicKey = mk.protocol.PublicKey;
+    var GeneralCryptoHelper = mk.ext.GeneralCryptoHelper;
+    var SharedCryptoExtensions = mk.ext.SharedCryptoExtensions;
     var ID = mkm.protocol.ID;
     var Meta = mkm.protocol.Meta;
     var Document = mkm.protocol.Document;
-    var SharedAccountExtensions = mkm.plugins.SharedAccountExtensions;
+    var SharedAccountExtensions = mkm.ext.SharedAccountExtensions;
     var Envelope = dkd.protocol.Envelope;
     var Content = dkd.protocol.Content;
     var Message = dkd.protocol.Message;
     var InstantMessage = dkd.protocol.InstantMessage;
     var SecureMessage = dkd.protocol.SecureMessage;
     var ReliableMessage = dkd.protocol.ReliableMessage;
-    var SharedMessageExtensions = dkd.plugins.SharedMessageExtensions;
+    var SharedMessageExtensions = dkd.ext.SharedMessageExtensions;
     'use strict';
-    mk.crypto.AsymmetricAlgorithms = {RSA: 'RSA', ECC: 'ECC'};
-    var AsymmetricAlgorithms = mk.crypto.AsymmetricAlgorithms;
-    mk.crypto.SymmetricAlgorithms = {AES: 'AES', DES: 'DES', PLAIN: 'PLAIN'};
-    var SymmetricAlgorithms = mk.crypto.SymmetricAlgorithms;
-    mk.format.EncodeAlgorithms = {DEFAULT: 'base64', BASE_64: 'base64', BASE_58: 'base58', HEX: 'hex'};
-    var EncodeAlgorithms = mk.format.EncodeAlgorithms;
+    mk.protocol.AsymmetricAlgorithms = {RSA: 'RSA', ECC: 'ECC'};
+    var AsymmetricAlgorithms = mk.protocol.AsymmetricAlgorithms;
+    mk.protocol.SymmetricAlgorithms = {AES: 'AES', DES: 'DES', PLAIN: 'PLAIN'};
+    var SymmetricAlgorithms = mk.protocol.SymmetricAlgorithms;
+    mk.protocol.EncodeAlgorithms = {DEFAULT: 'base64', BASE_64: 'base64', BASE_58: 'base58', HEX: 'hex'};
+    var EncodeAlgorithms = mk.protocol.EncodeAlgorithms;
     'use strict';
-    mk.crypto.BaseKey = function (dict) {
-        Dictionary.call(this, dict)
+    mkm.protocol.MetaType = {
+        DEFAULT: '' + (1),
+        MKM: '' + (1),
+        BTC: '' + (2),
+        ExBTC: '' + (3),
+        ETH: '' + (4),
+        ExETH: '' + (5)
     };
-    var BaseKey = mk.crypto.BaseKey;
-    Class(BaseKey, Dictionary, [CryptographyKey], {
-        getAlgorithm: function () {
-            return BaseKey.getKeyAlgorithm(this.toMap())
-        }
-    });
-    BaseKey.getKeyAlgorithm = function (key) {
-        var helper = SharedCryptoExtensions.getHelper();
-        var algorithm = helper.getKeyAlgorithm(key);
-        return algorithm ? algorithm : ''
-    };
-    BaseKey.matchEncryptKey = function (pKey, sKey) {
-        return GeneralCryptoHelper.matchSymmetricKeys(pKey, sKey)
-    };
-    BaseKey.matchSignKey = function (sKey, pKey) {
-        return GeneralCryptoHelper.matchAsymmetricKeys(sKey, pKey)
-    };
-    BaseKey.symmetricKeyEquals = function (key1, key2) {
-        if (key1 === key2) {
-            return true
-        }
-        return BaseKey.matchEncryptKey(key1, key2)
-    };
-    BaseKey.privateKeyEquals = function (key1, key2) {
-        if (key1 === key2) {
-            return true
-        }
-        return BaseKey.matchSignKey(key1, key2)
-    };
-    mk.crypto.BaseSymmetricKey = function (dict) {
-        Dictionary.call(this, dict)
-    };
-    var BaseSymmetricKey = mk.crypto.BaseSymmetricKey;
-    Class(BaseSymmetricKey, Dictionary, [SymmetricKey], {
-        equals: function (other) {
-            return Interface.conforms(other, SymmetricKey) && BaseKey.symmetricKeyEquals(other, this)
-        }, matchEncryptKey: function (pKey) {
-            return BaseKey.matchEncryptKey(pKey, this)
-        }, getAlgorithm: function () {
-            return BaseKey.getKeyAlgorithm(this.toMap())
-        }
-    });
-    mk.crypto.BaseAsymmetricKey = function (dict) {
-        Dictionary.call(this, dict)
-    };
-    var BaseAsymmetricKey = mk.crypto.BaseAsymmetricKey;
-    Class(BaseAsymmetricKey, Dictionary, [AsymmetricKey], {
-        getAlgorithm: function () {
-            return BaseKey.getKeyAlgorithm(this.toMap())
-        }
-    });
-    mk.crypto.BasePrivateKey = function (dict) {
-        Dictionary.call(this, dict)
-    };
-    var BasePrivateKey = mk.crypto.BasePrivateKey;
-    Class(BasePrivateKey, Dictionary, [PrivateKey], {
-        equals: function (other) {
-            return Interface.conforms(other, PrivateKey) && BaseKey.privateKeyEquals(other, this)
-        }, getAlgorithm: function () {
-            return BaseKey.getKeyAlgorithm(this.toMap())
-        }
-    });
-    mk.crypto.BasePublicKey = function (dict) {
-        Dictionary.call(this, dict)
-    };
-    var BasePublicKey = mk.crypto.BasePublicKey;
-    Class(BasePublicKey, Dictionary, [PublicKey], {
-        matchSignKey: function (sKey) {
-            return BaseKey.matchSignKey(sKey, this)
-        }, getAlgorithm: function () {
-            return BaseKey.getKeyAlgorithm(this.toMap())
-        }
-    });
+    var MetaType = mkm.protocol.MetaType;
+    mkm.protocol.DocumentType = {VISA: 'visa', PROFILE: 'profile', BULLETIN: 'bulletin'};
+    var DocumentType = mkm.protocol.DocumentType;
     'use strict';
-    mk.format.BaseDataWrapper = function (dict) {
-        Dictionary.call(this, dict);
-        this.__data = null
+    mkm.protocol.Visa = Interface(null, [Document]);
+    var Visa = mkm.protocol.Visa;
+    Visa.prototype.getPublicKey = function () {
     };
-    var BaseDataWrapper = mk.format.BaseDataWrapper;
-    Class(BaseDataWrapper, Dictionary, null, {
-        toString: function () {
-            var encoded = this.getString('data', null);
-            if (!encoded) {
-                return ''
-            }
-            var alg = this.getString('algorithm', null);
-            if (!alg || alg === TransportableData.DEFAULT) {
-                alg = ''
-            }
-            if (alg === '') {
-                return encoded
-            } else {
-                return alg + ',' + encoded
-            }
-        }, encode: function (mimeType) {
-            var encoded = this.getString('data', null);
-            if (!encoded) {
-                return ''
-            }
-            var alg = this.getAlgorithm();
-            return 'data:' + mimeType + ';' + alg + ',' + encoded
-        }, getAlgorithm: function () {
-            var alg = this.getString('algorithm', null);
-            if (!alg) {
-                alg = TransportableData.DEFAULT
-            }
-            return alg
-        }, setAlgorithm: function (name) {
-            if (!name) {
-                this.removeValue('algorithm')
-            } else {
-                this.setValue('algorithm', name)
-            }
-        }, getData: function () {
-            var bin = this.__data;
-            if (!bin) {
-                var encoded = this.getString('data', null);
-                if (!encoded) {
-                    return null
-                } else {
-                    var alg = this.getAlgorithm();
-                    if (alg === EncodeAlgorithms.BASE_64) {
-                        bin = Base64.decode(encoded)
-                    } else if (alg === EncodeAlgorithms.BASE_58) {
-                        bin = Base58.decode(encoded)
-                    } else if (alg === EncodeAlgorithms.HEX) {
-                        bin = Hex.decode(encoded)
-                    } else {
-                        throw new Error('data algorithm not support: ' + alg);
-                    }
-                }
-                this.__data = bin
-            }
-            return bin
-        }, setData: function (bin) {
-            if (!bin) {
-                this.removeValue('data')
-            } else {
-                var encoded = null;
-                var alg = this.getAlgorithm();
-                if (alg === EncodeAlgorithms.BASE_64) {
-                    encoded = Base64.encode(bin)
-                } else if (alg === EncodeAlgorithms.BASE_58) {
-                    encoded = Base58.encode(bin)
-                } else if (alg === EncodeAlgorithms.HEX) {
-                    encoded = Hex.encode(bin)
-                } else {
-                    throw new Error('data algorithm not support: ' + alg);
-                }
-                this.setValue('data', encoded)
-            }
-            this.__data = bin
-        }
-    });
-    'use strict';
-    mk.format.BaseFileWrapper = function (dict) {
-        Dictionary.call(this, dict);
-        this.__attachment = null;
-        this.__password = null
+    Visa.prototype.setPublicKey = function (pKey) {
     };
-    var BaseFileWrapper = mk.format.BaseFileWrapper;
-    Class(BaseFileWrapper, Dictionary, null, {
-        getData: function () {
-            var ted = this.__attachment;
-            if (!ted) {
-                var base64 = this.getValue('data');
-                ted = TransportableData.parse(base64);
-                this.__attachment = ted
-            }
-            return ted
-        }, setData: function (ted) {
-            if (!ted) {
-                this.removeValue('data')
-            } else {
-                this.setValue('data', ted.toObject())
-            }
-            this.__attachment = ted
-        }, setBinaryData: function (bin) {
-            var ted;
-            if (!bin) {
-                ted = null;
-                this.removeValue('data')
-            } else {
-                ted = TransportableData.create(bin);
-                this.setValue('data', ted.toObject())
-            }
-            this.__attachment = ted
-        }, getFilename: function () {
-            return this.getString('filename', null)
-        }, setFilename: function (filename) {
-            if (!filename) {
-                this.removeValue('filename')
-            } else {
-                this.setValue('filename', filename)
-            }
-        }, getURL: function () {
-            return this.getString('URL', null)
-        }, setURL: function (url) {
-            if (!url) {
-                this.removeValue('URL')
-            } else {
-                this.setValue('URL', url)
-            }
-        }, getPassword: function () {
-            var pwd = this.__password;
-            if (!pwd) {
-                var key = this.getValue('password');
-                pwd = SymmetricKey.parse(key);
-                this.__password = pwd
-            }
-            return pwd
-        }, setPassword: function (key) {
-            if (!key) {
-                this.removeValue('password')
-            } else {
-                this.setMap('password', key)
-            }
-            this.__password = key
-        }
-    });
+    Visa.prototype.getAvatar = function () {
+    };
+    Visa.prototype.setAvatar = function (image) {
+    };
+    mkm.protocol.Bulletin = Interface(null, [Document]);
+    var Bulletin = mkm.protocol.Bulletin;
+    Bulletin.prototype.getFounder = function () {
+    };
+    Bulletin.prototype.getAssistants = function () {
+    };
+    Bulletin.prototype.setAssistants = function (bots) {
+    };
     'use strict';
     dkd.protocol.ContentType = {
         ANY: '' + (0x00),
@@ -529,16 +339,16 @@
         return new TransferMoneyContent(currency, amount)
     };
     'use strict';
-    dkd.protocol.ApplicationContent = Interface(null, [Content]);
-    var ApplicationContent = dkd.protocol.ApplicationContent;
-    ApplicationContent.prototype.getApplication = function () {
+    dkd.protocol.AppContent = Interface(null, [Content]);
+    var AppContent = dkd.protocol.AppContent;
+    AppContent.prototype.getApplication = function () {
     };
-    ApplicationContent.prototype.getModule = function () {
-    };
-    ApplicationContent.prototype.getAction = function () {
-    };
-    dkd.protocol.CustomizedContent = Interface(null, [ApplicationContent]);
+    dkd.protocol.CustomizedContent = Interface(null, [AppContent]);
     var CustomizedContent = dkd.protocol.CustomizedContent;
+    CustomizedContent.prototype.getModule = function () {
+    };
+    CustomizedContent.prototype.getAction = function () {
+    };
     CustomizedContent.create = function () {
         var type, app, mod, act;
         if (arguments.length === 4) {
@@ -773,36 +583,576 @@
         return info
     };
     'use strict';
-    mkm.protocol.MetaType = {
-        DEFAULT: '' + (1),
-        MKM: '' + (1),
-        BTC: '' + (2),
-        ExBTC: '' + (3),
-        ETH: '' + (4),
-        ExETH: '' + (5)
+    mk.crypto.BaseKey = function (dict) {
+        Dictionary.call(this, dict)
     };
-    var MetaType = mkm.protocol.MetaType;
-    mkm.protocol.DocumentType = {VISA: 'visa', PROFILE: 'profile', BULLETIN: 'bulletin'};
-    var DocumentType = mkm.protocol.DocumentType;
+    var BaseKey = mk.crypto.BaseKey;
+    Class(BaseKey, Dictionary, [CryptographyKey], {
+        getAlgorithm: function () {
+            return BaseKey.getKeyAlgorithm(this.toMap())
+        }
+    });
+    BaseKey.getKeyAlgorithm = function (key) {
+        var helper = SharedCryptoExtensions.getHelper();
+        var algorithm = helper.getKeyAlgorithm(key);
+        return algorithm ? algorithm : ''
+    };
+    BaseKey.matchEncryptKey = function (pKey, sKey) {
+        return GeneralCryptoHelper.matchSymmetricKeys(pKey, sKey)
+    };
+    BaseKey.matchSignKey = function (sKey, pKey) {
+        return GeneralCryptoHelper.matchAsymmetricKeys(sKey, pKey)
+    };
+    BaseKey.symmetricKeyEquals = function (key1, key2) {
+        if (key1 === key2) {
+            return true
+        }
+        return BaseKey.matchEncryptKey(key1, key2)
+    };
+    BaseKey.privateKeyEquals = function (key1, key2) {
+        if (key1 === key2) {
+            return true
+        }
+        return BaseKey.matchSignKey(key1, key2)
+    };
+    mk.crypto.BaseSymmetricKey = function (dict) {
+        Dictionary.call(this, dict)
+    };
+    var BaseSymmetricKey = mk.crypto.BaseSymmetricKey;
+    Class(BaseSymmetricKey, Dictionary, [SymmetricKey], {
+        equals: function (other) {
+            return Interface.conforms(other, SymmetricKey) && BaseKey.symmetricKeyEquals(other, this)
+        }, matchEncryptKey: function (pKey) {
+            return BaseKey.matchEncryptKey(pKey, this)
+        }, getAlgorithm: function () {
+            return BaseKey.getKeyAlgorithm(this.toMap())
+        }
+    });
+    mk.crypto.BaseAsymmetricKey = function (dict) {
+        Dictionary.call(this, dict)
+    };
+    var BaseAsymmetricKey = mk.crypto.BaseAsymmetricKey;
+    Class(BaseAsymmetricKey, Dictionary, [AsymmetricKey], {
+        getAlgorithm: function () {
+            return BaseKey.getKeyAlgorithm(this.toMap())
+        }
+    });
+    mk.crypto.BasePrivateKey = function (dict) {
+        Dictionary.call(this, dict)
+    };
+    var BasePrivateKey = mk.crypto.BasePrivateKey;
+    Class(BasePrivateKey, Dictionary, [PrivateKey], {
+        equals: function (other) {
+            return Interface.conforms(other, PrivateKey) && BaseKey.privateKeyEquals(other, this)
+        }, getAlgorithm: function () {
+            return BaseKey.getKeyAlgorithm(this.toMap())
+        }
+    });
+    mk.crypto.BasePublicKey = function (dict) {
+        Dictionary.call(this, dict)
+    };
+    var BasePublicKey = mk.crypto.BasePublicKey;
+    Class(BasePublicKey, Dictionary, [PublicKey], {
+        matchSignKey: function (sKey) {
+            return BaseKey.matchSignKey(sKey, this)
+        }, getAlgorithm: function () {
+            return BaseKey.getKeyAlgorithm(this.toMap())
+        }
+    });
     'use strict';
-    mkm.protocol.Visa = Interface(null, [Document]);
-    var Visa = mkm.protocol.Visa;
-    Visa.prototype.getPublicKey = function () {
+    mk.format.BaseDataWrapper = function (dict) {
+        Dictionary.call(this, dict);
+        this.__data = null
     };
-    Visa.prototype.setPublicKey = function (pKey) {
+    var BaseDataWrapper = mk.format.BaseDataWrapper;
+    Class(BaseDataWrapper, Dictionary, null, {
+        toString: function () {
+            var encoded = this.getString('data', null);
+            if (!encoded) {
+                return ''
+            }
+            var alg = this.getString('algorithm', null);
+            if (!alg || alg === TransportableData.DEFAULT) {
+                alg = ''
+            }
+            if (alg === '') {
+                return encoded
+            } else {
+                return alg + ',' + encoded
+            }
+        }, encode: function (mimeType) {
+            var encoded = this.getString('data', null);
+            if (!encoded) {
+                return ''
+            }
+            var alg = this.getAlgorithm();
+            return 'data:' + mimeType + ';' + alg + ',' + encoded
+        }, getAlgorithm: function () {
+            var alg = this.getString('algorithm', null);
+            if (!alg) {
+                alg = TransportableData.DEFAULT
+            }
+            return alg
+        }, setAlgorithm: function (name) {
+            if (!name) {
+                this.removeValue('algorithm')
+            } else {
+                this.setValue('algorithm', name)
+            }
+        }, getData: function () {
+            var bin = this.__data;
+            if (!bin) {
+                var encoded = this.getString('data', null);
+                if (!encoded) {
+                    return null
+                } else {
+                    var alg = this.getAlgorithm();
+                    if (alg === EncodeAlgorithms.BASE_64) {
+                        bin = Base64.decode(encoded)
+                    } else if (alg === EncodeAlgorithms.BASE_58) {
+                        bin = Base58.decode(encoded)
+                    } else if (alg === EncodeAlgorithms.HEX) {
+                        bin = Hex.decode(encoded)
+                    } else {
+                        throw new Error('data algorithm not support: ' + alg);
+                    }
+                }
+                this.__data = bin
+            }
+            return bin
+        }, setData: function (bin) {
+            if (!bin) {
+                this.removeValue('data')
+            } else {
+                var encoded = null;
+                var alg = this.getAlgorithm();
+                if (alg === EncodeAlgorithms.BASE_64) {
+                    encoded = Base64.encode(bin)
+                } else if (alg === EncodeAlgorithms.BASE_58) {
+                    encoded = Base58.encode(bin)
+                } else if (alg === EncodeAlgorithms.HEX) {
+                    encoded = Hex.encode(bin)
+                } else {
+                    throw new Error('data algorithm not support: ' + alg);
+                }
+                this.setValue('data', encoded)
+            }
+            this.__data = bin
+        }
+    });
+    'use strict';
+    mk.format.BaseFileWrapper = function (dict) {
+        Dictionary.call(this, dict);
+        this.__attachment = null;
+        this.__password = null
     };
-    Visa.prototype.getAvatar = function () {
+    var BaseFileWrapper = mk.format.BaseFileWrapper;
+    Class(BaseFileWrapper, Dictionary, null, {
+        getData: function () {
+            var ted = this.__attachment;
+            if (!ted) {
+                var base64 = this.getValue('data');
+                ted = TransportableData.parse(base64);
+                this.__attachment = ted
+            }
+            return ted
+        }, setData: function (ted) {
+            if (!ted) {
+                this.removeValue('data')
+            } else {
+                this.setValue('data', ted.toObject())
+            }
+            this.__attachment = ted
+        }, setBinaryData: function (bin) {
+            var ted;
+            if (!bin) {
+                ted = null;
+                this.removeValue('data')
+            } else {
+                ted = TransportableData.create(bin);
+                this.setValue('data', ted.toObject())
+            }
+            this.__attachment = ted
+        }, getFilename: function () {
+            return this.getString('filename', null)
+        }, setFilename: function (filename) {
+            if (!filename) {
+                this.removeValue('filename')
+            } else {
+                this.setValue('filename', filename)
+            }
+        }, getURL: function () {
+            return this.getString('URL', null)
+        }, setURL: function (url) {
+            if (!url) {
+                this.removeValue('URL')
+            } else {
+                this.setValue('URL', url)
+            }
+        }, getPassword: function () {
+            var pwd = this.__password;
+            if (!pwd) {
+                var key = this.getValue('password');
+                pwd = SymmetricKey.parse(key);
+                this.__password = pwd
+            }
+            return pwd
+        }, setPassword: function (key) {
+            if (!key) {
+                this.removeValue('password')
+            } else {
+                this.setMap('password', key)
+            }
+            this.__password = key
+        }
+    });
+    'use strict';
+    mkm.mkm.BaseMeta = function () {
+        var type, key, seed, fingerprint;
+        var status;
+        var meta;
+        if (arguments.length === 1) {
+            meta = arguments[0];
+            type = null;
+            key = null;
+            seed = null;
+            fingerprint = null;
+            status = 0
+        } else if (arguments.length === 2) {
+            type = arguments[0];
+            key = arguments[1];
+            seed = null;
+            fingerprint = null;
+            status = 1;
+            meta = {'type': type, 'key': key.toMap()}
+        } else if (arguments.length === 4) {
+            type = arguments[0];
+            key = arguments[1];
+            seed = arguments[2];
+            fingerprint = arguments[3];
+            status = 1;
+            meta = {'type': type, 'key': key.toMap(), 'seed': seed, 'fingerprint': fingerprint.toObject()}
+        } else {
+            throw new SyntaxError('meta arguments error: ' + arguments);
+        }
+        Dictionary.call(this, meta);
+        this.__type = type;
+        this.__key = key;
+        this.__seed = seed;
+        this.__fingerprint = fingerprint;
+        this.__status = status
     };
-    Visa.prototype.setAvatar = function (image) {
+    var BaseMeta = mkm.mkm.BaseMeta;
+    Class(BaseMeta, Dictionary, [Meta], {
+        getType: function () {
+            var type = this.__type;
+            if (type === null) {
+                var helper = SharedAccountExtensions.getHelper();
+                type = helper.getMetaType(this.toMap(), '');
+                this.__type = type
+            }
+            return type
+        }, getPublicKey: function () {
+            var key = this.__key;
+            if (!key) {
+                var info = this.getValue('key');
+                key = PublicKey.parse(info);
+                this.__key = key
+            }
+            return key
+        }, hasSeed: function () {
+            return this.__seed || this.getValue('seed')
+        }, getSeed: function () {
+            var seed = this.__seed;
+            if (seed === null && this.hasSeed()) {
+                seed = this.getString('seed', null);
+                this.__seed = seed
+            }
+            return seed
+        }, getFingerprint: function () {
+            var ted = this.__fingerprint;
+            if (!ted && this.hasSeed()) {
+                var base64 = this.getValue('fingerprint');
+                ted = TransportableData.parse(base64);
+                this.__fingerprint = ted
+            }
+            return !ted ? null : ted.getData()
+        }, isValid: function () {
+            if (this.__status === 0) {
+                if (this.checkValid()) {
+                    this.__status = 1
+                } else {
+                    this.__status = -1
+                }
+            }
+            return this.__status > 0
+        }, checkValid: function () {
+            var key = this.getPublicKey();
+            if (this.hasSeed()) {
+            } else if (this.getValue('seed') || this.getValue('fingerprint')) {
+                return false
+            } else {
+                return true
+            }
+            var name = this.getSeed();
+            var signature = this.getFingerprint();
+            if (!signature || !name) {
+                return false
+            }
+            var data = UTF8.encode(name);
+            return key.verify(data, signature)
+        }
+    });
+    'use strict';
+    mkm.mkm.BaseDocument = function () {
+        var map, status;
+        var type;
+        var identifier, data, signature;
+        var properties;
+        if (arguments.length === 1) {
+            map = arguments[0];
+            status = 0;
+            identifier = null;
+            data = null;
+            signature = null;
+            properties = null
+        } else if (arguments.length === 2) {
+            type = arguments[0];
+            identifier = arguments[1];
+            map = {'type': type, 'did': identifier.toString()};
+            status = 0;
+            data = null;
+            signature = null;
+            var now = new Date();
+            properties = {'type': type, 'created_time': (now.getTime() / 1000.0)}
+        } else if (arguments.length === 4) {
+            type = arguments[0];
+            identifier = arguments[1];
+            data = arguments[2];
+            signature = arguments[3];
+            map = {'type': type, 'did': identifier.toString(), 'data': data, 'signature': signature.toObject()};
+            status = 1;
+            properties = null
+        } else {
+            throw new SyntaxError('document arguments error: ' + arguments);
+        }
+        Dictionary.call(this, map);
+        this.__identifier = identifier;
+        this.__json = data;
+        this.__sig = signature;
+        this.__properties = properties;
+        this.__status = status
     };
-    mkm.protocol.Bulletin = Interface(null, [Document]);
-    var Bulletin = mkm.protocol.Bulletin;
-    Bulletin.prototype.getFounder = function () {
+    var BaseDocument = mkm.mkm.BaseDocument;
+    Class(BaseDocument, Dictionary, [Document], {
+        isValid: function () {
+            return this.__status > 0
+        }, getIdentifier: function () {
+            var did = this.__identifier;
+            if (!did) {
+                did = ID.parse(this.getValue('did'));
+                this.__identifier = did
+            }
+            return did
+        }, getData: function () {
+            var base64 = this.__json;
+            if (!base64) {
+                base64 = this.getString('data', null);
+                this.__json = base64
+            }
+            return base64
+        }, getSignature: function () {
+            var ted = this.__sig;
+            if (!ted) {
+                var base64 = this.getValue('signature');
+                ted = TransportableData.parse(base64);
+                this.__sig = ted
+            }
+            if (!ted) {
+                return null
+            }
+            return ted.getData()
+        }, allProperties: function () {
+            if (this.__status < 0) {
+                return null
+            }
+            var dict = this.__properties;
+            if (!dict) {
+                var json = this.getData();
+                if (json) {
+                    dict = JSONMap.decode(json)
+                } else {
+                    dict = {}
+                }
+                this.__properties = dict
+            }
+            return dict
+        }, getProperty: function (name) {
+            var dict = this.allProperties();
+            if (!dict) {
+                return null
+            }
+            return dict[name]
+        }, setProperty: function (name, value) {
+            this.__status = 0;
+            var dict = this.allProperties();
+            if (!dict) {
+            } else if (value) {
+                dict[name] = value
+            } else {
+                delete dict[name]
+            }
+            this.removeValue('data');
+            this.removeValue('signature');
+            this.__json = null;
+            this.__sig = null
+        }, verify: function (publicKey) {
+            if (this.__status > 0) {
+                return true
+            }
+            var data = this.getData();
+            var signature = this.getSignature();
+            if (!data) {
+                if (!signature) {
+                    this.__status = 0
+                } else {
+                    this.__status = -1
+                }
+            } else if (!signature) {
+                this.__status = -1
+            } else if (publicKey.verify(UTF8.encode(data), signature)) {
+                this.__status = 1
+            }
+            return this.__status === 1
+        }, sign: function (privateKey) {
+            if (this.__status > 0) {
+                return this.getSignature()
+            }
+            var now = new Date();
+            this.setProperty('time', now.getTime() / 1000.0);
+            var dict = this.allProperties();
+            if (!dict) {
+                return null
+            }
+            var data = JSONMap.encode(dict);
+            if (!data || data.length === 0) {
+                return null
+            }
+            var signature = privateKey.sign(UTF8.encode(data));
+            if (!signature || signature.length === 0) {
+                return null
+            }
+            var ted = TransportableData.create(signature);
+            this.setValue('data', data);
+            this.setValue('signature', ted.toObject());
+            this.__json = data;
+            this.__sig = ted;
+            this.__status = 1;
+            return signature
+        }, getTime: function () {
+            var timestamp = this.getProperty('time');
+            return Converter.getDateTime(timestamp, null)
+        }, getName: function () {
+            var name = this.getProperty('name');
+            return Converter.getString(name, null)
+        }, setName: function (name) {
+            this.setProperty('name', name)
+        }
+    });
+    'use strict';
+    mkm.mkm.BaseVisa = function () {
+        if (arguments.length === 3) {
+            BaseDocument.call(this, DocumentType.VISA, arguments[0], arguments[1], arguments[2])
+        } else if (Interface.conforms(arguments[0], ID)) {
+            BaseDocument.call(this, DocumentType.VISA, arguments[0])
+        } else if (arguments.length === 1) {
+            BaseDocument.call(this, arguments[0])
+        } else {
+            throw new SyntaxError('visa params error: ' + arguments);
+        }
+        this.__key = null;
+        this.__avatar = null
     };
-    Bulletin.prototype.getAssistants = function () {
+    var BaseVisa = mkm.mkm.BaseVisa;
+    Class(BaseVisa, BaseDocument, [Visa], {
+        getPublicKey: function () {
+            var key = this.__key;
+            if (!key) {
+                var info = this.getProperty('key');
+                key = PublicKey.parse(info);
+                if (Interface.conforms(key, EncryptKey)) {
+                    this.__key = key
+                } else {
+                    key = null
+                }
+            }
+            return key
+        }, setPublicKey: function (pKey) {
+            if (!pKey) {
+                this.setProperty('key', null)
+            } else {
+                this.setProperty('key', pKey.toMap())
+            }
+            this.__key = pKey
+        }, getAvatar: function () {
+            var pnf = this.__avatar;
+            if (!pnf) {
+                var url = this.getProperty('avatar');
+                if (typeof url === 'string' && url.length === 0) {
+                } else {
+                    pnf = PortableNetworkFile.parse(url);
+                    this.__avatar = pnf
+                }
+            }
+            return pnf
+        }, setAvatar: function (pnf) {
+            if (!pnf) {
+                this.setProperty('avatar', null)
+            } else {
+                this.setProperty('avatar', pnf.toObject())
+            }
+            this.__avatar = pnf
+        }
+    });
+    mkm.mkm.BaseBulletin = function () {
+        if (arguments.length === 3) {
+            BaseDocument.call(this, DocumentType.BULLETIN, arguments[0], arguments[1], arguments[2])
+        } else if (Interface.conforms(arguments[0], ID)) {
+            BaseDocument.call(this, DocumentType.BULLETIN, arguments[0])
+        } else if (arguments.length === 1) {
+            BaseDocument.call(this, arguments[0])
+        } else {
+            throw new SyntaxError('bulletin params error: ' + arguments);
+        }
+        this.__assistants = null
     };
-    Bulletin.prototype.setAssistants = function (bots) {
-    };
+    var BaseBulletin = mkm.mkm.BaseBulletin;
+    Class(BaseBulletin, BaseDocument, [Bulletin], {
+        getFounder: function () {
+            return ID.parse(this.getProperty('founder'))
+        }, getAssistants: function () {
+            var bots = this.__assistants;
+            if (!bots) {
+                var assistants = this.getProperty('assistants');
+                if (assistants) {
+                    bots = ID.convert(assistants)
+                } else {
+                    var single = ID.parse(this.getProperty('assistant'));
+                    bots = !single ? [] : [single]
+                }
+                this.__assistants = bots
+            }
+            return bots
+        }, setAssistants: function (bots) {
+            if (bots) {
+                this.setProperty('assistants', ID.revert(bots))
+            } else {
+                this.setProperty('assistants', null)
+            }
+            this.setProperty('assistant', null);
+            this.__assistants = bots
+        }
+    });
     'use strict';
     dkd.dkd.BaseContent = function (info) {
         var content, type, sn, time;
@@ -1226,13 +1576,13 @@
     'use strict';
     dkd.dkd.BaseMoneyContent = function () {
         if (arguments.length === 1) {
-            BaseContent.call(arguments[0])
+            BaseContent.call(this, arguments[0])
         } else if (arguments.length === 2) {
-            BaseContent.call(ContentType.MONEY);
+            BaseContent.call(this, ContentType.MONEY);
             this.setCurrency(arguments[0]);
             this.setAmount(arguments[1])
         } else if (arguments.length === 3) {
-            BaseContent.call(arguments[0]);
+            BaseContent.call(this, arguments[0]);
             this.setCurrency(arguments[1]);
             this.setAmount(arguments[2])
         } else {
@@ -1253,9 +1603,9 @@
     });
     dkd.dkd.TransferMoneyContent = function () {
         if (arguments.length === 1) {
-            MoneyContent.call(arguments[0])
+            MoneyContent.call(this, arguments[0])
         } else if (arguments.length === 2) {
-            MoneyContent.call(ContentType.TRANSFER, arguments[0], arguments[1])
+            MoneyContent.call(this, ContentType.TRANSFER, arguments[0], arguments[1])
         } else {
             throw new SyntaxError('money content arguments error: ' + arguments);
         }
@@ -1809,376 +2159,31 @@
         }
     });
     'use strict';
-    mkm.mkm.BaseMeta = function () {
-        var type, key, seed, fingerprint;
-        var status;
-        var meta;
-        if (arguments.length === 1) {
-            meta = arguments[0];
-            type = null;
-            key = null;
-            seed = null;
-            fingerprint = null;
-            status = 0
-        } else if (arguments.length === 2) {
-            type = arguments[0];
-            key = arguments[1];
-            seed = null;
-            fingerprint = null;
-            status = 1;
-            meta = {'type': type, 'key': key.toMap()}
-        } else if (arguments.length === 4) {
-            type = arguments[0];
-            key = arguments[1];
-            seed = arguments[2];
-            fingerprint = arguments[3];
-            status = 1;
-            meta = {'type': type, 'key': key.toMap(), 'seed': seed, 'fingerprint': fingerprint.toObject()}
-        } else {
-            throw new SyntaxError('meta arguments error: ' + arguments);
-        }
-        Dictionary.call(this, meta);
-        this.__type = type;
-        this.__key = key;
-        this.__seed = seed;
-        this.__fingerprint = fingerprint;
-        this.__status = status
-    };
-    var BaseMeta = mkm.mkm.BaseMeta;
-    Class(BaseMeta, Dictionary, [Meta], {
-        getType: function () {
-            var type = this.__type;
-            if (type === null) {
-                var helper = SharedAccountExtensions.getHelper();
-                type = helper.getMetaType(this.toMap(), '');
-                this.__type = type
-            }
-            return type
-        }, getPublicKey: function () {
-            var key = this.__key;
-            if (!key) {
-                var info = this.getValue('key');
-                key = PublicKey.parse(info);
-                this.__key = key
-            }
-            return key
-        }, hasSeed: function () {
-            return this.__seed || this.getValue('seed')
-        }, getSeed: function () {
-            var seed = this.__seed;
-            if (seed === null && this.hasSeed()) {
-                seed = this.getString('seed', null);
-                this.__seed = seed
-            }
-            return seed
-        }, getFingerprint: function () {
-            var ted = this.__fingerprint;
-            if (!ted && this.hasSeed()) {
-                var base64 = this.getValue('fingerprint');
-                ted = TransportableData.parse(base64);
-                this.__fingerprint = ted
-            }
-            return !ted ? null : ted.getData()
-        }, isValid: function () {
-            if (this.__status === 0) {
-                if (this.checkValid()) {
-                    this.__status = 1
-                } else {
-                    this.__status = -1
-                }
-            }
-            return this.__status > 0
-        }, checkValid: function () {
-            var key = this.getPublicKey();
-            if (this.hasSeed()) {
-            } else if (this.getValue('seed') || this.getValue('fingerprint')) {
-                return false
-            } else {
-                return true
-            }
-            var name = this.getSeed();
-            var signature = this.getFingerprint();
-            if (!signature || !name) {
-                return false
-            }
-            var data = UTF8.encode(name);
-            return key.verify(data, signature)
-        }
-    });
-    'use strict';
-    mkm.mkm.BaseDocument = function () {
-        var map, status;
-        var identifier, data, signature;
-        var properties;
-        if (arguments.length === 1) {
-            map = arguments[0];
-            status = 0;
-            identifier = null;
-            data = null;
-            signature = null;
-            properties = null
-        } else if (arguments.length === 2) {
-            identifier = arguments[0];
-            var type = arguments[1];
-            map = {'did': identifier.toString()};
-            status = 0;
-            data = null;
-            signature = null;
-            var now = new Date();
-            properties = {'type': type, 'created_time': (now.getTime() / 1000.0)}
-        } else if (arguments.length === 3) {
-            identifier = arguments[0];
-            data = arguments[1];
-            signature = arguments[2];
-            map = {'did': identifier.toString(), 'data': data, 'signature': signature.toObject()}
-            status = 1;
-            properties = null
-        } else {
-            throw new SyntaxError('document arguments error: ' + arguments);
-        }
-        Dictionary.call(this, map);
-        this.__identifier = identifier;
-        this.__json = data;
-        this.__sig = signature;
-        this.__properties = properties;
-        this.__status = status
-    };
-    var BaseDocument = mkm.mkm.BaseDocument;
-    Class(BaseDocument, Dictionary, [Document], {
-        isValid: function () {
-            return this.__status > 0
-        }, getIdentifier: function () {
-            var did = this.__identifier;
-            if (!did) {
-                did = ID.parse(this.getValue('did'))
-                this.__identifier = did
-            }
-            return did
-        }, getData: function () {
-            var base64 = this.__json;
-            if (!base64) {
-                base64 = this.getString('data', null);
-                this.__json = base64
-            }
-            return base64
-        }, getSignature: function () {
-            var ted = this.__sig;
-            if (!ted) {
-                var base64 = this.getValue('signature');
-                ted = TransportableData.parse(base64);
-                this.__sig = ted
-            }
-            if (!ted) {
-                return null
-            }
-            return ted.getData()
-        }, allProperties: function () {
-            if (this.__status < 0) {
-                return null
-            }
-            var dict = this.__properties;
-            if (!dict) {
-                var json = this.getData();
-                if (json) {
-                    dict = JSONMap.decode(json)
-                } else {
-                    dict = {}
-                }
-                this.__properties = dict
-            }
-            return dict
-        }, getProperty: function (name) {
-            var dict = this.allProperties();
-            if (!dict) {
-                return null
-            }
-            return dict[name]
-        }, setProperty: function (name, value) {
-            this.__status = 0;
-            var dict = this.allProperties();
-            if (!dict) {
-            } else if (value) {
-                dict[name] = value
-            } else {
-                delete dict[name]
-            }
-            this.removeValue('data');
-            this.removeValue('signature');
-            this.__json = null;
-            this.__sig = null
-        }, verify: function (publicKey) {
-            if (this.__status > 0) {
-                return true
-            }
-            var data = this.getData();
-            var signature = this.getSignature();
-            if (!data) {
-                if (!signature) {
-                    this.__status = 0
-                } else {
-                    this.__status = -1
-                }
-            } else if (!signature) {
-                this.__status = -1
-            } else if (publicKey.verify(UTF8.encode(data), signature)) {
-                this.__status = 1
-            }
-            return this.__status === 1
-        }, sign: function (privateKey) {
-            if (this.__status > 0) {
-                return this.getSignature()
-            }
-            var now = new Date();
-            this.setProperty('time', now.getTime() / 1000.0);
-            var dict = this.allProperties();
-            if (!dict) {
-                return null
-            }
-            var data = JSONMap.encode(dict);
-            if (!data || data.length === 0) {
-                return null
-            }
-            var signature = privateKey.sign(UTF8.encode(data));
-            if (!signature || signature.length === 0) {
-                return null
-            }
-            var ted = TransportableData.create(signature);
-            this.setValue('data', data);
-            this.setValue('signature', ted.toObject());
-            this.__json = data;
-            this.__sig = ted;
-            this.__status = 1;
-            return signature
-        }, getTime: function () {
-            var timestamp = this.getProperty('time');
-            return Converter.getDateTime(timestamp, null)
-        }, getName: function () {
-            var name = this.getProperty('name');
-            return Converter.getString(name, null)
-        }, setName: function (name) {
-            this.setProperty('name', name)
-        }
-    });
-    'use strict';
-    mkm.mkm.BaseVisa = function () {
-        if (arguments.length === 3) {
-            BaseDocument.call(this, arguments[0], arguments[1], arguments[2])
-        } else if (Interface.conforms(arguments[0], ID)) {
-            BaseDocument.call(this, arguments[0], DocumentType.VISA)
-        } else if (arguments.length === 1) {
-            BaseDocument.call(this, arguments[0])
-        } else {
-            throw new SyntaxError('visa params error: ' + arguments);
-        }
-        this.__key = null;
-        this.__avatar = null
-    };
-    var BaseVisa = mkm.mkm.BaseVisa;
-    Class(BaseVisa, BaseDocument, [Visa], {
-        getPublicKey: function () {
-            var key = this.__key;
-            if (!key) {
-                var info = this.getProperty('key');
-                key = PublicKey.parse(info);
-                if (Interface.conforms(key, EncryptKey)) {
-                    this.__key = key
-                } else {
-                    key = null
-                }
-            }
-            return key
-        }, setPublicKey: function (pKey) {
-            if (!pKey) {
-                this.setProperty('key', null)
-            } else {
-                this.setProperty('key', pKey.toMap())
-            }
-            this.__key = pKey
-        }, getAvatar: function () {
-            var pnf = this.__avatar;
-            if (!pnf) {
-                var url = this.getProperty('avatar');
-                if (typeof url === 'string' && url.length === 0) {
-                } else {
-                    pnf = PortableNetworkFile.parse(url);
-                    this.__avatar = pnf
-                }
-            }
-            return pnf
-        }, setAvatar: function (pnf) {
-            if (!pnf) {
-                this.setProperty('avatar', null)
-            } else {
-                this.setProperty('avatar', pnf.toObject())
-            }
-            this.__avatar = pnf
-        }
-    });
-    mkm.mkm.BaseBulletin = function () {
-        if (arguments.length === 3) {
-            BaseDocument.call(this, arguments[0], arguments[1], arguments[2])
-        } else if (Interface.conforms(arguments[0], ID)) {
-            BaseDocument.call(this, arguments[0], DocumentType.BULLETIN)
-        } else if (arguments.length === 1) {
-            BaseDocument.call(this, arguments[0])
-        } else {
-            throw new SyntaxError('bulletin params error: ' + arguments);
-        }
-        this.__assistants = null
-    };
-    var BaseBulletin = mkm.mkm.BaseBulletin;
-    Class(BaseBulletin, BaseDocument, [Bulletin], {
-        getFounder: function () {
-            return ID.parse(this.getProperty('founder'))
-        }, getAssistants: function () {
-            var bots = this.__assistants;
-            if (!bots) {
-                var assistants = this.getProperty('assistants');
-                if (assistants) {
-                    bots = ID.convert(assistants)
-                } else {
-                    var single = ID.parse(this.getProperty('assistant'));
-                    bots = !single ? [] : [single]
-                }
-                this.__assistants = bots
-            }
-            return bots
-        }, setAssistants: function (bots) {
-            if (bots) {
-                this.setProperty('assistants', ID.revert(bots))
-            } else {
-                this.setProperty('assistants', null)
-            }
-            this.setProperty('assistant', null);
-            this.__assistants = bots
-        }
-    });
-    'use strict';
-    dkd.plugins.CommandHelper = Interface(null, null);
-    var CommandHelper = dkd.plugins.CommandHelper;
+    dkd.ext.CommandHelper = Interface(null, null);
+    var CommandHelper = dkd.ext.CommandHelper;
     CommandHelper.prototype = {
         setCommandFactory: function (cmd, factory) {
         }, getCommandFactory: function (cmd) {
         }, parseCommand: function (content) {
         }
     };
-    dkd.plugins.CommandExtensions = {
+    dkd.ext.CommandExtensions = {
         setCommandHelper: function (helper) {
             cmdHelper = helper
         }, getCommandHelper: function () {
             return cmdHelper
         }
     };
-    var CommandExtensions = dkd.plugins.CommandExtensions;
+    var CommandExtensions = dkd.ext.CommandExtensions;
     var cmdHelper = null;
     'use strict';
-    dkd.plugins.GeneralCommandHelper = Interface(null, null);
-    var GeneralCommandHelper = dkd.plugins.GeneralCommandHelper;
+    dkd.ext.GeneralCommandHelper = Interface(null, null);
+    var GeneralCommandHelper = dkd.ext.GeneralCommandHelper;
     GeneralCommandHelper.prototype = {
         getCmd: function (content, defaultValue) {
         }
     };
-    dkd.plugins.SharedCommandExtensions = {
+    dkd.ext.SharedCommandExtensions = {
         setCommandHelper: function (helper) {
             CommandExtensions.setCommandHelper(helper)
         }, getCommandHelper: function () {
@@ -2189,6 +2194,6 @@
             return generalCommandHelper
         }
     };
-    var SharedCommandExtensions = dkd.plugins.SharedCommandExtensions;
+    var SharedCommandExtensions = dkd.ext.SharedCommandExtensions;
     var generalCommandHelper = null
 })(DaoKeDao, MingKeMing, MONKEY);

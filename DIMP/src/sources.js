@@ -2,16 +2,12 @@
 
 var core_sources = [
     //
-    //  Crypto
-    //
-    'src/crypto/algorithms.js',
-    'src/crypto/keys.js',
-    'src/crypto/ted.js',
-    'src/crypto/pnf.js',
-
-    //
     //  Protocol
     //
+    'src/protocol/algorithms.js',
+    // mkm document protocol
+    'src/protocol/version.js',
+    'src/protocol/docs.js',
     // dkd content protocol
     'src/protocol/types.js',
     'src/protocol/contents.js',
@@ -25,9 +21,21 @@ var core_sources = [
     'src/protocol/commands.js',
     'src/protocol/groups.js',
     'src/protocol/receipt.js',
-    // mkm document protocol
-    'src/protocol/version.js',
-    'src/protocol/docs.js',
+
+    //
+    //  Crypto
+    //
+    'src/crypto/keys.js',
+    'src/crypto/ted.js',
+    'src/crypto/pnf.js',
+
+    //
+    //  MingKeMing
+    //
+    // mkm extensions
+    'src/mkm/meta.js',
+    'src/mkm/document.js',
+    'src/mkm/docs.js',
 
     //
     //  DaoKeDao
@@ -53,17 +61,9 @@ var core_sources = [
     'src/msg/reliable.js',
 
     //
-    //  MingKeMing
+    //  Extensions
     //
-    // mkm extensions
-    'src/mkm/meta.js',
-    'src/mkm/document.js',
-    'src/mkm/docs.js',
-
-    //
-    //  Plugins
-    //
-    'src/plugins/cmd_helpers.js',
-    'src/plugins/cmd_plugins.js',
+    'src/ext/cmd_helpers.js',
+    'src/ext/cmd_plugins.js',
     null
 ];

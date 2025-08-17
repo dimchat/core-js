@@ -44,15 +44,15 @@
     dkd.dkd.BaseMoneyContent = function () {
         if (arguments.length === 1) {
             // new BaseMoneyContent(map);
-            BaseContent.call(arguments[0]);
+            BaseContent.call(this, arguments[0]);
         } else if (arguments.length === 2) {
             // new BaseMoneyContent(currency, amount);
-            BaseContent.call(ContentType.MONEY);
+            BaseContent.call(this, ContentType.MONEY);
             this.setCurrency(arguments[0]);
             this.setAmount(arguments[1]);
         } else if (arguments.length === 3) {
             // new BaseMoneyContent(type, currency, amount);
-            BaseContent.call(arguments[0]);
+            BaseContent.call(this, arguments[0]);
             this.setCurrency(arguments[1]);
             this.setAmount(arguments[2]);
         } else {
@@ -92,10 +92,10 @@
     dkd.dkd.TransferMoneyContent = function () {
         if (arguments.length === 1) {
             // new TransferMoneyContent(map);
-            MoneyContent.call(arguments[0]);
+            MoneyContent.call(this, arguments[0]);
         } else if (arguments.length === 2) {
             // new TransferMoneyContent(currency, amount);
-            MoneyContent.call(ContentType.TRANSFER, arguments[0], arguments[1]);
+            MoneyContent.call(this, ContentType.TRANSFER, arguments[0], arguments[1]);
         } else {
             throw new SyntaxError('money content arguments error: ' + arguments);
         }

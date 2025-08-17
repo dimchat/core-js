@@ -39,12 +39,13 @@
      *  1. Create document with info
      *      new BaseDocument(map);
      *  2. Create a new empty document with ID & type
-     *      new BaseDocument(identifier, type);
+     *      new BaseDocument(type, identifier);
      *  3. Create document with data & signature loaded from local storage
-     *      new BaseDocument(identifier, data, signature);
+     *      new BaseDocument(type, identifier, data, signature);
      */
     mkm.mkm.BaseDocument = function () {
         var map, status;
+        var type;
         var identifier, data, signature;
         var properties;
         if (arguments.length === 1) {
@@ -58,9 +59,10 @@
             properties = null;
         } else if (arguments.length === 2) {
             // new BaseDocument(identifier, type);
-            identifier = arguments[0];  // ID
-            var type = arguments[1];    // string
+            type       = arguments[0];  // string
+            identifier = arguments[1];  // ID
             map = {
+                'type': type,
                 'did': identifier.toString()
             };
             status = 0;
@@ -71,16 +73,18 @@
                 'type': type,  // deprecated
                 'created_time': (now.getTime() / 1000.0)
             };
-        } else if (arguments.length === 3) {
+        } else if (arguments.length === 4) {
             // new BaseDocument(identifier, data, signature);
-            identifier = arguments[0];  // ID
-            data = arguments[1];        // string: JSON
-            signature = arguments[2];   // TransportableData
+            type       = arguments[0];  // string
+            identifier = arguments[1];  // ID
+            data       = arguments[2];  // string: JSON
+            signature  = arguments[3];  // TransportableData
             map = {
+                'type': type,
                 'did': identifier.toString(),
                 'data': data,
                 'signature': signature.toObject()
-            }
+            };
             status = 1;  // all documents must be verified before saving into local storage
             properties = null;
         } else {
@@ -106,7 +110,7 @@
         getIdentifier: function () {
             var did = this.__identifier;
             if (!did) {
-                did = ID.parse(this.getValue('did'))
+                did = ID.parse(this.getValue('did'));
                 this.__identifier = did;
             }
             return did;

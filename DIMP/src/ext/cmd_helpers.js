@@ -33,8 +33,8 @@
 //! require 'protocol/base.js'
 
 
-dkd.plugins.CommandHelper = Interface(null, null);
-var CommandHelper = dkd.plugins.CommandHelper;
+dkd.ext.CommandHelper = Interface(null, null);
+var CommandHelper = dkd.ext.CommandHelper;
 
 CommandHelper.prototype = {
 
@@ -50,7 +50,7 @@ CommandHelper.prototype = {
  *  Command FactoryManager
  *  ~~~~~~~~~~~~~~~~~~~~~~
  */
-dkd.plugins.CommandExtensions = {
+dkd.ext.CommandExtensions = {
 
     /**
      *  Init command helper
@@ -65,6 +65,6 @@ dkd.plugins.CommandExtensions = {
     }
 
 };
-var CommandExtensions = dkd.plugins.CommandExtensions;
+var CommandExtensions = dkd.ext.CommandExtensions;
 
 var cmdHelper = null;

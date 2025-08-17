@@ -35,8 +35,8 @@
  *  Command GeneralFactory
  *  ~~~~~~~~~~~~~~~~~~~~~~
  */
-dkd.plugins.GeneralCommandHelper = Interface(null, null);
-var GeneralCommandHelper = dkd.plugins.GeneralCommandHelper;
+dkd.ext.GeneralCommandHelper = Interface(null, null);
+var GeneralCommandHelper = dkd.ext.GeneralCommandHelper;
 
 GeneralCommandHelper.prototype = {
 
@@ -58,7 +58,7 @@ GeneralCommandHelper.prototype = {
  *  Command FactoryManager
  *  ~~~~~~~~~~~~~~~~~~~~~~
  */
-dkd.plugins.SharedCommandExtensions = {
+dkd.ext.SharedCommandExtensions = {
 
     //
     //  Command
@@ -81,6 +81,6 @@ dkd.plugins.SharedCommandExtensions = {
     }
 
 };
-var SharedCommandExtensions = dkd.plugins.SharedCommandExtensions;
+var SharedCommandExtensions = dkd.ext.SharedCommandExtensions;
 
 var generalCommandHelper = null;

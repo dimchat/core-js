@@ -45,10 +45,10 @@
     mkm.mkm.BaseVisa = function () {
         if (arguments.length === 3) {
             // new BaseVisa(identifier, data, signature);
-            BaseDocument.call(this, arguments[0], arguments[1], arguments[2]);
+            BaseDocument.call(this, DocumentType.VISA, arguments[0], arguments[1], arguments[2]);
         } else if (Interface.conforms(arguments[0], ID)) {
             // new BaseVisa(identifier);
-            BaseDocument.call(this, arguments[0], DocumentType.VISA);
+            BaseDocument.call(this, DocumentType.VISA, arguments[0]);
         } else if (arguments.length === 1) {
             // new BaseVisa(map);
             BaseDocument.call(this, arguments[0]);
@@ -134,10 +134,10 @@
     mkm.mkm.BaseBulletin = function () {
         if (arguments.length === 3) {
             // new BaseBulletin(identifier, data, signature);
-            BaseDocument.call(this, arguments[0], arguments[1], arguments[2]);
+            BaseDocument.call(this, DocumentType.BULLETIN, arguments[0], arguments[1], arguments[2]);
         } else if (Interface.conforms(arguments[0], ID)) {
             // new BaseBulletin(identifier);
-            BaseDocument.call(this, arguments[0], DocumentType.BULLETIN);
+            BaseDocument.call(this, DocumentType.BULLETIN, arguments[0]);
         } else if (arguments.length === 1) {
             // new BaseBulletin(map);
             BaseDocument.call(this, arguments[0]);

@@ -34,19 +34,19 @@
 /**
  *  Algorithms for Asymmetric Key
  */
-mk.crypto.AsymmetricAlgorithms = {
+mk.protocol.AsymmetricAlgorithms = {
 
     RSA: 'RSA',  //-- "RSA/ECB/PKCS1Padding", "SHA256withRSA"
     ECC: 'ECC'
 
 };
-var AsymmetricAlgorithms = mk.crypto.AsymmetricAlgorithms;
+var AsymmetricAlgorithms = mk.protocol.AsymmetricAlgorithms;
 
 
 /**
  *  Algorithms for Symmetric Key
  */
-mk.crypto.SymmetricAlgorithms = {
+mk.protocol.SymmetricAlgorithms = {
 
     AES: 'AES',  //-- "AES/CBC/PKCS7Padding"
     DES: 'DES',
@@ -55,13 +55,13 @@ mk.crypto.SymmetricAlgorithms = {
     // which will do nothing when en/decoding message data
     PLAIN: 'PLAIN'
 };
-var SymmetricAlgorithms = mk.crypto.SymmetricAlgorithms;
+var SymmetricAlgorithms = mk.protocol.SymmetricAlgorithms;
 
 
 /**
  *  Algorithms for Encoding Data
  */
-mk.format.EncodeAlgorithms = {
+mk.protocol.EncodeAlgorithms = {
 
     DEFAULT: 'base64',
 
@@ -71,4 +71,4 @@ mk.format.EncodeAlgorithms = {
     HEX: 'hex'
 
 };
-var EncodeAlgorithms = mk.format.EncodeAlgorithms;
+var EncodeAlgorithms = mk.protocol.EncodeAlgorithms;
