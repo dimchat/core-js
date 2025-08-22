@@ -1,14 +1,13 @@
-;
+'use strict';
 
 //
 //  Test Cases
 //
-core_tests = [];
+var core_tests = [];
 
 !function (dkd, mkm, mk) {
-    'use strict';
 
-    var TransportableData = mk.format.TransportableData;
+    var TransportableData = mk.protocol.TransportableData;
     var ContentType = dkd.protocol.ContentType;
     var FileContent = dkd.protocol.FileContent;
     var BaseTextContent  = dkd.dkd.BaseTextContent;
@@ -31,7 +30,7 @@ core_tests = [];
         var content = FileContent.image(ted, filename, null, null);
         // var content = new ImageFileContent(filename, data);
         log('content: ', content);
-        assert(ContentType.IMAGE.equals(content.getType()) === true, 'image content error');
+        assert(ContentType.IMAGE === content.getType(), 'image content error');
     };
     core_tests.push(test_image_content);
 
@@ -42,7 +41,7 @@ core_tests = [];
         var content = FileContent.audio(ted, filename, null, null);
         // var content = new AudioFileContent(filename, data);
         log('content: ', content);
-        assert(ContentType.AUDIO.equals(content.getType()) === true, 'audio content error');
+        assert(ContentType.AUDIO === content.getType(), 'audio content error');
     };
     core_tests.push(test_audio_content);
 
@@ -53,14 +52,13 @@ core_tests = [];
         var content = FileContent.video(ted, filename, null, null);
         // var content = new VideoFileContent(filename, data);
         log('content: ', content);
-        assert(ContentType.VIDEO.equals(content.getType()) === true, 'video content error');
+        assert(ContentType.VIDEO === content.getType(), 'video content error');
     };
     core_tests.push(test_video_content);
 
 }(DaoKeDao, MingKeMing, MONKEY);
 
 !function (dkd, mkm, mk) {
-    'use strict';
 
     var Interface = mk.type.Interface;
     var ID = mkm.protocol.ID;

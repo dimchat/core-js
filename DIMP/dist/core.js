@@ -2,12 +2,11 @@
  * DIMP - Decentralized Instant Messaging Protocol (v2.0.0)
  *
  * @author    moKy <albert.moky at gmail.com>
- * @date      Aug. 17, 2025
+ * @date      Aug. 20, 2025
  * @copyright (c) 2020-2025 Albert Moky
  * @license   {@link https://mit-license.org | MIT License}
  */;
 (function (dkd, mkm, mk) {
-    'use strict';
     if (typeof mk.crypto !== 'object') {
         mk.crypto = {}
     }
@@ -48,14 +47,12 @@
     var SecureMessage = dkd.protocol.SecureMessage;
     var ReliableMessage = dkd.protocol.ReliableMessage;
     var SharedMessageExtensions = dkd.ext.SharedMessageExtensions;
-    'use strict';
     mk.protocol.AsymmetricAlgorithms = {RSA: 'RSA', ECC: 'ECC'};
     var AsymmetricAlgorithms = mk.protocol.AsymmetricAlgorithms;
     mk.protocol.SymmetricAlgorithms = {AES: 'AES', DES: 'DES', PLAIN: 'PLAIN'};
     var SymmetricAlgorithms = mk.protocol.SymmetricAlgorithms;
     mk.protocol.EncodeAlgorithms = {DEFAULT: 'base64', BASE_64: 'base64', BASE_58: 'base58', HEX: 'hex'};
     var EncodeAlgorithms = mk.protocol.EncodeAlgorithms;
-    'use strict';
     mkm.protocol.MetaType = {
         DEFAULT: '' + (1),
         MKM: '' + (1),
@@ -67,7 +64,6 @@
     var MetaType = mkm.protocol.MetaType;
     mkm.protocol.DocumentType = {VISA: 'visa', PROFILE: 'profile', BULLETIN: 'bulletin'};
     var DocumentType = mkm.protocol.DocumentType;
-    'use strict';
     mkm.protocol.Visa = Interface(null, [Document]);
     var Visa = mkm.protocol.Visa;
     Visa.prototype.getPublicKey = function () {
@@ -86,7 +82,6 @@
     };
     Bulletin.prototype.setAssistants = function (bots) {
     };
-    'use strict';
     dkd.protocol.ContentType = {
         ANY: '' + (0x00),
         TEXT: '' + (0x01),
@@ -111,7 +106,6 @@
         FORWARD: '' + (0xFF)
     };
     var ContentType = dkd.protocol.ContentType;
-    'use strict';
     dkd.protocol.TextContent = Interface(null, [Content]);
     var TextContent = dkd.protocol.TextContent;
     TextContent.prototype.getText = function () {
@@ -179,7 +173,6 @@
         content.setAvatar(avatar);
         return content
     };
-    'use strict';
     dkd.protocol.FileContent = Interface(null, [Content]);
     var FileContent = dkd.protocol.FileContent;
     FileContent.prototype.setData = function (data) {
@@ -260,7 +253,6 @@
     };
     AudioContent.prototype.getText = function () {
     };
-    'use strict';
     dkd.protocol.ForwardContent = Interface(null, [Content]);
     var ForwardContent = dkd.protocol.ForwardContent;
     ForwardContent.prototype.getForward = function () {
@@ -286,7 +278,6 @@
     ArrayContent.create = function (contents) {
         return new ListContent(contents)
     };
-    'use strict';
     dkd.protocol.QuoteContent = Interface(null, [Content]);
     var QuoteContent = dkd.protocol.QuoteContent;
     QuoteContent.prototype.getText = function () {
@@ -313,7 +304,6 @@
         }
         return {'sender': from.toString(), 'receiver': to.toString()}
     };
-    'use strict';
     dkd.protocol.MoneyContent = Interface(null, [Content]);
     var MoneyContent = dkd.protocol.MoneyContent;
     MoneyContent.prototype.getCurrency = function () {
@@ -338,7 +328,6 @@
     TransferContent.create = function (currency, amount) {
         return new TransferMoneyContent(currency, amount)
     };
-    'use strict';
     dkd.protocol.AppContent = Interface(null, [Content]);
     var AppContent = dkd.protocol.AppContent;
     AppContent.prototype.getApplication = function () {
@@ -366,7 +355,6 @@
             throw new SyntaxError('customized content arguments error: ' + arguments);
         }
     };
-    'use strict';
     dkd.protocol.Command = Interface(null, [Content]);
     var Command = dkd.protocol.Command;
     Command.META = 'meta';
@@ -390,7 +378,6 @@
     var CommandFactory = Command.Factory;
     CommandFactory.prototype.parseCommand = function (content) {
     };
-    'use strict';
     dkd.protocol.MetaCommand = Interface(null, [Command]);
     var MetaCommand = dkd.protocol.MetaCommand;
     MetaCommand.prototype.getIdentifier = function () {
@@ -424,7 +411,6 @@
         command.setDocuments(docs);
         return command
     };
-    'use strict';
     dkd.protocol.HistoryCommand = Interface(null, [Command]);
     var HistoryCommand = dkd.protocol.HistoryCommand;
     HistoryCommand.REGISTER = 'register';
@@ -541,7 +527,6 @@
     };
     dkd.protocol.ResignCommand = Interface(null, [GroupCommand]);
     var ResignCommand = dkd.protocol.ResignCommand;
-    'use strict';
     dkd.protocol.ReceiptCommand = Interface(null, [Command]);
     var ReceiptCommand = dkd.protocol.ReceiptCommand;
     ReceiptCommand.prototype.getText = function () {
@@ -582,7 +567,6 @@
         }
         return info
     };
-    'use strict';
     mk.crypto.BaseKey = function (dict) {
         Dictionary.call(this, dict)
     };
@@ -659,7 +643,6 @@
             return BaseKey.getKeyAlgorithm(this.toMap())
         }
     });
-    'use strict';
     mk.format.BaseDataWrapper = function (dict) {
         Dictionary.call(this, dict);
         this.__data = null
@@ -672,7 +655,7 @@
                 return ''
             }
             var alg = this.getString('algorithm', null);
-            if (!alg || alg === TransportableData.DEFAULT) {
+            if (!alg || alg === EncodeAlgorithms.DEFAULT) {
                 alg = ''
             }
             if (alg === '') {
@@ -690,7 +673,7 @@
         }, getAlgorithm: function () {
             var alg = this.getString('algorithm', null);
             if (!alg) {
-                alg = TransportableData.DEFAULT
+                alg = EncodeAlgorithms.DEFAULT
             }
             return alg
         }, setAlgorithm: function (name) {
@@ -740,7 +723,6 @@
             this.__data = bin
         }
     });
-    'use strict';
     mk.format.BaseFileWrapper = function (dict) {
         Dictionary.call(this, dict);
         this.__attachment = null;
@@ -806,7 +788,6 @@
             this.__password = key
         }
     });
-    'use strict';
     mkm.mkm.BaseMeta = function () {
         var type, key, seed, fingerprint;
         var status;
@@ -888,7 +869,9 @@
             return this.__status > 0
         }, checkValid: function () {
             var key = this.getPublicKey();
-            if (this.hasSeed()) {
+            if (!key) {
+                return false
+            } else if (this.hasSeed()) {
             } else if (this.getValue('seed') || this.getValue('fingerprint')) {
                 return false
             } else {
@@ -903,7 +886,6 @@
             return key.verify(data, signature)
         }
     });
-    'use strict';
     mkm.mkm.BaseDocument = function () {
         var map, status;
         var type;
@@ -1059,7 +1041,6 @@
             this.setProperty('name', name)
         }
     });
-    'use strict';
     mkm.mkm.BaseVisa = function () {
         if (arguments.length === 3) {
             BaseDocument.call(this, DocumentType.VISA, arguments[0], arguments[1], arguments[2])
@@ -1153,7 +1134,6 @@
             this.__assistants = bots
         }
     });
-    'use strict';
     dkd.dkd.BaseContent = function (info) {
         var content, type, sn, time;
         if (IObject.isString(info)) {
@@ -1215,7 +1195,6 @@
             return helper.getCmd(this.toMap(), '')
         }
     });
-    'use strict';
     dkd.dkd.BaseTextContent = function (info) {
         if (IObject.isString(info)) {
             BaseContent.call(this, ContentType.TEXT);
@@ -1318,7 +1297,6 @@
             this.__image = pnf
         }
     });
-    'use strict';
     dkd.dkd.BaseFileContent = function (info) {
         if (!info) {
             info = ContentType.FILE
@@ -1426,7 +1404,6 @@
             this.setValue('text', asr)
         }
     });
-    'use strict';
     dkd.dkd.SecretContent = function (info) {
         var forward = null;
         var secrets = null;
@@ -1538,7 +1515,6 @@
             return contents
         }
     });
-    'use strict';
     dkd.dkd.BaseQuoteContent = function () {
         if (arguments.length === 1) {
             BaseContent.call(this, arguments[0])
@@ -1573,7 +1549,6 @@
             return Converter.getInt(origin['sn'], null)
         }
     });
-    'use strict';
     dkd.dkd.BaseMoneyContent = function () {
         if (arguments.length === 1) {
             BaseContent.call(this, arguments[0])
@@ -1624,7 +1599,6 @@
             this.setString('remittee', receiver)
         }
     });
-    'use strict';
     dkd.dkd.AppCustomizedContent = function () {
         var app = null;
         var mod = null;
@@ -1662,7 +1636,6 @@
             return this.getString('act', '')
         }
     });
-    'use strict';
     dkd.dkd.BaseMetaCommand = function () {
         var identifier = null;
         if (arguments.length === 2) {
@@ -1728,7 +1701,6 @@
             this.setDateTime('last_time', when)
         }
     });
-    'use strict';
     dkd.dkd.BaseHistoryCommand = function () {
         if (arguments.length === 2) {
             BaseCommand.call(this, arguments[0], arguments[1])
@@ -1891,7 +1863,6 @@
     };
     var ResignGroupCommand = dkd.dkd.ResignGroupCommand;
     Class(ResignGroupCommand, BaseGroupCommand, [ResignCommand], null);
-    'use strict';
     dkd.dkd.BaseReceiptCommand = function () {
         if (arguments.length === 1) {
             BaseCommand.call(this, arguments[0])
@@ -1932,7 +1903,6 @@
             return Converter.getString(origin['signature'], null)
         }
     });
-    'use strict';
     dkd.msg.MessageEnvelope = function () {
         var from, to, when;
         var env;
@@ -1999,7 +1969,6 @@
             this.setValue('type', type)
         }
     });
-    'use strict';
     dkd.msg.BaseMessage = function (msg) {
         var env = null;
         if (Interface.conforms(msg, Envelope)) {
@@ -2045,7 +2014,6 @@
         }
         return group.isBroadcast()
     };
-    'use strict';
     dkd.msg.PlainMessage = function () {
         var msg, head, body;
         if (arguments.length === 1) {
@@ -2092,7 +2060,6 @@
             this.__content = body
         }
     });
-    'use strict';
     dkd.msg.EncryptedMessage = function (msg) {
         BaseMessage.call(this, msg);
         this.__data = null;
@@ -2141,7 +2108,6 @@
             return keys
         }
     });
-    'use strict';
     dkd.msg.NetworkMessage = function (msg) {
         EncryptedMessage.call(this, msg);
         this.__signature = null
@@ -2158,7 +2124,6 @@
             return !ted ? null : ted.getData()
         }
     });
-    'use strict';
     dkd.ext.CommandHelper = Interface(null, null);
     var CommandHelper = dkd.ext.CommandHelper;
     CommandHelper.prototype = {
@@ -2176,7 +2141,6 @@
     };
     var CommandExtensions = dkd.ext.CommandExtensions;
     var cmdHelper = null;
-    'use strict';
     dkd.ext.GeneralCommandHelper = Interface(null, null);
     var GeneralCommandHelper = dkd.ext.GeneralCommandHelper;
     GeneralCommandHelper.prototype = {

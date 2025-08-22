@@ -184,7 +184,10 @@
         // private
         checkValid: function () {
             var key = this.getPublicKey();
-            if (this.hasSeed()) {
+            if (!key) {
+                // throw new ReferenceError('meta.key should not be empty');
+                return false;
+            } else if (this.hasSeed()) {
                 // check 'seed' & 'fingerprint'
             } else if (this.getValue('seed') || this.getValue('fingerprint')) {
                 // this meta has no seed, so

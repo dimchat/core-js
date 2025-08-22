@@ -69,7 +69,7 @@
                 return '';
             }
             var alg = this.getString('algorithm', null);
-            if (!alg || alg === TransportableData.DEFAULT) {
+            if (!alg || alg === EncodeAlgorithms.DEFAULT) {
                 alg = '';
             }
             if (alg === '') {
@@ -96,7 +96,7 @@
         getAlgorithm: function () {
             var alg = this.getString('algorithm', null);
             if (!alg) {
-                alg = TransportableData.DEFAULT;
+                alg = EncodeAlgorithms.DEFAULT;
             }
             return alg;
         },

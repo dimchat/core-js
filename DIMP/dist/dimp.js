@@ -2,7 +2,7 @@
  * DIMP - Decentralized Instant Messaging Protocol (v2.0.0)
  *
  * @author    moKy <albert.moky at gmail.com>
- * @date      Aug. 17, 2025
+ * @date      Aug. 20, 2025
  * @copyright (c) 2020-2025 Albert Moky
  * @license   {@link https://mit-license.org | MIT License}
  */;
@@ -17,7 +17,6 @@ if (typeof DIMP !== 'object') {
         MONKEY = {}
     }
     (function (mk) {
-        'use strict';
         if (typeof mk.type !== 'object') {
             mk.type = {}
         }
@@ -33,7 +32,6 @@ if (typeof DIMP !== 'object') {
         if (typeof mk.ext !== 'object') {
             mk.ext = {}
         }
-        'use strict';
         mk.type.Class = function (child, parent, interfaces, methods) {
             if (!child) {
                 child = function () {
@@ -108,7 +106,6 @@ if (typeof DIMP !== 'object') {
             }
             return false
         };
-        'use strict';
         mk.type.Object = Interface(null, null);
         var IObject = mk.type.Object;
         IObject.prototype = {
@@ -161,7 +158,6 @@ if (typeof DIMP !== 'object') {
                 return this === other
             }
         });
-        'use strict';
         mk.type.DataConverter = Interface(null, null);
         var DataConverter = mk.type.DataConverter;
         DataConverter.prototype = {
@@ -278,7 +274,6 @@ if (typeof DIMP !== 'object') {
             MAX_BOOLEAN_LEN: 'undefined'.length
         };
         var Converter = mk.type.Converter;
-        'use strict';
         var is_array = function (obj) {
             return obj instanceof Array || is_number_array(obj)
         };
@@ -449,17 +444,16 @@ if (typeof DIMP !== 'object') {
             isArray: is_array
         };
         var Arrays = mk.type.Arrays;
-        'use strict';
         var get_enum_alias = function (enumeration, value) {
-            var keys = Object.keys(enumeration);
-            var e;
-            for (var k in keys) {
-                e = enumeration[k];
+            var alias = null;
+            Mapper.forEach(enumeration, function (n, e) {
                 if (e instanceof BaseEnum && e.equals(value)) {
-                    return e.__alias
+                    alias = e.__alias;
+                    return true
                 }
-            }
-            return null
+                return false
+            });
+            return alias
         };
         mk.type.BaseEnum = function (value, alias) {
             BaseObject.call(this);
@@ -513,18 +507,15 @@ if (typeof DIMP !== 'object') {
             } else {
                 Class(enumeration, BaseEnum, null, null)
             }
-            var keys = Object.keys(elements);
-            var alias, value;
-            for (var i = 0; i < keys.length; ++i) {
-                alias = keys[i];
-                value = elements[alias];
+            Mapper.forEach(elements, function (alias, value) {
                 if (value instanceof BaseEnum) {
                     value = value.getValue()
                 } else if (typeof value !== 'number') {
                     throw new TypeError('Enum value must be a number!');
                 }
-                enumeration[alias] = new enumeration(value, alias)
-            }
+                enumeration[alias] = new enumeration(value, alias);
+                return false
+            });
             return enumeration
         };
         var Enum = mk.type.Enum;
@@ -539,7 +530,6 @@ if (typeof DIMP !== 'object') {
             }
             return obj.valueOf()
         };
-        'use strict';
         mk.type.Set = Interface(null, [IObject]);
         var Set = mk.type.Set;
         Set.prototype = {
@@ -593,7 +583,6 @@ if (typeof DIMP !== 'object') {
                 return this.__array.slice()
             }
         });
-        'use strict';
         mk.type.Stringer = Interface(null, [IObject]);
         var Stringer = mk.type.Stringer;
         Stringer.prototype = {
@@ -649,7 +638,6 @@ if (typeof DIMP !== 'object') {
             var low2 = str2.toLowerCase();
             return low1 === low2
         };
-        'use strict';
         mk.type.Mapper = Interface(null, [IObject]);
         var Mapper = mk.type.Mapper;
         Mapper.prototype = {
@@ -670,6 +658,76 @@ if (typeof DIMP !== 'object') {
             }, setString: function (key, stringer) {
             }, setMap: function (key, mapper) {
             }
+        };
+        Mapper.count = function (dict) {
+            if (!dict) {
+                return 0
+            } else if (Interface.conforms(dict, Mapper)) {
+                dict = dict.toMap()
+            } else if (typeof dict !== 'object') {
+                throw TypeError('not a map: ' + dict);
+            }
+            return Object.keys(dict).length
+        };
+        Mapper.isEmpty = function (dict) {
+            return Mapper.count(dict) === 0
+        };
+        Mapper.keys = function (dict) {
+            if (!dict) {
+                return null
+            } else if (Interface.conforms(dict, Mapper)) {
+                dict = dict.toMap()
+            } else if (typeof dict !== 'object') {
+                throw TypeError('not a map: ' + dict);
+            }
+            return Object.keys(dict)
+        };
+        Mapper.removeKey = function (dict, key) {
+            if (!dict) {
+                return null
+            } else if (Interface.conforms(dict, Mapper)) {
+                dict = dict.toMap()
+            } else if (typeof dict !== 'object') {
+                throw TypeError('not a map: ' + dict);
+            }
+            var value = dict[key];
+            delete dict[key];
+            return value
+        };
+        Mapper.forEach = function (dict, handleKeyValue) {
+            if (!dict) {
+                return -1
+            } else if (Interface.conforms(dict, Mapper)) {
+                dict = dict.toMap()
+            } else if (typeof dict !== 'object') {
+                throw TypeError('not a map: ' + dict);
+            }
+            var keys = Object.keys(dict);
+            var cnt = keys.length;
+            var stop;
+            var i = 0, k, v;
+            for (; i < cnt; ++i) {
+                k = keys[i];
+                v = dict[k];
+                stop = handleKeyValue(k, v);
+                if (stop) {
+                    break
+                }
+            }
+            return i
+        };
+        Mapper.addAll = function (dict, fromDict) {
+            if (!dict) {
+                return -1
+            } else if (Interface.conforms(dict, Mapper)) {
+                dict = dict.toMap()
+            } else if (typeof dict !== 'object') {
+                throw TypeError('not a map: ' + dict);
+            }
+            return Mapper.forEach(fromDict, function (key, value) {
+                dict[key] = value;
+                return false
+            })
         };
         mk.type.Dictionary = function (dict) {
             BaseObject.call(this);
@@ -766,19 +824,22 @@ if (typeof DIMP !== 'object') {
                 }
             }
         });
-        'use strict';
         mk.type.Wrapper = {
             fetchString: function (str) {
                 if (Interface.conforms(str, Stringer)) {
                     return str.toString()
-                } else {
+                } else if (typeof str === 'string') {
                     return str
+                } else {
+                    return null
                 }
             }, fetchMap: function (dict) {
                 if (Interface.conforms(dict, Mapper)) {
                     return dict.toMap()
-                } else {
+                } else if (typeof dict === 'object') {
                     return dict
+                } else {
+                    return null
                 }
             }, unwrap: function (object) {
                 if (IObject.isNull(object)) {
@@ -800,13 +861,10 @@ if (typeof DIMP !== 'object') {
                 }
             }, unwrapMap: function (dict) {
                 var result = {};
-                var allKeys = Object.keys(dict);
-                var key;
-                var count = allKeys.length;
-                for (var i = 0; i < count; ++i) {
-                    key = allKeys[i];
-                    result[key] = this.unwrap(dict[key])
-                }
+                Mapper.forEach(dict, function (key, value) {
+                    result[key] = Wrapper.unwrap(value);
+                    return false
+                });
                 return result
             }, unwrapList: function (array) {
                 var result = [];
@@ -818,7 +876,6 @@ if (typeof DIMP !== 'object') {
             }
         };
         var Wrapper = mk.type.Wrapper;
-        'use strict';
         mk.type.Copier = {
             copy: function (object) {
                 if (IObject.isNull(object)) {
@@ -840,13 +897,10 @@ if (typeof DIMP !== 'object') {
                 }
             }, copyMap: function (dict) {
                 var clone = {};
-                var allKeys = Object.keys(dict);
-                var key;
-                var count = allKeys.length;
-                for (var i = 0; i < count; ++i) {
-                    key = allKeys[i];
-                    clone[key] = dict[key]
-                }
+                Mapper.forEach(dict, function (key, value) {
+                    clone[key] = value;
+                    return false
+                });
                 return clone
             }, copyList: function (array) {
                 var clone = [];
@@ -875,13 +929,10 @@ if (typeof DIMP !== 'object') {
                 }
             }, deepCopyMap: function (dict) {
                 var clone = {};
-                var allKeys = Object.keys(dict);
-                var key;
-                var count = allKeys.length;
-                for (var i = 0; i < count; ++i) {
-                    key = allKeys[i];
-                    clone[key] = this.deepCopy(dict[key])
-                }
+                Mapper.forEach(dict, function (key, value) {
+                    clone[key] = Copier.deepCopy(value);
+                    return false
+                });
                 return clone
             }, deepCopyList: function (array) {
                 var clone = [];
@@ -893,38 +944,12 @@ if (typeof DIMP !== 'object') {
             }
         };
         var Copier = mk.type.Copier;
-        'use strict';
-        mk.digest.DataDigester = Interface(null, null);
-        var DataDigester = mk.digest.DataDigester;
-        DataDigester.prototype = {
+        mk.digest.MessageDigester = Interface(null, null);
+        var MessageDigester = mk.digest.MessageDigester;
+        MessageDigester.prototype = {
             digest: function (data) {
             }
         };
-        'use strict';
-        mk.digest.MD5 = {
-            digest: function (data) {
-                return this.getDigester().digest(data)
-            }, getDigester: function () {
-                return md5Digester
-            }, setDigester: function (digester) {
-                md5Digester = digester
-            }
-        };
-        var MD5 = mk.digest.MD5;
-        var md5Digester = null;
-        'use strict';
-        mk.digest.SHA1 = {
-            digest: function (data) {
-                return this.getDigester().digest(data)
-            }, getDigester: function () {
-                return sha1Digester
-            }, setDigester: function (digester) {
-                sha1Digester = digester
-            }
-        };
-        var SHA1 = mk.digest.SHA1;
-        var sha1Digester = null;
-        'use strict';
         mk.digest.SHA256 = {
             digest: function (data) {
                 return this.getDigester().digest(data)
@@ -936,7 +961,6 @@ if (typeof DIMP !== 'object') {
         };
         var SHA256 = mk.digest.SHA256;
         var sha256Digester = null;
-        'use strict';
         mk.digest.RIPEMD160 = {
             digest: function (data) {
                 return this.getDigester().digest(data)
@@ -948,8 +972,7 @@ if (typeof DIMP !== 'object') {
         };
         var RIPEMD160 = mk.digest.RIPEMD160;
         var ripemd160Digester = null;
-        'use strict';
-        mk.digest.Keccak256 = {
+        mk.digest.KECCAK256 = {
             digest: function (data) {
                 return this.getDigester().digest(data)
             }, getDigester: function () {
@@ -958,9 +981,8 @@ if (typeof DIMP !== 'object') {
                 keccak256Digester = digester
             }
         };
-        var Keccak256 = mk.digest.Keccak256;
+        var KECCAK256 = mk.digest.KECCAK256;
         var keccak256Digester = null;
-        'use strict';
         mk.format.DataCoder = Interface(null, null);
         var DataCoder = mk.format.DataCoder;
         DataCoder.prototype = {
@@ -982,7 +1004,6 @@ if (typeof DIMP !== 'object') {
             }, decode: function (data) {
             }
         };
-        'use strict';
         mk.format.Hex = {
             encode: function (data) {
                 return this.getCoder().encode(data)
@@ -996,7 +1017,6 @@ if (typeof DIMP !== 'object') {
         };
         var Hex = mk.format.Hex;
         var hexCoder = null;
-        'use strict';
         mk.format.Base58 = {
             encode: function (data) {
                 return this.getCoder().encode(data)
@@ -1010,7 +1030,6 @@ if (typeof DIMP !== 'object') {
         };
         var Base58 = mk.format.Base58;
         var base58Coder = null;
-        'use strict';
         mk.format.Base64 = {
             encode: function (data) {
                 return this.getCoder().encode(data)
@@ -1024,7 +1043,6 @@ if (typeof DIMP !== 'object') {
         };
         var Base64 = mk.format.Base64;
         var base64Coder = null;
-        'use strict';
         mk.format.UTF8 = {
             encode: function (string) {
                 return this.getCoder().encode(string)
@@ -1038,7 +1056,6 @@ if (typeof DIMP !== 'object') {
         };
         var UTF8 = mk.format.UTF8;
         var utf8Coder = null;
-        'use strict';
         mk.format.JSON = {
             encode: function (object) {
                 return this.getCoder().encode(object)
@@ -1063,19 +1080,6 @@ if (typeof DIMP !== 'object') {
             }
         };
         var JSONMap = mk.format.JSONMap;
-        mk.format.JSONList = {
-            encode: function (array) {
-                return this.getCoder().encode(array)
-            }, decode: function (string) {
-                return this.getCoder().decode(string)
-            }, getCoder: function () {
-                return jsonCoder
-            }, setCoder: function (coder) {
-                jsonCoder = coder
-            }
-        };
-        var JSONList = mk.format.JSONList;
-        'use strict';
         mk.protocol.TransportableData = Interface(null, [Mapper]);
         var TransportableData = mk.protocol.TransportableData;
         TransportableData.prototype = {
@@ -1119,7 +1123,6 @@ if (typeof DIMP !== 'object') {
             }, parseTransportableData: function (ted) {
             }
         };
-        'use strict';
         mk.protocol.PortableNetworkFile = Interface(null, [Mapper]);
         var PortableNetworkFile = mk.protocol.PortableNetworkFile;
         PortableNetworkFile.prototype = {
@@ -1164,7 +1167,6 @@ if (typeof DIMP !== 'object') {
             }, parsePortableNetworkFile: function (pnf) {
             }
         };
-        'use strict';
         mk.protocol.CryptographyKey = Interface(null, [Mapper]);
         var CryptographyKey = mk.protocol.CryptographyKey;
         CryptographyKey.prototype = {
@@ -1200,7 +1202,6 @@ if (typeof DIMP !== 'object') {
             }, matchSignKey: function (sKey) {
             }
         };
-        'use strict';
         mk.protocol.SymmetricKey = Interface(null, [EncryptKey, DecryptKey]);
         var SymmetricKey = mk.protocol.SymmetricKey;
         SymmetricKey.generate = function (algorithm) {
@@ -1226,7 +1227,6 @@ if (typeof DIMP !== 'object') {
             }, parseSymmetricKey: function (key) {
             }
         };
-        'use strict';
         mk.protocol.PublicKey = Interface(null, [VerifyKey]);
         var PublicKey = mk.protocol.PublicKey;
         PublicKey.parse = function (key) {
@@ -1247,7 +1247,6 @@ if (typeof DIMP !== 'object') {
             parsePublicKey: function (key) {
             }
         };
-        'use strict';
         mk.protocol.PrivateKey = Interface(null, [SignKey]);
         var PrivateKey = mk.protocol.PrivateKey;
         PrivateKey.prototype = {
@@ -1277,7 +1276,6 @@ if (typeof DIMP !== 'object') {
             }, parsePrivateKey: function (key) {
             }
         };
-        'use strict';
         mk.ext.PublicKeyHelper = Interface(null, null);
         var PublicKeyHelper = mk.ext.PublicKeyHelper;
         PublicKeyHelper.prototype = {
@@ -1323,7 +1321,6 @@ if (typeof DIMP !== 'object') {
         var publicHelper = null;
         var privateHelper = null;
         var symmetricHelper = null;
-        'use strict';
         mk.ext.GeneralCryptoHelper = Interface(null, null);
         var GeneralCryptoHelper = mk.ext.GeneralCryptoHelper;
         GeneralCryptoHelper.prototype = {
@@ -1374,7 +1371,6 @@ if (typeof DIMP !== 'object') {
         };
         var SharedCryptoExtensions = mk.ext.SharedCryptoExtensions;
         var generalCryptoHelper = null;
-        'use strict';
         mk.ext.TransportableDataHelper = Interface(null, null);
         var TransportableDataHelper = mk.ext.TransportableDataHelper;
         TransportableDataHelper.prototype = {
@@ -1407,7 +1403,6 @@ if (typeof DIMP !== 'object') {
         var FormatExtensions = mk.ext.FormatExtensions;
         var tedHelper = null;
         var pnfHelper = null;
-        'use strict';
         mk.ext.GeneralFormatHelper = Interface(null, null);
         var GeneralFormatHelper = mk.ext.GeneralFormatHelper;
         GeneralFormatHelper.prototype = {
@@ -1436,7 +1431,6 @@ if (typeof DIMP !== 'object') {
         MingKeMing = {}
     }
     (function (mkm, mk) {
-        'use strict';
         if (typeof mkm.protocol !== 'object') {
             mkm.protocol = {}
         }
@@ -1453,7 +1447,6 @@ if (typeof DIMP !== 'object') {
         var Mapper = mk.type.Mapper;
         var Enum = mk.type.Enum;
         var ConstantString = mk.type.ConstantString;
-        'use strict';
         mkm.protocol.EntityType = Enum('EntityType', {
             USER: (0x00),
             GROUP: (0x01),
@@ -1480,7 +1473,6 @@ if (typeof DIMP !== 'object') {
             var any = EntityType.ANY.getValue();
             return (network & any) === any
         };
-        'use strict';
         mkm.protocol.Address = Interface(null, [Stringer]);
         var Address = mkm.protocol.Address;
         Address.prototype.getType = function () {
@@ -1509,7 +1501,6 @@ if (typeof DIMP !== 'object') {
         };
         AddressFactory.prototype.parseAddress = function (address) {
         };
-        'use strict';
         mkm.protocol.ID = Interface(null, [Stringer]);
         var ID = mkm.protocol.ID;
         ID.prototype.getName = function () {
@@ -1581,7 +1572,6 @@ if (typeof DIMP !== 'object') {
         };
         IDFactory.prototype.parseIdentifier = function (identifier) {
         };
-        'use strict';
         mkm.protocol.Meta = Interface(null, [Mapper]);
         var Meta = mkm.protocol.Meta;
         Meta.prototype.getType = function () {
@@ -1624,7 +1614,6 @@ if (typeof DIMP !== 'object') {
         };
         MetaFactory.prototype.parseMeta = function (meta) {
         };
-        'use strict';
         mkm.protocol.TAI = Interface(null, null);
         var TAI = mkm.protocol.TAI;
         TAI.prototype.isValid = function () {
@@ -1639,7 +1628,6 @@ if (typeof DIMP !== 'object') {
         };
         TAI.prototype.setProperty = function (name, value) {
         };
-        'use strict';
         mkm.protocol.Document = Interface(null, [TAI, Mapper]);
         var Document = mkm.protocol.Document;
         Document.prototype.getIdentifier = function () {
@@ -1696,7 +1684,6 @@ if (typeof DIMP !== 'object') {
         };
         DocumentFactory.prototype.parseDocument = function (doc) {
         };
-        'use strict';
         mkm.mkm.BroadcastAddress = function (string, network) {
             ConstantString.call(this, string);
             this.__network = Enum.getInt(network)
@@ -1709,7 +1696,6 @@ if (typeof DIMP !== 'object') {
         });
         Address.ANYWHERE = new BroadcastAddress('anywhere', EntityType.ANY);
         Address.EVERYWHERE = new BroadcastAddress('everywhere', EntityType.EVERY);
-        'use strict';
         mkm.mkm.Identifier = function (identifier, name, address, terminal) {
             ConstantString.call(this, identifier);
             this.__name = name;
@@ -1755,7 +1741,6 @@ if (typeof DIMP !== 'object') {
         ID.ANYONE = Identifier.create("anyone", Address.ANYWHERE, null);
         ID.EVERYONE = Identifier.create("everyone", Address.EVERYWHERE, null);
         ID.FOUNDER = Identifier.create("moky", Address.ANYWHERE, null);
-        'use strict';
         mkm.ext.AddressHelper = Interface(null, null);
         var AddressHelper = mkm.ext.AddressHelper;
         AddressHelper.prototype = {
@@ -1818,7 +1803,6 @@ if (typeof DIMP !== 'object') {
         var idHelper = null;
         var metaHelper = null;
         var docHelper = null;
-        'use strict';
         mkm.ext.GeneralAccountHelper = Interface(null, null);
         var GeneralAccountHelper = mkm.ext.GeneralAccountHelper;
         GeneralAccountHelper.prototype = {
@@ -1856,7 +1840,6 @@ if (typeof DIMP !== 'object') {
         DaoKeDao = {}
     }
     (function (dkd, mk) {
-        'use strict';
         if (typeof dkd.protocol !== 'object') {
             dkd.protocol = {}
         }
@@ -1865,7 +1848,6 @@ if (typeof DIMP !== 'object') {
         }
         var Interface = mk.type.Interface;
         var Mapper = mk.type.Mapper;
-        'use strict';
         dkd.protocol.Content = Interface(null, [Mapper]);
         var Content = dkd.protocol.Content;
         Content.prototype.getType = function () {
@@ -1918,7 +1900,6 @@ if (typeof DIMP !== 'object') {
         var ContentFactory = Content.Factory;
         ContentFactory.prototype.parseContent = function (content) {
         };
-        'use strict';
         dkd.protocol.Envelope = Interface(null, [Mapper]);
         var Envelope = dkd.protocol.Envelope;
         Envelope.prototype.getSender = function () {
@@ -1957,7 +1938,6 @@ if (typeof DIMP !== 'object') {
         };
         EnvelopeFactory.prototype.parseEnvelope = function (env) {
         };
-        'use strict';
         dkd.protocol.Message = Interface(null, [Mapper]);
         var Message = dkd.protocol.Message;
         Message.prototype.getEnvelope = function () {
@@ -1972,7 +1952,6 @@ if (typeof DIMP !== 'object') {
         };
         Message.prototype.getType = function () {
         };
-        'use strict';
         dkd.protocol.InstantMessage = Interface(null, [Message]);
         var InstantMessage = dkd.protocol.InstantMessage;
         InstantMessage.prototype.getContent = function () {
@@ -2029,7 +2008,6 @@ if (typeof DIMP !== 'object') {
         };
         InstantMessageFactory.prototype.parseInstantMessage = function (msg) {
         };
-        'use strict';
         dkd.protocol.SecureMessage = Interface(null, [Message]);
         var SecureMessage = dkd.protocol.SecureMessage;
         SecureMessage.prototype.getData = function () {
@@ -2054,7 +2032,6 @@ if (typeof DIMP !== 'object') {
         var SecureMessageFactory = SecureMessage.Factory;
         SecureMessageFactory.prototype.parseSecureMessage = function (msg) {
         };
-        'use strict';
         dkd.protocol.ReliableMessage = Interface(null, [SecureMessage]);
         var ReliableMessage = dkd.protocol.ReliableMessage;
         ReliableMessage.prototype.getSignature = function () {
@@ -2099,7 +2076,6 @@ if (typeof DIMP !== 'object') {
         var ReliableMessageFactory = ReliableMessage.Factory;
         ReliableMessageFactory.prototype.parseReliableMessage = function (msg) {
         };
-        'use strict';
         dkd.ext.ContentHelper = Interface(null, null);
         var ContentHelper = dkd.ext.ContentHelper;
         ContentHelper.prototype = {
@@ -2172,7 +2148,6 @@ if (typeof DIMP !== 'object') {
         var instantHelper = null;
         var secureHelper = null;
         var reliableHelper = null;
-        'use strict';
         dkd.ext.GeneralMessageHelper = Interface(null, null);
         var GeneralMessageHelper = dkd.ext.GeneralMessageHelper;
         GeneralMessageHelper.prototype = {
@@ -2210,7 +2185,6 @@ if (typeof DIMP !== 'object') {
         var generalMessageHelper = null
     })(DaoKeDao, MONKEY);
     (function (dkd, mkm, mk) {
-        'use strict';
         if (typeof mk.crypto !== 'object') {
             mk.crypto = {}
         }
@@ -2251,14 +2225,12 @@ if (typeof DIMP !== 'object') {
         var SecureMessage = dkd.protocol.SecureMessage;
         var ReliableMessage = dkd.protocol.ReliableMessage;
         var SharedMessageExtensions = dkd.ext.SharedMessageExtensions;
-        'use strict';
         mk.protocol.AsymmetricAlgorithms = {RSA: 'RSA', ECC: 'ECC'};
         var AsymmetricAlgorithms = mk.protocol.AsymmetricAlgorithms;
         mk.protocol.SymmetricAlgorithms = {AES: 'AES', DES: 'DES', PLAIN: 'PLAIN'};
         var SymmetricAlgorithms = mk.protocol.SymmetricAlgorithms;
         mk.protocol.EncodeAlgorithms = {DEFAULT: 'base64', BASE_64: 'base64', BASE_58: 'base58', HEX: 'hex'};
         var EncodeAlgorithms = mk.protocol.EncodeAlgorithms;
-        'use strict';
         mkm.protocol.MetaType = {
             DEFAULT: '' + (1),
             MKM: '' + (1),
@@ -2270,7 +2242,6 @@ if (typeof DIMP !== 'object') {
         var MetaType = mkm.protocol.MetaType;
         mkm.protocol.DocumentType = {VISA: 'visa', PROFILE: 'profile', BULLETIN: 'bulletin'};
         var DocumentType = mkm.protocol.DocumentType;
-        'use strict';
         mkm.protocol.Visa = Interface(null, [Document]);
         var Visa = mkm.protocol.Visa;
         Visa.prototype.getPublicKey = function () {
@@ -2289,7 +2260,6 @@ if (typeof DIMP !== 'object') {
         };
         Bulletin.prototype.setAssistants = function (bots) {
         };
-        'use strict';
         dkd.protocol.ContentType = {
             ANY: '' + (0x00),
             TEXT: '' + (0x01),
@@ -2314,7 +2284,6 @@ if (typeof DIMP !== 'object') {
             FORWARD: '' + (0xFF)
         };
         var ContentType = dkd.protocol.ContentType;
-        'use strict';
         dkd.protocol.TextContent = Interface(null, [Content]);
         var TextContent = dkd.protocol.TextContent;
         TextContent.prototype.getText = function () {
@@ -2382,7 +2351,6 @@ if (typeof DIMP !== 'object') {
             content.setAvatar(avatar);
             return content
         };
-        'use strict';
         dkd.protocol.FileContent = Interface(null, [Content]);
         var FileContent = dkd.protocol.FileContent;
         FileContent.prototype.setData = function (data) {
@@ -2463,7 +2431,6 @@ if (typeof DIMP !== 'object') {
         };
         AudioContent.prototype.getText = function () {
         };
-        'use strict';
         dkd.protocol.ForwardContent = Interface(null, [Content]);
         var ForwardContent = dkd.protocol.ForwardContent;
         ForwardContent.prototype.getForward = function () {
@@ -2489,7 +2456,6 @@ if (typeof DIMP !== 'object') {
         ArrayContent.create = function (contents) {
             return new ListContent(contents)
         };
-        'use strict';
         dkd.protocol.QuoteContent = Interface(null, [Content]);
         var QuoteContent = dkd.protocol.QuoteContent;
         QuoteContent.prototype.getText = function () {
@@ -2516,7 +2482,6 @@ if (typeof DIMP !== 'object') {
             }
             return {'sender': from.toString(), 'receiver': to.toString()}
         };
-        'use strict';
         dkd.protocol.MoneyContent = Interface(null, [Content]);
         var MoneyContent = dkd.protocol.MoneyContent;
         MoneyContent.prototype.getCurrency = function () {
@@ -2541,7 +2506,6 @@ if (typeof DIMP !== 'object') {
         TransferContent.create = function (currency, amount) {
             return new TransferMoneyContent(currency, amount)
         };
-        'use strict';
         dkd.protocol.AppContent = Interface(null, [Content]);
         var AppContent = dkd.protocol.AppContent;
         AppContent.prototype.getApplication = function () {
@@ -2569,7 +2533,6 @@ if (typeof DIMP !== 'object') {
                 throw new SyntaxError('customized content arguments error: ' + arguments);
             }
         };
-        'use strict';
         dkd.protocol.Command = Interface(null, [Content]);
         var Command = dkd.protocol.Command;
         Command.META = 'meta';
@@ -2593,7 +2556,6 @@ if (typeof DIMP !== 'object') {
         var CommandFactory = Command.Factory;
         CommandFactory.prototype.parseCommand = function (content) {
         };
-        'use strict';
         dkd.protocol.MetaCommand = Interface(null, [Command]);
         var MetaCommand = dkd.protocol.MetaCommand;
         MetaCommand.prototype.getIdentifier = function () {
@@ -2627,7 +2589,6 @@ if (typeof DIMP !== 'object') {
             command.setDocuments(docs);
             return command
         };
-        'use strict';
         dkd.protocol.HistoryCommand = Interface(null, [Command]);
         var HistoryCommand = dkd.protocol.HistoryCommand;
         HistoryCommand.REGISTER = 'register';
@@ -2744,7 +2705,6 @@ if (typeof DIMP !== 'object') {
         };
         dkd.protocol.ResignCommand = Interface(null, [GroupCommand]);
         var ResignCommand = dkd.protocol.ResignCommand;
-        'use strict';
         dkd.protocol.ReceiptCommand = Interface(null, [Command]);
         var ReceiptCommand = dkd.protocol.ReceiptCommand;
         ReceiptCommand.prototype.getText = function () {
@@ -2785,7 +2745,6 @@ if (typeof DIMP !== 'object') {
             }
             return info
         };
-        'use strict';
         mk.crypto.BaseKey = function (dict) {
             Dictionary.call(this, dict)
         };
@@ -2862,7 +2821,6 @@ if (typeof DIMP !== 'object') {
                 return BaseKey.getKeyAlgorithm(this.toMap())
             }
         });
-        'use strict';
         mk.format.BaseDataWrapper = function (dict) {
             Dictionary.call(this, dict);
             this.__data = null
@@ -2875,7 +2833,7 @@ if (typeof DIMP !== 'object') {
                     return ''
                 }
                 var alg = this.getString('algorithm', null);
-                if (!alg || alg === TransportableData.DEFAULT) {
+                if (!alg || alg === EncodeAlgorithms.DEFAULT) {
                     alg = ''
                 }
                 if (alg === '') {
@@ -2893,7 +2851,7 @@ if (typeof DIMP !== 'object') {
             }, getAlgorithm: function () {
                 var alg = this.getString('algorithm', null);
                 if (!alg) {
-                    alg = TransportableData.DEFAULT
+                    alg = EncodeAlgorithms.DEFAULT
                 }
                 return alg
             }, setAlgorithm: function (name) {
@@ -2943,7 +2901,6 @@ if (typeof DIMP !== 'object') {
                 this.__data = bin
             }
         });
-        'use strict';
         mk.format.BaseFileWrapper = function (dict) {
             Dictionary.call(this, dict);
             this.__attachment = null;
@@ -3009,7 +2966,6 @@ if (typeof DIMP !== 'object') {
                 this.__password = key
             }
         });
-        'use strict';
         mkm.mkm.BaseMeta = function () {
             var type, key, seed, fingerprint;
             var status;
@@ -3091,7 +3047,9 @@ if (typeof DIMP !== 'object') {
                 return this.__status > 0
             }, checkValid: function () {
                 var key = this.getPublicKey();
-                if (this.hasSeed()) {
+                if (!key) {
+                    return false
+                } else if (this.hasSeed()) {
                 } else if (this.getValue('seed') || this.getValue('fingerprint')) {
                     return false
                 } else {
@@ -3106,7 +3064,6 @@ if (typeof DIMP !== 'object') {
                 return key.verify(data, signature)
             }
         });
-        'use strict';
         mkm.mkm.BaseDocument = function () {
             var map, status;
             var type;
@@ -3262,7 +3219,6 @@ if (typeof DIMP !== 'object') {
                 this.setProperty('name', name)
             }
         });
-        'use strict';
         mkm.mkm.BaseVisa = function () {
             if (arguments.length === 3) {
                 BaseDocument.call(this, DocumentType.VISA, arguments[0], arguments[1], arguments[2])
@@ -3356,7 +3312,6 @@ if (typeof DIMP !== 'object') {
                 this.__assistants = bots
             }
         });
-        'use strict';
         dkd.dkd.BaseContent = function (info) {
             var content, type, sn, time;
             if (IObject.isString(info)) {
@@ -3418,7 +3373,6 @@ if (typeof DIMP !== 'object') {
                 return helper.getCmd(this.toMap(), '')
             }
         });
-        'use strict';
         dkd.dkd.BaseTextContent = function (info) {
             if (IObject.isString(info)) {
                 BaseContent.call(this, ContentType.TEXT);
@@ -3521,7 +3475,6 @@ if (typeof DIMP !== 'object') {
                 this.__image = pnf
             }
         });
-        'use strict';
         dkd.dkd.BaseFileContent = function (info) {
             if (!info) {
                 info = ContentType.FILE
@@ -3629,7 +3582,6 @@ if (typeof DIMP !== 'object') {
                 this.setValue('text', asr)
             }
         });
-        'use strict';
         dkd.dkd.SecretContent = function (info) {
             var forward = null;
             var secrets = null;
@@ -3741,7 +3693,6 @@ if (typeof DIMP !== 'object') {
                 return contents
             }
         });
-        'use strict';
         dkd.dkd.BaseQuoteContent = function () {
             if (arguments.length === 1) {
                 BaseContent.call(this, arguments[0])
@@ -3776,7 +3727,6 @@ if (typeof DIMP !== 'object') {
                 return Converter.getInt(origin['sn'], null)
             }
         });
-        'use strict';
         dkd.dkd.BaseMoneyContent = function () {
             if (arguments.length === 1) {
                 BaseContent.call(this, arguments[0])
@@ -3827,7 +3777,6 @@ if (typeof DIMP !== 'object') {
                 this.setString('remittee', receiver)
             }
         });
-        'use strict';
         dkd.dkd.AppCustomizedContent = function () {
             var app = null;
             var mod = null;
@@ -3865,7 +3814,6 @@ if (typeof DIMP !== 'object') {
                 return this.getString('act', '')
             }
         });
-        'use strict';
         dkd.dkd.BaseMetaCommand = function () {
             var identifier = null;
             if (arguments.length === 2) {
@@ -3931,7 +3879,6 @@ if (typeof DIMP !== 'object') {
                 this.setDateTime('last_time', when)
             }
         });
-        'use strict';
         dkd.dkd.BaseHistoryCommand = function () {
             if (arguments.length === 2) {
                 BaseCommand.call(this, arguments[0], arguments[1])
@@ -4094,7 +4041,6 @@ if (typeof DIMP !== 'object') {
         };
         var ResignGroupCommand = dkd.dkd.ResignGroupCommand;
         Class(ResignGroupCommand, BaseGroupCommand, [ResignCommand], null);
-        'use strict';
         dkd.dkd.BaseReceiptCommand = function () {
             if (arguments.length === 1) {
                 BaseCommand.call(this, arguments[0])
@@ -4135,7 +4081,6 @@ if (typeof DIMP !== 'object') {
                 return Converter.getString(origin['signature'], null)
             }
         });
-        'use strict';
         dkd.msg.MessageEnvelope = function () {
             var from, to, when;
             var env;
@@ -4202,7 +4147,6 @@ if (typeof DIMP !== 'object') {
                 this.setValue('type', type)
             }
         });
-        'use strict';
         dkd.msg.BaseMessage = function (msg) {
             var env = null;
             if (Interface.conforms(msg, Envelope)) {
@@ -4248,7 +4192,6 @@ if (typeof DIMP !== 'object') {
             }
             return group.isBroadcast()
         };
-        'use strict';
         dkd.msg.PlainMessage = function () {
             var msg, head, body;
             if (arguments.length === 1) {
@@ -4295,7 +4238,6 @@ if (typeof DIMP !== 'object') {
                 this.__content = body
             }
         });
-        'use strict';
         dkd.msg.EncryptedMessage = function (msg) {
             BaseMessage.call(this, msg);
             this.__data = null;
@@ -4344,7 +4286,6 @@ if (typeof DIMP !== 'object') {
                 return keys
             }
         });
-        'use strict';
         dkd.msg.NetworkMessage = function (msg) {
             EncryptedMessage.call(this, msg);
             this.__signature = null
@@ -4361,7 +4302,6 @@ if (typeof DIMP !== 'object') {
                 return !ted ? null : ted.getData()
             }
         });
-        'use strict';
         dkd.ext.CommandHelper = Interface(null, null);
         var CommandHelper = dkd.ext.CommandHelper;
         CommandHelper.prototype = {
@@ -4379,7 +4319,6 @@ if (typeof DIMP !== 'object') {
         };
         var CommandExtensions = dkd.ext.CommandExtensions;
         var cmdHelper = null;
-        'use strict';
         dkd.ext.GeneralCommandHelper = Interface(null, null);
         var GeneralCommandHelper = dkd.ext.GeneralCommandHelper;
         GeneralCommandHelper.prototype = {
