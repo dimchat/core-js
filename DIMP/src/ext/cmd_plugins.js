@@ -31,56 +31,57 @@
 //
 
 
-/**
- *  Command GeneralFactory
- *  ~~~~~~~~~~~~~~~~~~~~~~
- */
-dkd.ext.GeneralCommandHelper = Interface(null, null);
-var GeneralCommandHelper = dkd.ext.GeneralCommandHelper;
+    /**
+     *  Command GeneralFactory
+     *  ~~~~~~~~~~~~~~~~~~~~~~
+     */
+    dkd.ext.GeneralCommandHelper = Interface(null, null);
+    var GeneralCommandHelper = dkd.ext.GeneralCommandHelper;
 
-GeneralCommandHelper.prototype = {
+    GeneralCommandHelper.prototype = {
 
-    //
-    //  CMD - Command, Method, Declaration
-    //
+        //
+        //  CMD - Command, Method, Declaration
+        //
+
+        /**
+         *  Get command name
+         *
+         * @return {String}
+         */
+        getCmd: function (content, defaultValue) {}
+
+    };
+
 
     /**
-     *  Get command name
-     *
-     * @return {String}
+     *  Command FactoryManager
+     *  ~~~~~~~~~~~~~~~~~~~~~~
      */
-    getCmd: function (content, defaultValue) {}
+    dkd.ext.SharedCommandExtensions = {
 
-};
+        //
+        //  Command
+        //
+        setCommandHelper: function (helper) {
+            CommandExtensions.setCommandHelper(helper);
+        },
+        getCommandHelper: function () {
+            return CommandExtensions.getCommandHelper();
+        },
 
+        //
+        //  General Helper
+        //
+        setHelper: function (helper) {
+            generalCommandHelper = helper;
+        },
+        getHelper: function () {
+            return generalCommandHelper;
+        }
 
-/**
- *  Command FactoryManager
- *  ~~~~~~~~~~~~~~~~~~~~~~
- */
-dkd.ext.SharedCommandExtensions = {
+    };
+    var SharedCommandExtensions = dkd.ext.SharedCommandExtensions;
 
-    //
-    //  Command
-    //
-    setCommandHelper: function (helper) {
-        CommandExtensions.setCommandHelper(helper);
-    },
-    getCommandHelper: function () {
-        return CommandExtensions.getCommandHelper();
-    },
-
-    //
-    //  General Helper
-    //
-    setHelper: function (helper) {
-        generalCommandHelper = helper;
-    },
-    getHelper: function () {
-        return generalCommandHelper;
-    }
-
-};
-var SharedCommandExtensions = dkd.ext.SharedCommandExtensions;
-
-var generalCommandHelper = null;
+    // Singleton
+    var generalCommandHelper = null;

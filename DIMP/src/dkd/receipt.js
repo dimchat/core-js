@@ -59,7 +59,9 @@
     };
     var BaseReceiptCommand = dkd.dkd.BaseReceiptCommand;
 
-    Class(BaseReceiptCommand, BaseCommand, [ReceiptCommand], {
+    Class(BaseReceiptCommand, BaseCommand, [ReceiptCommand]);
+
+    Implementation(BaseReceiptCommand, {
 
         // Override
         getText: function () {

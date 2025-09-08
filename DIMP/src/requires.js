@@ -29,11 +29,12 @@ if (typeof dkd.msg !== 'object') {
 // }
 
 //-------- requires --------
-var Interface  = mk.type.Interface;
-var Class      = mk.type.Class;
-var IObject    = mk.type.Object;
-var Dictionary = mk.type.Dictionary;
-var Converter  = mk.type.Converter;
+var Interface      = mk.type.Interface;
+var Class          = mk.type.Class;
+var Implementation = mk.type.Implementation;
+var IObject        = mk.type.Object;
+var Dictionary     = mk.type.Dictionary;
+var Converter      = mk.type.Converter;
 var Base64  = mk.format.Base64;
 var Base58  = mk.format.Base58;
 var Hex     = mk.format.Hex;

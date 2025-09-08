@@ -75,7 +75,9 @@
     };
     var PlainMessage = dkd.msg.PlainMessage;
 
-    Class(PlainMessage, BaseMessage, [InstantMessage], {
+    Class(PlainMessage, BaseMessage, [InstantMessage]);
+
+    Implementation(PlainMessage, {
 
         // Override
         getTime: function () {

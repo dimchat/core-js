@@ -65,7 +65,9 @@
     };
     var BaseVisa = mkm.mkm.BaseVisa;
 
-    Class(BaseVisa, BaseDocument, [Visa], {
+    Class(BaseVisa, BaseDocument, [Visa]);
+
+    Implementation(BaseVisa, {
 
         // Override
         getPublicKey: function () {
@@ -148,7 +150,9 @@
     };
     var BaseBulletin = mkm.mkm.BaseBulletin;
 
-    Class(BaseBulletin, BaseDocument, [Bulletin], {
+    Class(BaseBulletin, BaseDocument, [Bulletin]);
+
+    Implementation(BaseBulletin, {
 
         // Override
         getFounder: function () {

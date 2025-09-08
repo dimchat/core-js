@@ -51,7 +51,9 @@
     };
     var BaseDataWrapper = mk.format.BaseDataWrapper;
 
-    Class(BaseDataWrapper, Dictionary, null, {
+    Class(BaseDataWrapper, Dictionary, null);
+
+    Implementation(BaseDataWrapper, {
 
         // // Override
         // isEmpty: function () {

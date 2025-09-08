@@ -66,7 +66,9 @@
     };
     var EncryptedMessage = dkd.msg.EncryptedMessage;
 
-    Class(EncryptedMessage, BaseMessage, [SecureMessage], {
+    Class(EncryptedMessage, BaseMessage, [SecureMessage]);
+
+    Implementation(EncryptedMessage, {
 
         // Override
         getData: function () {

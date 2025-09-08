@@ -67,7 +67,9 @@
     };
     var NetworkMessage = dkd.msg.NetworkMessage;
 
-    Class(NetworkMessage, EncryptedMessage, [ReliableMessage], {
+    Class(NetworkMessage, EncryptedMessage, [ReliableMessage]);
+
+    Implementation(NetworkMessage, {
 
         // Override
         getSignature: function () {

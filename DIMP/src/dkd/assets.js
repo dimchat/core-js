@@ -61,7 +61,9 @@
     };
     var BaseMoneyContent = dkd.dkd.BaseMoneyContent;
 
-    Class(BaseMoneyContent, BaseContent, [MoneyContent], {
+    Class(BaseMoneyContent, BaseContent, [MoneyContent]);
+
+    Implementation(BaseMoneyContent, {
 
         setCurrency: function (currency) {
             this.setValue('currency', currency);
@@ -102,7 +104,9 @@
     };
     var TransferMoneyContent = dkd.dkd.TransferMoneyContent;
 
-    Class(TransferMoneyContent, BaseMoneyContent, [TransferContent], {
+    Class(TransferMoneyContent, BaseMoneyContent, [TransferContent]);
+
+    Implementation(TransferMoneyContent, {
 
         // Override
         getRemitter: function () {

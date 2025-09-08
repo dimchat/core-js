@@ -89,7 +89,9 @@
     };
     var BaseContent = dkd.dkd.BaseContent;
 
-    Class(BaseContent, Dictionary, [Content], {
+    Class(BaseContent, Dictionary, [Content]);
+
+    Implementation(BaseContent, {
 
         // Override
         getType: function () {
@@ -154,7 +156,9 @@
     };
     var BaseCommand = dkd.dkd.BaseCommand;
 
-    Class(BaseCommand, BaseContent, [Command], {
+    Class(BaseCommand, BaseContent, [Command]);
+
+    Implementation(BaseCommand, {
 
         // Override
         getCmd: function () {

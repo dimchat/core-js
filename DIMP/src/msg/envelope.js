@@ -94,7 +94,9 @@
     };
     var MessageEnvelope = dkd.msg.MessageEnvelope;
 
-    Class(MessageEnvelope, Dictionary, [Envelope], {
+    Class(MessageEnvelope, Dictionary, [Envelope]);
+
+    Implementation(MessageEnvelope, {
 
         // Override
         getSender: function () {

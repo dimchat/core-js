@@ -99,7 +99,9 @@
     };
     var BaseDocument = mkm.mkm.BaseDocument;
 
-    Class(BaseDocument, Dictionary, [Document], {
+    Class(BaseDocument, Dictionary, [Document]);
+
+    Implementation(BaseDocument, {
 
         // Override
         isValid: function () {

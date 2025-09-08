@@ -31,44 +31,44 @@
 //
 
 
-/**
- *  Algorithms for Asymmetric Key
- */
-mk.protocol.AsymmetricAlgorithms = {
+    /**
+     *  Algorithms for Asymmetric Key
+     */
+    mk.protocol.AsymmetricAlgorithms = {
 
-    RSA: 'RSA',  //-- "RSA/ECB/PKCS1Padding", "SHA256withRSA"
-    ECC: 'ECC'
+        RSA: 'RSA',  //-- "RSA/ECB/PKCS1Padding", "SHA256withRSA"
+        ECC: 'ECC'
 
-};
-var AsymmetricAlgorithms = mk.protocol.AsymmetricAlgorithms;
-
-
-/**
- *  Algorithms for Symmetric Key
- */
-mk.protocol.SymmetricAlgorithms = {
-
-    AES: 'AES',  //-- "AES/CBC/PKCS7Padding"
-    DES: 'DES',
-
-    // Symmetric key algorithm for broadcast message,
-    // which will do nothing when en/decoding message data
-    PLAIN: 'PLAIN'
-};
-var SymmetricAlgorithms = mk.protocol.SymmetricAlgorithms;
+    };
+    var AsymmetricAlgorithms = mk.protocol.AsymmetricAlgorithms;
 
 
-/**
- *  Algorithms for Encoding Data
- */
-mk.protocol.EncodeAlgorithms = {
+    /**
+     *  Algorithms for Symmetric Key
+     */
+    mk.protocol.SymmetricAlgorithms = {
 
-    DEFAULT: 'base64',
+        AES: 'AES',  //-- "AES/CBC/PKCS7Padding"
+        DES: 'DES',
 
-    BASE_64: 'base64',
-    BASE_58: 'base58',
+        // Symmetric key algorithm for broadcast message,
+        // which will do nothing when en/decoding message data
+        PLAIN: 'PLAIN'
+    };
+    var SymmetricAlgorithms = mk.protocol.SymmetricAlgorithms;
 
-    HEX: 'hex'
 
-};
-var EncodeAlgorithms = mk.protocol.EncodeAlgorithms;
+    /**
+     *  Algorithms for Encoding Data
+     */
+    mk.protocol.EncodeAlgorithms = {
+
+        DEFAULT: 'base64',
+
+        BASE_64: 'base64',
+        BASE_58: 'base58',
+
+        HEX: 'hex'
+
+    };
+    var EncodeAlgorithms = mk.protocol.EncodeAlgorithms;

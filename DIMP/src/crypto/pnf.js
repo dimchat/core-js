@@ -55,7 +55,9 @@
     };
     var BaseFileWrapper = mk.format.BaseFileWrapper;
 
-    Class(BaseFileWrapper, Dictionary, null, {
+    Class(BaseFileWrapper, Dictionary, null);
+
+    Implementation(BaseFileWrapper, {
 
         /**
          *  file data

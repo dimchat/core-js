@@ -33,38 +33,39 @@
 //! require 'protocol/base.js'
 
 
-dkd.ext.CommandHelper = Interface(null, null);
-var CommandHelper = dkd.ext.CommandHelper;
+    dkd.ext.CommandHelper = Interface(null, null);
+    var CommandHelper = dkd.ext.CommandHelper;
 
-CommandHelper.prototype = {
+    CommandHelper.prototype = {
 
-    setCommandFactory: function (cmd, factory) {},
-    getCommandFactory: function (cmd) {},
+        setCommandFactory: function (cmd, factory) {},
+        getCommandFactory: function (cmd) {},
 
-    parseCommand: function (content) {}
+        parseCommand: function (content) {}
 
-};
+    };
 
-
-/**
- *  Command FactoryManager
- *  ~~~~~~~~~~~~~~~~~~~~~~
- */
-dkd.ext.CommandExtensions = {
 
     /**
-     *  Init command helper
-     *
-     * @param {CommandHelper} helper
+     *  Command FactoryManager
+     *  ~~~~~~~~~~~~~~~~~~~~~~
      */
-    setCommandHelper: function (helper) {
-        cmdHelper = helper;
-    },
-    getCommandHelper: function () {
-        return cmdHelper;
-    }
+    dkd.ext.CommandExtensions = {
 
-};
-var CommandExtensions = dkd.ext.CommandExtensions;
+        /**
+         *  Init command helper
+         *
+         * @param {CommandHelper} helper
+         */
+        setCommandHelper: function (helper) {
+            cmdHelper = helper;
+        },
+        getCommandHelper: function () {
+            return cmdHelper;
+        }
 
-var cmdHelper = null;
+    };
+    var CommandExtensions = dkd.ext.CommandExtensions;
+
+    // Singleton
+    var cmdHelper = null;

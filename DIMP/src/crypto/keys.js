@@ -41,13 +41,12 @@
     };
     var BaseKey = mk.crypto.BaseKey;
 
-    Class(BaseKey, Dictionary, [CryptographyKey], {
+    Class(BaseKey, Dictionary, [CryptographyKey]);
 
-        // Override
-        getAlgorithm: function () {
-            return BaseKey.getKeyAlgorithm(this.toMap());
-        }
-    });
+    // Override
+    BaseKey.prototype.getAlgorithm = function () {
+        return BaseKey.getKeyAlgorithm(this.toMap());
+    };
 
     //
     //  Conveniences
@@ -95,24 +94,23 @@
     };
     var BaseSymmetricKey = mk.crypto.BaseSymmetricKey;
 
-    Class(BaseSymmetricKey, Dictionary, [SymmetricKey], {
+    Class(BaseSymmetricKey, Dictionary, [SymmetricKey]);
 
-        // Override
-        equals: function (other) {
-            return Interface.conforms(other, SymmetricKey)
-                && BaseKey.symmetricKeyEquals(other, this);
-        },
+    // Override
+    BaseSymmetricKey.prototype.equals = function (other) {
+        return Interface.conforms(other, SymmetricKey)
+            && BaseKey.symmetricKeyEquals(other, this);
+    };
 
-        // Override
-        matchEncryptKey: function (pKey) {
-            return BaseKey.matchEncryptKey(pKey, this);
-        },
+    // Override
+    BaseSymmetricKey.prototype.matchEncryptKey = function (pKey) {
+        return BaseKey.matchEncryptKey(pKey, this);
+    };
 
-        // Override
-        getAlgorithm: function () {
-            return BaseKey.getKeyAlgorithm(this.toMap());
-        }
-    });
+    // Override
+    BaseSymmetricKey.prototype.getAlgorithm = function () {
+        return BaseKey.getKeyAlgorithm(this.toMap());
+    };
 
 
     /**
@@ -124,13 +122,12 @@
     };
     var BaseAsymmetricKey = mk.crypto.BaseAsymmetricKey;
 
-    Class(BaseAsymmetricKey, Dictionary, [AsymmetricKey], {
+    Class(BaseAsymmetricKey, Dictionary, [AsymmetricKey]);
 
-        // Override
-        getAlgorithm: function () {
-            return BaseKey.getKeyAlgorithm(this.toMap());
-        }
-    });
+    // Override
+    BaseAsymmetricKey.prototype.getAlgorithm = function () {
+        return BaseKey.getKeyAlgorithm(this.toMap());
+    };
 
     /**
      *  Base Private Key
@@ -141,19 +138,18 @@
     };
     var BasePrivateKey = mk.crypto.BasePrivateKey;
 
-    Class(BasePrivateKey, Dictionary, [PrivateKey], {
+    Class(BasePrivateKey, Dictionary, [PrivateKey]);
 
-        // Override
-        equals: function (other) {
-            return Interface.conforms(other, PrivateKey)
-                && BaseKey.privateKeyEquals(other, this);
-        },
+    // Override
+    BasePrivateKey.prototype.equals = function (other) {
+        return Interface.conforms(other, PrivateKey)
+            && BaseKey.privateKeyEquals(other, this);
+    };
 
-        // Override
-        getAlgorithm: function () {
-            return BaseKey.getKeyAlgorithm(this.toMap());
-        }
-    });
+    // Override
+    BasePrivateKey.prototype.getAlgorithm = function () {
+        return BaseKey.getKeyAlgorithm(this.toMap());
+    };
 
     /**
      *  Base Public Key
@@ -164,15 +160,14 @@
     };
     var BasePublicKey = mk.crypto.BasePublicKey;
 
-    Class(BasePublicKey, Dictionary, [PublicKey], {
+    Class(BasePublicKey, Dictionary, [PublicKey]);
 
-        // Override
-        matchSignKey: function (sKey) {
-            return BaseKey.matchSignKey(sKey, this);
-        },
+    // Override
+    BasePublicKey.prototype.matchSignKey = function (sKey) {
+        return BaseKey.matchSignKey(sKey, this);
+    };
 
-        // Override
-        getAlgorithm: function () {
-            return BaseKey.getKeyAlgorithm(this.toMap());
-        }
-    });
+    // Override
+    BasePublicKey.prototype.getAlgorithm = function () {
+        return BaseKey.getKeyAlgorithm(this.toMap());
+    };

@@ -51,7 +51,9 @@
     };
     var BaseFileContent = dkd.dkd.BaseFileContent;
 
-    Class(BaseFileContent, BaseContent, [FileContent], {
+    Class(BaseFileContent, BaseContent, [FileContent]);
+
+    Implementation(BaseFileContent, {
 
         // Override
         getData: function () {
@@ -118,7 +120,9 @@
     };
     var ImageFileContent = dkd.dkd.ImageFileContent;
 
-    Class(ImageFileContent, BaseFileContent, [ImageContent], {
+    Class(ImageFileContent, BaseFileContent, [ImageContent]);
+
+    Implementation(ImageFileContent, {
 
         // Override
         getThumbnail: function () {
@@ -166,7 +170,9 @@
     };
     var VideoFileContent = dkd.dkd.VideoFileContent;
 
-    Class(VideoFileContent, BaseFileContent, [VideoContent], {
+    Class(VideoFileContent, BaseFileContent, [VideoContent]);
+
+    Implementation(VideoFileContent, {
 
         // Override
         getSnapshot: function () {
@@ -213,7 +219,9 @@
     };
     var AudioFileContent = dkd.dkd.AudioFileContent;
 
-    Class(AudioFileContent, BaseFileContent, [AudioContent], {
+    Class(AudioFileContent, BaseFileContent, [AudioContent]);
+
+    Implementation(AudioFileContent, {
 
         // Override
         getText: function () {

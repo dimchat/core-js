@@ -52,7 +52,9 @@
     };
     var BaseTextContent = dkd.dkd.BaseTextContent;
 
-    Class(BaseTextContent, BaseContent, [TextContent], {
+    Class(BaseTextContent, BaseContent, [TextContent]);
+
+    Implementation(BaseTextContent, {
 
         // Override
         getText: function () {
@@ -85,7 +87,9 @@
     };
     var WebPageContent = dkd.dkd.WebPageContent;
 
-    Class(WebPageContent, BaseContent, [PageContent], {
+    Class(WebPageContent, BaseContent, [PageContent]);
+
+    Implementation(WebPageContent, {
 
         // Override
         getTitle: function () {
@@ -168,7 +172,9 @@
     };
     var NameCardContent = dkd.dkd.NameCardContent;
 
-    Class(NameCardContent, BaseContent, [NameCard], {
+    Class(NameCardContent, BaseContent, [NameCard]);
+
+    Implementation(NameCardContent, {
 
         // Override
         getIdentifier: function () {

@@ -54,7 +54,7 @@
         }
     };
     var BaseHistoryCommand = dkd.dkd.BaseHistoryCommand;
-    Class(BaseHistoryCommand, BaseCommand, [HistoryCommand], null);
+    Class(BaseHistoryCommand, BaseCommand, [HistoryCommand]);
 
 
     /**
@@ -77,7 +77,8 @@
         }
     };
     var BaseGroupCommand = dkd.dkd.BaseGroupCommand;
-    Class(BaseGroupCommand, BaseHistoryCommand, [GroupCommand], {
+    Class(BaseGroupCommand, BaseHistoryCommand, [GroupCommand]);
+    Implementation(BaseGroupCommand, {
 
         // Override
         setMember: function (identifier) {
@@ -129,7 +130,7 @@
         }
     };
     var InviteGroupCommand = dkd.dkd.InviteGroupCommand;
-    Class(InviteGroupCommand, BaseGroupCommand, [InviteCommand], null);
+    Class(InviteGroupCommand, BaseGroupCommand, [InviteCommand]);
 
     /**
      *  Expel group command
@@ -144,7 +145,7 @@
         }
     };
     var ExpelGroupCommand = dkd.dkd.ExpelGroupCommand;
-    Class(ExpelGroupCommand, BaseGroupCommand, [ExpelCommand], null);
+    Class(ExpelGroupCommand, BaseGroupCommand, [ExpelCommand]);
 
     /**
      *  Join group command
@@ -159,7 +160,7 @@
         }
     };
     var JoinGroupCommand = dkd.dkd.JoinGroupCommand;
-    Class(JoinGroupCommand, BaseGroupCommand, [JoinCommand], null);
+    Class(JoinGroupCommand, BaseGroupCommand, [JoinCommand]);
 
     /**
      *  Quit group command
@@ -174,7 +175,7 @@
         }
     };
     var QuitGroupCommand = dkd.dkd.QuitGroupCommand;
-    Class(QuitGroupCommand, BaseGroupCommand, [QuitCommand], null);
+    Class(QuitGroupCommand, BaseGroupCommand, [QuitCommand]);
 
     /**
      *  Reset group command
@@ -189,7 +190,7 @@
         }
     };
     var ResetGroupCommand = dkd.dkd.ResetGroupCommand;
-    Class(ResetGroupCommand, BaseGroupCommand, [ResetCommand], null);
+    Class(ResetGroupCommand, BaseGroupCommand, [ResetCommand]);
 
     //  Administrators, Assistants
 
@@ -206,7 +207,8 @@
         }
     };
     var HireGroupCommand = dkd.dkd.HireGroupCommand;
-    Class(HireGroupCommand, BaseGroupCommand, [HireCommand], {
+    Class(HireGroupCommand, BaseGroupCommand, [HireCommand]);
+    Implementation(HireGroupCommand, {
         // Override
         getAdministrators: function () {
             var array = this.getValue('administrators');
@@ -250,7 +252,8 @@
         }
     };
     var FireGroupCommand = dkd.dkd.FireGroupCommand;
-    Class(FireGroupCommand, BaseGroupCommand, [FireCommand], {
+    Class(FireGroupCommand, BaseGroupCommand, [FireCommand]);
+    Implementation(FireGroupCommand, {
         // Override
         getAssistants: function () {
             var array = this.getValue('assistants');
@@ -294,4 +297,4 @@
         }
     };
     var ResignGroupCommand = dkd.dkd.ResignGroupCommand;
-    Class(ResignGroupCommand, BaseGroupCommand, [ResignCommand], null);
+    Class(ResignGroupCommand, BaseGroupCommand, [ResignCommand]);

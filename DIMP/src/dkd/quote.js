@@ -59,7 +59,9 @@
     };
     var BaseQuoteContent = dkd.dkd.BaseQuoteContent;
 
-    Class(BaseQuoteContent, BaseContent, [QuoteContent], {
+    Class(BaseQuoteContent, BaseContent, [QuoteContent]);
+
+    Implementation(BaseQuoteContent, {
 
         // Override
         getText: function () {

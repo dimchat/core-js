@@ -109,7 +109,9 @@
     };
     var BaseMeta = mkm.mkm.BaseMeta;
 
-    Class(BaseMeta, Dictionary, [Meta], {
+    Class(BaseMeta, Dictionary, [Meta]);
+
+    Implementation(BaseMeta, {
 
         // Override
         getType: function () {

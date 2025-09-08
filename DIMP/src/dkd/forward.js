@@ -67,7 +67,9 @@
     };
     var SecretContent = dkd.dkd.SecretContent;
 
-    Class(SecretContent, BaseContent, [ForwardContent], {
+    Class(SecretContent, BaseContent, [ForwardContent]);
+
+    Implementation(SecretContent, {
 
         // Override
         getForward: function () {
@@ -129,7 +131,9 @@
     };
     var CombineForwardContent = dkd.dkd.CombineForwardContent;
 
-    Class(CombineForwardContent, BaseContent, [CombineContent], {
+    Class(CombineForwardContent, BaseContent, [CombineContent]);
+
+    Implementation(CombineForwardContent, {
 
         // Override
         getTitle: function () {
@@ -177,7 +181,9 @@
     };
     var ListContent = dkd.dkd.ListContent;
 
-    Class(ListContent, BaseContent, [ArrayContent], {
+    Class(ListContent, BaseContent, [ArrayContent]);
+
+    Implementation(ListContent, {
 
         // Override
         getContents: function () {

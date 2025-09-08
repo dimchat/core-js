@@ -18,6 +18,7 @@
     }
     var Interface = mk.type.Interface;
     var Class = mk.type.Class;
+    var Implementation = mk.type.Implementation;
     var IObject = mk.type.Object;
     var Dictionary = mk.type.Dictionary;
     var Converter = mk.type.Converter;
@@ -571,11 +572,10 @@
         Dictionary.call(this, dict)
     };
     var BaseKey = mk.crypto.BaseKey;
-    Class(BaseKey, Dictionary, [CryptographyKey], {
-        getAlgorithm: function () {
-            return BaseKey.getKeyAlgorithm(this.toMap())
-        }
-    });
+    Class(BaseKey, Dictionary, [CryptographyKey]);
+    BaseKey.prototype.getAlgorithm = function () {
+        return BaseKey.getKeyAlgorithm(this.toMap())
+    };
     BaseKey.getKeyAlgorithm = function (key) {
         var helper = SharedCryptoExtensions.getHelper();
         var algorithm = helper.getKeyAlgorithm(key);
@@ -603,52 +603,53 @@
         Dictionary.call(this, dict)
     };
     var BaseSymmetricKey = mk.crypto.BaseSymmetricKey;
-    Class(BaseSymmetricKey, Dictionary, [SymmetricKey], {
-        equals: function (other) {
-            return Interface.conforms(other, SymmetricKey) && BaseKey.symmetricKeyEquals(other, this)
-        }, matchEncryptKey: function (pKey) {
-            return BaseKey.matchEncryptKey(pKey, this)
-        }, getAlgorithm: function () {
-            return BaseKey.getKeyAlgorithm(this.toMap())
-        }
-    });
+    Class(BaseSymmetricKey, Dictionary, [SymmetricKey]);
+    BaseSymmetricKey.prototype.equals = function (other) {
+        return Interface.conforms(other, SymmetricKey) && BaseKey.symmetricKeyEquals(other, this)
+    };
+    BaseSymmetricKey.prototype.matchEncryptKey = function (pKey) {
+        return BaseKey.matchEncryptKey(pKey, this)
+    };
+    BaseSymmetricKey.prototype.getAlgorithm = function () {
+        return BaseKey.getKeyAlgorithm(this.toMap())
+    };
     mk.crypto.BaseAsymmetricKey = function (dict) {
         Dictionary.call(this, dict)
     };
     var BaseAsymmetricKey = mk.crypto.BaseAsymmetricKey;
-    Class(BaseAsymmetricKey, Dictionary, [AsymmetricKey], {
-        getAlgorithm: function () {
-            return BaseKey.getKeyAlgorithm(this.toMap())
-        }
-    });
+    Class(BaseAsymmetricKey, Dictionary, [AsymmetricKey]);
+    BaseAsymmetricKey.prototype.getAlgorithm = function () {
+        return BaseKey.getKeyAlgorithm(this.toMap())
+    };
     mk.crypto.BasePrivateKey = function (dict) {
         Dictionary.call(this, dict)
     };
     var BasePrivateKey = mk.crypto.BasePrivateKey;
-    Class(BasePrivateKey, Dictionary, [PrivateKey], {
-        equals: function (other) {
-            return Interface.conforms(other, PrivateKey) && BaseKey.privateKeyEquals(other, this)
-        }, getAlgorithm: function () {
-            return BaseKey.getKeyAlgorithm(this.toMap())
-        }
-    });
+    Class(BasePrivateKey, Dictionary, [PrivateKey]);
+    BasePrivateKey.prototype.equals = function (other) {
+        return Interface.conforms(other, PrivateKey) && BaseKey.privateKeyEquals(other, this)
+    };
+    BasePrivateKey.prototype.getAlgorithm = function () {
+        return BaseKey.getKeyAlgorithm(this.toMap())
+    };
     mk.crypto.BasePublicKey = function (dict) {
         Dictionary.call(this, dict)
     };
     var BasePublicKey = mk.crypto.BasePublicKey;
-    Class(BasePublicKey, Dictionary, [PublicKey], {
-        matchSignKey: function (sKey) {
-            return BaseKey.matchSignKey(sKey, this)
-        }, getAlgorithm: function () {
-            return BaseKey.getKeyAlgorithm(this.toMap())
-        }
-    });
+    Class(BasePublicKey, Dictionary, [PublicKey]);
+    BasePublicKey.prototype.matchSignKey = function (sKey) {
+        return BaseKey.matchSignKey(sKey, this)
+    };
+    BasePublicKey.prototype.getAlgorithm = function () {
+        return BaseKey.getKeyAlgorithm(this.toMap())
+    };
     mk.format.BaseDataWrapper = function (dict) {
         Dictionary.call(this, dict);
         this.__data = null
     };
     var BaseDataWrapper = mk.format.BaseDataWrapper;
-    Class(BaseDataWrapper, Dictionary, null, {
+    Class(BaseDataWrapper, Dictionary, null);
+    Implementation(BaseDataWrapper, {
         toString: function () {
             var encoded = this.getString('data', null);
             if (!encoded) {
@@ -729,7 +730,8 @@
         this.__password = null
     };
     var BaseFileWrapper = mk.format.BaseFileWrapper;
-    Class(BaseFileWrapper, Dictionary, null, {
+    Class(BaseFileWrapper, Dictionary, null);
+    Implementation(BaseFileWrapper, {
         getData: function () {
             var ted = this.__attachment;
             if (!ted) {
@@ -824,7 +826,8 @@
         this.__status = status
     };
     var BaseMeta = mkm.mkm.BaseMeta;
-    Class(BaseMeta, Dictionary, [Meta], {
+    Class(BaseMeta, Dictionary, [Meta]);
+    Implementation(BaseMeta, {
         getType: function () {
             var type = this.__type;
             if (type === null) {
@@ -926,7 +929,8 @@
         this.__status = status
     };
     var BaseDocument = mkm.mkm.BaseDocument;
-    Class(BaseDocument, Dictionary, [Document], {
+    Class(BaseDocument, Dictionary, [Document]);
+    Implementation(BaseDocument, {
         isValid: function () {
             return this.__status > 0
         }, getIdentifier: function () {
@@ -1055,7 +1059,8 @@
         this.__avatar = null
     };
     var BaseVisa = mkm.mkm.BaseVisa;
-    Class(BaseVisa, BaseDocument, [Visa], {
+    Class(BaseVisa, BaseDocument, [Visa]);
+    Implementation(BaseVisa, {
         getPublicKey: function () {
             var key = this.__key;
             if (!key) {
@@ -1108,7 +1113,8 @@
         this.__assistants = null
     };
     var BaseBulletin = mkm.mkm.BaseBulletin;
-    Class(BaseBulletin, BaseDocument, [Bulletin], {
+    Class(BaseBulletin, BaseDocument, [Bulletin]);
+    Implementation(BaseBulletin, {
         getFounder: function () {
             return ID.parse(this.getProperty('founder'))
         }, getAssistants: function () {
@@ -1153,7 +1159,8 @@
         this.__time = time
     };
     var BaseContent = dkd.dkd.BaseContent;
-    Class(BaseContent, Dictionary, [Content], {
+    Class(BaseContent, Dictionary, [Content]);
+    Implementation(BaseContent, {
         getType: function () {
             if (this.__type === null) {
                 var helper = SharedMessageExtensions.getHelper();
@@ -1189,7 +1196,8 @@
         }
     };
     var BaseCommand = dkd.dkd.BaseCommand;
-    Class(BaseCommand, BaseContent, [Command], {
+    Class(BaseCommand, BaseContent, [Command]);
+    Implementation(BaseCommand, {
         getCmd: function () {
             var helper = SharedCommandExtensions.getHelper();
             return helper.getCmd(this.toMap(), '')
@@ -1204,7 +1212,8 @@
         }
     };
     var BaseTextContent = dkd.dkd.BaseTextContent;
-    Class(BaseTextContent, BaseContent, [TextContent], {
+    Class(BaseTextContent, BaseContent, [TextContent]);
+    Implementation(BaseTextContent, {
         getText: function () {
             return this.getString('text', '')
         }, setText: function (text) {
@@ -1220,7 +1229,8 @@
         this.__icon = null
     };
     var WebPageContent = dkd.dkd.WebPageContent;
-    Class(WebPageContent, BaseContent, [PageContent], {
+    Class(WebPageContent, BaseContent, [PageContent]);
+    Implementation(WebPageContent, {
         getTitle: function () {
             return this.getString('title', '')
         }, setTitle: function (title) {
@@ -1268,7 +1278,8 @@
         this.__image = null
     };
     var NameCardContent = dkd.dkd.NameCardContent;
-    Class(NameCardContent, BaseContent, [NameCard], {
+    Class(NameCardContent, BaseContent, [NameCard]);
+    Implementation(NameCardContent, {
         getIdentifier: function () {
             var id = this.getValue('did');
             return ID.parse(id)
@@ -1305,7 +1316,8 @@
         this.__wrapper = new BaseFileWrapper(this.toMap())
     };
     var BaseFileContent = dkd.dkd.BaseFileContent;
-    Class(BaseFileContent, BaseContent, [FileContent], {
+    Class(BaseFileContent, BaseContent, [FileContent]);
+    Implementation(BaseFileContent, {
         getData: function () {
             var ted = this.__wrapper.getData();
             return !ted ? null : ted.getData()
@@ -1336,7 +1348,8 @@
         this.__thumbnail = null
     };
     var ImageFileContent = dkd.dkd.ImageFileContent;
-    Class(ImageFileContent, BaseFileContent, [ImageContent], {
+    Class(ImageFileContent, BaseFileContent, [ImageContent]);
+    Implementation(ImageFileContent, {
         getThumbnail: function () {
             var pnf = this.__thumbnail;
             if (!pnf) {
@@ -1367,7 +1380,8 @@
         this.__snapshot = null
     };
     var VideoFileContent = dkd.dkd.VideoFileContent;
-    Class(VideoFileContent, BaseFileContent, [VideoContent], {
+    Class(VideoFileContent, BaseFileContent, [VideoContent]);
+    Implementation(VideoFileContent, {
         getSnapshot: function () {
             var pnf = this.__snapshot;
             if (!pnf) {
@@ -1397,7 +1411,8 @@
         }
     };
     var AudioFileContent = dkd.dkd.AudioFileContent;
-    Class(AudioFileContent, BaseFileContent, [AudioContent], {
+    Class(AudioFileContent, BaseFileContent, [AudioContent]);
+    Implementation(AudioFileContent, {
         getText: function () {
             return this.getString('text', null)
         }, setText: function (asr) {
@@ -1426,7 +1441,8 @@
         this.__secrets = secrets
     };
     var SecretContent = dkd.dkd.SecretContent;
-    Class(SecretContent, BaseContent, [ForwardContent], {
+    Class(SecretContent, BaseContent, [ForwardContent]);
+    Implementation(SecretContent, {
         getForward: function () {
             if (this.__forward === null) {
                 var forward = this.getValue('forward');
@@ -1470,7 +1486,8 @@
         this.__history = messages
     };
     var CombineForwardContent = dkd.dkd.CombineForwardContent;
-    Class(CombineForwardContent, BaseContent, [CombineContent], {
+    Class(CombineForwardContent, BaseContent, [CombineContent]);
+    Implementation(CombineForwardContent, {
         getTitle: function () {
             return this.getString('title', '')
         }, getMessages: function () {
@@ -1500,7 +1517,8 @@
         this.__list = list
     };
     var ListContent = dkd.dkd.ListContent;
-    Class(ListContent, BaseContent, [ArrayContent], {
+    Class(ListContent, BaseContent, [ArrayContent]);
+    Implementation(ListContent, {
         getContents: function () {
             var contents = this.__list;
             if (!contents) {
@@ -1529,7 +1547,8 @@
         this.__env = null
     };
     var BaseQuoteContent = dkd.dkd.BaseQuoteContent;
-    Class(BaseQuoteContent, BaseContent, [QuoteContent], {
+    Class(BaseQuoteContent, BaseContent, [QuoteContent]);
+    Implementation(BaseQuoteContent, {
         getText: function () {
             return this.getString('text', '')
         }, getOrigin: function () {
@@ -1565,7 +1584,8 @@
         }
     };
     var BaseMoneyContent = dkd.dkd.BaseMoneyContent;
-    Class(BaseMoneyContent, BaseContent, [MoneyContent], {
+    Class(BaseMoneyContent, BaseContent, [MoneyContent]);
+    Implementation(BaseMoneyContent, {
         setCurrency: function (currency) {
             this.setValue('currency', currency)
         }, getCurrency: function () {
@@ -1586,7 +1606,8 @@
         }
     };
     var TransferMoneyContent = dkd.dkd.TransferMoneyContent;
-    Class(TransferMoneyContent, BaseMoneyContent, [TransferContent], {
+    Class(TransferMoneyContent, BaseMoneyContent, [TransferContent]);
+    Implementation(TransferMoneyContent, {
         getRemitter: function () {
             var sender = this.getValue('remitter');
             return ID.parse(sender)
@@ -1627,7 +1648,8 @@
         }
     };
     var AppCustomizedContent = dkd.dkd.AppCustomizedContent;
-    Class(AppCustomizedContent, BaseContent, [CustomizedContent], {
+    Class(AppCustomizedContent, BaseContent, [CustomizedContent]);
+    Implementation(AppCustomizedContent, {
         getApplication: function () {
             return this.getString('app', '')
         }, getModule: function () {
@@ -1654,7 +1676,8 @@
         this.__meta = null
     };
     var BaseMetaCommand = dkd.dkd.BaseMetaCommand;
-    Class(BaseMetaCommand, BaseCommand, [MetaCommand], {
+    Class(BaseMetaCommand, BaseCommand, [MetaCommand]);
+    Implementation(BaseMetaCommand, {
         getIdentifier: function () {
             if (this.__identifier == null) {
                 var identifier = this.getValue("did");
@@ -1681,7 +1704,8 @@
         this.__docs = null
     };
     var BaseDocumentCommand = dkd.dkd.BaseDocumentCommand;
-    Class(BaseDocumentCommand, BaseMetaCommand, [DocumentCommand], {
+    Class(BaseDocumentCommand, BaseMetaCommand, [DocumentCommand]);
+    Implementation(BaseDocumentCommand, {
         getDocuments: function () {
             if (this.__docs === null) {
                 var docs = this.getValue('documents');
@@ -1711,7 +1735,7 @@
         }
     };
     var BaseHistoryCommand = dkd.dkd.BaseHistoryCommand;
-    Class(BaseHistoryCommand, BaseCommand, [HistoryCommand], null);
+    Class(BaseHistoryCommand, BaseCommand, [HistoryCommand]);
     dkd.dkd.BaseGroupCommand = function () {
         if (arguments.length === 1) {
             BaseHistoryCommand.call(this, arguments[0])
@@ -1723,7 +1747,8 @@
         }
     };
     var BaseGroupCommand = dkd.dkd.BaseGroupCommand;
-    Class(BaseGroupCommand, BaseHistoryCommand, [GroupCommand], {
+    Class(BaseGroupCommand, BaseHistoryCommand, [GroupCommand]);
+    Implementation(BaseGroupCommand, {
         setMember: function (identifier) {
             this.setString('member', identifier);
             this.removeValue('members')
@@ -1755,7 +1780,7 @@
         }
     };
     var InviteGroupCommand = dkd.dkd.InviteGroupCommand;
-    Class(InviteGroupCommand, BaseGroupCommand, [InviteCommand], null);
+    Class(InviteGroupCommand, BaseGroupCommand, [InviteCommand]);
     dkd.dkd.ExpelGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             BaseGroupCommand.call(this, GroupCommand.EXPEL, info)
@@ -1764,7 +1789,7 @@
         }
     };
     var ExpelGroupCommand = dkd.dkd.ExpelGroupCommand;
-    Class(ExpelGroupCommand, BaseGroupCommand, [ExpelCommand], null);
+    Class(ExpelGroupCommand, BaseGroupCommand, [ExpelCommand]);
     dkd.dkd.JoinGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             BaseGroupCommand.call(this, GroupCommand.JOIN, info)
@@ -1773,7 +1798,7 @@
         }
     };
     var JoinGroupCommand = dkd.dkd.JoinGroupCommand;
-    Class(JoinGroupCommand, BaseGroupCommand, [JoinCommand], null);
+    Class(JoinGroupCommand, BaseGroupCommand, [JoinCommand]);
     dkd.dkd.QuitGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             BaseGroupCommand.call(this, GroupCommand.QUIT, info)
@@ -1782,7 +1807,7 @@
         }
     };
     var QuitGroupCommand = dkd.dkd.QuitGroupCommand;
-    Class(QuitGroupCommand, BaseGroupCommand, [QuitCommand], null);
+    Class(QuitGroupCommand, BaseGroupCommand, [QuitCommand]);
     dkd.dkd.ResetGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             BaseGroupCommand.call(this, GroupCommand.RESET, info)
@@ -1791,7 +1816,7 @@
         }
     };
     var ResetGroupCommand = dkd.dkd.ResetGroupCommand;
-    Class(ResetGroupCommand, BaseGroupCommand, [ResetCommand], null);
+    Class(ResetGroupCommand, BaseGroupCommand, [ResetCommand]);
     dkd.dkd.HireGroupCommand = function (info) {
         if (Interface.conforms(info, ID)) {
             BaseGroupCommand.call(this, GroupCommand.HIRE, info)
@@ -1800,7 +1825,8 @@
         }
     };
     var HireGroupCommand = dkd.dkd.HireGroupCommand;
-    Class(HireGroupCommand, BaseGroupCommand, [HireCommand], {
+    Class(HireGroupCommand, BaseGroupCommand, [HireCommand]);
+    Implementation(HireGroupCommand, {
         getAdministrators: function () {
             var array = this.getValue('administrators');
             return !array ? null : ID.convert(array)
@@ -1831,7 +1857,8 @@
         }
     };
     var FireGroupCommand = dkd.dkd.FireGroupCommand;
-    Class(FireGroupCommand, BaseGroupCommand, [FireCommand], {
+    Class(FireGroupCommand, BaseGroupCommand, [FireCommand]);
+    Implementation(FireGroupCommand, {
         getAssistants: function () {
             var array = this.getValue('assistants');
             return !array ? null : ID.convert(array)
@@ -1862,7 +1889,7 @@
         }
     };
     var ResignGroupCommand = dkd.dkd.ResignGroupCommand;
-    Class(ResignGroupCommand, BaseGroupCommand, [ResignCommand], null);
+    Class(ResignGroupCommand, BaseGroupCommand, [ResignCommand]);
     dkd.dkd.BaseReceiptCommand = function () {
         if (arguments.length === 1) {
             BaseCommand.call(this, arguments[0])
@@ -1877,7 +1904,8 @@
         this.__env = null
     };
     var BaseReceiptCommand = dkd.dkd.BaseReceiptCommand;
-    Class(BaseReceiptCommand, BaseCommand, [ReceiptCommand], {
+    Class(BaseReceiptCommand, BaseCommand, [ReceiptCommand]);
+    Implementation(BaseReceiptCommand, {
         getText: function () {
             return this.getString('text', '')
         }, getOrigin: function () {
@@ -1934,7 +1962,8 @@
         this.__time = when
     };
     var MessageEnvelope = dkd.msg.MessageEnvelope;
-    Class(MessageEnvelope, Dictionary, [Envelope], {
+    Class(MessageEnvelope, Dictionary, [Envelope]);
+    Implementation(MessageEnvelope, {
         getSender: function () {
             var sender = this.__sender;
             if (!sender) {
@@ -1979,7 +2008,8 @@
         this.__envelope = env
     };
     var BaseMessage = dkd.msg.BaseMessage;
-    Class(BaseMessage, Dictionary, [Message], {
+    Class(BaseMessage, Dictionary, [Message]);
+    Implementation(BaseMessage, {
         getEnvelope: function () {
             var env = this.__envelope;
             if (!env) {
@@ -2033,7 +2063,8 @@
         this.__content = body
     };
     var PlainMessage = dkd.msg.PlainMessage;
-    Class(PlainMessage, BaseMessage, [InstantMessage], {
+    Class(PlainMessage, BaseMessage, [InstantMessage]);
+    Implementation(PlainMessage, {
         getTime: function () {
             var body = this.getContent();
             var time = body.getTime();
@@ -2067,7 +2098,8 @@
         this.__keys = null
     };
     var EncryptedMessage = dkd.msg.EncryptedMessage;
-    Class(EncryptedMessage, BaseMessage, [SecureMessage], {
+    Class(EncryptedMessage, BaseMessage, [SecureMessage]);
+    Implementation(EncryptedMessage, {
         getData: function () {
             var binary = this.__data;
             if (!binary) {
@@ -2113,7 +2145,8 @@
         this.__signature = null
     };
     var NetworkMessage = dkd.msg.NetworkMessage;
-    Class(NetworkMessage, EncryptedMessage, [ReliableMessage], {
+    Class(NetworkMessage, EncryptedMessage, [ReliableMessage]);
+    Implementation(NetworkMessage, {
         getSignature: function () {
             var ted = this.__signature;
             if (!ted) {

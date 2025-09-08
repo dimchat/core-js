@@ -63,7 +63,9 @@
     };
     var BaseMetaCommand = dkd.dkd.BaseMetaCommand;
 
-    Class(BaseMetaCommand, BaseCommand, [MetaCommand], {
+    Class(BaseMetaCommand, BaseCommand, [MetaCommand]);
+
+    Implementation(BaseMetaCommand, {
 
         // Override
         getIdentifier: function () {
@@ -108,7 +110,9 @@
     };
     var BaseDocumentCommand = dkd.dkd.BaseDocumentCommand;
 
-    Class(BaseDocumentCommand, BaseMetaCommand, [DocumentCommand], {
+    Class(BaseDocumentCommand, BaseMetaCommand, [DocumentCommand]);
+
+    Implementation(BaseDocumentCommand, {
 
         // Override
         getDocuments: function () {

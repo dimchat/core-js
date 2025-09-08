@@ -75,7 +75,9 @@
     };
     var AppCustomizedContent = dkd.dkd.AppCustomizedContent;
 
-    Class(AppCustomizedContent, BaseContent, [CustomizedContent], {
+    Class(AppCustomizedContent, BaseContent, [CustomizedContent]);
+
+    Implementation(AppCustomizedContent, {
 
         // Override
         getApplication: function () {

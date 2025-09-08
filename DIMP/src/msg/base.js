@@ -89,7 +89,9 @@
     };
     var BaseMessage = dkd.msg.BaseMessage;
 
-    Class(BaseMessage, Dictionary, [Message], {
+    Class(BaseMessage, Dictionary, [Message]);
+
+    Implementation(BaseMessage, {
 
         // Override
         getEnvelope: function () {
